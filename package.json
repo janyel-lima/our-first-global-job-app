@@ -9,17 +9,19 @@
     "preview": "vite preview",
     "emulators": "firebase emulators:start",
     "clean": "rm -rf dist",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",
     "@tailwindcss/vite": "^4.1.14",
     "@vitejs/plugin-vue": "^6.0.7",
-
-    "firebase-admin": "^14.1.0",
     "dotenv": "^17.2.3",
     "express": "^4.21.2",
     "firebase": "^12.14.0",
+    "firebase-admin": "^14.1.0",
+    "gh-pages": "^6.3.0",
     "lucide-vue-next": "^1.0.0",
     "marked": "^18.0.5",
     "motion": "^12.23.24",
