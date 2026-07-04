@@ -44,28 +44,28 @@ const activeTab = ref<'analytics' | 'creator'>('creator');
         <p class="text-xs text-gray-500 mt-1">Gerencie a experiência educacional, acompanhe métricas de progresso e publique seus cursos.</p>
       </div>
 
-      <div class="flex bg-gray-100 p-1 rounded-xl shrink-0 select-none">
+      <div class="flex bg-gray-100 p-1 rounded-xl w-full sm:w-auto overflow-x-auto whitespace-nowrap scrollbar-none shrink-0 select-none">
         <button
           id="tab-toggle-analytics"
           @click="activeTab = 'analytics'"
           :class="[
-            'flex items-center gap-1.5 px-4 py-2 text-xs font-semibold rounded-lg transition-all cursor-pointer',
-            activeTab === 'analytics' ? 'bg-white text-blue-600 shadow-xs' : 'text-gray-500 hover:text-gray-900'
+            'flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 text-[10px] sm:text-xs font-bold rounded-lg transition-all cursor-pointer shrink-0',
+            activeTab === 'analytics' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-900'
           ]"
         >
-          <BarChart3 class="w-3.5 h-3.5" />
-          Relatórios de Desempenho
+          <BarChart3 class="w-3.5 h-3.5 shrink-0" />
+          <span class="shrink-0">Desempenho</span>
         </button>
         <button
           id="tab-toggle-creator"
           @click="activeTab = 'creator'"
           :class="[
-            'flex items-center gap-1.5 px-4 py-2 text-xs font-semibold rounded-lg transition-all cursor-pointer',
-            activeTab === 'creator' ? 'bg-white text-blue-600 shadow-xs' : 'text-gray-500 hover:text-gray-900'
+            'flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 text-[10px] sm:text-xs font-bold rounded-lg transition-all cursor-pointer shrink-0',
+            activeTab === 'creator' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-900'
           ]"
         >
-          <FileText class="w-3.5 h-3.5" />
-          Criador de Cursos
+          <FileText class="w-3.5 h-3.5 shrink-0" />
+          <span class="shrink-0">Criar Curso</span>
         </button>
       </div>
     </div>

@@ -67,26 +67,27 @@ const handleColorSelect = (e: Event) => {
   <header class="bg-white dark:bg-slate-50 border-b border-slate-100 dark:border-slate-150 sticky top-0 z-40 transition-colors duration-300">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 sm:py-3 flex items-center justify-between">
       <!-- Brand & Logo -->
-      <div class="flex items-center gap-2.5 cursor-pointer shrink-0" @click="handleTabClick('courses', true)">
+      <div class="flex items-center gap-1.5 sm:gap-2.5 cursor-pointer shrink-0 animate-fadeIn" @click="handleTabClick('courses', true)">
         <div class="p-1.5 rounded-xl bg-blue-600 shadow-sm flex items-center justify-center text-white shrink-0">
           <BookMarked id="main-brand-logo" class="w-4 h-4" />
         </div>
         <div class="flex flex-col text-left">
-          <span class="font-black text-xs sm:text-sm tracking-tight text-slate-900 leading-tight">Our First Global Job</span>
-          <span class="text-[9px] font-bold text-slate-400 dark:text-slate-600 uppercase tracking-widest leading-none mt-0.5">Learning App</span>
+          <span class="font-black text-[10px] xs:text-xs sm:text-sm tracking-tight text-slate-900 leading-tight">Our First Global Job</span>
+          <span class="text-[8px] sm:text-[9px] font-bold text-slate-400 dark:text-slate-600 uppercase tracking-widest leading-none mt-0.5">Learning App</span>
         </div>
         
         <!-- CONNECTION STATUS BADGE -->
         <span 
-          class="text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full flex items-center gap-1.5 shrink-0 ml-1.5 border border-slate-150 bg-slate-50"
+          class="text-[8px] font-black uppercase tracking-wider px-1.5 xs:px-2 py-0.5 rounded-full flex items-center gap-1 shrink-0 ml-1 border border-slate-150 bg-slate-50"
+          :title="isOnline ? 'Conectado à Internet' : 'Modo Offline Ativo'"
         >
-          <span class="w-1.5 h-1.5 rounded-full" :class="isOnline ? 'bg-emerald-500' : 'bg-red-500'"></span>
-          <span class="text-slate-600">{{ isOnline ? 'Online' : 'Offline' }}</span>
+          <span class="w-1.5 h-1.5 rounded-full shrink-0" :class="isOnline ? 'bg-emerald-500' : 'bg-red-500'"></span>
+          <span class="text-slate-600 hidden xs:inline">{{ isOnline ? 'Online' : 'Offline' }}</span>
         </span>
       </div>
 
       <!-- Navigation Controls & User block -->
-      <div class="flex items-center gap-4 sm:gap-6">
+      <div class="flex items-center gap-2 sm:gap-6">
         <nav class="hidden md:flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-150 shadow-inner">
           <button
             id="nav-tab-courses"
@@ -173,7 +174,7 @@ const handleColorSelect = (e: Event) => {
         </nav>
 
         <!-- User controls and settings combo -->
-        <div class="flex items-center gap-3 border-l border-slate-200 pl-4 shrink-0">
+        <div class="flex items-center gap-2 sm:gap-3 xs:border-l border-slate-200 xs:pl-3 sm:pl-4 shrink-0">
           <!-- User Profile Card -->
           <div class="flex items-center gap-2.5 bg-slate-50 p-1 pr-3 rounded-xl border border-slate-150 hidden sm:flex shrink-0">
             <div 
@@ -352,82 +353,85 @@ const handleColorSelect = (e: Event) => {
     </div>
   </header>
 
-  <!-- Navigation Bar for Mobile and Small Viewports -->
-  <div class="md:hidden bg-white dark:bg-slate-50 border-b border-gray-100 dark:border-slate-150 flex items-center justify-around py-2 shrink-0 select-none">
+  <!-- Navigation Bar for Mobile and Small Viewports (Scrollable flex row to prevent cut-offs for tutors/admins) -->
+  <div 
+    class="md:hidden bg-white dark:bg-slate-50 border-b border-gray-100 dark:border-slate-150 flex items-center justify-start xs:justify-around gap-0.5 xs:gap-1 px-1.5 xs:px-3 py-1.5 overflow-x-auto whitespace-nowrap scrollbar-none flex-nowrap shrink-0 select-none"
+    style="-ms-overflow-style: none; scrollbar-width: none;"
+  >
     <button
       @click="handleTabClick('courses', true)"
       :class="[
-        'flex flex-col items-center gap-0.5 p-1 px-3 text-[10px] font-bold rounded-lg transition-colors cursor-pointer',
+        'flex flex-col items-center gap-0.5 p-1 px-1.5 xs:px-2.5 text-[10px] font-bold rounded-lg transition-colors cursor-pointer shrink-0',
         activeTab === 'courses' ? 'text-blue-600 dark:text-slate-900 bg-blue-50/50 dark:bg-slate-150/50' : 'text-slate-600'
       ]"
     >
-      <BookOpen class="w-4 h-4" />
-      Grade
+      <BookOpen class="w-4 h-4 shrink-0" />
+      <span class="shrink-0">Grade</span>
     </button>
 
     <button
       @click="handleTabClick('scheduler')"
       :class="[
-        'flex flex-col items-center gap-0.5 p-1 px-3 text-[10px] font-bold rounded-lg transition-colors cursor-pointer',
+        'flex flex-col items-center gap-0.5 p-1 px-1.5 xs:px-2.5 text-[10px] font-bold rounded-lg transition-colors cursor-pointer shrink-0',
         activeTab === 'scheduler' ? 'text-blue-600 dark:text-slate-900 bg-blue-50/50 dark:bg-slate-150/50' : 'text-slate-600'
       ]"
     >
-      <Calendar class="w-4 h-4" />
-      Turmas
+      <Calendar class="w-4 h-4 shrink-0" />
+      <span class="shrink-0">Turmas</span>
     </button>
 
     <button
       @click="handleTabClick('chats')"
       :class="[
-        'flex flex-col items-center gap-0.5 p-1 px-3 text-[10px] font-bold rounded-lg transition-colors cursor-pointer relative',
+        'flex flex-col items-center gap-0.5 p-1 px-1.5 xs:px-2.5 text-[10px] font-bold rounded-lg transition-colors cursor-pointer relative shrink-0',
         activeTab === 'chats' ? 'text-blue-600 dark:text-slate-900 bg-blue-50/50 dark:bg-slate-150/50' : 'text-slate-600'
       ]"
     >
-      <div class="relative">
-        <MessageSquare class="w-4 h-4" />
+      <div class="relative shrink-0 flex items-center justify-center">
+        <MessageSquare class="w-4 h-4 shrink-0" />
         <span 
           v-if="unreadChatsCount" 
-          class="absolute -top-1.5 -right-2 bg-red-500 text-white text-[7.5px] font-black w-3.5 h-3.5 rounded-full flex items-center justify-center border border-white dark:border-slate-50 select-none animate-pulse"
+          class="absolute -top-1.5 -right-2 bg-red-500 text-white text-[7.5px] font-black w-3.5 h-3.5 rounded-full flex items-center justify-center border border-white dark:border-slate-50 select-none animate-pulse shrink-0"
         >
           {{ unreadChatsCount }}
         </span>
       </div>
-      Dúvidas
+      <span class="shrink-0">Dúvidas</span>
     </button>
 
     <button
       @click="handleTabClick('tracking')"
       :class="[
-        'flex flex-col items-center gap-0.5 p-1 px-3 text-[10px] font-bold rounded-lg transition-colors cursor-pointer',
+        'flex flex-col items-center gap-0.5 p-1 px-1.5 xs:px-2.5 text-[10px] font-bold rounded-lg transition-colors cursor-pointer shrink-0',
         activeTab === 'tracking' ? 'text-blue-600 dark:text-slate-900 bg-blue-50/50 dark:bg-slate-150/50' : 'text-slate-600'
       ]"
     >
-      <Award class="w-4 h-4" />
-      Progresso
+      <Award class="w-4 h-4 shrink-0" />
+      <span class="shrink-0">Progresso</span>
     </button>
 
     <button
       v-if="userProfile?.isInstructor || userProfile?.isAdmin"
       @click="handleTabClick('instructor')"
       :class="[
-        'flex flex-col items-center gap-0.5 p-1 px-3 text-[10px] font-bold rounded-lg transition-colors cursor-pointer active:scale-95',
+        'flex flex-col items-center gap-0.5 p-1 px-1.5 xs:px-2.5 text-[10px] font-bold rounded-lg transition-colors cursor-pointer active:scale-95 shrink-0',
         activeTab === 'instructor' ? 'text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/45 border-amber-200 dark:border-amber-900/40' : 'text-slate-600'
       ]"
     >
-      <User class="w-4 h-4" />
-      Tutor
+      <User class="w-4 h-4 shrink-0" />
+      <span class="shrink-0">Tutor</span>
     </button>
 
     <button
       v-if="isMasterEnabled"
       @click="handleTabClick('master')"
       :class="[
-        'flex flex-col items-center gap-0.5 p-1 px-3 text-[10px] font-bold rounded-lg transition-colors cursor-pointer active:scale-95',
+        'flex flex-col items-center gap-0.5 p-1 px-1.5 xs:px-2.5 text-[10px] font-bold rounded-lg transition-colors cursor-pointer active:scale-95 shrink-0',
         activeTab === 'master' ? 'text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/45 border-indigo-200 dark:border-indigo-900/40' : 'text-slate-600'
       ]"
     >
-      <ShieldAlert class="w-4 h-4" />
-      Master
+      <ShieldAlert class="w-4 h-4 shrink-0" />
+      <span class="shrink-0">Master</span>
     </button>
   </div>
 </template>

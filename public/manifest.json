@@ -1,6 +1,6 @@
 {
-  "name": "English Volunteer Network",
-  "short_name": "EVN ESL",
+  "name": "Our First Global Job - Learning App",
+  "short_name": "OFGJ - Learning App",
   "description": "Aprenda inglês com diálogos bilíngues, lições interativas, áudio, tabelas de vocabulário e quizzes em modo offline.",
   "start_url": "./",
   "display": "standalone",
