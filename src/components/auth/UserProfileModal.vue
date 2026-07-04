@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { AlertCircle, Check, Edit3, Eye, EyeOff, Lock, Mail, Trash2 } from 'lucide-vue-next';
-import { computed, nextTick, onMounted, ref, watch } from 'vue';
+import { ref, watch, onMounted, nextTick, computed } from 'vue';
+import { Mail, Lock, AlertCircle, Edit3, Trash2, Check, Eye, EyeOff } from 'lucide-vue-next';
 import { showToast } from '../../composables/useAppState';
 
 const props = defineProps<{
@@ -18,11 +18,11 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: 'close'): void;
-  (e: 'update-profile', data: {
-    displayName: string,
-    level: string,
-    bio: string,
-    email?: string,
+  (e: 'update-profile', data: { 
+    displayName: string, 
+    level: string, 
+    bio: string, 
+    email?: string, 
     password?: string,
     signatureType?: "text" | "drawn",
     signatureText?: string,
@@ -90,10 +90,10 @@ const getCoordinates = (event: MouseEvent | TouchEvent) => {
   const canvas = signatureCanvas.value;
   if (!canvas) return { x: 0, y: 0 };
   const rect = canvas.getBoundingClientRect();
-
+  
   let clientX = 0;
   let clientY = 0;
-
+  
   if (typeof TouchEvent !== "undefined" && event instanceof TouchEvent) {
     if (event.touches && event.touches[0]) {
       clientX = event.touches[0].clientX;
@@ -106,10 +106,10 @@ const getCoordinates = (event: MouseEvent | TouchEvent) => {
     clientX = (event as MouseEvent).clientX;
     clientY = (event as MouseEvent).clientY;
   }
-
+  
   const scaleX = canvas.width / rect.width;
   const scaleY = canvas.height / rect.height;
-
+  
   return {
     x: (clientX - rect.left) * scaleX,
     y: (clientY - rect.top) * scaleY
@@ -121,12 +121,12 @@ const initCanvas = () => {
   if (!canvas) return;
   const ctx = canvas.getContext("2d");
   if (!ctx) return;
-
+  
   ctx.lineWidth = 3.5;
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
   ctx.strokeStyle = "#0f172a"; // deep slate black pen
-
+  
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   if (signatureImage.value) {
     const img = new Image();
@@ -143,7 +143,7 @@ const startDrawing = (e: MouseEvent | TouchEvent) => {
   if (!canvas) return;
   const ctx = canvas.getContext("2d");
   if (!ctx) return;
-
+  
   isDrawing.value = true;
   const coords = getCoordinates(e);
   ctx.beginPath();
@@ -157,7 +157,7 @@ const draw = (e: MouseEvent | TouchEvent) => {
   if (!canvas) return;
   const ctx = canvas.getContext("2d");
   if (!ctx) return;
-
+  
   const coords = getCoordinates(e);
   ctx.lineTo(coords.x, coords.y);
   ctx.stroke();
@@ -166,7 +166,7 @@ const draw = (e: MouseEvent | TouchEvent) => {
 const stopDrawing = () => {
   if (!isDrawing.value) return;
   isDrawing.value = false;
-
+  
   const canvas = signatureCanvas.value;
   if (canvas) {
     signatureImage.value = canvas.toDataURL("image/png");
@@ -231,7 +231,7 @@ const submit = () => {
   const updatedBio = profileEditBio.value.trim();
   const updatedEmail = profileEditEmail.value.trim();
   const updatedPass = profileEditPassword.value;
-
+  
   if (!updatedName) {
     showToast("Por favor, preencha o seu nome.", "warning");
     return;
@@ -266,58 +266,65 @@ const submit = () => {
 </script>
 
 <template>
-  <div v-if="isOpen"
-    class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 text-left shadow-2xl">
-    <div
-      class="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full border border-slate-200 dark:border-slate-800 p-6 sm:p-8 space-y-6 animate-scaleUp">
+  <div 
+    v-if="isOpen" 
+    class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 text-left shadow-2xl"
+  >
+    <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full border border-slate-200 dark:border-slate-800 p-6 sm:p-8 space-y-6 animate-scaleUp">
       <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3 select-none">
         <div>
           <h3 class="text-base sm:text-lg font-black text-slate-900 dark:text-white">✏️ Editar Meu Perfil</h3>
           <p class="text-xs text-slate-400 font-bold">Mantenha seus dados e credenciais atualizados.</p>
         </div>
-        <button type="button" @click="$emit('close')"
-          class="text-slate-400 hover:text-slate-900 dark:hover:text-white text-lg font-black leading-none p-1.5 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg cursor-pointer">
+        <button 
+          type="button"
+          @click="$emit('close')"
+          class="text-slate-400 hover:text-slate-900 dark:hover:text-white text-lg font-black leading-none p-1.5 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg cursor-pointer"
+        >
           ✕
         </button>
       </div>
 
       <form @submit.prevent="submit" class="space-y-4 overflow-y-auto max-h-[480px] pr-1.5 scrollbar-thin">
-
+        
         <!-- DISPLAY NAME -->
         <div class="space-y-1.5">
-          <label
-            class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider block font-bold">Nome
-            do Usuário</label>
-          <input v-model="profileEditName" type="text" required placeholder="Digite seu nome completo"
-            class="w-full text-xs font-bold px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 dark:text-white focus:outline-hidden focus:border-blue-500" />
+          <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider block font-bold">Nome do Usuário</label>
+          <input 
+            v-model="profileEditName"
+            type="text"
+            required
+            placeholder="Digite seu nome completo"
+            class="w-full text-xs font-bold px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 dark:text-white focus:outline-hidden focus:border-blue-500"
+          />
         </div>
 
         <!-- ENGLISH LEVEL -->
         <div class="space-y-1.5">
-          <label
-            class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider block font-bold">Nível
-            de Inglês</label>
-          <select v-model="profileEditLevel"
-            class="w-full text-xs font-bold px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 dark:text-white focus:outline-hidden focus:border-blue-500 cursor-pointer">
+          <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider block font-bold">Nível de Inglês</label>
+          <select 
+            v-model="profileEditLevel"
+            class="w-full text-xs font-bold px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 dark:text-white focus:outline-hidden focus:border-blue-500 cursor-pointer"
+          >
             <option value="Beginner">A1-A2: Beginner (Básico)</option>
             <option value="Intermediate">B1-B2: Intermediate (Intermediário)</option>
             <option value="Advanced">C1-C2: Advanced (Avançado)</option>
             <option value="All">All: Professional (Acesso Geral)</option>
           </select>
           <p class="text-[9.5px] text-slate-400 dark:text-slate-500 leading-normal font-semibold">
-            Ao escolher um nível mais avançado, você verá cumulativamente todos os mini-cursos de dificuldades
-            anteriores correspondentes!
+            Ao escolher um nível mais avançado, você verá cumulativamente todos os mini-cursos de dificuldades anteriores correspondentes!
           </p>
         </div>
 
         <!-- BIO -->
         <div class="space-y-1.5">
-          <label
-            class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider block font-bold">Biografia
-            / Sobre Você (Opcional)</label>
-          <textarea v-model="profileEditBio" rows="2"
+          <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider block font-bold">Biografia / Sobre Você (Opcional)</label>
+          <textarea 
+            v-model="profileEditBio"
+            rows="2"
             placeholder="Conte brevemente sobre seus objetivos com o inglês..."
-            class="w-full text-xs font-bold px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 dark:text-white focus:outline-hidden focus:border-blue-500 resize-none"></textarea>
+            class="w-full text-xs font-bold px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 dark:text-white focus:outline-hidden focus:border-blue-500 resize-none"
+          ></textarea>
         </div>
 
         <!-- INSTRUCTOR SIGNATURE SECTION (Only for voluntary instructors) -->
@@ -332,21 +339,29 @@ const submit = () => {
 
           <!-- Type Selector Options -->
           <div class="grid grid-cols-2 gap-2">
-            <button type="button" @click="signatureType = 'text'" :class="[
-              'py-2 px-3 text-xs font-black rounded-xl border transition-all text-center cursor-pointer flex items-center justify-center gap-1.5',
-              signatureType === 'text'
-                ? 'border-blue-600 bg-blue-600 text-white shadow-md'
-                : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 hover:bg-slate-100 dark:hover:bg-slate-900 text-slate-600 dark:text-slate-400'
-            ]">
+            <button
+              type="button"
+              @click="signatureType = 'text'"
+              :class="[
+                'py-2 px-3 text-xs font-black rounded-xl border transition-all text-center cursor-pointer flex items-center justify-center gap-1.5',
+                signatureType === 'text' 
+                  ? 'border-blue-600 bg-blue-600 text-white shadow-md' 
+                  : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 hover:bg-slate-100 dark:hover:bg-slate-900 text-slate-600 dark:text-slate-400'
+              ]"
+            >
               <Check v-if="signatureType === 'text'" class="w-3.5 h-3.5 text-white" />
               Texto Digitalizado
             </button>
-            <button type="button" @click="signatureType = 'drawn'" :class="[
-              'py-2 px-3 text-xs font-black rounded-xl border transition-all text-center cursor-pointer flex items-center justify-center gap-1.5',
-              signatureType === 'drawn'
-                ? 'border-blue-600 bg-blue-600 text-white shadow-md'
-                : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 hover:bg-slate-100 dark:hover:bg-slate-900 text-slate-600 dark:text-slate-400'
-            ]">
+            <button
+              type="button"
+              @click="signatureType = 'drawn'"
+              :class="[
+                'py-2 px-3 text-xs font-black rounded-xl border transition-all text-center cursor-pointer flex items-center justify-center gap-1.5',
+                signatureType === 'drawn' 
+                  ? 'border-blue-600 bg-blue-600 text-white shadow-md' 
+                  : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 hover:bg-slate-100 dark:hover:bg-slate-900 text-slate-600 dark:text-slate-400'
+              ]"
+            >
               <Check v-if="signatureType === 'drawn'" class="w-3.5 h-3.5 text-white" />
               Desenhar Manual
             </button>
@@ -354,19 +369,19 @@ const submit = () => {
 
           <!-- OPTION 1: TEXT SIGNATURE -->
           <div v-if="signatureType === 'text'" class="space-y-2 animate-fadeIn">
-            <label class="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider block">Nome
-              para a Assinatura</label>
-            <input v-model="signatureText" type="text" placeholder="Ex: Prof. Silva"
-              class="w-full text-xs font-bold px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 dark:text-white focus:outline-hidden focus:border-blue-500" />
-
+            <label class="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider block">Nome para a Assinatura</label>
+            <input 
+              v-model="signatureText"
+              type="text"
+              placeholder="Ex: Prof. Silva"
+              class="w-full text-xs font-bold px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 dark:text-white focus:outline-hidden focus:border-blue-500"
+            />
+            
             <!-- Real-time design cursive font preview -->
-            <div
-              class="p-3 bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-200/60 dark:border-slate-800/60 text-center space-y-1">
-              <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Prévia nos
-                Certificados</span>
+            <div class="p-3 bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-200/60 dark:border-slate-800/60 text-center space-y-1">
+              <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Prévia nos Certificados</span>
               <!-- Cursive signature preview with google-like handwriting style -->
-              <p class="text-xl py-2 select-none text-slate-950 dark:text-white font-semibold italic"
-                style="font-family: 'Dancing Script', 'Brush Script MT', 'Georgia', cursive, serif;">
+              <p class="text-xl py-2 select-none text-slate-950 dark:text-white font-semibold italic" style="font-family: 'Dancing Script', 'Brush Script MT', 'Georgia', cursive, serif;">
                 {{ signatureText || profileEditName || 'Sua Assinatura' }}
               </p>
             </div>
@@ -375,34 +390,41 @@ const submit = () => {
           <!-- OPTION 2: DRAWN CANVAS SIGNATURE -->
           <div v-if="signatureType === 'drawn'" class="space-y-2.5 animate-fadeIn">
             <div class="flex items-center justify-between">
-              <label
-                class="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider block">Desenhe
-                sua Assinatura</label>
-              <button type="button" @click="clearSignature"
-                class="text-[10px] font-black text-rose-500 hover:text-rose-600 dark:text-rose-400 hover:underline cursor-pointer flex items-center gap-1">
+              <label class="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider block">Desenhe sua Assinatura</label>
+              <button 
+                type="button" 
+                @click="clearSignature"
+                class="text-[10px] font-black text-rose-500 hover:text-rose-600 dark:text-rose-400 hover:underline cursor-pointer flex items-center gap-1"
+              >
                 <Trash2 class="w-3 h-3" /> Limpar Tela
               </button>
             </div>
 
             <!-- Drawing Pad Canvas (background always white) -->
-            <div
-              class="relative overflow-hidden rounded-2xl border-2 border-dashed border-slate-200 bg-white select-none">
+            <div class="relative overflow-hidden rounded-2xl border-2 border-dashed border-slate-200 bg-white select-none">
               <!-- Overlay instruction text when empty -->
-              <div v-if="!signatureImage"
-                class="absolute inset-0 flex items-center justify-center pointer-events-none text-center p-4">
+              <div v-if="!signatureImage" class="absolute inset-0 flex items-center justify-center pointer-events-none text-center p-4">
                 <span class="text-[10.5px] font-bold text-slate-400">
                   🖱️ Use o mouse ou tela touch para desenhar aqui
                 </span>
               </div>
-              <canvas ref="signatureCanvas" width="400" height="150"
-                class="w-full h-[150px] block cursor-crosshair touch-none bg-transparent" @mousedown="startDrawing"
-                @mousemove="draw" @mouseup="stopDrawing" @mouseleave="stopDrawing" @touchstart="startDrawing"
-                @touchmove="draw" @touchend="stopDrawing"></canvas>
+              <canvas
+                ref="signatureCanvas"
+                width="400"
+                height="150"
+                class="w-full h-[150px] block cursor-crosshair touch-none bg-transparent"
+                @mousedown="startDrawing"
+                @mousemove="draw"
+                @mouseup="stopDrawing"
+                @mouseleave="stopDrawing"
+                @touchstart="startDrawing"
+                @touchmove="draw"
+                @touchend="stopDrawing"
+              ></canvas>
             </div>
-
+            
             <p class="text-[9px] text-slate-400 dark:text-slate-500 font-semibold leading-snug">
-              ℹ️ Toque e segure para desenhar com o dedo ou caneta touch. A imagem será salva automaticamente de forma
-              segura no seu perfil.
+              ℹ️ Toque e segure para desenhar com o dedo ou caneta touch. A imagem será salva automaticamente de forma segura no seu perfil.
             </p>
           </div>
         </div>
@@ -419,20 +441,22 @@ const submit = () => {
 
           <!-- NEW EMAIL INPUT -->
           <div class="space-y-1">
-            <label class="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase block font-bold">Alterar
-              Login E-mail</label>
+            <label class="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase block font-bold">Alterar Login E-mail</label>
             <div class="relative">
               <Mail class="absolute left-3.5 top-2.5 w-3.5 h-3.5 text-slate-450" />
-              <input v-model="profileEditEmail" type="email" placeholder="novoemail@exemplo.com"
-                class="w-full text-xs font-bold pl-9 pr-4 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 dark:text-white focus:outline-hidden focus:border-blue-500" />
+              <input 
+                v-model="profileEditEmail"
+                type="email"
+                placeholder="novoemail@exemplo.com"
+                class="w-full text-xs font-bold pl-9 pr-4 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 dark:text-white focus:outline-hidden focus:border-blue-500"
+              />
             </div>
           </div>
 
           <!-- NEW PASSWORD INPUT -->
           <div class="space-y-1">
             <div class="flex justify-between items-center mb-0.5 select-none">
-              <label class="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase block font-bold">Alterar
-                Senha de Acesso</label>
+              <label class="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase block font-bold">Alterar Senha de Acesso</label>
               <div v-if="profileEditPassword" class="text-[9px] font-bold flex items-center gap-1">
                 <span>Força:</span>
                 <span :class="passStrengthLabel.color" class="font-extrabold">{{ passStrengthLabel.text }}</span>
@@ -440,12 +464,18 @@ const submit = () => {
             </div>
             <div class="relative mb-2">
               <Lock class="absolute left-3.5 top-2.5 w-3.5 h-3.5 text-slate-450" />
-              <input v-model="profileEditPassword" :type="showEditPassword ? 'text' : 'password'"
+              <input 
+                v-model="profileEditPassword"
+                :type="showEditPassword ? 'text' : 'password'"
                 placeholder="Preencha apenas se quiser mudar"
-                class="w-full text-xs font-bold pl-9 pr-10 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 dark:text-white focus:outline-hidden focus:border-blue-500" />
-              <button type="button" @click="showEditPassword = !showEditPassword"
+                class="w-full text-xs font-bold pl-9 pr-10 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 dark:text-white focus:outline-hidden focus:border-blue-500"
+              />
+              <button
+                type="button"
+                @click="showEditPassword = !showEditPassword"
                 class="absolute right-3 top-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 focus:outline-hidden cursor-pointer"
-                title="Mostrar/Ocultar Senha">
+                title="Mostrar/Ocultar Senha"
+              >
                 <EyeOff v-if="showEditPassword" class="w-3.5 h-3.5" />
                 <Eye v-else class="w-3.5 h-3.5" />
               </button>
@@ -454,83 +484,72 @@ const submit = () => {
             <!-- Password strength progress bar & checklist when typing -->
             <div v-if="profileEditPassword" class="space-y-2.5 animate-fadeIn">
               <div class="w-full bg-slate-100 dark:bg-slate-850 h-1.5 rounded-full overflow-hidden">
-                <div class="h-full transition-all duration-300" :class="passStrengthLabel.barBg"
-                  :style="{ width: (passScore === 1 ? '20%' : passScore === 2 ? '40%' : passScore === 3 ? '60%' : passScore === 4 ? '80%' : '100%') }">
-                </div>
+                <div 
+                  class="h-full transition-all duration-300"
+                  :class="passStrengthLabel.barBg"
+                  :style="{ width: (passScore === 1 ? '20%' : passScore === 2 ? '40%' : passScore === 3 ? '60%' : passScore === 4 ? '80%' : '100%') }"
+                ></div>
               </div>
 
               <!-- Dynamic Password Criteria Checklist -->
-              <div
-                class="p-3 bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-155 dark:border-slate-850/60 space-y-2 select-none text-[10px]">
-                <span
-                  class="text-[9px] font-black text-slate-450 dark:text-slate-500 uppercase tracking-wider block mb-1">Critérios
-                  de Segurança Obrigatórios:</span>
+              <div class="p-3 bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-155 dark:border-slate-850/60 space-y-2 select-none text-[10px]">
+                <span class="text-[9px] font-black text-slate-450 dark:text-slate-500 uppercase tracking-wider block mb-1">Critérios de Segurança Obrigatórios:</span>
                 <div class="grid grid-cols-2 gap-x-2 gap-y-1 text-slate-600 dark:text-slate-400 font-semibold">
                   <div class="flex items-center gap-1.5">
                     <Check v-if="realMinLength" class="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-                    <span v-else
-                      class="w-3.5 h-3.5 text-rose-500 font-extrabold shrink-0 text-center leading-none">✕</span>
-                    <span :class="{ 'text-emerald-600 dark:text-emerald-400 font-bold': realMinLength }">Mínimo 8
-                      caracteres</span>
+                    <span v-else class="w-3.5 h-3.5 text-rose-500 font-extrabold shrink-0 text-center leading-none">✕</span>
+                    <span :class="{ 'text-emerald-600 dark:text-emerald-400 font-bold': realMinLength }">Mínimo 8 caracteres</span>
                   </div>
                   <div class="flex items-center gap-1.5">
                     <Check v-if="realSpecial" class="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-                    <span v-else
-                      class="w-3.5 h-3.5 text-rose-500 font-extrabold shrink-0 text-center leading-none">✕</span>
-                    <span :class="{ 'text-emerald-600 dark:text-emerald-400 font-bold': realSpecial }">1 Caractere
-                      Especial</span>
+                    <span v-else class="w-3.5 h-3.5 text-rose-500 font-extrabold shrink-0 text-center leading-none">✕</span>
+                    <span :class="{ 'text-emerald-600 dark:text-emerald-400 font-bold': realSpecial }">1 Caractere Especial</span>
                   </div>
                   <div class="flex items-center gap-1.5">
                     <Check v-if="realUpper" class="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-                    <span v-else
-                      class="w-3.5 h-3.5 text-rose-500 font-extrabold shrink-0 text-center leading-none">✕</span>
-                    <span :class="{ 'text-emerald-600 dark:text-emerald-400 font-bold': realUpper }">1 Letra
-                      Maiúscula</span>
+                    <span v-else class="w-3.5 h-3.5 text-rose-500 font-extrabold shrink-0 text-center leading-none">✕</span>
+                    <span :class="{ 'text-emerald-600 dark:text-emerald-400 font-bold': realUpper }">1 Letra Maiúscula</span>
                   </div>
                   <div class="flex items-center gap-1.5">
                     <Check v-if="realLower" class="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-                    <span v-else
-                      class="w-3.5 h-3.5 text-rose-500 font-extrabold shrink-0 text-center leading-none">✕</span>
-                    <span :class="{ 'text-emerald-600 dark:text-emerald-400 font-bold': realLower }">1 Letra
-                      Minúscula</span>
+                    <span v-else class="w-3.5 h-3.5 text-rose-500 font-extrabold shrink-0 text-center leading-none">✕</span>
+                    <span :class="{ 'text-emerald-600 dark:text-emerald-400 font-bold': realLower }">1 Letra Minúscula</span>
                   </div>
                   <div class="flex items-center gap-1.5 col-span-2">
                     <Check v-if="realNumber" class="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-                    <span v-else
-                      class="w-3.5 h-3.5 text-rose-500 font-extrabold shrink-0 text-center leading-none">✕</span>
-                    <span :class="{ 'text-emerald-600 dark:text-emerald-400 font-bold': realNumber }">Ao menos 1 Número
-                      (0-9)</span>
+                    <span v-else class="w-3.5 h-3.5 text-rose-500 font-extrabold shrink-0 text-center leading-none">✕</span>
+                    <span :class="{ 'text-emerald-600 dark:text-emerald-400 font-bold': realNumber }">Ao menos 1 Número (0-9)</span>
                   </div>
                 </div>
               </div>
 
               <!-- Confirmar Nova Senha de Acesso -->
               <div class="space-y-1 pt-1">
-                <label
-                  class="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase block font-bold">Confirmar
-                  Nova Senha</label>
+                <label class="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase block font-bold">Confirmar Nova Senha</label>
                 <div class="relative">
                   <Lock class="absolute left-3.5 top-2.5 w-3.5 h-3.5 text-slate-450" />
-                  <input :type="showConfirmPassword ? 'text' : 'password'" v-model="profileConfirmPassword"
+                  <input 
+                    :type="showConfirmPassword ? 'text' : 'password'"
+                    v-model="profileConfirmPassword"
                     placeholder="Repita a nova senha"
-                    class="w-full text-xs font-bold pl-9 pr-10 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 dark:text-white focus:outline-hidden focus:border-blue-500" />
-                  <button type="button" @click="showConfirmPassword = !showConfirmPassword"
+                    class="w-full text-xs font-bold pl-9 pr-10 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 dark:text-white focus:outline-hidden focus:border-blue-500"
+                  />
+                  <button
+                    type="button"
+                    @click="showConfirmPassword = !showConfirmPassword"
                     class="absolute right-3 top-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 focus:outline-hidden cursor-pointer"
-                    title="Mostrar/Ocultar Senha">
+                    title="Mostrar/Ocultar Senha"
+                  >
                     <EyeOff v-if="showConfirmPassword" class="w-3.5 h-3.5" />
                     <Eye v-else class="w-3.5 h-3.5" />
                   </button>
                 </div>
-                <div v-if="profileConfirmPassword"
-                  class="text-[9px] font-black select-none flex items-center gap-1 animate-fadeIn">
-                  <span v-if="profileEditPassword === profileConfirmPassword"
-                    class="text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
-                    <span class="inline-block bg-emerald-100 dark:bg-emerald-950/50 p-0.5 rounded-full">✓</span> As
-                    senhas coincidem!
+                <div v-if="profileConfirmPassword" class="text-[9px] font-black select-none flex items-center gap-1 animate-fadeIn">
+                  <span v-if="profileEditPassword === profileConfirmPassword" class="text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                    <span class="inline-block bg-emerald-100 dark:bg-emerald-950/50 p-0.5 rounded-full">✓</span> As senhas coincidem!
                   </span>
                   <span v-else class="text-rose-500 flex items-center gap-1">
-                    <span class="inline-block bg-rose-100 dark:bg-rose-950/50 px-1 rounded-full">✕</span> As senhas não
-                    coincidem.
+                    <span class="inline-block bg-rose-100 dark:bg-rose-950/50 px-1 rounded-full">✕</span> As senhas não coincidem.
                   </span>
                 </div>
               </div>
@@ -538,13 +557,10 @@ const submit = () => {
           </div>
 
           <!-- Security note warnings -->
-          <div
-            class="p-2.5 bg-amber-50 dark:bg-amber-950/20 rounded-xl border border-amber-100/40 dark:border-amber-900/40 flex items-start gap-2">
+          <div class="p-2.5 bg-amber-50 dark:bg-amber-950/20 rounded-xl border border-amber-100/40 dark:border-amber-900/40 flex items-start gap-2">
             <AlertCircle class="w-3.5 h-3.5 shrink-0 mt-0.5 text-amber-600 dark:text-amber-400" />
             <p class="text-[9.5px] text-amber-800 dark:text-amber-300 font-bold leading-relaxed">
-              Nota: Por segurança do Firebase Auth, alterações recentes de Email e Senha podem requerer que você tenha
-              feito login muito recentemente. Se falhar, por favor saia e entre novamente no aplicativo antes de tentar
-              salvar.
+              Nota: Por segurança do Firebase Auth, alterações recentes de Email e Senha podem requerer que você tenha feito login muito recentemente. Se falhar, por favor saia e entre novamente no aplicativo antes de tentar salvar.
             </p>
           </div>
         </div>
@@ -552,52 +568,59 @@ const submit = () => {
         <!-- FORM ACTIONS -->
         <div class="flex flex-col gap-4 border-t border-slate-100 dark:border-slate-800 pt-4">
           <!-- In-App LGPD Deletion Confirmation Block -->
-          <div v-if="showConfirmDelete"
-            class="p-4 bg-red-50 dark:bg-rose-950/30 border border-red-200 dark:border-red-900/40 rounded-2xl space-y-3 animate-fadeIn">
+          <div v-if="showConfirmDelete" class="p-4 bg-red-50 dark:bg-rose-950/30 border border-red-200 dark:border-red-900/40 rounded-2xl space-y-3 animate-fadeIn">
             <p class="text-xs font-bold text-red-700 dark:text-red-300 leading-relaxed">
-              ⚠️ ATENÇÃO (LGPD): Você tem certeza de que deseja excluir permanentemente todos os seus dados do English
-              Volunteer? Esta ação apagará do sistema seu perfil pessoal, histórico de progresso, quizzes respondidos,
-              salas de chat suporte e certificados gerados. Esta ação é totalmente irreversível.
-              <br /><br />
-              <span
-                class="inline-block p-2 bg-red-100/50 dark:bg-rose-950/40 rounded-lg text-[11px] font-black uppercase text-red-800 dark:text-red-400 border border-red-200/40 mt-1">
+              ⚠️ ATENÇÃO (LGPD): Você tem certeza de que deseja excluir permanentemente todos os seus dados do English Volunteer? Esta ação apagará do sistema seu perfil pessoal, histórico de progresso, quizzes respondidos, salas de chat suporte e certificados gerados. Esta ação é totalmente irreversível.
+              <br/><br/>
+              <span class="inline-block p-2 bg-red-100/50 dark:bg-rose-950/40 rounded-lg text-[11px] font-black uppercase text-red-800 dark:text-red-400 border border-red-200/40 mt-1">
                 🛡️ Salvaguarda de Conteúdo Didático Acadêmico (LGPD):
               </span>
-              Conforme os Termos de Consentimento, para garantir a continuidade pedagógica dos alunos que estão
-              realizando os cursos ou se preparando para avaliações, os minicursos e lições autorais que você produziu
-              continuarão na base ativa da plataforma, sendo apenas desassociados do seu nome e transferidos para a
-              propriedade anônima de Administração/Sistema.
+              Conforme os Termos de Consentimento, para garantir a continuidade pedagógica dos alunos que estão realizando os cursos ou se preparando para avaliações, os minicursos e lições autorais que você produziu continuarão na base ativa da plataforma, sendo apenas desassociados do seu nome e transferidos para a propriedade anônima de Administração/Sistema.
             </p>
             <div class="flex flex-wrap gap-2.5">
-              <button type="button" @click="$emit('delete-account')"
-                class="px-4 py-2 bg-red-600 hover:bg-red-700 active:scale-95 text-white text-xs font-black rounded-xl transition cursor-pointer">
+              <button
+                type="button"
+                @click="$emit('delete-account')"
+                class="px-4 py-2 bg-red-600 hover:bg-red-700 active:scale-95 text-white text-xs font-black rounded-xl transition cursor-pointer"
+              >
                 Sim, excluir meus dados permanentemente
               </button>
-              <button type="button" @click="showConfirmDelete = false"
-                class="px-4 py-2 bg-white hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 text-xs font-black rounded-xl shadow-xs transition-all active:scale-95 cursor-pointer">
+              <button
+                type="button"
+                @click="showConfirmDelete = false"
+                class="px-4 py-2 bg-white hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 text-xs font-black rounded-xl shadow-xs transition-all active:scale-95 cursor-pointer"
+              >
                 Cancelar
               </button>
             </div>
           </div>
 
           <div class="flex flex-wrap items-center justify-between gap-3">
-            <button v-if="!showConfirmDelete" type="button" @click="showConfirmDelete = true"
-              class="px-3.5 py-2 text-xs font-bold text-red-600 hover:text-white hover:bg-red-600 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/40 rounded-xl transition-all cursor-pointer inline-flex items-center gap-1">
+            <button
+              v-if="!showConfirmDelete"
+              type="button"
+              @click="showConfirmDelete = true"
+              class="px-3.5 py-2 text-xs font-bold text-red-600 hover:text-white hover:bg-red-600 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/40 rounded-xl transition-all cursor-pointer inline-flex items-center gap-1"
+            >
               🗑️ Excluir Conta (LGPD)
             </button>
-            <div v-else
-              class="text-[10px] text-red-650 dark:text-red-400 font-extrabold uppercase tracking-widest animate-pulse">
+            <div v-else class="text-[10px] text-red-650 dark:text-red-400 font-extrabold uppercase tracking-widest animate-pulse">
               ⚠️ Ação Crítica Ativa
             </div>
 
             <div class="flex items-center gap-3">
-              <button type="button" @click="$emit('close')"
-                class="px-4 py-2 text-xs font-black text-slate-500 hover:text-slate-850 dark:hover:text-white bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-800 rounded-xl transition-colors cursor-pointer">
+              <button
+                type="button"
+                @click="$emit('close')"
+                class="px-4 py-2 text-xs font-black text-slate-500 hover:text-slate-850 dark:hover:text-white bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-800 rounded-xl transition-colors cursor-pointer"
+              >
                 Cancelar
               </button>
-              <button type="submit"
+              <button
+                type="submit"
                 class="px-5 py-2 text-xs font-black text-white rounded-xl shadow-md cursor-pointer transition-all active:scale-95 text-center flex items-center gap-1.5"
-                :style="{ backgroundColor: primaryColor }">
+                :style="{ backgroundColor: primaryColor }"
+              >
                 Salvar Alterações
               </button>
             </div>

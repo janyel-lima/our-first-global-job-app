@@ -175,34 +175,42 @@ const handleColorSelect = (e: Event) => {
 
         <!-- User controls and settings combo -->
         <div class="flex items-center gap-2 sm:gap-3 xs:border-l border-slate-200 xs:pl-3 sm:pl-4 shrink-0">
-          <!-- User Profile Card -->
-          <div class="flex items-center gap-2.5 bg-slate-50 p-1 pr-3 rounded-xl border border-slate-150 hidden sm:flex shrink-0">
+          <!-- Adaptive User Profile Card (Adapts to Mobile and Desktop) -->
+          <div 
+            v-if="userProfile"
+            @click="emit('open-profile')"
+            class="flex items-center gap-1.5 sm:gap-2.5 bg-slate-50 hover:bg-slate-100 dark:bg-slate-900/40 dark:hover:bg-slate-900/80 p-1 sm:pr-3 rounded-xl border border-slate-150 dark:border-slate-800 cursor-pointer transition-all duration-200 shrink-0 group active:scale-95"
+            title="Clique para editar seu perfil e nível"
+          >
+            <!-- Avatar circle -->
             <div 
-              class="w-7 h-7 text-white rounded-lg flex items-center justify-center font-black text-xs shadow-sm font-mono uppercase shrink-0"
+              class="w-7 h-7 text-white rounded-lg flex items-center justify-center font-black text-xs shadow-xs font-mono uppercase shrink-0 relative overflow-hidden"
               :style="{ backgroundColor: primaryColor }"
             >
               {{ (userProfile?.displayName?.charAt(0) || 'U').toUpperCase() }}
+              <!-- Subtle hover edit overlay on the avatar -->
+              <div class="absolute inset-0 bg-black/45 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <span class="text-[8px] text-white">✏️</span>
+              </div>
             </div>
-            <div class="text-left leading-tight shrink-0">
-              <p class="text-xs font-extrabold text-slate-800 max-w-[140px] truncate leading-none mb-1 flex items-center gap-1">
-                {{ userProfile?.displayName }}
-                <button 
-                  @click="emit('open-profile')" 
-                  class="text-blue-600 hover:text-blue-800 transition-colors cursor-pointer text-[10px]"
-                  title="Editar Perfil"
-                  type="button"
-                >
-                  ✏️
-                </button>
+            
+            <!-- Name & Level badge - visible on xs screens and wider, styled cleanly -->
+            <div class="hidden xs:flex flex-col text-left leading-tight shrink-0">
+              <p class="text-[11px] sm:text-xs font-extrabold text-slate-800 dark:text-slate-200 max-w-[85px] sm:max-w-[140px] truncate leading-none mb-0.5 sm:mb-1 flex items-center gap-1">
+                <span>{{ userProfile?.displayName }}</span>
+                <span class="text-[9px] text-slate-400 group-hover:text-blue-500 transition-colors">✏️</span>
               </p>
               <span 
-                class="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded bg-slate-100 border border-slate-200 leading-none block w-max cursor-pointer hover:bg-slate-200"
+                class="text-[8px] sm:text-[9px] font-black uppercase tracking-wider px-1 sm:px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 leading-none block w-max"
                 :style="{ color: primaryColor }"
-                @click="emit('open-profile')"
-                title="Alterar Nível"
               >
                 Nível {{ userProfile?.level }}
               </span>
+            </div>
+
+            <!-- Compact edit indicator on ultra-small viewports (less than xs) where text is hidden -->
+            <div class="xs:hidden text-[10px] pr-1 select-none text-slate-400 group-hover:text-blue-500">
+              ✏️
             </div>
           </div>
 
@@ -324,18 +332,7 @@ const handleColorSelect = (e: Event) => {
                 </div>
               </div>
 
-              <!-- Custom Profile Editing Shortcuts when logged in -->
-              <div v-if="userProfile" class="space-y-1.5 border-t border-slate-100 pt-3">
-                <span class="text-[9px] font-black text-slate-400 uppercase tracking-wider block">Minha Conta</span>
-                <button
-                  type="button"
-                  @click="emit('open-profile'); showThemePanel = false;"
-                  class="w-full py-2 px-3 text-white font-extrabold text-[11.5px] rounded-lg flex items-center justify-center gap-1.5 cursor-pointer transition-all hover:brightness-110 active:scale-95 shadow-xs"
-                  :style="{ backgroundColor: primaryColor, border: `1px solid ${primaryColor}` }"
-                >
-                  ✏️ Editar Meu Perfil & Nível
-                </button>
-              </div>
+
             </div>
           </div>
 

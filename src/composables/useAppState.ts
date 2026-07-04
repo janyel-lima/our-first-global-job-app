@@ -1,21 +1,24 @@
-import {
-  arrayRemove,
-  arrayUnion,
-  deleteDoc,
-  doc,
+import { ref, computed, watch } from "vue";
+import { 
+  collection, 
+  onSnapshot, 
+  setDoc, 
+  doc, 
   getDoc,
-  increment,
-  setDoc,
-  updateDoc,
-  writeBatch
+  updateDoc, 
+  deleteDoc, 
+  arrayUnion, 
+  arrayRemove,
+  writeBatch,
+  increment
 } from "firebase/firestore";
-import { computed, ref, watch } from "vue";
-import { activeEnvMode, db, handleFirestoreError, OperationType } from "../firebase";
-import { ChatMessage, ChatRoom, ClassTurma, Course, Lesson, Progress, UserProfile } from "../types";
-import {
-  sendClassMeetingNotificationEmail
+import { signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
+import { db, auth, loginWithGoogle, logoutUser, handleFirestoreError, OperationType, activeEnvMode } from "../firebase";
+import { UserProfile, Course, Lesson, ClassTurma, Progress, ChatRoom, ChatMessage } from "../types";
+import { getAlmostWhiteVariant, hexToHsl, hslToHex, generateShades } from "../utils/theme";
+import { 
+  sendClassMeetingNotificationEmail 
 } from "../utils/emailService";
-import { generateShades, getAlmostWhiteVariant, hexToHsl, hslToHex } from "../utils/theme";
 
 // Cache Utility helper
 const getCachedVal = <T>(key: string, backup: T): T => {
@@ -390,7 +393,7 @@ const syncOfflineClassActions = async () => {
           } else if (currentStudents.length >= cl.maxStudents) {
             // SAFEGUARD: The class is full! Remove user from local state and alert them
             showToast(`Atenção: A turma de "${cl.courseTitle}" atingiu o limite de ${cl.maxStudents} vagas enquanto você estava offline. Sua inscrição offline foi cancelada automaticamente.`, "warning", 8000);
-
+            
             classes.value = classes.value.map(c => {
               if (c.id === action.classId) {
                 return { ...c, studentIds: (c.studentIds || []).filter(id => id !== action.userId) };
@@ -462,7 +465,7 @@ export function useAppState() {
     if (!currentUser.value) return [];
     const uid = currentUser.value.uid;
     const userProgresses = progressList.value.filter(p => p.userId === uid && p.certified);
-
+    
     const verifiedList = [];
     for (const p of userProgresses) {
       const course = courses.value.find(c => c.id === p.courseId);
@@ -482,7 +485,7 @@ export function useAppState() {
     const progressId = `${uid}_${courseId}`;
 
     const existingProgress = progressList.value.find(p => p.id === progressId);
-
+    
     let completedReadings = existingProgress?.completedReadings ? [...existingProgress.completedReadings] : [];
     let completedVideos = existingProgress?.completedVideos ? [...existingProgress.completedVideos] : [];
     let completedQuizzes = existingProgress?.completedQuizzes ? [...existingProgress.completedQuizzes] : [];
@@ -608,7 +611,7 @@ export function useAppState() {
       const updatedName = onboardName.value.trim();
       const updatedLevel = onboardLevel.value;
       const updatedBio = "";
-
+      
       if (!isDemoUser.value) {
         const profileRef = doc(db, "users", currentUser.value.uid);
         await setDoc(profileRef, {
@@ -631,12 +634,12 @@ export function useAppState() {
   const handleUploadCourse = async (newCourse: Course, newLessons: Lesson[]) => {
     const teacherLevel = userProfile.value?.level || "Beginner";
     const isAdmin = userProfile.value?.isAdmin || false;
-
+    
     if (!isAdmin && teacherLevel !== "All") {
       const levelRank: Record<string, number> = { Beginner: 1, Intermediate: 2, Advanced: 3, All: 4 };
       const teacherPower = levelRank[teacherLevel] || 1;
       const coursePower = levelRank[newCourse.level] || 1;
-
+      
       if (coursePower > teacherPower) {
         showToast(`Erro de Permissão: Seu nível atual voluntário é "${teacherLevel}". Você só pode publicar cursos de nível "${teacherLevel}" ou inferior. Atualize seu progresso no seu perfil para "${newCourse.level}" ou "All".`, "error", 6000);
         throw new Error("Instructor English level is below the required course difficulty level.");
@@ -668,7 +671,7 @@ export function useAppState() {
 
   const handleJoinClass = async (classId: string) => {
     const uid = currentUser.value?.uid || "demo-student-uid";
-
+    
     // Client-side capacity safeguard check first
     const cl = classes.value.find(c => c.id === classId);
     if (cl && (cl.studentIds || []).length >= cl.maxStudents) {
@@ -693,7 +696,7 @@ export function useAppState() {
             timestamp: new Date().toISOString()
           });
           localStorage.setItem("offline_class_actions_queue", JSON.stringify(queue));
-
+          
           classes.value = classes.value.map(c => c.id === classId ? { ...c, studentIds: [...new Set([...(c.studentIds || []), uid])] } : c);
           showToast("Você se inscreveu nesta aula de forma offline! Sua vaga será validada com o servidor assim que você se conectar.", "info", 6000);
         } catch (err) {
@@ -745,7 +748,7 @@ export function useAppState() {
             timestamp: new Date().toISOString()
           });
           localStorage.setItem("offline_class_actions_queue", JSON.stringify(queue));
-
+          
           classes.value = classes.value.map(c => c.id === classId ? { ...c, studentIds: (c.studentIds || []).filter(id => id !== uid) } : c);
           showToast("Você saiu desta aula offline.", "info");
         } catch (err) {
@@ -810,7 +813,7 @@ export function useAppState() {
       const instructorName = updatedClass.instructorName;
 
       Promise.all(
-        updatedClass.studentIds.map(studentId =>
+        updatedClass.studentIds.map(studentId => 
           getDoc(doc(db, "users", studentId))
             .then(snap => {
               if (snap.exists()) {
