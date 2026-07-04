@@ -1,0 +1,17 @@
+{
+  "name": "English Volunteer Network",
+  "short_name": "EVN ESL",
+  "description": "Aprenda inglês com diálogos bilíngues, lições interativas, áudio, tabelas de vocabulário e quizzes em modo offline.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

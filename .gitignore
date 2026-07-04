@@ -1,0 +1,11 @@
+node_modules/
+build/
+dist/
+coverage/
+.DS_Store
+*.log
+.env*
+!.env.example
+firebase-service-account.json
+set-admin-claims.js
+our-first-global-job-firebase-adminsdk.json

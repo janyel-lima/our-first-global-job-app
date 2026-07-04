@@ -1,0 +1,85 @@
+{
+  "name": "English Volunteer Platform Dev Container",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "forwardPorts": [
+    3000, // Vite Web App
+    4000, // Firebase Emulator UI Panel
+    5000, // Firebase Hosting Emulator
+    5001, // Firebase Functions Emulator
+    8080, // Firebase Firestore Emulator
+    8085, // Firebase Pub/Sub Emulator
+    9000, // Firebase Realtime Database Emulator
+    9099, // Firebase Auth Emulator
+    9199, // Firebase Storage Emulator
+    4500, // Emulator Hub
+    4400, // Emulator Hub API
+    9150 // Reserved for future emulators
+  ],
+
+  // Provide friendly descriptions for ports in the IDE
+  "portsAttributes": {
+    "3000": {
+      "label": "Front-End: Lite / Dev Web Server",
+      "onAutoForward": "openPreview"
+    },
+    "4000": {
+      "label": "Firebase Emulator Suite Control Panel",
+      "onAutoForward": "silent"
+    },
+    "5000": {
+      "label": "Firebase Hosting Emulator Target",
+      "onAutoForward": "silent"
+    },
+    "5001": {
+      "label": "Firebase Cloud Functions",
+      "onAutoForward": "silent"
+    },
+    "8080": {
+      "label": "Firebase Cloud Firestore",
+      "onAutoForward": "silent"
+    },
+    "8085": {
+      "label": "Firebase Pub/Sub Message Bus",
+      "onAutoForward": "silent"
+    },
+    "9000": {
+      "label": "Firebase Realtime Database Port",
+      "onAutoForward": "silent"
+    },
+    "9099": {
+      "label": "Firebase Local Auth Provider",
+      "onAutoForward": "silent"
+    },
+    "9199": {
+      "label": "Firebase Local Storage Bucket",
+      "onAutoForward": "silent"
+    },
+    "4500": {
+      "label": "Emulator Hub",
+      "onAutoForward": "silent"
+    },
+    "4400": {
+      "label": "Emulator Hub API",
+      "onAutoForward": "silent"
+    },
+    "9150": {
+      "label": "Emulator Reserved",
+      "onAutoForward": "notify"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "editor.formatOnSave": true
+      },
+      "extensions": [
+        "Vue.volar",
+        "dbaeumer.vscode-eslint",
+        "bradlc.vscode-tailwindcss"
+      ]
+    }
+  },
+  "postCreateCommand": "npm install"
+}

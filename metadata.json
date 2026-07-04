@@ -1,0 +1,6 @@
+{
+  "name": "Our First Global Job - Learning App",
+  "description": "CMS de mini-cursos interativos de inglês voluntário com inteligência artificial para geração de lições, simulados de quizzes, formação de turmas combinadas e emissão simbólica de certificados.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

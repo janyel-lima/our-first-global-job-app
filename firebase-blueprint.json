@@ -1,0 +1,179 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Public profile details for students and instructors",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Authenticating user unique ID" },
+        "displayName": { "type": "string", "description": "User visible name" },
+        "photoURL": { "type": "string", "description": "Avatar image link" },
+        "isInstructor": { "type": "boolean", "description": "Whether user is a volunteer teacher" },
+        "level": { "type": "string", "enum": ["Beginner", "Intermediate", "Advanced", "All"], "description": "Current English language level" },
+        "bio": { "type": "string", "description": "Teacher introduction or student interests" }
+      },
+      "required": ["uid", "isInstructor"]
+    },
+    "UserPrivate": {
+      "title": "UserPrivate",
+      "description": "Private, isolated Personally Identifiable Information",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string", "format": "email", "description": "Verified email address" },
+        "createdAt": { "type": "string", "description": "Timestamp when this record was written" }
+      },
+      "required": ["email"]
+    },
+    "Course": {
+      "title": "Course",
+      "description": "An English learning mini-course",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "level": { "type": "string", "enum": ["Beginner", "Intermediate", "Advanced"] },
+        "creatorId": { "type": "string" },
+        "creatorName": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["id", "title", "level", "creatorId"]
+    },
+    "Lesson": {
+      "title": "Lesson",
+      "description": "A textual/video lesson with interactive quizzes",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "courseId": { "type": "string" },
+        "title": { "type": "string" },
+        "content": { "type": "string", "description": "Textual lesson material in Markdown format" },
+        "videoUrl": { "type": "string", "description": "Optional integrated video reference (YouTube/Vimeo)" },
+        "order": { "type": "integer" },
+        "quiz": {
+          "type": "array",
+          "description": "List of 1 to 5 interactive questions"
+        }
+      },
+      "required": ["id", "courseId", "title", "content", "order"]
+    },
+    "ClassTurma": {
+      "title": "ClassTurma",
+      "description": "A scheduled study class (turma) combining availability and topic",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "courseId": { "type": "string" },
+        "courseTitle": { "type": "string" },
+        "instructorId": { "type": "string" },
+        "instructorName": { "type": "string" },
+        "scheduledAt": { "type": "string" },
+        "maxStudents": { "type": "integer" },
+        "studentIds": { "type": "array" },
+        "status": { "type": "string", "enum": ["scheduled", "completed", "cancelled"] },
+        "callUrl": { "type": "string", "description": "Optional online meeting link like Google Meet" },
+        "presentStudentIds": { "type": "array", "description": "Optional list of student UIDs marking presence" }
+      },
+      "required": ["id", "courseId", "instructorId", "scheduledAt", "status"]
+    },
+    "Progress": {
+      "title": "Progress",
+      "description": "Tracks a student's level, quiz scores, and certificate status",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Combination of userId and courseId" },
+        "userId": { "type": "string" },
+        "courseId": { "type": "string" },
+        "completedLessons": { "type": "array" },
+        "quizScores": { "type": "object" },
+        "certified": { "type": "boolean" },
+        "certifiedAt": { "type": "string" },
+        "certificateId": { "type": "string" }
+      },
+      "required": ["id", "userId", "courseId", "certified"]
+    },
+    "ChatRoom": {
+      "title": "ChatRoom",
+      "description": "A Q&A chat channel between students and volunteers for specific courses",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "studentId": { "type": "string" },
+        "studentName": { "type": "string" },
+        "instructorId": { "type": "string" },
+        "courseId": { "type": "string" },
+        "courseTitle": { "type": "string" },
+        "topic": { "type": "string" },
+        "status": { "type": "string", "enum": ["open", "resolved"] },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["id", "studentId", "courseId", "status"]
+    },
+    "ChatMessage": {
+      "title": "ChatMessage",
+      "description": "A single chat message in a Q&A channel",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "senderId": { "type": "string" },
+        "senderName": { "type": "string" },
+        "text": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "senderId", "senderName", "text"]
+    },
+    "TeacherCode": {
+      "title": "TeacherCode",
+      "description": "Invite/Registration codes for new teacher signups",
+      "type": "object",
+      "properties": {
+        "code": { "type": "string", "description": "Uppercase invitation code string" },
+        "status": { "type": "string", "enum": ["valid", "used"], "description": "The current code registration status" },
+        "createdAt": { "type": "string", "description": "ISO timestamp of code creation" },
+        "usedBy": { "type": "string", "description": "UID of the teacher who used this code, or null" },
+        "usedAt": { "type": "string", "description": "ISO timestamp when the code was used, or null" }
+      },
+      "required": ["code", "status", "createdAt"]
+    }
+  },
+  "firestore": {
+    "teacher_codes/{codeId}": {
+      "schema": "TeacherCode",
+      "description": "Database-managed invitation codes for instructors"
+    },
+    "users/{userId}": {
+      "schema": "UserProfile",
+      "description": "Public user metadata collection"
+    },
+    "users/{userId}/private/info": {
+      "schema": "UserPrivate",
+      "description": "PII-isolated user private secrets collection"
+    },
+    "courses/{courseId}": {
+      "schema": "Course",
+      "description": "CMS collection of mini-learning modules"
+    },
+    "courses/{courseId}/lessons/{lessonId}": {
+      "schema": "Lesson",
+      "description": "Subcollection under Courses detailing curriculum"
+    },
+    "classes/{classId}": {
+      "schema": "ClassTurma",
+      "description": "Shedules or educational availability groups available to book"
+    },
+    "progress/{progressId}": {
+      "schema": "Progress",
+      "description": "Main tracking metric per student/course"
+    },
+    "chats/{chatId}": {
+      "schema": "ChatRoom",
+      "description": "Live support chats grouping"
+    },
+    "chats/{chatId}/messages/{messageId}": {
+      "schema": "ChatMessage",
+      "description": "Messages inside live support chats"
+    }
+  }
+}
