@@ -2,6 +2,10 @@
 import { ref, computed, watch } from 'vue';
 import { Users, Calendar, Plus, Trash2, Clock, Check, LogOut, CheckCircle, Edit, ExternalLink, Search, Filter, ChevronLeft, ChevronRight, List, X, Info, CalendarDays } from 'lucide-vue-next';
 import { ClassTurma, Course } from '../../types';
+import { useI18n } from '../../composables/useI18n';
+
+const { t, locale } = useI18n();
+
 
 const props = defineProps<{
   classes: ClassTurma[];
@@ -24,6 +28,7 @@ const emit = defineEmits<{
 
 const showAddForm = ref(false);
 const selectedCourseId = ref('');
+const customClassTitle = ref('');
 const scheduledAt = ref('');
 const scheduledHour = ref('19:00');
 const maxStudents = ref(10);
@@ -32,6 +37,7 @@ const isSubmitting = ref(false);
 // Edit states
 const editingClassId = ref<string | null>(null);
 const editCourseId = ref('');
+const editCustomClassTitle = ref('');
 const editMaxStudents = ref(10);
 const editCallUrl = ref('');
 const editStatus = ref<'scheduled' | 'completed' | 'cancelled'>('scheduled');
@@ -153,6 +159,18 @@ const selectedDayClasses = computed(() => {
   return props.classes.filter(cl => parseClassDateStr(cl.scheduledAt) === selectedCalendarDayString.value);
 });
 
+const monthNames = computed(() => {
+  return locale.value === 'pt'
+    ? ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
+    : ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+});
+
+const weekdayNames = computed(() => {
+  return locale.value === 'pt'
+    ? ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
+    : ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+});
+
 const formatSelectedDayTitle = computed(() => {
   if (!selectedCalendarDayString.value) return '';
   const parts = selectedCalendarDayString.value.split('-');
@@ -160,17 +178,13 @@ const formatSelectedDayTitle = computed(() => {
   const m = parseInt(parts[1], 10);
   const d = parseInt(parts[2], 10);
   const dateObj = new Date(y, m - 1, d);
-  const weekday = weekdayNames[dateObj.getDay()];
-  const monthName = monthNames[dateObj.getMonth()];
-  return `${weekday}, ${d} de ${monthName}`;
+  const weekday = weekdayNames.value[dateObj.getDay()];
+  const monthName = monthNames.value[dateObj.getMonth()];
+  return locale.value === 'pt'
+    ? `${weekday}, ${d} de ${monthName}`
+    : `${weekday}, ${monthName} ${d}`;
 });
 
-const monthNames = [
-  'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-  'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
-];
-
-const weekdayNames = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 
 const isSameDay = (d1: Date, d2: Date) => {
   return d1.getFullYear() === d2.getFullYear() &&
@@ -335,15 +349,26 @@ const activeSelectedClass = computed(() => {
 const handleCreate = async () => {
   if (!selectedCourseId.value || !scheduledAt.value || !scheduledHour.value) return;
 
-  const chosenCourse = props.courses.find(c => c.id === selectedCourseId.value);
-  if (!chosenCourse) return;
+  let courseId = '';
+  let courseTitle = '';
+
+  if (selectedCourseId.value === 'custom') {
+    if (!customClassTitle.value.trim()) return;
+    courseId = 'custom-class';
+    courseTitle = customClassTitle.value.trim();
+  } else {
+    const chosenCourse = props.courses.find(c => c.id === selectedCourseId.value);
+    if (!chosenCourse) return;
+    courseId = chosenCourse.id;
+    courseTitle = chosenCourse.title;
+  }
 
   isSubmitting.value = true;
   try {
     const fullDateTime = `${scheduledAt.value} ${scheduledHour.value}`;
     emit('create-class', {
-      courseId: chosenCourse.id,
-      courseTitle: chosenCourse.title,
+      courseId,
+      courseTitle,
       instructorId: props.currentUserId,
       instructorName: props.userDisplayName,
       scheduledAt: fullDateTime,
@@ -354,6 +379,7 @@ const handleCreate = async () => {
     });
     showAddForm.value = false;
     selectedCourseId.value = '';
+    customClassTitle.value = '';
     scheduledAt.value = '';
   } catch (error) {
     console.error("Erro criando turma:", error);
@@ -365,6 +391,7 @@ const handleCreate = async () => {
 const startEditing = (cl: ClassTurma) => {
   editingClassId.value = cl.id;
   editCourseId.value = cl.courseId;
+  editCustomClassTitle.value = cl.courseId === 'custom-class' ? cl.courseTitle : '';
   editMaxStudents.value = cl.maxStudents;
   editCallUrl.value = cl.callUrl || '';
   editStatus.value = cl.status;
@@ -375,8 +402,15 @@ const startEditing = (cl: ClassTurma) => {
 };
 
 const saveEdit = (cl: ClassTurma) => {
-  const chosenCourse = props.courses.find(c => c.id === editCourseId.value);
-  const newCourseTitle = chosenCourse ? chosenCourse.title : cl.courseTitle;
+  let finalCourseId = editCourseId.value;
+  let finalCourseTitle = "";
+
+  if (finalCourseId === 'custom-class') {
+    finalCourseTitle = editCustomClassTitle.value.trim() || cl.courseTitle || "Aula de Conversação";
+  } else {
+    const chosenCourse = props.courses.find(c => c.id === editCourseId.value);
+    finalCourseTitle = chosenCourse ? chosenCourse.title : cl.courseTitle;
+  }
 
   const finalScheduledAt = props.isAdmin 
     ? `${editScheduledDate.value} ${editScheduledTime.value}`
@@ -384,8 +418,8 @@ const saveEdit = (cl: ClassTurma) => {
 
   const updated: ClassTurma = {
     ...cl,
-    courseId: editCourseId.value,
-    courseTitle: newCourseTitle,
+    courseId: finalCourseId,
+    courseTitle: finalCourseTitle,
     maxStudents: editMaxStudents.value,
     callUrl: editCallUrl.value,
     status: editStatus.value,
@@ -427,9 +461,9 @@ const handleStudentEnter = (cl: ClassTurma) => {
     <!-- Title Header -->
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
       <div class="text-left">
-        <h2 class="text-xl font-extrabold text-gray-900 dark:text-white">Agenda de Aulas & Combinar Horários</h2>
+        <h2 class="text-xl font-extrabold text-gray-900 dark:text-white">{{ locale === 'pt' ? 'Agenda de Aulas & Combinar Horários' : 'Class Schedule & Booking' }}</h2>
         <p class="text-sm text-gray-500 mt-1">
-          Participe de conversações em tempo real com instrutores voluntários e pratique seu inglês!
+          {{ locale === 'pt' ? 'Participe de conversações em tempo real com instrutores voluntários e pratique seu inglês!' : 'Join real-time conversations with volunteer instructors and practice your English!' }}
         </p>
       </div>
 
@@ -440,7 +474,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
         class="flex items-center gap-1.5 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-semibold rounded-xl transition-all shadow-sm shrink-0 cursor-pointer"
       >
         <Plus class="w-4 h-4" />
-        {{ showAddForm ? "Fechar Formulário" : "Agendar Nova Aula" }}
+        {{ showAddForm ? (locale === 'pt' ? 'Fechar Formulário' : 'Close Form') : (locale === 'pt' ? 'Agendar Nova Aula' : 'Schedule New Class') }}
       </button>
     </div>
 
@@ -451,26 +485,51 @@ const handleStudentEnter = (cl: ClassTurma) => {
       @submit.prevent="handleCreate" 
       class="bg-slate-50 dark:bg-slate-900 p-6 rounded-2xl border border-gray-200 dark:border-slate-800/80 mt-2 space-y-4 max-w-2xl text-left shadow-md"
     >
-      <p class="text-xs font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest">Criar Nova Turma / Horário de Aula</p>
+      <p class="text-xs font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest">
+        {{ locale === 'pt' ? 'Criar Nova Turma / Horário de Aula' : 'Create New Class / Schedule' }}
+      </p>
       
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label class="block text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 tracking-wider mb-1.5">Curso / Tema Escolhido *</label>
+          <label class="block text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 tracking-wider mb-1.5">
+            {{ locale === 'pt' ? 'Curso / Tema Escolhido *' : 'Course / Topic Chosen *' }}
+          </label>
           <select
             id="select-class-course"
             required
             v-model="selectedCourseId"
             class="w-full text-xs font-medium bg-white dark:bg-slate-950 dark:text-white border border-gray-200 dark:border-slate-800 rounded-xl p-3 focus:outline-hidden focus:ring-1 focus:ring-blue-500 cursor-pointer transition-colors"
           >
-            <option value="" class="dark:bg-slate-950">Selecione o Mini-Curso...</option>
+            <option value="" class="dark:bg-slate-950">
+              {{ locale === 'pt' ? 'Selecione o Mini-Curso...' : 'Select Mini-Course...' }}
+            </option>
+            <option value="custom" class="dark:bg-slate-950 text-blue-600 dark:text-blue-400 font-bold">
+              ⚡ {{ locale === 'pt' ? 'Aula Avulsa (Sem Curso Associado)' : 'Independent Class (No Course Associated)' }}
+            </option>
             <option v-for="c in allowedCourses" :key="c.id" :value="c.id" class="dark:bg-slate-950">
-              {{ c.title }} ({{ c.level }}) - por {{ c.creatorName || 'Comunitário' }}
+              {{ c.title }} ({{ c.level }}) - {{ locale === 'pt' ? 'por' : 'by' }} {{ c.creatorName || (locale === 'pt' ? 'Comunitário' : 'Community') }}
             </option>
           </select>
         </div>
 
+        <div v-if="selectedCourseId === 'custom'" class="col-span-1 md:col-span-2">
+          <label class="block text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 tracking-wider mb-1.5">
+            {{ locale === 'pt' ? 'Título da Aula Avulsa *' : 'Independent Class Title *' }}
+          </label>
+          <input
+            id="input-class-custom-title"
+            type="text"
+            required
+            v-model="customClassTitle"
+            :placeholder="locale === 'pt' ? 'Ex: Conversação Geral, Feedback Individual, Dúvidas de Gramática...' : 'e.g., General Conversation, Individual Feedback, Grammar Questions...'"
+            class="w-full text-xs font-medium bg-white dark:bg-slate-950 dark:text-white border border-gray-200 dark:border-slate-800 rounded-xl p-3 focus:outline-hidden focus:ring-1 focus:ring-blue-500 transition-colors"
+          />
+        </div>
+
         <div>
-          <label class="block text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 tracking-wider mb-1.5">Capacidade de Alunos *</label>
+          <label class="block text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 tracking-wider mb-1.5">
+            {{ locale === 'pt' ? 'Capacidade de Alunos *' : 'Student Capacity *' }}
+          </label>
           <input
             id="input-class-max-students"
             type="number"
@@ -483,7 +542,9 @@ const handleStudentEnter = (cl: ClassTurma) => {
         </div>
 
         <div>
-          <label class="block text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 tracking-wider mb-1.5">Data da Aula *</label>
+          <label class="block text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 tracking-wider mb-1.5">
+            {{ locale === 'pt' ? 'Data da Aula *' : 'Class Date *' }}
+          </label>
           <input
             id="input-class-date"
             type="date"
@@ -494,7 +555,9 @@ const handleStudentEnter = (cl: ClassTurma) => {
         </div>
 
         <div>
-          <label class="block text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 tracking-wider mb-1.5">Horário (Hora de Brasília) *</label>
+          <label class="block text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 tracking-wider mb-1.5">
+            {{ locale === 'pt' ? 'Horário (Hora de Brasília) *' : 'Time (Brasília Time) *' }}
+          </label>
           <input
             id="input-class-hour"
             type="time"
@@ -510,9 +573,9 @@ const handleStudentEnter = (cl: ClassTurma) => {
           id="btn-cancel-create-class"
           type="button"
           @click="showAddForm = false"
-          class="px-4 py-2.5 text-xs font-bold bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-700 cursor-pointer transition-colors shadow-2xs"
+          class="px-4 py-2.5 text-xs font-bold bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-55 dark:hover:bg-slate-700 cursor-pointer transition-colors shadow-2xs"
         >
-          Cancelar
+          {{ locale === 'pt' ? 'Cancelar' : 'Cancel' }}
         </button>
         <button
           id="btn-confirm-create-class"
@@ -520,7 +583,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
           :disabled="isSubmitting"
           class="px-5 py-2.5 text-xs font-extrabold bg-blue-600 hover:bg-blue-700 text-white rounded-xl disabled:opacity-50 cursor-pointer transition-all active:scale-95 flex items-center gap-1.5 shadow-sm"
         >
-          {{ isSubmitting ? "Cadastrando..." : "Disponibilizar Horário" }}
+          {{ isSubmitting ? (locale === 'pt' ? "Cadastrando..." : "Registering...") : (locale === 'pt' ? "Disponibilizar Horário" : "Available Schedule") }}
         </button>
       </div>
     </form>
@@ -534,7 +597,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
           id="input-class-search"
           v-model="classSearchQuery"
           type="text"
-          placeholder="Pesquisar por mini-curso ou nome do professor voluntário..."
+          :placeholder="locale === 'pt' ? 'Pesquisar por mini-curso ou nome do professor voluntário...' : 'Search by mini-course or volunteer instructor name...'"
           class="w-full text-xs sm:text-sm bg-white dark:bg-slate-900 dark:text-white border border-gray-250 dark:border-slate-700 pl-10 pr-4 py-2.5 rounded-xl focus:ring-2 focus:ring-blue-500 font-semibold"
         />
       </div>
@@ -543,18 +606,18 @@ const handleStudentEnter = (cl: ClassTurma) => {
       <div class="flex flex-wrap items-center gap-3 shrink-0">
         <span class="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1.5 whitespace-nowrap">
           <Filter class="w-3.5 h-3.5 text-gray-400" />
-          Filtro:
+          {{ locale === 'pt' ? 'Filtro:' : 'Filter:' }}
         </span>
         <select
           id="select-class-status-filter"
           v-model="classStatusFilter"
-          class="text-xs sm:text-sm bg-white dark:bg-slate-900 dark:text-white border border-gray-250 dark:border-slate-700 rounded-xl px-3 py-2.5 font-bold cursor-pointer focus:ring-2 focus:ring-blue-500"
+          class="text-xs sm:text-sm bg-white dark:bg-slate-900 dark:text-white border border-gray-255 dark:border-slate-700 rounded-xl px-3 py-2.5 font-bold cursor-pointer focus:ring-2 focus:ring-blue-500"
         >
-          <option value="All">Todas as turmas</option>
-          <option value="MyClasses">Minhas Aulas / Inscrições</option>
-          <option value="scheduled">Agendadas</option>
-          <option value="completed">Concluídas</option>
-          <option value="cancelled">Canceladas</option>
+          <option value="All">{{ locale === 'pt' ? 'Todas as turmas' : 'All Classes' }}</option>
+          <option value="MyClasses">{{ locale === 'pt' ? 'Minhas Aulas / Inscrições' : 'My Classes / Enrollments' }}</option>
+          <option value="scheduled">{{ locale === 'pt' ? 'Agendadas' : 'Scheduled' }}</option>
+          <option value="completed">{{ locale === 'pt' ? 'Concluídas' : 'Completed' }}</option>
+          <option value="cancelled">{{ locale === 'pt' ? 'Canceladas' : 'Cancelled' }}</option>
         </select>
 
         <!-- View mode toggle: List vs Calendar -->
@@ -571,7 +634,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
             ]"
           >
             <List class="w-3.5 h-3.5" />
-            <span>Lista</span>
+            <span>{{ locale === 'pt' ? 'Lista' : 'List' }}</span>
           </button>
           <button
             id="btn-view-calendar"
@@ -585,7 +648,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
             ]"
           >
             <CalendarDays class="w-3.5 h-3.5" />
-            <span>Calendário</span>
+            <span>{{ locale === 'pt' ? 'Calendário' : 'Calendar' }}</span>
           </button>
         </div>
       </div>
@@ -595,19 +658,27 @@ const handleStudentEnter = (cl: ClassTurma) => {
     <div v-if="viewType === 'list'" class="space-y-6">
       <!-- Classes schedule cards grid -->
       <div v-if="classes.length === 0" class="p-12 text-center bg-gray-50 dark:bg-slate-850 rounded-2xl border border-gray-200/60 dark:border-slate-700 text-gray-500 max-w-sm mx-auto">
-      <Calendar id="no-classes-icon" class="w-8 h-8 mx-auto mb-2 text-gray-400" />
-      <p class="text-sm font-semibold text-gray-700 dark:text-gray-300">Nenhuma aula agendada</p>
-      <p class="text-xs text-gray-400 mt-1">Solicite à rede de professores voluntários novos horários na semana!</p>
-    </div>
-
-    <div v-else class="space-y-6">
-      
-      <!-- Empty state when searching yields zero results -->
-      <div v-if="filteredClasses.length === 0" class="p-12 text-center bg-gray-50 dark:bg-slate-850 rounded-3xl border border-gray-200/60 dark:border-slate-700 text-gray-500 max-w-sm mx-auto">
-        <Search class="w-8 h-8 mx-auto mb-2 text-gray-400 animate-pulse" />
-        <p class="text-sm font-semibold text-gray-700 dark:text-gray-300">Nenhuma aula corresponde aos filtros</p>
-        <p class="text-xs text-gray-400 mt-1">Experimente alterar os termos de busca ou selecionar outro filtro.</p>
+        <Calendar id="no-classes-icon" class="w-8 h-8 mx-auto mb-2 text-gray-400" />
+        <p class="text-sm font-semibold text-gray-700 dark:text-gray-300">
+          {{ locale === 'pt' ? 'Nenhuma aula agendada' : 'No classes scheduled' }}
+        </p>
+        <p class="text-xs text-gray-400 mt-1">
+          {{ locale === 'pt' ? 'Solicite à rede de professores voluntários novos horários na semana!' : 'Request new schedules from the volunteer instructors network this week!' }}
+        </p>
       </div>
+
+      <div v-else class="space-y-6">
+        
+        <!-- Empty state when searching yields zero results -->
+        <div v-if="filteredClasses.length === 0" class="p-12 text-center bg-gray-50 dark:bg-slate-850 rounded-3xl border border-gray-200/60 dark:border-slate-700 text-gray-500 max-w-sm mx-auto">
+          <Search class="w-8 h-8 mx-auto mb-2 text-gray-400 animate-pulse" />
+          <p class="text-sm font-semibold text-gray-700 dark:text-gray-300">
+            {{ locale === 'pt' ? 'Nenhuma aula corresponde aos filtros' : 'No classes match the filters' }}
+          </p>
+          <p class="text-xs text-gray-400 mt-1">
+            {{ locale === 'pt' ? 'Experimente alterar os termos de busca ou selecionar outro filtro.' : 'Try changing search terms or selecting another filter.' }}
+          </p>
+        </div>
 
       <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <div 
@@ -624,22 +695,41 @@ const handleStudentEnter = (cl: ClassTurma) => {
         <div v-if="editingClassId === cl.id" class="space-y-3.5 p-1">
           <p class="text-xs font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest flex items-center gap-1">
             <Edit class="w-3.5 h-3.5" />
-            <span>Editar Propriedades da Aula</span>
+            <span>{{ locale === 'pt' ? 'Editar Propriedades da Aula' : 'Edit Class Properties' }}</span>
           </p>
           
           <div>
-            <label class="block text-[10px] font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1">Curso Associado</label>
+            <label class="block text-[10px] font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1">
+              {{ locale === 'pt' ? 'Curso Associado' : 'Associated Course' }}
+            </label>
             <select
               v-model="editCourseId"
               class="w-full text-xs bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-750 dark:text-white rounded-lg p-2 font-semibold cursor-pointer"
             >
-              <option v-for="c in allowedCourses" :key="c.id" :value="c.id">{{ c.title }} - por {{ c.creatorName || 'Comunitário' }}</option>
+              <option value="custom-class">⚡ {{ locale === 'pt' ? 'Aula Avulsa / Sem Curso Associado' : 'Independent Class / No Course Associated' }}</option>
+              <option v-for="c in allowedCourses" :key="c.id" :value="c.id">
+                {{ c.title }} - {{ locale === 'pt' ? 'por' : 'by' }} {{ c.creatorName || (locale === 'pt' ? 'Comunitário' : 'Community') }}
+              </option>
             </select>
+          </div>
+
+          <div v-if="editCourseId === 'custom-class'">
+            <label class="block text-[10px] font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1">
+              {{ locale === 'pt' ? 'Título da Aula Avulsa' : 'Independent Class Title' }}
+            </label>
+            <input
+              type="text"
+              v-model="editCustomClassTitle"
+              :placeholder="locale === 'pt' ? 'Digite o título da aula...' : 'Enter the class title...'"
+              class="w-full text-xs bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-750 dark:text-white rounded-lg p-2 font-semibold"
+            />
           </div>
 
           <div class="grid grid-cols-2 gap-2">
             <div>
-              <label class="block text-[10px] font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1">Vagas (Máx)</label>
+              <label class="block text-[10px] font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1">
+                {{ locale === 'pt' ? 'Vagas (Máx)' : 'Seats (Max)' }}
+              </label>
               <input
                 type="number"
                 min="2"
@@ -649,14 +739,16 @@ const handleStudentEnter = (cl: ClassTurma) => {
               />
             </div>
             <div>
-              <label class="block text-[10px] font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1">Status</label>
+              <label class="block text-[10px] font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1">
+                {{ locale === 'pt' ? 'Status' : 'Status' }}
+              </label>
               <select
                 v-model="editStatus"
                 class="w-full text-xs bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-750 dark:text-white rounded-lg p-2 font-semibold cursor-pointer"
               >
-                <option value="scheduled">Agendada</option>
-                <option value="completed">Concluída</option>
-                <option value="cancelled">Cancelada</option>
+                <option value="scheduled">{{ locale === 'pt' ? 'Agendada' : 'Scheduled' }}</option>
+                <option value="completed">{{ locale === 'pt' ? 'Concluída' : 'Completed' }}</option>
+                <option value="cancelled">{{ locale === 'pt' ? 'Cancelada' : 'Cancelled' }}</option>
               </select>
             </div>
           </div>
@@ -664,7 +756,9 @@ const handleStudentEnter = (cl: ClassTurma) => {
           <!-- ADMIN-ONLY DATE & TIME EDITING -->
           <div v-if="isAdmin" class="grid grid-cols-2 gap-2 bg-rose-50/40 dark:bg-rose-950/10 p-2 rounded-xl border border-rose-100 dark:border-rose-900/30">
             <div>
-              <label class="block text-[10px] font-bold text-rose-700 dark:text-rose-400 uppercase tracking-wider mb-1">Data (Admin)</label>
+              <label class="block text-[10px] font-bold text-rose-700 dark:text-rose-400 uppercase tracking-wider mb-1">
+                {{ locale === 'pt' ? 'Data (Admin)' : 'Date (Admin)' }}
+              </label>
               <input
                 type="date"
                 v-model="editScheduledDate"
@@ -672,7 +766,9 @@ const handleStudentEnter = (cl: ClassTurma) => {
               />
             </div>
             <div>
-              <label class="block text-[10px] font-bold text-rose-700 dark:text-rose-400 uppercase tracking-wider mb-1">Hora (Admin)</label>
+              <label class="block text-[10px] font-bold text-rose-700 dark:text-rose-400 uppercase tracking-wider mb-1">
+                {{ locale === 'pt' ? 'Hora (Admin)' : 'Time (Admin)' }}
+              </label>
               <input
                 type="time"
                 v-model="editScheduledTime"
@@ -681,11 +777,16 @@ const handleStudentEnter = (cl: ClassTurma) => {
             </div>
           </div>
           <div v-else class="bg-gray-50 dark:bg-slate-850 border border-gray-150 dark:border-slate-700/60 rounded-xl p-2.5 text-[10px] text-gray-500 dark:text-gray-400 font-semibold leading-normal">
-            🔒 Horário ({{ cl.scheduledAt }}): Alterações de data e hora são restritas a Administradores do sistema.
+            {{ locale === 'pt' 
+              ? `🔒 Horário (${cl.scheduledAt}): Alterações de data e hora são restritas a Administradores do sistema.`
+              : `🔒 Time (${cl.scheduledAt}): Date and time changes are restricted to system Administrators.` 
+            }}
           </div>
 
           <div>
-            <label class="block text-[10px] font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1">Link de Videoconferência (Call URL)</label>
+            <label class="block text-[10px] font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1">
+              {{ locale === 'pt' ? 'Link de Videoconferência (Call URL)' : 'Video Conference Link (Call URL)' }}
+            </label>
             <input
               type="url"
               v-model="editCallUrl"
@@ -700,14 +801,14 @@ const handleStudentEnter = (cl: ClassTurma) => {
               @click="editingClassId = null"
               class="px-3 py-1.5 border border-gray-300 dark:border-slate-700 rounded-lg text-xs font-semibold text-gray-650 dark:text-gray-300 hover:bg-gray-55 dark:hover:bg-slate-700 cursor-pointer"
             >
-              Cancelar
+              {{ locale === 'pt' ? 'Cancelar' : 'Cancel' }}
             </button>
             <button
               type="button"
               @click="saveEdit(cl)"
               class="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-black cursor-pointer shadow-xs"
             >
-              Salvar Alterações
+              {{ locale === 'pt' ? 'Salvar Alterações' : 'Save Changes' }}
             </button>
           </div>
         </div>
@@ -723,7 +824,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
                 cl.status === 'cancelled' ? 'bg-rose-100 text-rose-800 dark:bg-rose-950/40 dark:text-rose-300' :
                 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300'
                ]">
-                {{ cl.status === 'completed' ? 'Aula Concluída' : cl.status === 'cancelled' ? 'Cancelada' : 'Turma Ativa' }}
+                {{ cl.status === 'completed' ? (locale === 'pt' ? 'Aula Concluída' : 'Class Completed') : cl.status === 'cancelled' ? (locale === 'pt' ? 'Cancelada' : 'Cancelled') : (locale === 'pt' ? 'Turma Ativa' : 'Active Class') }}
               </span>
               <span class="text-xs text-gray-600 dark:text-gray-300 font-mono flex items-center gap-1 font-semibold">
                 <Clock class="w-3.5 h-3.5 text-blue-500" />
@@ -733,49 +834,56 @@ const handleStudentEnter = (cl: ClassTurma) => {
 
             <!-- Associated Course Info -->
             <p class="text-[10px] text-gray-400 dark:text-gray-500 uppercase tracking-widest font-black mb-1">
-              Associação de Curso &amp; Tema
+              {{ locale === 'pt' ? 'Associação de Curso & Tema' : 'Course & Topic Association' }}
             </p>
             <div class="p-3 bg-slate-50 dark:bg-slate-900 border border-slate-150 dark:border-slate-750 rounded-xl mb-3">
               <h3 class="font-extrabold text-sm text-gray-900 dark:text-white line-clamp-1">
                 {{ cl.courseTitle }}
               </h3>
               <p class="text-[10px] text-gray-450 dark:text-gray-550 font-bold mt-0.5">
-                Autor: {{ courses.find(c => c.id === cl.courseId)?.creatorName || 'Comunitário' }}
+                {{ locale === 'pt' ? 'Autor:' : 'Author:' }} {{ cl.courseId === 'custom-class' ? cl.instructorName : (courses.find(c => c.id === cl.courseId)?.creatorName || (locale === 'pt' ? 'Comunitário' : 'Community')) }}
               </p>
               <p class="text-[11px] text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
-                {{ courses.find(c => c.id === cl.courseId)?.description || 'Este curso oferece aulas de conversação ativa para expandir suas habilidades orais.' }}
+                {{ cl.courseId === 'custom-class' 
+                  ? (locale === 'pt' ? 'Aula independente com foco em conversação dinâmica, feedback personalizado e esclarecimento de dúvidas.' : 'Independent class with a focus on dynamic conversation, personalized feedback, and Q&A.') 
+                  : (courses.find(c => c.id === cl.courseId)?.description || (locale === 'pt' ? 'Este curso oferece aulas de conversação ativa para expandir suas habilidades orais.' : 'This course offers active conversation classes to expand your oral skills.')) 
+                }}
               </p>
             </div>
 
             <p class="text-xs text-gray-500 dark:text-gray-400 flex items-center">
-              Oferecido por: <strong class="ml-1 text-gray-800 dark:text-gray-200 font-bold">{{ cl.instructorName }}</strong>
+              {{ locale === 'pt' ? 'Oferecido por:' : 'Offered by:' }} <strong class="ml-1 text-gray-800 dark:text-gray-200 font-bold">{{ cl.instructorName }}</strong>
             </p>
 
             <!-- CALL LINK & PLATFORM VALIDATION SECTION (Only for confirmed students & teachers) -->
             <div class="mt-4 pt-4 border-t border-gray-100 dark:border-slate-700/80">
               <template v-if="cl.studentIds.includes(currentUserId) || isInstructor">
-                <p class="text-[10px] text-gray-400 dark:text-gray-505 uppercase tracking-widest font-black mb-1.5">
-                  Sala de Transmissão (Meet/Call)
+                <p class="text-[10px] text-gray-400 dark:text-gray-555 uppercase tracking-widest font-black mb-1.5">
+                  {{ locale === 'pt' ? 'Sala de Transmissão (Meet/Call)' : 'Broadcast Room (Meet/Call)' }}
                 </p>
 
                 <!-- LINK IS DISPONIBLE -->
                 <div v-if="cl.callUrl" class="p-3 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-950/50 rounded-xl flex items-center justify-between gap-2.5">
                   <div class="text-left">
                     <div class="flex items-center gap-1.5">
-                      <p class="text-xs font-extrabold text-emerald-850 dark:text-emerald-300 leading-none">Link Disponível!</p>
+                      <p class="text-xs font-extrabold text-emerald-850 dark:text-emerald-300 leading-none">
+                        {{ locale === 'pt' ? 'Link Disponível!' : 'Link Available!' }}
+                      </p>
                       
                       <!-- Presença checkmark for the student -->
                       <span v-if="!isInstructor && cl.presentStudentIds?.includes(currentUserId)" class="text-[9px] bg-emerald-200 dark:bg-emerald-900/60 font-black text-emerald-800 dark:text-emerald-300 px-1.5 py-0.5 rounded-md">
-                        ✓ Presença Gravada
+                        {{ locale === 'pt' ? '✓ Presença Gravada' : '✓ Attendance Recorded' }}
                       </span>
                     </div>
-                    <p class="text-[10px] text-emerald-600 dark:text-emerald-400 mt-1">Conecte-se e pratique inglês.</p>
+                    <p class="text-[10px] text-emerald-600 dark:text-emerald-400 mt-1">
+                      {{ locale === 'pt' ? 'Conecte-se e pratique inglês.' : 'Connect and practice English.' }}
+                    </p>
                   </div>
                   <button
                     @click.stop="handleStudentEnter(cl)"
                     class="flex items-center gap-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-black transition-all cursor-pointer shadow-xs shrink-0"
                   >
-                    <span>Entrar na Aula</span>
+                    <span>{{ locale === 'pt' ? 'Entrar na Aula' : 'Enter Class' }}</span>
                     <ExternalLink class="w-3.5 h-3.5" />
                   </button>
                 </div>
@@ -785,18 +893,22 @@ const handleStudentEnter = (cl: ClassTurma) => {
                   <!-- Case 1: Before the class schedule -->
                   <div v-if="isBeforeClassTime(cl.scheduledAt)" class="p-3 bg-blue-50/50 dark:bg-slate-850 border border-blue-100/50 dark:border-slate-700/60 rounded-xl text-[11px] text-blue-800 dark:text-blue-300 flex items-start gap-2 max-w-full">
                     <Clock class="w-4 h-4 text-blue-500 dark:text-blue-400 shrink-0 mt-0.5" />
-                    <span>O link da call estará disponível aqui próximo ao horário agendado.</span>
+                    <span>
+                      {{ locale === 'pt' ? 'O link da call estará disponível aqui próximo ao horário agendado.' : 'The call link will be available here close to the scheduled time.' }}
+                    </span>
                   </div>
 
                   <!-- Case 2: During or after the class schedule (delayed/professor late) -->
                   <div v-else class="p-3 bg-amber-50/70 dark:bg-amber-950/10 border border-amber-100 dark:border-amber-900/30 rounded-xl text-[11px] text-amber-800 dark:text-amber-400 flex items-start gap-2">
                     <Clock class="w-4 h-4 text-amber-500 dark:text-amber-400 shrink-0 mt-0.5 animate-pulse" />
-                    <span>O professor ainda não disponibilizou o link ou está atrasado. Aguarde um instante...</span>
+                    <span>
+                      {{ locale === 'pt' ? 'O professor ainda não disponibilizou o link ou está atrasado. Aguarde um instante...' : 'The instructor has not provided the link yet or is late. Please wait...' }}
+                    </span>
                   </div>
                 </div>
               </template>
-              <p v-else class="text-[11.5px] italic text-gray-400 dark:text-gray-500">
-                🔒 Inscreva-se na turma para ter acesso ao link da sala virtual.
+              <p v-else class="text-[11.5px] italic text-gray-400 dark:text-gray-505">
+                {{ locale === 'pt' ? '🔒 Inscreva-se na turma para ter acesso ao link da sala virtual.' : '🔒 Enroll in this class to access the virtual room link.' }}
               </p>
             </div>
           </div>
@@ -804,10 +916,12 @@ const handleStudentEnter = (cl: ClassTurma) => {
           <!-- Seats & interactive controls -->
           <div class="mt-4 pt-4 border-t border-gray-100 dark:border-slate-700/80 flex items-center justify-between">
             <div>
-              <span class="text-[10px] font-black text-gray-400 dark:text-gray-505 block">Ocupação</span>
+              <span class="text-[10px] font-black text-gray-400 dark:text-gray-505 block">
+                {{ locale === 'pt' ? 'Ocupação' : 'Occupancy' }}
+              </span>
               <div class="flex items-center gap-1.5 text-xs font-bold text-gray-700 dark:text-gray-300 mt-0.5">
                 <Users class="w-4 h-4 text-gray-400" />
-                <span>{{ cl.studentIds.length }} / {{ cl.maxStudents }} alunos</span>
+                <span>{{ cl.studentIds.length }} / {{ cl.maxStudents }} {{ locale === 'pt' ? 'alunos' : 'students' }}</span>
               </div>
             </div>
 
@@ -818,7 +932,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
                 :id="`btn-edit-class-${cl.id}`"
                 @click.stop="startEditing(cl)"
                 class="p-2 text-blue-500 hover:bg-blue-55 dark:hover:bg-slate-700/50 rounded-lg transition-colors border border-transparent hover:border-blue-100 dark:hover:border-slate-700 cursor-pointer"
-                title="Editar propriedades da aula"
+                :title="locale === 'pt' ? 'Editar propriedades da aula' : 'Edit class properties'"
               >
                 <Edit class="w-4 h-4" />
               </button>
@@ -828,7 +942,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
                 v-if="isInstructor && (isAdmin || cl.instructorId === currentUserId || cl.instructorId === 'system-volunteer')"
                 :id="`btn-delete-class-${cl.id}`"
                 @click.stop="emit('delete-class', cl.id)"
-                title="Remover este horário"
+                :title="locale === 'pt' ? 'Remover este horário' : 'Remove this schedule'"
                 class="p-2 text-rose-500 hover:bg-rose-55 dark:hover:bg-slate-700/50 rounded-lg transition-colors border border-transparent hover:border-rose-100 dark:hover:border-slate-700 cursor-pointer"
               >
                 <Trash2 class="w-4.5 h-4.5" />
@@ -843,7 +957,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
                   class="flex items-center gap-1 bg-rose-500/5 hover:bg-rose-500/10 text-rose-600 dark:text-rose-450 border border-rose-500/25 py-1.5 px-3.5 text-xs font-bold rounded-lg transition-colors cursor-pointer"
                 >
                   <LogOut class="w-3.5 h-3.5" />
-                  Sair
+                  {{ locale === 'pt' ? 'Sair' : 'Leave' }}
                 </button>
                 <button
                   v-else
@@ -858,7 +972,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
                   ]"
                 >
                   <Check class="w-3.5 h-3.5" />
-                  {{ cl.studentIds.length >= cl.maxStudents ? "Esgotado" : "Participar" }}
+                  {{ cl.studentIds.length >= cl.maxStudents ? (locale === 'pt' ? "Esgotado" : "Full") : (locale === 'pt' ? "Participar" : "Join") }}
                 </button>
               </template>
 
@@ -867,7 +981,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
                 v-if="isInstructor"
                 class="text-[10px] text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 px-2.5 py-1 rounded-md font-bold flex items-center gap-1"
               >
-                <CheckCircle class="w-3 h-3" /> Minha Aula
+                <CheckCircle class="w-3 h-3" /> {{ locale === 'pt' ? 'Minha Aula' : 'My Class' }}
               </span>
             </div>
           </div>
@@ -878,7 +992,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
             v-if="!isInstructor && cl.studentIds.includes(currentUserId)"
             class="mt-3 bg-blue-50/40 dark:bg-slate-850 border border-blue-100/50 dark:border-slate-700/60 rounded-lg p-2.5 text-[11px] text-blue-700 dark:text-blue-300 text-center font-semibold"
           >
-            📍 Você está confirmado nesta turma! Prepare-se para falar.
+            {{ locale === 'pt' ? '📍 Você está confirmado nesta turma! Prepare-se para falar.' : '📍 You are confirmed in this class! Get ready to speak.' }}
           </div>
         </div>
       </div>
@@ -887,9 +1001,9 @@ const handleStudentEnter = (cl: ClassTurma) => {
     <!-- Pagination controls for classes -->
     <div v-if="totalClassPages > 1" class="flex items-center justify-between gap-4 mt-6 pt-4 border-t border-gray-100 dark:border-slate-750/50">
       <p class="text-xs font-bold text-gray-500 dark:text-gray-400">
-        Mostrando <span class="text-gray-900 dark:text-white">{{ (classCurrentPage - 1) * classItemsPerPage + 1 }}</span> a 
-        <span class="text-gray-900 dark:text-white">{{ Math.min(classCurrentPage * classItemsPerPage, filteredClasses.length) }}</span> de 
-        <span class="text-gray-900 dark:text-white font-extrabold">{{ filteredClasses.length }}</span> aulas
+        {{ locale === 'pt' ? 'Mostrando' : 'Showing' }} <span class="text-gray-900 dark:text-white">{{ (classCurrentPage - 1) * classItemsPerPage + 1 }}</span> {{ locale === 'pt' ? 'a' : 'to' }} 
+        <span class="text-gray-900 dark:text-white">{{ Math.min(classCurrentPage * classItemsPerPage, filteredClasses.length) }}</span> {{ locale === 'pt' ? 'de' : 'of' }} 
+        <span class="text-gray-900 dark:text-white font-extrabold">{{ filteredClasses.length }}</span> {{ locale === 'pt' ? 'aulas' : 'classes' }}
       </p>
       
       <div class="flex items-center gap-1.5 flex-wrap">
@@ -898,7 +1012,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
           :disabled="classCurrentPage === 1"
           @click="classCurrentPage--"
           class="p-2 border border-gray-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-900 hover:bg-gray-50 dark:hover:bg-slate-800 disabled:opacity-40 transition-colors cursor-pointer"
-          title="Página Anterior"
+          :title="locale === 'pt' ? 'Página Anterior' : 'Previous Page'"
         >
           <ChevronLeft class="w-4 h-4 text-gray-700 dark:text-gray-200" />
         </button>
@@ -924,7 +1038,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
           :disabled="classCurrentPage === totalClassPages"
           @click="classCurrentPage++"
           class="p-2 border border-gray-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-900 hover:bg-gray-50 dark:hover:bg-slate-800 disabled:opacity-40 transition-colors cursor-pointer"
-          title="Próxima Página"
+          :title="locale === 'pt' ? 'Próxima Página' : 'Next Page'"
         >
           <ChevronRight class="w-4 h-4 text-gray-700 dark:text-gray-200" />
         </button>
@@ -947,14 +1061,14 @@ const handleStudentEnter = (cl: ClassTurma) => {
           </button>
           
           <h3 class="text-sm sm:text-base font-black text-gray-900 dark:text-white min-w-[140px] text-center capitalize tracking-tight">
-            {{ calendarViewMode === 'month' ? `${monthNames[currentMonth]} ${currentYear}` : `Semana de ${monthNames[currentWeekStart.getMonth()]}` }}
+            {{ calendarViewMode === 'month' ? `${monthNames[currentMonth]} ${currentYear}` : (locale === 'pt' ? `Semana de ${monthNames[currentWeekStart.getMonth()]}` : `Week of ${monthNames[currentWeekStart.getMonth()]}`) }}
           </h3>
 
           <button
             id="btn-calendar-next"
             type="button"
             @click="calendarViewMode === 'month' ? nextMonth() : nextWeek()"
-            class="p-2 bg-slate-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl hover:bg-gray-100 dark:hover:bg-slate-700 cursor-pointer transition-colors"
+            class="p-2 bg-slate-50 dark:bg-slate-850 border border-gray-200 dark:border-slate-700 rounded-xl hover:bg-gray-100 dark:hover:bg-slate-700 cursor-pointer transition-colors"
           >
             <ChevronRight class="w-4 h-4 text-gray-700 dark:text-gray-200" />
           </button>
@@ -965,7 +1079,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
             @click="resetToToday()"
             class="px-3 py-1.5 bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-900/40 text-xs font-bold rounded-xl hover:bg-blue-100/50 cursor-pointer transition-colors ml-1"
           >
-            Hoje
+            {{ locale === 'pt' ? 'Hoje' : 'Today' }}
           </button>
         </div>
 
@@ -983,7 +1097,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
                   : 'text-gray-500 dark:text-gray-400 hover:text-gray-950 dark:hover:text-white'
               ]"
             >
-              Mensal
+              {{ locale === 'pt' ? 'Mensal' : 'Monthly' }}
             </button>
             <button
               id="btn-calendar-mode-week"
@@ -996,15 +1110,15 @@ const handleStudentEnter = (cl: ClassTurma) => {
                   : 'text-gray-500 dark:text-gray-400 hover:text-gray-950 dark:hover:text-white'
               ]"
             >
-              Semanal
+              {{ locale === 'pt' ? 'Semanal' : 'Weekly' }}
             </button>
           </div>
 
           <div class="flex flex-wrap items-center gap-2.5 text-[9px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider bg-slate-50 dark:bg-slate-950/40 px-3 py-1.5 rounded-xl border border-gray-150 dark:border-slate-800">
-            <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-blue-500 dark:bg-blue-400"></span>Agendada</span>
-            <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400"></span>Concluída</span>
-            <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-rose-500 dark:bg-rose-400"></span>Cancelada</span>
-            <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-amber-500 dark:bg-amber-400"></span>Inscrito</span>
+            <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-blue-500 dark:bg-blue-400"></span>{{ locale === 'pt' ? 'Agendada' : 'Scheduled' }}</span>
+            <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400"></span>{{ locale === 'pt' ? 'Concluída' : 'Completed' }}</span>
+            <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-rose-500 dark:bg-rose-400"></span>{{ locale === 'pt' ? 'Cancelada' : 'Cancelled' }}</span>
+            <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-amber-500 dark:bg-amber-400"></span>{{ locale === 'pt' ? 'Inscrito' : 'Enrolled' }}</span>
           </div>
         </div>
       </div>
@@ -1061,7 +1175,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
                     @click.stop="handleCalendarDayClick(day)"
                     class="p-0.5 text-[8px] md:text-[9px] font-black rounded-md border border-dashed border-blue-200 text-blue-600 dark:border-blue-500/20 dark:text-blue-400 dark:bg-blue-950/20 text-center hover:bg-blue-50 dark:hover:bg-blue-900/40 transition-all cursor-pointer leading-tight mt-0.5"
                   >
-                    +{{ day.classesOnDay.length - 2 }} mais
+                    +{{ day.classesOnDay.length - 2 }} {{ locale === 'pt' ? 'mais' : 'more' }}
                   </div>
                 </div>
 
@@ -1087,7 +1201,9 @@ const handleStudentEnter = (cl: ClassTurma) => {
                 <CalendarDays class="w-4 h-4" />
               </div>
               <div>
-                <h4 class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Compromissos do Dia</h4>
+                <h4 class="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                  {{ locale === 'pt' ? 'Compromissos do Dia' : 'Schedule for the Day' }}
+                </h4>
                 <p class="text-xs font-black text-gray-900 dark:text-white capitalize mt-0.5">{{ formatSelectedDayTitle }}</p>
               </div>
             </div>
@@ -1098,16 +1214,20 @@ const handleStudentEnter = (cl: ClassTurma) => {
               class="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-black cursor-pointer shadow-xs transition-colors"
             >
               <Plus class="w-3.5 h-3.5" />
-              <span>Agendar</span>
+              <span>{{ locale === 'pt' ? 'Agendar' : 'Schedule' }}</span>
             </button>
           </div>
 
-          <div v-if="selectedDayClasses.length === 0" class="py-6 text-center text-gray-400 dark:text-gray-500 flex flex-col items-center justify-center gap-1.5">
+          <div v-if="selectedDayClasses.length === 0" class="py-6 text-center text-gray-400 dark:text-gray-505 flex flex-col items-center justify-center gap-1.5">
             <div class="w-8 h-8 rounded-full bg-slate-50 dark:bg-slate-850 flex items-center justify-center text-gray-300 dark:text-gray-600">
               <Clock class="w-4 h-4" />
             </div>
-            <p class="text-xs font-bold">Nenhuma aula síncrona agendada.</p>
-            <p v-if="isInstructor" class="text-[10px] text-gray-400">Pressione "Agendar" para registrar uma nova aula.</p>
+            <p class="text-xs font-bold">
+              {{ locale === 'pt' ? 'Nenhuma aula síncrona agendada.' : 'No synchronous classes scheduled.' }}
+            </p>
+            <p v-if="isInstructor" class="text-[10px] text-gray-400">
+              {{ locale === 'pt' ? 'Pressione "Agendar" para registrar uma nova aula.' : 'Press "Schedule" to create a new class.' }}
+            </p>
           </div>
 
           <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -1129,15 +1249,17 @@ const handleStudentEnter = (cl: ClassTurma) => {
               <div class="flex items-center justify-between gap-1">
                 <span class="text-[10px] font-mono font-black flex items-center gap-1 text-gray-600 dark:text-gray-350"><Clock class="w-3 h-3 text-blue-500" />{{ cl.scheduledAt.split(' ')[1] }}</span>
                 <span :class="['text-[8px] font-extrabold tracking-wider uppercase px-1.5 py-0.5 rounded-sm', cl.status === 'completed' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300' : cl.status === 'cancelled' ? 'bg-rose-100 text-rose-850 dark:bg-rose-950/45 dark:text-rose-300' : 'bg-blue-100 text-blue-800 dark:bg-blue-950/40 dark:text-blue-300']">
-                  {{ cl.status === 'completed' ? 'Fim' : cl.status === 'cancelled' ? 'Canc' : cl.studentIds.includes(currentUserId) ? 'Inscrito' : 'Disponível' }}
+                  {{ cl.status === 'completed' ? (locale === 'pt' ? 'Fim' : 'Ended') : cl.status === 'cancelled' ? (locale === 'pt' ? 'Canc' : 'Cancelled') : cl.studentIds.includes(currentUserId) ? (locale === 'pt' ? 'Inscrito' : 'Enrolled') : (locale === 'pt' ? 'Disponível' : 'Available') }}
                 </span>
               </div>
               <h5 class="text-xs font-extrabold line-clamp-1 leading-snug">{{ cl.courseTitle }}</h5>
-              <p class="text-[10px] text-gray-450 dark:text-gray-400">Professor: <strong class="text-gray-600 dark:text-gray-300 font-bold">{{ cl.instructorName }}</strong></p>
+              <p class="text-[10px] text-gray-450 dark:text-gray-400">
+                {{ locale === 'pt' ? 'Professor:' : 'Instructor:' }} <strong class="text-gray-600 dark:text-gray-300 font-bold">{{ cl.instructorName }}</strong>
+              </p>
               <div class="mt-2 pt-2 border-t border-gray-150/60 dark:border-slate-850 flex items-center justify-between text-[10px] text-gray-400 font-semibold">
-                <span class="flex items-center gap-1"><Users class="w-3 h-3 text-gray-400" />{{ cl.studentIds.length }}/{{ cl.maxStudents }} alunos</span>
-                <span v-if="cl.studentIds.includes(currentUserId)" class="text-amber-600 dark:text-amber-400 font-extrabold flex items-center gap-0.5">★ Inscrito</span>
-                <span v-else class="text-blue-600 dark:text-blue-400 font-extrabold">Ver Detalhes →</span>
+                <span class="flex items-center gap-1"><Users class="w-3 h-3 text-gray-400" />{{ cl.studentIds.length }}/{{ cl.maxStudents }} {{ locale === 'pt' ? 'alunos' : 'students' }}</span>
+                <span v-if="cl.studentIds.includes(currentUserId)" class="text-amber-600 dark:text-amber-400 font-extrabold flex items-center gap-0.5">★ {{ locale === 'pt' ? 'Inscrito' : 'Enrolled' }}</span>
+                <span v-else class="text-blue-600 dark:text-blue-400 font-extrabold">{{ locale === 'pt' ? 'Ver Detalhes →' : 'View Details →' }}</span>
               </div>
             </div>
           </div>
@@ -1167,7 +1289,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
                   <p class="text-[9px] uppercase font-black text-gray-400 tracking-wider">{{ weekdayNames[day.date.getDay()] }}</p>
                   <h4 class="text-xs font-black text-gray-900 dark:text-white flex items-center gap-1 mt-0.5">
                     {{ day.dayNum }} {{ monthNames[day.date.getMonth()].slice(0, 3) }}
-                    <span v-if="day.isToday" class="text-[8px] bg-blue-600 text-white font-bold px-1 rounded-sm scale-90">Hoje</span>
+                    <span v-if="day.isToday" class="text-[8px] bg-blue-600 text-white font-bold px-1 rounded-sm scale-90">{{ locale === 'pt' ? 'Hoje' : 'Today' }}</span>
                   </h4>
                 </div>
                 <button v-if="isInstructor" @click.stop="openAddFormWithDate(day.dateString)" class="p-0.5 text-blue-600 hover:bg-blue-50 rounded-md cursor-pointer"><Plus class="w-3.5 h-3.5" /></button>
@@ -1175,7 +1297,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
               <div class="space-y-2 flex-1">
                 <div v-if="day.classesOnDay.length === 0" class="h-full flex flex-col items-center justify-center py-6 text-center text-gray-300">
                   <CalendarDays class="w-5 h-5 text-gray-300 mb-0.5" />
-                  <p class="text-[9px] font-semibold">Sem Aulas</p>
+                  <p class="text-[9px] font-semibold">{{ locale === 'pt' ? 'Sem Aulas' : 'No Classes' }}</p>
                 </div>
                 <div
                   v-else
@@ -1219,7 +1341,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
                   @click.stop="handleCalendarDayClick(day)"
                   class="p-1.5 rounded-xl border border-dashed border-blue-200 text-blue-600 dark:border-blue-500/20 dark:text-blue-400 dark:bg-blue-950/20 text-center hover:bg-blue-50 dark:hover:bg-blue-900/40 transition-all cursor-pointer font-black text-[10px] flex items-center justify-center gap-1 mt-1"
                 >
-                  <span>+{{ day.classesOnDay.length - 1 }} aula(s)</span>
+                  <span>+{{ day.classesOnDay.length - 1 }} {{ locale === 'pt' ? 'aula(s)' : 'class(es)' }}</span>
                 </div>
               </div>
             </div>
@@ -1268,7 +1390,9 @@ const handleStudentEnter = (cl: ClassTurma) => {
                 <CalendarDays class="w-4 h-4" />
               </div>
               <div>
-                <h4 class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Compromissos do Dia</h4>
+                <h4 class="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                  {{ locale === 'pt' ? 'Compromissos do Dia' : 'Schedule for the Day' }}
+                </h4>
                 <p class="text-xs font-black text-gray-900 dark:text-white capitalize mt-0.5">{{ formatSelectedDayTitle }}</p>
               </div>
             </div>
@@ -1279,16 +1403,20 @@ const handleStudentEnter = (cl: ClassTurma) => {
               class="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-black cursor-pointer shadow-xs transition-colors"
             >
               <Plus class="w-3.5 h-3.5" />
-              <span>Agendar</span>
+              <span>{{ locale === 'pt' ? 'Agendar' : 'Schedule' }}</span>
             </button>
           </div>
 
-          <div v-if="selectedDayClasses.length === 0" class="py-12 text-center text-gray-400 dark:text-gray-500 flex flex-col items-center justify-center gap-1.5">
+          <div v-if="selectedDayClasses.length === 0" class="py-12 text-center text-gray-400 dark:text-gray-505 flex flex-col items-center justify-center gap-1.5">
             <div class="w-8 h-8 rounded-full bg-slate-50 dark:bg-slate-850 flex items-center justify-center text-gray-300 dark:text-gray-600">
               <Clock class="w-4 h-4" />
             </div>
-            <p class="text-xs font-bold">Nenhuma aula neste dia.</p>
-            <p v-if="isInstructor" class="text-[10px] text-gray-400">Pressione "Agendar" para registrar uma nova aula.</p>
+            <p class="text-xs font-bold">
+              {{ locale === 'pt' ? 'Nenhuma aula neste dia.' : 'No classes on this day.' }}
+            </p>
+            <p v-if="isInstructor" class="text-[10px] text-gray-400">
+              {{ locale === 'pt' ? 'Pressione "Agendar" para registrar uma nova aula.' : 'Press "Schedule" to create a new class.' }}
+            </p>
           </div>
 
           <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -1310,15 +1438,17 @@ const handleStudentEnter = (cl: ClassTurma) => {
               <div class="flex items-center justify-between gap-1">
                 <span class="text-[10px] font-mono font-black flex items-center gap-1 text-gray-600 dark:text-gray-350"><Clock class="w-3.5 h-3.5 text-blue-500" />{{ cl.scheduledAt.split(' ')[1] }}</span>
                 <span :class="['text-[8px] font-extrabold tracking-wider uppercase px-1.5 py-0.5 rounded-sm', cl.status === 'completed' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300' : cl.status === 'cancelled' ? 'bg-rose-100 text-rose-850 dark:bg-rose-950/45 dark:text-rose-350' : 'bg-blue-100 text-blue-800 dark:bg-blue-950/40 dark:text-blue-300']">
-                  {{ cl.status === 'completed' ? 'Fim' : cl.status === 'cancelled' ? 'Canc' : cl.studentIds.includes(currentUserId) ? 'Inscrito' : 'Disponível' }}
+                  {{ cl.status === 'completed' ? (locale === 'pt' ? 'Fim' : 'Ended') : cl.status === 'cancelled' ? (locale === 'pt' ? 'Canc' : 'Cancelled') : cl.studentIds.includes(currentUserId) ? (locale === 'pt' ? 'Inscrito' : 'Enrolled') : (locale === 'pt' ? 'Disponível' : 'Available') }}
                 </span>
               </div>
               <h5 class="text-xs font-extrabold line-clamp-1 leading-snug">{{ cl.courseTitle }}</h5>
-              <p class="text-[10px] text-gray-450 dark:text-gray-400">Professor: <strong class="text-gray-600 dark:text-gray-300 font-bold">{{ cl.instructorName }}</strong></p>
+              <p class="text-[10px] text-gray-450 dark:text-gray-400">
+                {{ locale === 'pt' ? 'Professor:' : 'Instructor:' }} <strong class="text-gray-600 dark:text-gray-300 font-bold">{{ cl.instructorName }}</strong>
+              </p>
               <div class="mt-2 pt-2 border-t border-gray-150/60 dark:border-slate-850 flex items-center justify-between text-[10px] text-gray-400 font-semibold">
-                <span class="flex items-center gap-1"><Users class="w-3.5 h-3.5" />{{ cl.studentIds.length }}/{{ cl.maxStudents }} alunos</span>
-                <span v-if="cl.studentIds.includes(currentUserId)" class="text-amber-600 dark:text-amber-400 font-extrabold flex items-center gap-0.5">★ Inscrito</span>
-                <span v-else class="text-blue-600 dark:text-blue-400 font-extrabold">Ver Detalhes →</span>
+                <span class="flex items-center gap-1"><Users class="w-3.5 h-3.5" />{{ cl.studentIds.length }}/{{ cl.maxStudents }} {{ locale === 'pt' ? 'alunos' : 'students' }}</span>
+                <span v-if="cl.studentIds.includes(currentUserId)" class="text-amber-600 dark:text-amber-400 font-extrabold flex items-center gap-0.5">★ {{ locale === 'pt' ? 'Inscrito' : 'Enrolled' }}</span>
+                <span v-else class="text-blue-600 dark:text-blue-400 font-extrabold">{{ locale === 'pt' ? 'Ver Detalhes →' : 'View Details →' }}</span>
               </div>
             </div>
           </div>
@@ -1331,10 +1461,10 @@ const handleStudentEnter = (cl: ClassTurma) => {
       <div class="bg-white dark:bg-slate-900 border-2 border-blue-600 dark:border-blue-500 w-full max-w-md rounded-2xl shadow-2xl flex flex-col text-left relative overflow-hidden" @click.stop>
         
         <!-- Subtle Close Button inside Modal -->
-        <button @click="selectedClass = null" class="absolute top-4 right-4 p-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-gray-500 dark:text-gray-400 rounded-full transition-colors cursor-pointer z-10" title="Fechar">
+        <button @click="selectedClass = null" class="absolute top-4 right-4 p-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-gray-500 dark:text-gray-400 rounded-full transition-colors cursor-pointer z-10" :title="locale === 'pt' ? 'Fechar' : 'Close'">
           <X class="w-4 h-4" />
         </button>
-
+ 
         <!-- Main Content (Styled identical to screenshot) -->
         <div class="p-6 space-y-4.5">
           <!-- Status & Time Header -->
@@ -1345,57 +1475,65 @@ const handleStudentEnter = (cl: ClassTurma) => {
               activeSelectedClass.status === 'cancelled' ? 'bg-rose-500/10 text-rose-500 dark:text-rose-450' :
               'bg-slate-100 dark:bg-slate-850 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-750'
             ]">
-              {{ activeSelectedClass.status === 'completed' ? 'Aula Concluída' : activeSelectedClass.status === 'cancelled' ? 'Cancelada' : 'Turma Ativa' }}
+              {{ activeSelectedClass.status === 'completed' ? (locale === 'pt' ? 'Aula Concluída' : 'Class Completed') : activeSelectedClass.status === 'cancelled' ? (locale === 'pt' ? 'Cancelada' : 'Cancelled') : (locale === 'pt' ? 'Turma Ativa' : 'Active Class') }}
             </span>
             <span class="text-xs text-gray-600 dark:text-gray-300 font-mono flex items-center gap-1.5 font-bold">
               <Clock class="w-4 h-4 text-blue-500 dark:text-blue-400" />
               {{ activeSelectedClass.scheduledAt }}
             </span>
           </div>
-
+ 
           <!-- Associated Course Info -->
           <div class="space-y-1.5">
-            <h4 class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest leading-none">Associação de Curso &amp; Tema</h4>
+            <h4 class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest leading-none">
+              {{ locale === 'pt' ? 'Associação de Curso & Tema' : 'Course Association & Topic' }}
+            </h4>
             <div class="p-3.5 bg-slate-50/60 dark:bg-slate-950/40 border border-gray-150 dark:border-slate-800/80 rounded-xl">
               <h3 class="font-extrabold text-sm text-gray-900 dark:text-white leading-snug">
                 {{ activeSelectedClass.courseTitle }}
               </h3>
               <p class="text-[10px] text-gray-450 dark:text-gray-400 font-bold mt-1">
-                Autor: {{ courses.find(c => c.id === activeSelectedClass.courseId)?.creatorName || 'Comunitário' }}
+                {{ locale === 'pt' ? 'Autor:' : 'Author:' }} {{ activeSelectedClass.courseId === 'custom-class' ? activeSelectedClass.instructorName : (courses.find(c => c.id === activeSelectedClass.courseId)?.creatorName || (locale === 'pt' ? 'Comunitário' : 'Community')) }}
               </p>
               <p class="text-[11px] text-gray-500 dark:text-gray-400 mt-1.5 leading-relaxed font-semibold">
-                {{ courses.find(c => c.id === activeSelectedClass.courseId)?.description || 'Este curso oferece aulas de conversação ativa para expandir suas habilidades orais.' }}
+                {{ activeSelectedClass.courseId === 'custom-class' ? (locale === 'pt' ? 'Aula independente com foco em conversação dinâmica, feedback personalizado e esclarecimento de dúvidas.' : 'Independent class focusing on active conversation, personalized feedback, and Q&A.') : (courses.find(c => c.id === activeSelectedClass.courseId)?.description || (locale === 'pt' ? 'Este curso oferece aulas de conversação ativa para expandir suas habilidades orais.' : 'This course offers active speaking classes to boost your oral skills.')) }}
               </p>
             </div>
           </div>
-
+ 
           <!-- Instructor info -->
           <p class="text-xs text-gray-500 dark:text-gray-400 mt-3 flex items-center leading-none">
-            Oferecido por: <strong class="ml-1 text-gray-800 dark:text-gray-200 font-bold">{{ activeSelectedClass.instructorName }}</strong>
+            {{ locale === 'pt' ? 'Oferecido por:' : 'Offered by:' }} <strong class="ml-1 text-gray-800 dark:text-gray-200 font-bold">{{ activeSelectedClass.instructorName }}</strong>
           </p>
-
+ 
           <div class="border-t border-gray-150 dark:border-slate-800/60 my-1"></div>
-
+ 
           <!-- Transmission section -->
           <div class="space-y-1.5">
-            <h4 class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest leading-none">Sala de Transmissão (Meet/Call)</h4>
+            <h4 class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest leading-none">
+              {{ locale === 'pt' ? 'Sala de Transmissão (Meet/Call)' : 'Broadcast Room (Meet/Call)' }}
+            </h4>
             <template v-if="activeSelectedClass.studentIds.includes(currentUserId) || isInstructor">
               <!-- Case 1: Call URL exists -->
               <div v-if="activeSelectedClass.callUrl" class="p-3 bg-emerald-500/5 dark:bg-emerald-950/10 border border-emerald-500/20 rounded-xl flex items-center justify-between gap-2.5">
                 <div class="text-left">
                   <div class="flex items-center gap-1.5">
-                    <p class="text-xs font-extrabold text-emerald-800 dark:text-emerald-400 leading-none">Link Disponível!</p>
+                    <p class="text-xs font-extrabold text-emerald-800 dark:text-emerald-400 leading-none">
+                      {{ locale === 'pt' ? 'Link Disponível!' : 'Link Available!' }}
+                    </p>
                     <span v-if="!isInstructor && activeSelectedClass.presentStudentIds?.includes(currentUserId)" class="text-[9px] bg-emerald-200/50 dark:bg-emerald-900/60 font-black text-emerald-800 dark:text-emerald-300 px-1.5 py-0.5 rounded-md">
-                      ✓ Presença Gravada
+                      ✓ {{ locale === 'pt' ? 'Presença Gravada' : 'Attendance Recorded' }}
                     </span>
                   </div>
-                  <p class="text-[10px] text-emerald-600 dark:text-emerald-400 mt-1.5">Conecte-se e pratique inglês.</p>
+                  <p class="text-[10px] text-emerald-600 dark:text-emerald-400 mt-1.5">
+                    {{ locale === 'pt' ? 'Conecte-se e pratique inglês.' : 'Connect and practice your English.' }}
+                  </p>
                 </div>
                 <button
                   @click="handleStudentEnter(activeSelectedClass)"
                   class="flex items-center gap-1 px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-black transition-all cursor-pointer shadow-xs shrink-0"
                 >
-                  <span>Entrar na Aula</span>
+                  <span>{{ locale === 'pt' ? 'Entrar na Aula' : 'Join Class' }}</span>
                   <ExternalLink class="w-3.5 h-3.5" />
                 </button>
               </div>
@@ -1404,17 +1542,21 @@ const handleStudentEnter = (cl: ClassTurma) => {
                 <!-- Before class time -->
                 <div v-if="isBeforeClassTime(activeSelectedClass.scheduledAt)" class="p-3.5 bg-blue-500/5 dark:bg-slate-950/20 border border-blue-500/20 rounded-xl text-[11px] text-blue-800 dark:text-blue-300 flex items-start gap-2 max-w-full leading-relaxed">
                   <Clock class="w-4 h-4 text-blue-500 dark:text-blue-400 shrink-0 mt-0.5" />
-                  <span>O link da call estará disponível aqui próximo ao horário agendado.</span>
+                  <span>
+                    {{ locale === 'pt' ? 'O link da call estará disponível aqui próximo ao horário agendado.' : 'The call link will be available here close to the scheduled class time.' }}
+                  </span>
                 </div>
                 <!-- During or after class time -->
                 <div v-else class="p-3.5 bg-amber-500/5 dark:bg-amber-950/15 border border-amber-500/20 rounded-xl text-[11px] text-amber-800 dark:text-amber-400 flex items-start gap-2 leading-relaxed">
                   <Clock class="w-4 h-4 text-amber-500 dark:text-amber-400 shrink-0 mt-0.5 animate-pulse" />
-                  <span>O professor ainda não disponibilizou o link ou está atrasado. Aguarde um instante...</span>
+                  <span>
+                    {{ locale === 'pt' ? 'O professor ainda não disponibilizou o link ou está atrasado. Aguarde um instante...' : 'The instructor has not provided the link yet or is late. Please wait a moment...' }}
+                  </span>
                 </div>
               </div>
             </template>
             <p v-else class="text-[11px] italic text-gray-400 dark:text-gray-500 bg-slate-50/50 dark:bg-slate-950/20 p-3 rounded-xl border border-gray-150/40 dark:border-slate-800/40 text-center font-semibold leading-relaxed">
-              🔒 Inscreva-se na turma para ter acesso ao link da sala virtual.
+              🔒 {{ locale === 'pt' ? 'Inscreva-se na turma para ter acesso ao link da sala virtual.' : 'Enroll in the class to access the virtual room link.' }}
             </p>
           </div>
 
@@ -1423,10 +1565,12 @@ const handleStudentEnter = (cl: ClassTurma) => {
           <!-- Occupancy & Buttons -->
           <div class="flex items-center justify-between">
             <div>
-              <span class="text-[10px] font-black text-gray-400 dark:text-gray-505 uppercase tracking-widest block leading-none">Ocupação</span>
+              <span class="text-[10px] font-black text-gray-400 dark:text-gray-505 uppercase tracking-widest block leading-none">
+                {{ locale === 'pt' ? 'Ocupação' : 'Capacity' }}
+              </span>
               <div class="flex items-center gap-1.5 text-xs font-bold text-gray-700 dark:text-gray-300 mt-1.5">
                 <Users class="w-4 h-4 text-gray-400" />
-                <span>{{ activeSelectedClass.studentIds.length }} / {{ activeSelectedClass.maxStudents }} alunos</span>
+                <span>{{ activeSelectedClass.studentIds.length }} / {{ activeSelectedClass.maxStudents }} {{ locale === 'pt' ? 'alunos' : 'students' }}</span>
               </div>
             </div>
 
@@ -1436,7 +1580,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
                 v-if="isInstructor"
                 @click="startEditing(activeSelectedClass); selectedClass = null;"
                 class="p-2 text-blue-500 hover:bg-blue-55 dark:hover:bg-slate-800 rounded-lg transition-colors border border-transparent hover:border-blue-100 dark:hover:border-slate-700 cursor-pointer"
-                title="Editar propriedades da aula"
+                :title="locale === 'pt' ? 'Editar propriedades da aula' : 'Edit class properties'"
               >
                 <Edit class="w-4 h-4" />
               </button>
@@ -1445,7 +1589,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
               <button
                 v-if="isInstructor && (isAdmin || activeSelectedClass.instructorId === currentUserId || activeSelectedClass.instructorId === 'system-volunteer')"
                 @click="emit('delete-class', activeSelectedClass.id); selectedClass = null;"
-                title="Remover este horário"
+                :title="locale === 'pt' ? 'Remover este horário' : 'Remove this timeslot'"
                 class="p-2 text-rose-500 hover:bg-rose-55 dark:hover:bg-slate-800 rounded-lg transition-colors border border-transparent hover:border-rose-100 dark:hover:border-slate-700 cursor-pointer"
               >
                 <Trash2 class="w-4.5 h-4.5" />
@@ -1459,7 +1603,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
                   class="flex items-center gap-1 bg-rose-500/5 hover:bg-rose-500/10 text-rose-600 dark:text-rose-450 border border-rose-500/25 py-1.5 px-3 text-xs font-black rounded-lg transition-colors cursor-pointer"
                 >
                   <LogOut class="w-3.5 h-3.5 mr-0.5" />
-                  Sair
+                  {{ locale === 'pt' ? 'Sair' : 'Leave' }}
                 </button>
                 <button
                   v-else
@@ -1473,14 +1617,14 @@ const handleStudentEnter = (cl: ClassTurma) => {
                   ]"
                 >
                   <Check class="w-3.5 h-3.5 mr-0.5" />
-                  {{ activeSelectedClass.studentIds.length >= activeSelectedClass.maxStudents ? "Esgotado" : "Participar" }}
+                  {{ activeSelectedClass.studentIds.length >= activeSelectedClass.maxStudents ? (locale === 'pt' ? "Esgotado" : "Full") : (locale === 'pt' ? "Participar" : "Join") }}
                 </button>
               </template>
               <span 
                 v-else
                 class="text-[10px] text-emerald-650 dark:text-emerald-400 bg-emerald-500/5 dark:bg-emerald-950/30 px-2.5 py-1.5 rounded-lg border border-emerald-500/15 font-black flex items-center gap-1"
               >
-                <CheckCircle class="w-3.5 h-3.5" /> Minha Aula
+                <CheckCircle class="w-3.5 h-3.5" /> {{ locale === 'pt' ? 'Minha Aula' : 'My Class' }}
               </span>
             </div>
           </div>
@@ -1490,7 +1634,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
             v-if="!isInstructor && activeSelectedClass.studentIds.includes(currentUserId)"
             class="bg-blue-500/5 dark:bg-slate-950/20 border border-blue-500/20 rounded-xl p-3 text-xs text-blue-600 dark:text-blue-300 text-center font-bold"
           >
-            📍 Você está confirmado nesta turma! Prepare-se para falar.
+            {{ locale === 'pt' ? '📍 Você está confirmado nesta turma! Prepare-se para falar.' : '📍 You are confirmed in this class! Get ready to speak.' }}
           </div>
         </div>
 
@@ -1501,7 +1645,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
     <div v-if="showDayClassesSelector" id="modal-day-classes-selector" class="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-xs bg-slate-950/60" @click="showDayClassesSelector = null">
       <div class="bg-white dark:bg-slate-900 border-2 border-blue-600 dark:border-blue-500 w-full max-w-md rounded-2xl shadow-2xl flex flex-col text-left relative overflow-hidden animate-fadeIn" @click.stop>
         <!-- Modal Close Button -->
-        <button @click="showDayClassesSelector = null" class="absolute top-4 right-4 p-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-gray-500 dark:text-gray-400 rounded-full transition-colors cursor-pointer z-10" title="Fechar">
+        <button @click="showDayClassesSelector = null" class="absolute top-4 right-4 p-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-gray-500 dark:text-gray-400 rounded-full transition-colors cursor-pointer z-10" :title="locale === 'pt' ? 'Fechar' : 'Close'">
           <X class="w-4 h-4" />
         </button>
 
@@ -1511,7 +1655,9 @@ const handleStudentEnter = (cl: ClassTurma) => {
               <CalendarDays class="w-4 h-4" />
             </div>
             <div>
-              <h4 class="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none">Aulas do Dia</h4>
+              <h4 class="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none">
+                {{ locale === 'pt' ? 'Aulas do Dia' : 'Classes of the Day' }}
+              </h4>
               <p class="text-xs font-black text-gray-900 dark:text-white capitalize mt-1.5">
                 {{ formatSelectedDayTitle }}
               </p>
@@ -1530,12 +1676,12 @@ const handleStudentEnter = (cl: ClassTurma) => {
                   : cl.status === 'completed'
                     ? 'bg-emerald-50 text-emerald-850 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-300 dark:border-emerald-500/30'
                     : cl.status === 'cancelled'
-                      ? 'bg-rose-50 text-rose-800 border-rose-200 dark:bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/30 line-through'
+                      ? 'bg-rose-50 text-rose-800 border-rose-200 dark:bg-rose-500/10 dark:text-rose-450 dark:border-rose-500/30 line-through'
                       : 'bg-blue-50 text-blue-850 border-blue-200 dark:bg-blue-500/15 dark:text-blue-300 dark:border-blue-500/30'
               ]"
             >
               <div class="flex items-center justify-between gap-1">
-                <span class="text-[10px] font-mono font-black flex items-center gap-1 text-gray-600 dark:text-gray-300"><Clock class="w-3.5 h-3.5 text-blue-500" />{{ cl.scheduledAt.split(' ')[1] }}</span>
+                <span class="text-[10px] font-mono font-black flex items-center gap-1 text-gray-600 dark:text-gray-350"><Clock class="w-3.5 h-3.5 text-blue-500" />{{ cl.scheduledAt.split(' ')[1] }}</span>
                 <span :class="[
                   'text-[8px] font-extrabold tracking-wider uppercase px-1.5 py-0.5 rounded-sm',
                   cl.status === 'completed' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300' :
@@ -1543,11 +1689,13 @@ const handleStudentEnter = (cl: ClassTurma) => {
                   cl.studentIds.includes(currentUserId) ? 'bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300' :
                   'bg-blue-100 text-blue-800 dark:bg-blue-950/40 dark:text-blue-300'
                 ]">
-                  {{ cl.status === 'completed' ? 'Fim' : cl.status === 'cancelled' ? 'Canc' : cl.studentIds.includes(currentUserId) ? 'Inscrito' : 'Disponível' }}
+                  {{ cl.status === 'completed' ? (locale === 'pt' ? 'Fim' : 'Ended') : cl.status === 'cancelled' ? (locale === 'pt' ? 'Canc' : 'Cancelled') : cl.studentIds.includes(currentUserId) ? (locale === 'pt' ? 'Inscrito' : 'Enrolled') : (locale === 'pt' ? 'Disponível' : 'Available') }}
                 </span>
               </div>
               <h5 class="text-xs font-extrabold line-clamp-1 leading-snug">{{ cl.courseTitle }}</h5>
-              <p class="text-[10px] text-gray-450 dark:text-gray-400">Professor: <strong class="text-gray-600 dark:text-gray-300 font-bold">{{ cl.instructorName }}</strong></p>
+              <p class="text-[10px] text-gray-450 dark:text-gray-400">
+                {{ locale === 'pt' ? 'Professor:' : 'Instructor:' }} <strong class="text-gray-600 dark:text-gray-300 font-bold">{{ cl.instructorName }}</strong>
+              </p>
             </div>
           </div>
         </div>

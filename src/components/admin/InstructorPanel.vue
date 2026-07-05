@@ -8,6 +8,7 @@ import {
 import { Course, Lesson, Progress, ChatRoom, ClassTurma, UserProfile } from '../../types';
 import InstructorAnalytics from './InstructorAnalytics.vue';
 import InstructorCourseCreator from './InstructorCourseCreator.vue';
+import { useI18n } from '../../composables/useI18n';
 
 const props = defineProps<{
   courses: Course[];
@@ -28,6 +29,7 @@ const emit = defineEmits<{
   (e: 'update-course-config', courseId: string, updates: Partial<Course>): void;
 }>();
 
+const { t, locale } = useI18n();
 const activeTab = ref<'analytics' | 'creator'>('creator');
 </script>
 
@@ -39,9 +41,9 @@ const activeTab = ref<'analytics' | 'creator'>('creator');
       <div class="text-left">
         <h2 class="text-xl font-extrabold text-gray-900 flex items-center gap-2">
           <ShieldCheck id="instructor-shield" class="w-5 h-5 text-blue-600" />
-          Painel do Instrutor Voluntário
+          {{ t('tutor.title') }}
         </h2>
-        <p class="text-xs text-gray-500 mt-1">Gerencie a experiência educacional, acompanhe métricas de progresso e publique seus cursos.</p>
+        <p class="text-xs text-gray-500 mt-1">{{ t('tutor.subtitle') }}</p>
       </div>
 
       <div class="flex bg-gray-100 p-1 rounded-xl w-full sm:w-auto overflow-x-auto whitespace-nowrap scrollbar-none shrink-0 select-none">
@@ -54,7 +56,7 @@ const activeTab = ref<'analytics' | 'creator'>('creator');
           ]"
         >
           <BarChart3 class="w-3.5 h-3.5 shrink-0" />
-          <span class="shrink-0">Desempenho</span>
+          <span class="shrink-0">{{ locale === 'pt' ? 'Desempenho' : 'Performance' }}</span>
         </button>
         <button
           id="tab-toggle-creator"
@@ -65,7 +67,7 @@ const activeTab = ref<'analytics' | 'creator'>('creator');
           ]"
         >
           <FileText class="w-3.5 h-3.5 shrink-0" />
-          <span class="shrink-0">Criar Curso</span>
+          <span class="shrink-0">{{ locale === 'pt' ? 'Criar Curso' : 'Create Course' }}</span>
         </button>
       </div>
     </div>

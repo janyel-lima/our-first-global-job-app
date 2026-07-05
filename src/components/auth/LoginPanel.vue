@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { Compass, Mail, Lock, User, Check, Scale, Eye, EyeOff, FileText, AlertTriangle } from 'lucide-vue-next';
+import { useI18n } from '../../composables/useI18n';
+
+const { t, locale } = useI18n();
+
 
 const props = defineProps<{
   loading?: boolean;
@@ -133,9 +137,9 @@ const handleGoogleLogin = () => {
         <Compass id="decor-compass" class="w-7 h-7 animate-pulse text-blue-600 dark:text-blue-300" />
       </span>
       <div class="space-y-1">
-        <h1 class="text-2xl sm:text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight leading-none">English Volunteer</h1>
+        <h1 class="text-2xl sm:text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight leading-none">{{ t('auth.title') }}</h1>
         <p class="text-slate-500 dark:text-slate-400 text-xs max-w-sm mx-auto leading-relaxed font-semibold">
-          Plataforma comunitária de mini-cursos de inglês, quizzes interativos e formação de turmas gratuitas baseadas em voluntariado pedagógico.
+          {{ t('auth.subtitle') }}
         </p>
       </div>
     </div>
@@ -155,7 +159,7 @@ const handleGoogleLogin = () => {
               : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'
           ]"
         >
-          Entrar na Conta
+          {{ t('auth.login') }}
         </button>
         <button
           type="button"
@@ -167,7 +171,7 @@ const handleGoogleLogin = () => {
               : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'
           ]"
         >
-          Cadastrar-se
+          {{ t('auth.register') }}
         </button>
       </div>
 

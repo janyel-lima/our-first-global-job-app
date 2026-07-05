@@ -23,6 +23,7 @@ import { db, auth } from '../../firebase';
 import { sendPasswordResetEmail } from 'firebase/auth';
 import { collection, onSnapshot, setDoc, doc, deleteDoc } from 'firebase/firestore';
 import { showToast, useAppState } from '../../composables/useAppState';
+import { useI18n } from '../../composables/useI18n';
 
 const props = defineProps<{
   users: UserProfile[];
@@ -37,6 +38,7 @@ const emit = defineEmits<{
 }>();
 
 const { isDarkMode } = useAppState();
+const { t, locale } = useI18n();
 
 const searchQuery = ref('');
 
@@ -356,8 +358,12 @@ const copyToClipboard = (text: string) => {
       <div class="lg:col-span-8 bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 p-5 sm:p-6 shadow-xs text-left space-y-4">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-50 dark:border-slate-800 pb-4">
           <div>
-            <h3 class="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wide block">Painel Geral de Usuários e Monitoria</h3>
-            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Inspecione voluntários registrados, altere níveis curriculares ou revogue acessos.</p>
+            <h3 class="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wide block">
+              {{ locale === 'pt' ? 'Painel Geral de Usuários e Monitoria' : 'General User & Monitoring Panel' }}
+            </h3>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              {{ locale === 'pt' ? 'Inspecione voluntários registrados, altere níveis curriculares ou revogue acessos.' : 'Inspect registered volunteers, modify curriculum levels, or revoke access.' }}
+            </p>
           </div>
           
           <div class="flex flex-wrap items-center gap-2 select-none">
@@ -366,14 +372,14 @@ const copyToClipboard = (text: string) => {
               @click="exportTeachersXLSX"
               class="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/40 text-[10.5px] font-black rounded-xl transition duration-150 flex items-center gap-1 cursor-pointer"
             >
-              <Download class="w-3.5 h-3.5" /> Exportar Planilha (XLSX)
+              <Download class="w-3.5 h-3.5" /> {{ locale === 'pt' ? 'Exportar Planilha (XLSX)' : 'Export Spreadsheet (XLSX)' }}
             </button>
             <button
               type="button"
               @click="exportTeachersJSON"
               class="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/30 text-indigo-700 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/40 text-[10.5px] font-black rounded-xl transition duration-150 flex items-center gap-1 cursor-pointer"
             >
-              <Download class="w-3.5 h-3.5" /> Exportar JSON
+              <Download class="w-3.5 h-3.5" /> {{ locale === 'pt' ? 'Exportar JSON' : 'Export JSON' }}
             </button>
           </div>
         </div>
@@ -389,7 +395,7 @@ const copyToClipboard = (text: string) => {
                 selectedRoleFilter === 'all' ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-2xs' : 'text-gray-550 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
               ]"
             >
-              Todos ({{ users.length }})
+              {{ locale === 'pt' ? 'Todos' : 'All' }} ({{ users.length }})
             </button>
             <button
               type="button"
@@ -399,7 +405,7 @@ const copyToClipboard = (text: string) => {
                 selectedRoleFilter === 'teachers' ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-2xs' : 'text-gray-550 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
               ]"
             >
-              Professores ({{ teachers.length }})
+              {{ locale === 'pt' ? 'Professores' : 'Teachers' }} ({{ teachers.length }})
             </button>
             <button
               type="button"
@@ -409,7 +415,7 @@ const copyToClipboard = (text: string) => {
                 selectedRoleFilter === 'students' ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-2xs' : 'text-gray-550 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
               ]"
             >
-              Alunos ({{ users.length - teachers.length }})
+              {{ locale === 'pt' ? 'Alunos' : 'Students' }} ({{ users.length - teachers.length }})
             </button>
           </div>
 
@@ -419,7 +425,7 @@ const copyToClipboard = (text: string) => {
             </span>
             <input
               type="text"
-              placeholder="Buscar por nome, e-mail ou UID..."
+              :placeholder="locale === 'pt' ? 'Buscar por nome, e-mail ou UID...' : 'Search by name, email or UID...'"
               v-model="searchQuery"
               class="w-full text-xs pl-9 bg-slate-50 dark:bg-slate-950 focus:bg-white dark:focus:bg-slate-900 border border-gray-205 dark:border-slate-850 rounded-xl p-2.5 focus:outline-hidden text-gray-900 dark:text-white"
             />
@@ -428,7 +434,7 @@ const copyToClipboard = (text: string) => {
 
         <!-- Empty list feedback -->
         <div v-if="filteredUsers.length === 0" class="py-12 border border-dashed border-gray-200 dark:border-slate-800 rounded-xl text-center text-xs text-gray-400 dark:text-slate-500 italic">
-          Nenhum cadastro coincide com a pesquisa de patrulha.
+          {{ locale === 'pt' ? 'Nenhum cadastro coincide com a pesquisa de patrulha.' : 'No registrations match the query.' }}
         </div>
 
         <!-- Table of Users -->
@@ -436,10 +442,10 @@ const copyToClipboard = (text: string) => {
           <table class="w-full text-left border-collapse text-xs">
             <thead>
               <tr class="bg-slate-50 dark:bg-slate-950 border-b border-gray-100 dark:border-slate-850 text-slate-450 font-extrabold uppercase tracking-wider text-[10px]">
-                <th class="p-4">Voluntário</th>
-                <th class="p-4">Nível Cadastrado</th>
-                <th class="p-4">Cargo / Nível de Acesso</th>
-                <th class="p-4 text-right">Ação Corretiva</th>
+                <th class="p-4">{{ locale === 'pt' ? 'Voluntário' : 'Volunteer' }}</th>
+                <th class="p-4">{{ locale === 'pt' ? 'Nível Cadastrado' : 'Registered Level' }}</th>
+                <th class="p-4">{{ locale === 'pt' ? 'Cargo / Nível de Acesso' : 'Role / Access Level' }}</th>
+                <th class="p-4 text-right">{{ locale === 'pt' ? 'Ação Corretiva' : 'Action' }}</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-gray-100 dark:divide-slate-850">

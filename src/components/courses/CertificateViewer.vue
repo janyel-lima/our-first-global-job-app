@@ -1,8 +1,11 @@
 <script setup lang="ts">
-import { doc, getDoc } from 'firebase/firestore';
-import { AlertCircle, Award, Printer, Sparkles, X } from 'lucide-vue-next';
-import { ref, watch } from 'vue';
+import { ref, onMounted, watch } from 'vue';
+import { Download, Printer, Award, X, Sparkles, AlertCircle } from 'lucide-vue-next';
 import { db } from '../../firebase';
+import { doc, getDoc } from 'firebase/firestore';
+import { useI18n } from '../../composables/useI18n';
+
+const { locale } = useI18n();
 
 const props = defineProps<{
   studentName: string;
@@ -37,7 +40,7 @@ watch(() => [props.bgStyle, props.frameStyle, props.detailColor], () => {
   if (props.detailColor) detailColor.value = props.detailColor;
 }, { immediate: true });
 
-const instructorName = ref("Instrutor Voluntário");
+const instructorName = ref(locale.value === 'pt' ? "Instrutor Voluntário" : "Volunteer Instructor");
 const sigType = ref<"text" | "drawn">("text");
 const sigText = ref("");
 const sigImage = ref("");
@@ -46,7 +49,7 @@ const isLoadedProfile = ref(false);
 
 watch(() => props.creatorId, () => {
   isLoadedProfile.value = false;
-  instructorName.value = "Instrutor Voluntário";
+  instructorName.value = locale.value === 'pt' ? "Instrutor Voluntário" : "Volunteer Instructor";
   sigType.value = "text";
   sigText.value = "";
   sigImage.value = "";
@@ -57,7 +60,8 @@ async function loadCertificate() {
   isLoading.value = true;
   errorMsg.value = null;
   try {
-    const dateString = props.certifiedAt || new Date().toLocaleDateString("pt-BR");
+    const defaultInstructor = locale.value === 'pt' ? "Instrutor Voluntário" : "Volunteer Instructor";
+    const dateString = props.certifiedAt || (locale.value === 'pt' ? new Date().toLocaleDateString("pt-BR") : new Date().toLocaleDateString("en-US"));
     const idString = props.certificateId || `CERT-${Math.random().toString(36).substring(2, 11).toUpperCase()}`;
     const themeColor = props.primaryColor || "#1e3a8a";
     const iconUrl = props.iconUrl;
@@ -68,7 +72,7 @@ async function loadCertificate() {
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
           const uProfile = docSnap.data();
-          instructorName.value = uProfile.displayName || "Instrutor Voluntário";
+          instructorName.value = uProfile.displayName || defaultInstructor;
           sigText.value = uProfile.signatureText || instructorName.value;
           sigImage.value = uProfile.signatureImage || "";
           hasDrawnSignature.value = !!uProfile.signatureImage;
@@ -79,8 +83,8 @@ async function loadCertificate() {
       }
       isLoadedProfile.value = true;
     } else if (!props.creatorId) {
-      instructorName.value = "Instrutor Voluntário";
-      sigText.value = "Instrutor Voluntário";
+      instructorName.value = defaultInstructor;
+      sigText.value = defaultInstructor;
       sigType.value = "text";
       sigImage.value = "";
       hasDrawnSignature.value = false;
@@ -118,7 +122,7 @@ async function loadCertificate() {
 
     const outerBorderStroke = isDark ? "#1e293b" : "#e2e8f0";
     const innerBorderOpacity = isDark ? "0.9" : "0.75";
-
+    
     // Choose font combinations
     const isMedieval = frameStyle.value === "medieval-gothic";
     const isImperial = frameStyle.value === "classic-imperial";
@@ -210,7 +214,7 @@ async function loadCertificate() {
 
           <!-- Premium Background Pattern -->
           <rect width="800" height="600" fill="${bgFill}" rx="16"/>
-
+          
           <!-- WATERMARKS -->
           ${isMedieval ? `
             <!-- Medieval Crest Shield Watermark in background center -->
@@ -225,13 +229,13 @@ async function loadCertificate() {
             <circle cx="400" cy="300" r="280" fill="none" stroke="${accentColor}" stroke-opacity="${watermarkOpacity}" stroke-width="6"/>
             <circle cx="400" cy="300" r="270" fill="none" stroke="${accentColor}" stroke-opacity="${watermarkDashedOpacity}" stroke-width="1.5" />
           `}
-
+          
           <!-- BORDERS AND FRAME -->
           ${isMedieval ? `
             <!-- Highly sophisticated Gothic Medieval Borders -->
             <rect x="25" y="25" width="750" height="550" fill="none" stroke="${accentColor}" stroke-width="4.5" rx="14"/>
             <rect x="35" y="35" width="730" height="530" fill="none" stroke="${accentColor}" stroke-opacity="${innerBorderOpacity}" stroke-width="1.5" rx="10"/>
-
+            
             <!-- Ornate Corner scrolls and Fleur-de-lis flourishes -->
             <!-- Top Left -->
             <g transform="translate(45, 45)" stroke="${accentColor}" fill="none" stroke-width="2">
@@ -269,7 +273,7 @@ async function loadCertificate() {
             <!-- Imperial Classic double fine line borders -->
             <rect x="25" y="25" width="750" height="550" fill="none" stroke="${outerBorderStroke}" stroke-width="1.5" rx="12"/>
             <rect x="35" y="35" width="730" height="530" fill="none" stroke="${accentColor}" stroke-opacity="${innerBorderOpacity}" stroke-width="2.5" rx="10"/>
-
+            
             <!-- Standard Line Corner Motifs -->
             <g stroke="${accentColor}" stroke-opacity="0.85" stroke-width="2" fill="none">
               <!-- Top Left -->
@@ -289,27 +293,27 @@ async function loadCertificate() {
             <!-- Modern Minimalist Border -->
             <rect x="35" y="35" width="730" height="530" fill="none" stroke="${accentColor}" stroke-width="1.5" rx="8" />
           `}
-
+          
           <!-- Title Section -->
           <g transform="translate(400, 115)" text-anchor="middle">
-            <text font-family="${titleFont}" font-weight="900" font-size="${isMedieval ? '30' : '34'}" fill="${titleFill}" letter-spacing="3">CERTIFICADO DE CONCLUSÃO</text>
-            <text font-family="'Inter', sans-serif" font-weight="600" font-size="11" fill="${subtitleFill}" y="30" letter-spacing="5">ENSINO VOLUNTÁRIO DE LÍNGUA INGLESA</text>
+            <text font-family="${titleFont}" font-weight="900" font-size="${isMedieval ? '30' : '34'}" fill="${titleFill}" letter-spacing="3">${locale.value === 'pt' ? 'CERTIFICADO DE CONCLUSÃO' : 'CERTIFICATE OF COMPLETION'}</text>
+            <text font-family="'Inter', sans-serif" font-weight="600" font-size="11" fill="${subtitleFill}" y="30" letter-spacing="5">${locale.value === 'pt' ? 'ENSINO VOLUNTÁRIO DE LÍNGUA INGLESA' : 'VOLUNTEER ENGLISH LANGUAGE TEACHING'}</text>
             <line x1="-120" y1="42" x2="120" y2="42" stroke="${outerBorderStroke}" stroke-width="1.5"/>
           </g>
-
+ 
           <!-- Text Section -->
           <g transform="translate(400, 220)" text-anchor="middle">
-            <text font-family="'Inter', sans-serif" font-size="14" fill="${mainTextFill}" font-style="italic">Este certificado comprova de forma simbólica e por mérito acadêmico que</text>
+            <text font-family="'Inter', sans-serif" font-size="14" fill="${mainTextFill}" font-style="italic">${locale.value === 'pt' ? 'Este certificado comprova de forma simbólica e por mérito acadêmico que' : 'This certificate symbolically proves through academic merit that'}</text>
             <text font-family="${studentNameFont}" font-weight="${isMedieval || isImperial ? 'normal' : '805'}" font-size="${isMedieval || isImperial ? '45' : '28'}" fill="${studentNameFill}" y="48">${props.studentName}</text>
             <line x1="-150" y1="65" x2="150" y2="65" stroke="${solidAccent}" stroke-opacity="${isDark ? '0.85' : '0.4'}" stroke-width="1.5"/>
           </g>
-
+ 
           <g transform="translate(400, 335)" text-anchor="middle">
-            <text font-family="'Inter', sans-serif" font-size="14" fill="${mainTextFill}">concluiu com aproveitamento e dedicação todas as lições do mini-curso:</text>
+            <text font-family="'Inter', sans-serif" font-size="14" fill="${mainTextFill}">${locale.value === 'pt' ? 'concluiu com aproveitamento e dedicação todas as lições do mini-curso:' : 'has successfully completed with dedication all lessons of the mini-course:'}</text>
             <text font-family="'Inter', sans-serif" font-weight="bold" font-size="22" fill="${themeColor}" y="32">${props.courseTitle}</text>
-            <text font-family="'Inter', sans-serif" font-size="11" fill="${subTitleLabelFill}" y="60">Programa de Aprendizado Autônomo e Solidário</text>
+            <text font-family="'Inter', sans-serif" font-size="11" fill="${subTitleLabelFill}" y="60">${locale.value === 'pt' ? 'Programa de Aprendizado Autônomo e Solidário' : 'Autonomous and Solidary Learning Program'}</text>
           </g>
-
+ 
           <!-- Seal Icon / Seal Design Below Name -->
           <g transform="translate(400, 465)" text-anchor="middle">
             ${iconUrl ? `
@@ -335,16 +339,16 @@ async function loadCertificate() {
                 <path d="M -18 15 L -26 48 L -14 41 L -6 46 L -10 15 Z" fill="${accentColor}" opacity="0.85"/>
                 <!-- Right Ribbon Tail (Symmetric) -->
                 <path d="M 18 15 L 26 48 L 14 41 L 6 46 L 10 15 Z" fill="${accentColor}" opacity="0.85"/>
-
+                
                 <!-- Gold Badge with custom details -->
                 <circle r="32" fill="${isDark ? '#1e293b' : '#fafaf9'}" stroke="${solidAccent}" stroke-width="3"/>
                 <polygon points="0,-16 4,-6 14,-6 6,1 9,11 0,5 -9,11 -6,1 -14,-6 -4,-6" fill="${solidAccent}" opacity="0.9" />
                 <circle r="25" fill="none" stroke="${isDark ? '#000000' : '#ffffff'}" stroke-opacity="0.3" stroke-width="1"/>
               </g>
             `}
-            <text font-family="'JetBrains Mono', monospace" font-size="9.5" font-weight="bold" fill="${subtitleFill}" y="60">CÓD: ${idString}</text>
+            <text font-family="'JetBrains Mono', monospace" font-size="9.5" font-weight="bold" fill="${subtitleFill}" y="60">${locale.value === 'pt' ? 'CÓD' : 'CODE'}: ${idString}</text>
           </g>
-
+ 
           <!-- Footer signatures & Metadata -->
           <g transform="translate(150, 485)" text-anchor="middle">
             <!-- Dynamic Signature Area -->
@@ -357,14 +361,14 @@ async function loadCertificate() {
             </g>
             <line x1="-80" y1="0" x2="80" y2="0" stroke="${footerLineStroke}" stroke-width="1"/>
             <text font-family="'Inter', sans-serif" font-weight="bold" font-size="11" fill="${footerNameFill}" y="16">${instructorName.value}</text>
-            <text font-family="'Inter', sans-serif" font-size="9" fill="${footerLabelFill}" y="28">Instrutor Voluntário</text>
+            <text font-family="'Inter', sans-serif" font-size="9" fill="${footerLabelFill}" y="28">${locale.value === 'pt' ? 'Instrutor Voluntário' : 'Volunteer Instructor'}</text>
           </g>
-
+ 
           <g transform="translate(650, 485)" text-anchor="middle">
             <text font-family="'Inter', sans-serif" font-weight="bold" font-size="11" fill="${footerNameFill}" y="-10">${dateString}</text>
             <line x1="-80" y1="0" x2="80" y2="0" stroke="${footerLineStroke}" stroke-width="1"/>
-            <text font-family="'Inter', sans-serif" font-size="11" fill="${footerNameFill}" y="16">Data de Conclusão</text>
-            <text font-family="'Inter', sans-serif" font-size="9" fill="${footerLabelFill}" y="28">Validação Eletrônica</text>
+            <text font-family="'Inter', sans-serif" font-size="11" fill="${footerNameFill}" y="16">${locale.value === 'pt' ? 'Data de Conclusão' : 'Completion Date'}</text>
+            <text font-family="'Inter', sans-serif" font-size="9" fill="${footerLabelFill}" y="28">${locale.value === 'pt' ? 'Validação Eletrônica' : 'Electronic Validation'}</text>
           </g>
         </svg>
       `;
@@ -445,27 +449,32 @@ const handlePrint = () => {
 
 <template>
   <div class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-    <div id="certificate-modal-container"
-      class="bg-white dark:bg-slate-900 rounded-3xl max-w-4xl w-full border border-slate-100 dark:border-slate-800 shadow-2xl overflow-hidden flex flex-col md:grid md:grid-cols-12">
-
+    <div 
+      id="certificate-modal-container"
+      class="bg-white dark:bg-slate-900 rounded-3xl max-w-4xl w-full border border-slate-100 dark:border-slate-800 shadow-2xl overflow-hidden flex flex-col md:grid md:grid-cols-12"
+    >
+      
       <!-- Left/Main Side: Interactive Certificate Render -->
-      <div
+      <div 
         class="md:col-span-8 p-6 sm:p-8 flex items-center justify-center border-b md:border-b-0 md:border-r border-slate-100 dark:border-slate-800 min-h-[300px] transition-colors duration-300"
-        :class="isDarkCertificate ? 'bg-slate-950' : 'bg-slate-50'">
+        :class="isDarkCertificate ? 'bg-slate-950' : 'bg-slate-50'"
+      >
         <div v-if="isLoading" class="text-center space-y-3">
           <div class="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto" />
-          <p class="text-xs text-slate-500 dark:text-slate-400 font-semibold">Emitindo Certificado com Assinatura
-            Eletrônica...</p>
+          <p class="text-xs text-slate-500 dark:text-slate-400 font-semibold">{{ locale === 'pt' ? 'Emitindo Certificado com Assinatura Eletrônica...' : 'Issuing Certificate with Electronic Signature...' }}</p>
         </div>
         <div v-else-if="errorMsg" class="text-center p-6 space-y-3 max-w-sm">
           <AlertCircle class="w-10 h-10 text-rose-500 mx-auto" />
-          <h4 class="text-sm font-bold text-slate-900 dark:text-white">Emissão Indisponível</h4>
+          <h4 class="text-sm font-bold text-slate-900 dark:text-white">{{ locale === 'pt' ? 'Emissão Indisponível' : 'Issuance Unavailable' }}</h4>
           <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">{{ errorMsg }}</p>
         </div>
-        <div v-else id="svg-certificate-frame"
+        <div 
+          v-else
+          id="svg-certificate-frame"
           class="w-full aspect-[4/3] rounded-xl shadow-md border overflow-hidden transition-all duration-300"
           :class="isDarkCertificate ? 'bg-slate-950 border-slate-850 shadow-slate-950/50' : 'bg-white border-slate-200'"
-          v-html="svgContent || ''" />
+          v-html="svgContent || ''"
+        />
       </div>
 
       <!-- Right Side: Descriptive Info & Download Callouts -->
@@ -475,46 +484,62 @@ const handlePrint = () => {
             <span class="p-2.5 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 rounded-2xl">
               <Award class="w-6 h-6" />
             </span>
-            <button id="btn-close-certificate-modal" @click="emit('close')"
+            <button
+              id="btn-close-certificate-modal"
+              @click="emit('close')"
               class="p-1 text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
-              title="Fechar">
+              :title="locale === 'pt' ? 'Fechar' : 'Close'"
+            >
               <X class="w-5 h-5" />
             </button>
           </div>
 
           <div>
-            <span
-              class="text-[10px] uppercase font-bold tracking-wider text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/20 px-2.5 py-1 rounded-full">
-              Selo de Proficiência
+            <span class="text-[10px] uppercase font-bold tracking-wider text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/20 px-2.5 py-1 rounded-full">
+              {{ locale === 'pt' ? 'Selo de Proficiência' : 'Proficiency Seal' }}
             </span>
-            <h3 class="text-lg font-black text-slate-900 dark:text-white mt-2 leading-snug">Parabéns, {{ studentName }}!
+            <h3 class="text-lg font-black text-slate-900 dark:text-white mt-2 leading-snug">
+              {{ locale === 'pt' ? `Parabéns, ${studentName}!` : `Congratulations, ${studentName}!` }}
             </h3>
             <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mt-1.5">
-              Você assimilou com sucesso todo o conteúdo de <strong>{{ courseTitle }}</strong> e concluiu com maestria
-              todas as questões avaliativas do programa de voluntariado.
+              {{ locale === 'pt' 
+                ? `Você assimilou com sucesso todo o conteúdo de ` 
+                : `You have successfully absorbed all content of `
+              }}<strong>{{ courseTitle }}</strong>{{ locale === 'pt'
+                ? ` e concluiu com maestria todas as questões avaliativas do programa de voluntariado.`
+                : ` and masterfully completed all evaluation questions of the volunteer program.`
+              }}
             </p>
           </div>
 
-          <div
-            class="p-3 bg-blue-50/50 dark:bg-blue-950/20 rounded-2xl border border-blue-100 dark:border-blue-900/40 flex items-start gap-2.5">
+          <div class="p-3 bg-blue-50/50 dark:bg-blue-950/20 rounded-2xl border border-blue-100 dark:border-blue-900/40 flex items-start gap-2.5">
             <Sparkles class="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
             <span class="text-[11px] text-blue-800 dark:text-blue-300 leading-relaxed">
-              Este certificado simbólico pode ser impresso para comprovação de sua dedicação aos estudos voluntários de
-              língua inglesa.
+              {{ locale === 'pt'
+                ? 'Este certificado simbólico pode ser impresso para comprovação de sua dedicação aos estudos voluntários de língua inglesa.'
+                : 'This symbolic certificate can be printed to prove your dedication to volunteer English studies.'
+              }}
             </span>
           </div>
 
         </div>
 
         <div class="space-y-2">
-          <button id="btn-print-certificate" :disabled="!svgContent" @click="handlePrint"
-            class="w-full py-3 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-bold text-xs sm:text-sm rounded-xl transition-all shadow-xs flex items-center justify-center gap-1.5 cursor-pointer">
+          <button
+            id="btn-print-certificate"
+            :disabled="!svgContent"
+            @click="handlePrint"
+            class="w-full py-3 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-bold text-xs sm:text-sm rounded-xl transition-all shadow-xs flex items-center justify-center gap-1.5 cursor-pointer"
+          >
             <Printer class="w-4 h-4" />
-            Imprimir / PDF
+            {{ locale === 'pt' ? 'Imprimir / PDF' : 'Print / PDF' }}
           </button>
-          <button id="btn-cancel-certificate-view" @click="emit('close')"
-            class="w-full py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-750 text-xs font-semibold rounded-xl transition-colors cursor-pointer">
-            Fechar Visualização
+          <button
+            id="btn-cancel-certificate-view"
+            @click="emit('close')"
+            class="w-full py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-750 text-xs font-semibold rounded-xl transition-colors cursor-pointer"
+          >
+            {{ locale === 'pt' ? 'Fechar Visualização' : 'Close Preview' }}
           </button>
         </div>
       </div>

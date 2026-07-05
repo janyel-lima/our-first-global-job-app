@@ -2,6 +2,10 @@
 import { ref, computed, watch } from 'vue';
 import { Search, Filter, Award, ChevronLeft, ChevronRight, ChevronRight as ChevronRightIcon } from 'lucide-vue-next';
 import { Course, Lesson, Progress, UserProfile } from '../../types';
+import { useI18n } from '../../composables/useI18n';
+
+const { t, locale } = useI18n();
+
 
 const props = defineProps<{
   courses: Course[];
@@ -81,23 +85,25 @@ const paginatedCourses = computed(() => {
     <div class="bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-950/90 dark:to-blue-900/40 rounded-3xl p-6 sm:p-10 border border-blue-500/20 dark:border-blue-500/15 absolute-decor text-white relative overflow-hidden shadow-lg animate-fadeIn text-left">
       <div class="space-y-4 max-w-xl z-10 relative">
         <span class="inline-block py-1 px-3 bg-white/20 dark:bg-white/10 backdrop-blur-md text-white rounded-full text-[10px] font-black uppercase tracking-wider">
-          🚀 100% Gratuito & Solidário
+          🚀 {{ t('hero.badge') }}
         </span>
         <h2 class="text-xl sm:text-3xl font-black tracking-tight leading-none text-white">
-          Aprenda Inglês Prático com o Auxílio de Mentores Voluntários!
+          {{ t('hero.title') }}
         </h2>
         <p class="text-sm text-blue-50/90 dark:text-blue-100/80 font-medium leading-relaxed font-semibold">
-          Consuma lições interativas bilingues, teste suas respostas com quizzes com feedback imediato e agende práticas guiadas em tempo real com tutores cadastrados.
+          {{ t('hero.subtitle') }}
         </p>
 
         <div class="flex flex-wrap items-center gap-3 pt-2">
           <div class="bg-white/10 dark:bg-white/5 backdrop-blur-xs px-4 py-2 rounded-2xl border border-white/10 dark:border-white/5 shadow-xs">
-            <p class="text-xs text-blue-100 dark:text-blue-200 uppercase tracking-wide font-black">Emissão Válida</p>
-            <p class="text-base font-black text-white">{{ completedCountGlobal }} Certificado-chave</p>
+            <p class="text-xs text-blue-100 dark:text-blue-200 uppercase tracking-wide font-black">{{ t('hero.certBadge') }}</p>
+            <p class="text-base font-black text-white">{{ completedCountGlobal }} {{ t('hero.certBadgeSub') }}</p>
           </div>
           <div class="bg-white/10 dark:bg-white/5 backdrop-blur-xs px-4 py-2 rounded-2xl border border-white/10 dark:border-white/5 shadow-xs">
-            <p class="text-xs text-blue-100 dark:text-blue-200 uppercase tracking-wide font-black">Metodologia</p>
-            <p class="text-base font-black text-white">Bilingue Dinâmica</p>
+            <p class="text-xs text-blue-100 dark:text-blue-200 uppercase tracking-wide font-black">
+              {{ locale === 'pt' ? 'Metodologia' : 'Methodology' }}
+            </p>
+            <p class="text-base font-black text-white">Bilingual / Bilingue</p>
           </div>
         </div>
       </div>
@@ -116,7 +122,7 @@ const paginatedCourses = computed(() => {
           id="input-course-search"
           v-model="courseSearchQuery"
           type="text"
-          placeholder="Pesquisar por título, descrição ou mentor voluntário..."
+          :placeholder="t('courses.searchPlaceholder')"
           class="w-full text-xs sm:text-sm bg-white dark:bg-slate-900 dark:text-white border border-gray-250 dark:border-slate-700 pl-10 pr-4 py-2.5 rounded-xl focus:ring-2 focus:ring-blue-500 font-semibold"
         />
       </div>
@@ -125,17 +131,17 @@ const paginatedCourses = computed(() => {
       <div class="flex items-center gap-3 shrink-0">
         <span class="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1.5 whitespace-nowrap">
           <Filter class="w-3.5 h-3.5 text-gray-400" />
-          Nível:
+          {{ t('header.englishLevel') }}:
         </span>
         <select
           id="select-course-level-filter"
           v-model="courseLevelFilter"
           class="text-xs sm:text-sm bg-white dark:bg-slate-900 dark:text-white border border-gray-250 dark:border-slate-700 rounded-xl px-3 py-2.5 font-bold cursor-pointer focus:ring-2 focus:ring-blue-500"
         >
-          <option value="All">Todos os níveis</option>
-          <option value="Beginner">Iniciante</option>
-          <option value="Intermediate">Intermediário</option>
-          <option value="Advanced">Avançado</option>
+          <option value="All">{{ t('onboarding.all') }}</option>
+          <option value="Beginner">{{ t('onboarding.beginner') }}</option>
+          <option value="Intermediate">{{ t('onboarding.intermediate') }}</option>
+          <option value="Advanced">{{ t('onboarding.advanced') }}</option>
         </select>
       </div>
     </div>
@@ -143,17 +149,21 @@ const paginatedCourses = computed(() => {
     <!-- Listed Cursos Grid catalog -->
     <div class="space-y-4">
       <div class="flex items-center justify-between pl-1">
-        <p class="text-xs font-black text-gray-500 uppercase tracking-widest block text-left">Grade Acadêmica Disponível</p>
+        <p class="text-xs font-black text-gray-500 uppercase tracking-widest block text-left">{{ t('courses.activeCourses') }}</p>
         <p class="text-[11px] font-bold text-gray-400" v-if="filteredCourses.length > 0">
-          Página {{ courseCurrentPage }} de {{ totalCoursePages }}
+          {{ locale === 'pt' ? `Página ${courseCurrentPage} de ${totalCoursePages}` : `Page ${courseCurrentPage} of ${totalCoursePages}` }}
         </p>
       </div>
       
       <!-- Empty state when searching/filtering yields zero results -->
       <div v-if="filteredCourses.length === 0" class="p-12 text-center bg-gray-50 dark:bg-slate-850 rounded-3xl border border-gray-200/60 dark:border-slate-700 text-gray-500 max-w-sm mx-auto">
         <Search class="w-8 h-8 mx-auto mb-2 text-gray-400 animate-pulse" />
-        <p class="text-sm font-semibold text-gray-700 dark:text-gray-300">Nenhum mini-curso encontrado</p>
-        <p class="text-xs text-gray-400 mt-1">Tente ajustar seus termos de pesquisa ou o filtro de nível.</p>
+        <p class="text-sm font-semibold text-gray-700 dark:text-gray-300">
+          {{ locale === 'pt' ? 'Nenhum mini-curso encontrado' : 'No courses found' }}
+        </p>
+        <p class="text-xs text-gray-400 mt-1">
+          {{ locale === 'pt' ? 'Tente ajustar seus termos de pesquisa ou o filtro de nível.' : 'Try adjusting your search terms or level filter.' }}
+        </p>
       </div>
 
       <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
@@ -170,12 +180,12 @@ const paginatedCourses = computed(() => {
                 course.level === 'Beginner' ? 'bg-blue-100 text-blue-800 dark:bg-blue-950/40 dark:text-blue-300' 
                 : (course.level === 'Intermediate' ? 'bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300' : 'bg-indigo-100 text-indigo-850 dark:bg-indigo-950/40 dark:text-indigo-300')
               ]">
-                Nível {{ course.level }}
+                {{ t('courses.level', { level: course.level }) }}
               </span>
 
               <!-- Completion badge -->
               <span v-if="getProgressForCourse(course.id)?.certified" class="inline-flex items-center gap-1 text-[10px] font-black text-emerald-800 bg-emerald-100 dark:bg-emerald-950/40 dark:text-emerald-300 px-2 py-0.5 rounded-full">
-                <Award class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" /> Concluído
+                <Award class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" /> {{ locale === 'pt' ? 'Concluído' : 'Completed' }}
               </span>
             </div>
 
@@ -190,7 +200,7 @@ const paginatedCourses = computed(() => {
 
           <div class="pt-4 border-t border-gray-150 dark:border-slate-700/80 flex items-center justify-between gap-4">
             <p class="text-[10px] text-gray-400 dark:text-gray-500 font-bold">
-              Tutor: <strong class="text-gray-700 dark:text-gray-300">{{ course.creatorName || "Comunitário" }}</strong>
+              Tutor: <strong class="text-gray-700 dark:text-gray-300">{{ course.creatorName || t('courses.comunitario') }}</strong>
             </p>
 
             <button
@@ -199,7 +209,7 @@ const paginatedCourses = computed(() => {
               class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-black rounded-xl transition-all cursor-pointer flex items-center gap-1 shadow-2xs shrink-0"
               :style="{ backgroundColor: primaryColor }"
             >
-              Entrar no curso <ChevronRightIcon class="w-3.5 h-3.5 text-white" />
+              {{ locale === 'pt' ? 'Acessar Curso' : 'Access Course' }} <ChevronRightIcon class="w-3.5 h-3.5 text-white" />
             </button>
           </div>
         </div>
@@ -208,9 +218,16 @@ const paginatedCourses = computed(() => {
       <!-- Paginator for Courses -->
       <div v-if="totalCoursePages > 1" class="flex items-center justify-between gap-4 mt-6 pt-4 border-t border-gray-100 dark:border-slate-755">
         <p class="text-xs font-bold text-gray-500 dark:text-gray-400">
-          Mostrando <span class="text-gray-900 dark:text-white">{{ (courseCurrentPage - 1) * courseItemsPerPage + 1 }}</span> a 
-          <span class="text-gray-900 dark:text-white">{{ Math.min(courseCurrentPage * courseItemsPerPage, filteredCourses.length) }}</span> de 
-          <span class="text-gray-900 dark:text-white font-extrabold">{{ filteredCourses.length }}</span> mini-cursos
+          <template v-if="locale === 'pt'">
+            Mostrando <span class="text-gray-900 dark:text-white">{{ (courseCurrentPage - 1) * courseItemsPerPage + 1 }}</span> a 
+            <span class="text-gray-900 dark:text-white">{{ Math.min(courseCurrentPage * courseItemsPerPage, filteredCourses.length) }}</span> de 
+            <span class="text-gray-900 dark:text-white font-extrabold">{{ filteredCourses.length }}</span> mini-cursos
+          </template>
+          <template v-else>
+            Showing <span class="text-gray-900 dark:text-white">{{ (courseCurrentPage - 1) * courseItemsPerPage + 1 }}</span> to 
+            <span class="text-gray-900 dark:text-white">{{ Math.min(courseCurrentPage * courseItemsPerPage, filteredCourses.length) }}</span> of 
+            <span class="text-gray-900 dark:text-white font-extrabold">{{ filteredCourses.length }}</span> courses
+          </template>
         </p>
         
         <div class="flex items-center gap-1.5">
@@ -219,7 +236,7 @@ const paginatedCourses = computed(() => {
             :disabled="courseCurrentPage === 1"
             @click="courseCurrentPage--"
             class="p-2 border border-gray-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-900 hover:bg-gray-50 dark:hover:bg-slate-800 disabled:opacity-40 transition-colors cursor-pointer"
-            title="Página Anterior"
+            :title="locale === 'pt' ? 'Página Anterior' : 'Previous Page'"
           >
             <ChevronLeft class="w-4 h-4 text-gray-700 dark:text-gray-200" />
           </button>
@@ -246,7 +263,7 @@ const paginatedCourses = computed(() => {
             :disabled="courseCurrentPage === totalCoursePages"
             @click="courseCurrentPage++"
             class="p-2 border border-gray-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-900 hover:bg-gray-50 dark:hover:bg-slate-800 disabled:opacity-40 transition-colors cursor-pointer"
-            title="Próxima Página"
+            :title="locale === 'pt' ? 'Próxima Página' : 'Next Page'"
           >
             <ChevronRight class="w-4 h-4 text-gray-700 dark:text-gray-200" />
           </button>

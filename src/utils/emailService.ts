@@ -304,7 +304,7 @@ export async function sendClassMeetingNotificationEmail(
   const success = await dispatchEmail(import.meta.env.VITE_EMAILJS_TEMPLATE_COMM_ID, {
     recipient_email: recipientEmail,
     recipient_name: recipientName,
-    subject: `Link Disponível: Sala de aula e conversação ativa em inglês! 🔗`,
+    subject: `Link Disponível para a Aula: ${classTitle} 🔗`,
     type_label: "AULA AO VIVO",
     content_html: finalHtml,
     primary_color: themeColor,
