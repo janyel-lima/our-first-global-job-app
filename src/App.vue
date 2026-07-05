@@ -131,6 +131,14 @@ const courseLevelFilter = ref("All");
 const courseCurrentPage = ref(1);
 const courseItemsPerPage = ref(4);
 
+const headerProfile = computed(() => {
+  if (!userProfile.value) return null;
+  return {
+    ...userProfile.value,
+    photoURL: userProfile.value.photoURL || currentUser.value?.photoURL || undefined
+  } as UserProfile;
+});
+
 const filteredCourses = computed(() => {
   return courses.value.filter(course => {
     const queryStr = courseSearchQuery.value.toLowerCase().trim();
@@ -672,6 +680,14 @@ onMounted(() => {
           const deservesInstructor = deservesAdmin || isSimulatedInstructor || profile.isInstructor || hasInstructorClaim || isMaster;
 
           if (!snap.metadata.fromCache) {
+            // Sincronizar foto do Google caso não esteja gravada no documento do Firestore
+            if (user.photoURL && !profile.photoURL) {
+              updateDoc(profileRef, { photoURL: user.photoURL }).catch(err => {
+                console.error("Erro ao sincronizar photoURL do Google:", err);
+              });
+              profile.photoURL = user.photoURL;
+            }
+
             if (deservesAdmin && (!profile.isAdmin || !profile.isInstructor)) {
               updateDoc(profileRef, { isAdmin: true, isInstructor: true }).catch(err => {
                 console.error("Erro ao auto-promover admin:", err);
@@ -683,6 +699,11 @@ onMounted(() => {
                 console.error("Erro ao auto-promover instrutor:", err);
               });
               profile.isInstructor = true;
+            }
+          } else {
+            // Fallback para cache offline do perfil local, se o usuário do auth possuir foto
+            if (user.photoURL && !profile.photoURL) {
+              profile.photoURL = user.photoURL;
             }
           }
 
@@ -707,7 +728,8 @@ onMounted(() => {
               level: "Advanced",
               bio: deservesRealAdmin ? "Administrador Master do English Volunteer" : "Instrutor Voluntário",
               isAdmin: deservesRealAdmin,
-              email: user.email || ""
+              email: user.email || "",
+              photoURL: user.photoURL || undefined
             };
             setDoc(profileRef, autoProfile).catch(e => {
               console.error("Erro salvando perfil auto-gerado:", e);
@@ -737,7 +759,8 @@ onMounted(() => {
           level: deservesAdmin ? "All" : "Beginner",
           bio: deservesAdmin ? "Administrador Master do English Volunteer" : "Estudando inglês com a comunidade!",
           isAdmin: deservesAdmin,
-          email: user.email || ""
+          email: user.email || "",
+          photoURL: user.photoURL || undefined
         };
         isOnboarding.value = false;
       });
@@ -1114,7 +1137,8 @@ const handleOnboardingComplete = async () => {
     isInstructor,
     level: onboardLevel.value,
     bio: isInstructor ? "Sou voluntário ensinando inglês!" : "Quero aprender inglês!",
-    isAdmin
+    isAdmin,
+    photoURL: currentUser.value ? currentUser.value.photoURL || undefined : undefined
   };
 
   try {
@@ -1400,7 +1424,7 @@ const toggleLoginDarkMode = () => {
     <!-- Dynamic Header -->
     <AppHeader v-model:activeTab="activeTab" v-model:activeCourseId="activeCourseId" v-model:primaryColor="primaryColor"
       v-model:secondaryColor="secondaryColor" v-model:isDarkMode="isDarkMode" v-model:autoBg="autoBg"
-      v-model:bgColor="bgColor" :userProfile="userProfile" :isOnline="isOnline" :isMasterEnabled="isMasterEnabled"
+      v-model:bgColor="bgColor" :userProfile="headerProfile" :isOnline="isOnline" :isMasterEnabled="isMasterEnabled"
       :unreadChatsCount="unreadChatsCount" @open-profile="openProfileModal" @logout="handleLogout" />
 
     <!-- Main Container Content with dynamic contrast layout -->

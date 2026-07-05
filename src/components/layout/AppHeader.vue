@@ -163,7 +163,7 @@ const handleColorSelect = (e: Event) => {
             <div
               class="w-7 h-7 sm:w-8 sm:h-8 text-white rounded-lg flex items-center justify-center font-black text-xs sm:text-sm shadow-xs font-mono uppercase shrink-0 relative overflow-hidden"
               :style="{ backgroundColor: primaryColor }">
-              <img v-if="userProfile?.photoURL" :src="userProfile.photoURL" alt="Profile"
+              <img v-if="userProfile?.photoURL" :src="userProfile.photoURL" alt="Profile" referrerpolicy="no-referrer"
                 class="w-full h-full object-cover" />
               <template v-else>
                 {{ (userProfile?.displayName?.charAt(0) || 'U').toUpperCase() }}
