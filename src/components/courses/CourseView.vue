@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { ref, watch, computed, onMounted, onUnmounted, nextTick } from 'vue';
-import { BookOpen, CheckCircle, Video, ArrowRight, Award, ChevronLeft, AlertCircle, ShieldCheck, Download, X } from 'lucide-vue-next';
-import MarkdownRenderer from '../common/MarkdownRenderer.vue';
-import { Course, Lesson, Progress } from '../../types';
+import { AlertCircle, ArrowRight, Award, BookOpen, CheckCircle, ChevronLeft, Download, ShieldCheck, Video, X } from 'lucide-vue-next';
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
 import { showToast } from '../../composables/useAppState';
+import { Course, Lesson, Progress } from '../../types';
 import { generateInteractiveHTML } from '../../utils/interactiveHtmlExporter';
+import MarkdownRenderer from '../common/MarkdownRenderer.vue';
 
 const props = defineProps<{
   course: Course;
@@ -79,10 +79,10 @@ const getQuizScore = (lessonId: string) => {
 
 const isLessonCompletedFn = (lessonId: string) => {
   if (props.progressReport?.completedLessons?.includes(lessonId)) return true;
-  
+
   const lesson = props.lessons.find(l => l.id === lessonId);
   if (!lesson) return false;
-  
+
   const config = lessonProgressConfig.value;
   const score = props.progressReport?.quizScores?.[lessonId] ?? 0;
   const isQuizPassed = isQuizCompleted(lessonId) && Number(score) >= Number(quizPassScore.value);
@@ -98,7 +98,7 @@ const isLessonCompletedFn = (lessonId: string) => {
   let videoOk = !config.requireVideo || !lesson.videoUrl || !isOnline.value || isVideoWatched(lessonId);
   // Must respect quiz pass score if required!
   let quizOk = !config.requireQuiz || !lesson.quiz || lesson.quiz.length === 0 || isQuizPassed;
-  
+
   return readingOk && videoOk && quizOk;
 };
 
@@ -124,7 +124,7 @@ const handleSelectAnswer = (questionIndex: number, optionIndex: number) => {
 
 const handleSubmitQuiz = async () => {
   if (!currentLesson.value?.quiz || currentLesson.value.quiz.length === 0) return;
-  
+
   // Check if answered all
   const answeredCount = Object.keys(selectedAnswers.value).length;
   const totalQuestions = currentLesson.value.quiz.length;
@@ -178,6 +178,9 @@ const handleClaimCertificate = () => {
       id: props.progressReport?.certificateId || `CERT-${Math.random().toString(36).substring(2, 11).toUpperCase()}`,
       primaryColor: props.course.certificateConfig?.primaryColor,
       iconUrl: props.course.certificateConfig?.iconUrl,
+      bgStyle: props.course.certificateConfig?.bgStyle,
+      frameStyle: props.course.certificateConfig?.frameStyle,
+      detailColor: props.course.certificateConfig?.detailColor,
       creatorId: props.course.creatorId
     });
   }
@@ -224,14 +227,14 @@ const setupYouTubeTracking = () => {
   if (ytPlayer) {
     try {
       ytPlayer.destroy();
-    } catch (e) {}
+    } catch (e) { }
     ytPlayer = null;
   }
   if (ytPollInterval) {
     clearInterval(ytPollInterval);
     ytPollInterval = null;
   }
-  
+
   if (typeof window !== 'undefined' && videoEmbedId.value && isOnline.value) {
     const isYTRuntimeReady = () => {
       const win = window as any;
@@ -247,14 +250,14 @@ const setupYouTubeTracking = () => {
         const firstScriptTag = document.getElementsByTagName('script')[0];
         firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
       }
-      
+
       const win = window as any;
       const originalCallback = win.onYouTubeIframeAPIReady;
       win.onYouTubeIframeAPIReady = () => {
         if (originalCallback) {
           try {
             originalCallback();
-          } catch (e) {}
+          } catch (e) { }
         }
         initializePlayer();
       };
@@ -284,7 +287,7 @@ const initializePlayer = () => {
   if (typeof window === 'undefined' || !videoEmbedId.value) return;
   const win = window as any;
   if (!win.YT || !win.YT.Player || typeof win.YT.Player !== 'function') return;
-  
+
   nextTick(() => {
     const el = document.getElementById('lesson-youtube-player-element');
     if (!el) {
@@ -339,7 +342,7 @@ const checkOfflineStatus = () => {
 
 const makeCourseAvailableOffline = () => {
   isDownloadingOffline.value = true;
-  
+
   // Package course and lessons to save locally
   setTimeout(() => {
     try {
@@ -348,14 +351,14 @@ const makeCourseAvailableOffline = () => {
         lessons: props.lessons,
         savedAt: new Date().toISOString()
       }));
-      
+
       // Save to list of downloaded courses
       const savedList = JSON.parse(localStorage.getItem('offline_downloaded_course_ids') || '[]');
       if (!savedList.includes(props.course.id)) {
         savedList.push(props.course.id);
         localStorage.setItem('offline_downloaded_course_ids', JSON.stringify(savedList));
       }
-      
+
       isOfflineAvailable.value = true;
     } catch (e) {
       console.error(e);
@@ -393,40 +396,38 @@ onUnmounted(() => {
   if (ytPlayer) {
     try {
       ytPlayer.destroy();
-    } catch (e) {}
+    } catch (e) { }
   }
 });
 </script>
 
 <template>
-  <div v-if="!currentLesson" class="flex flex-col items-center justify-center p-12 text-center bg-white dark:bg-slate-900 rounded-2xl shadow-xs border border-gray-100 dark:border-slate-800">
+  <div v-if="!currentLesson"
+    class="flex flex-col items-center justify-center p-12 text-center bg-white dark:bg-slate-900 rounded-2xl shadow-xs border border-gray-100 dark:border-slate-800">
     <AlertCircle id="no-lesson-icon" class="w-12 h-12 text-amber-500 mb-4" />
     <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">Currículo em Construção</h3>
-    <p class="text-gray-500 dark:text-slate-400 max-w-sm">Este mini-curso não possui lições cadastradas no momento. Volte em breve!</p>
-    <button 
-      id="back-empty-lessons"
-      @click="emit('back')"
-      class="mt-6 px-4 py-2 text-sm bg-gray-100 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-gray-700 dark:text-slate-200 rounded-lg transition-all cursor-pointer border border-gray-200 dark:border-slate-700"
-    >
+    <p class="text-gray-500 dark:text-slate-400 max-w-sm">Este mini-curso não possui lições cadastradas no momento.
+      Volte em breve!</p>
+    <button id="back-empty-lessons" @click="emit('back')"
+      class="mt-6 px-4 py-2 text-sm bg-gray-100 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-gray-700 dark:text-slate-200 rounded-lg transition-all cursor-pointer border border-gray-200 dark:border-slate-700">
       Voltar aos Cursos
     </button>
   </div>
 
   <div v-else class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-    
+
     <!-- Sidebar: Lesson outline -->
-    <div class="lg:col-span-4 bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-xs border border-gray-100/80 dark:border-slate-800 text-left">
-      <button
-        id="btn-back-to-catalog"
-        @click="emit('back')"
-        class="flex items-center text-sm font-medium text-gray-500 hover:text-gray-900 dark:text-slate-400 dark:hover:text-white transition-colors mb-6 cursor-pointer"
-      >
+    <div
+      class="lg:col-span-4 bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-xs border border-gray-100/80 dark:border-slate-800 text-left">
+      <button id="btn-back-to-catalog" @click="emit('back')"
+        class="flex items-center text-sm font-medium text-gray-500 hover:text-gray-900 dark:text-slate-400 dark:hover:text-white transition-colors mb-6 cursor-pointer">
         <ChevronLeft class="w-4 h-4 mr-1" />
         Voltar ao Catálogo
       </button>
 
       <div class="mb-6">
-        <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-50 dark:bg-slate-800 text-blue-600 dark:text-blue-300 border border-blue-100 dark:border-slate-700">
+        <span
+          class="text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-50 dark:bg-slate-800 text-blue-600 dark:text-blue-300 border border-blue-100 dark:border-slate-700">
           Nível {{ course.level }}
         </span>
         <h2 class="text-xl font-bold text-gray-900 dark:text-white mt-2 leading-tight">{{ course.title }}</h2>
@@ -434,68 +435,60 @@ onUnmounted(() => {
       </div>
 
       <!-- OFFLINE PWA CACHE MODULE -->
-      <div class="mb-6 p-4 bg-slate-50 dark:bg-slate-950/50 rounded-xl border border-blue-100/50 dark:border-blue-900/30 space-y-2.5 shadow-xs">
+      <div
+        class="mb-6 p-4 bg-slate-50 dark:bg-slate-950/50 rounded-xl border border-blue-100/50 dark:border-blue-900/30 space-y-2.5 shadow-xs">
         <div class="flex items-center justify-between">
-          <span class="text-[10px] font-extrabold uppercase tracking-widest text-blue-800 dark:text-blue-450 flex items-center gap-1">
+          <span
+            class="text-[10px] font-extrabold uppercase tracking-widest text-blue-800 dark:text-blue-450 flex items-center gap-1">
             <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
             Acesso Offline
           </span>
-          <span 
-            class="text-[9.5px] font-black px-2 py-0.5 rounded-full"
-            :class="isOfflineAvailable ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300' : 'bg-amber-100 text-amber-800 dark:bg-amber-950/50 dark:text-amber-300'"
-          >
+          <span class="text-[9.5px] font-black px-2 py-0.5 rounded-full"
+            :class="isOfflineAvailable ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300' : 'bg-amber-100 text-amber-800 dark:bg-amber-950/50 dark:text-amber-300'">
             {{ isOfflineAvailable ? 'Concluído' : 'Apenas Online' }}
           </span>
         </div>
-        
-        <button
-          v-if="!isOfflineAvailable"
-          type="button"
-          @click="makeCourseAvailableOffline"
+
+        <button v-if="!isOfflineAvailable" type="button" @click="makeCourseAvailableOffline"
           :disabled="isDownloadingOffline"
-          class="w-full text-xs font-bold py-2 px-3 rounded-lg flex items-center justify-center gap-1.5 cursor-pointer text-white bg-blue-600 hover:bg-blue-700 transition"
-        >
+          class="w-full text-xs font-bold py-2 px-3 rounded-lg flex items-center justify-center gap-1.5 cursor-pointer text-white bg-blue-600 hover:bg-blue-700 transition">
           <span v-if="isDownloadingOffline" class="flex gap-1 items-center">
             <svg class="animate-spin h-3 w-3 text-white" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              <path class="opacity-75" fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+              </path>
             </svg>
             Salvando...
           </span>
           <span v-else>Disponibilizar Offline</span>
         </button>
 
-        <div v-else class="text-xs text-emerald-700 dark:text-emerald-450 font-medium flex items-center justify-center gap-1 fill-emerald-600 py-1.5 border border-dashed border-emerald-200 dark:border-emerald-900/40 rounded-lg bg-emerald-50/50 dark:bg-emerald-950/20">
+        <div v-else
+          class="text-xs text-emerald-700 dark:text-emerald-450 font-medium flex items-center justify-center gap-1 fill-emerald-600 py-1.5 border border-dashed border-emerald-200 dark:border-emerald-900/40 rounded-lg bg-emerald-50/50 dark:bg-emerald-950/20">
           ✓ Conteúdo saved offline!
         </div>
       </div>
 
       <!-- EXPORTER BLOCK (KEEP THE KNOWLEDGE) -->
-      <div 
-        id="exporter-html-card" 
-        class="mb-6 p-4 rounded-xl border space-y-2.5 shadow-2xs text-left transition-all duration-300"
-        :style="{
+      <div id="exporter-html-card"
+        class="mb-6 p-4 rounded-xl border space-y-2.5 shadow-2xs text-left transition-all duration-300" :style="{
           backgroundColor: 'color-mix(in srgb, ' + courseThemeColor + ' 8%, var(--bg-color, rgba(255, 255, 255, 0.4)))',
           borderColor: 'color-mix(in srgb, ' + courseThemeColor + ' 20%, rgba(226, 232, 240, 0.5))'
-        }"
-      >
-        <span 
-          class="text-[10px] font-extrabold uppercase tracking-widest flex items-center gap-1.5"
-          :style="{ color: 'color-mix(in srgb, ' + courseThemeColor + ' 90%, #000000)' }"
-        >
-          <Download class="w-3.5 h-3.5" :style="{ color: 'color-mix(in srgb, ' + courseThemeColor + ' 90%, #000000)' }" />
+        }">
+        <span class="text-[10px] font-extrabold uppercase tracking-widest flex items-center gap-1.5"
+          :style="{ color: 'color-mix(in srgb, ' + courseThemeColor + ' 90%, #000000)' }">
+          <Download class="w-3.5 h-3.5"
+            :style="{ color: 'color-mix(in srgb, ' + courseThemeColor + ' 90%, #000000)' }" />
           Guardar Conhecimento
         </span>
         <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium leading-normal animate-fadeIn">
-          "Fique com o conhecimento e o material, ele é gratuito e seu para sempre!" Baixe o mini-curso como um arquivo HTML offline interativo completo.
+          "Fique com o conhecimento e o material, ele é gratuito e seu para sempre!" Baixe o mini-curso como um arquivo
+          HTML offline interativo completo.
         </p>
-        <button
-          id="btn-download-interactive-html"
-          type="button"
-          @click="downloadInteractiveHTML"
+        <button id="btn-download-interactive-html" type="button" @click="downloadInteractiveHTML"
           class="w-full text-xs font-black uppercase tracking-wide py-2.5 px-3 rounded-lg flex items-center justify-center gap-1.5 cursor-pointer text-white transition-all shadow-2xs hover:shadow-xs hover:brightness-110 active:scale-95"
-          :style="{ backgroundColor: courseThemeColor }"
-        >
+          :style="{ backgroundColor: courseThemeColor }">
           <Download class="w-4 h-4 shrink-0" />
           Baixar Curso (.html)
         </button>
@@ -508,22 +501,18 @@ onUnmounted(() => {
           <span>{{ completedCount }} de {{ lessons.length }} lições</span>
         </div>
         <div class="w-full bg-gray-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
-          <div 
-            class="bg-blue-600 h-2 rounded-full transition-all duration-500" 
-            :style="{ width: `${lessons.length > 0 ? (completedCount / lessons.length) * 100 : 0}%` }"
-          />
+          <div class="bg-blue-600 h-2 rounded-full transition-all duration-500"
+            :style="{ width: `${lessons.length > 0 ? (completedCount / lessons.length) * 100 : 0}%` }" />
         </div>
 
-        <div v-if="isCourseFullyCompleted" class="mt-4 p-3 bg-emerald-50 dark:bg-emerald-950/40 rounded-xl border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-between">
+        <div v-if="isCourseFullyCompleted"
+          class="mt-4 p-3 bg-emerald-50 dark:bg-emerald-950/40 rounded-xl border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-between">
           <div class="flex items-center gap-2">
             <Award class="w-5 h-5 text-emerald-600 dark:text-emerald-450" />
             <span class="text-xs font-semibold text-emerald-800 dark:text-emerald-300">Curso Concluído!</span>
           </div>
-          <button
-            id="btn-get-certificate-side"
-            @click="handleClaimCertificate"
-            class="text-xs bg-emerald-600 hover:bg-emerald-775 text-white font-medium py-1.5 px-3 rounded-lg transition-colors cursor-pointer animate-pulse"
-          >
+          <button id="btn-get-certificate-side" @click="handleClaimCertificate"
+            class="text-xs bg-emerald-600 hover:bg-emerald-775 text-white font-medium py-1.5 px-3 rounded-lg transition-colors cursor-pointer animate-pulse">
             Gerar Certificado
           </button>
         </div>
@@ -531,29 +520,28 @@ onUnmounted(() => {
 
       <!-- Curriculum list -->
       <div class="space-y-2">
-        <p class="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-slate-400 mb-3 block">Conteúdo Programático</p>
-        <button
-          v-for="(lesson, idx) in lessons"
-          :key="lesson.id"
-          :id="`lesson-tab-${lesson.id}`"
-          @click="activeLessonIndex = idx"
-          :class="[
+        <p class="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-slate-400 mb-3 block">Conteúdo
+          Programático</p>
+        <button v-for="(lesson, idx) in lessons" :key="lesson.id" :id="`lesson-tab-${lesson.id}`"
+          @click="activeLessonIndex = idx" :class="[
             'w-full text-left p-3.5 rounded-xl transition-all flex items-center justify-between border cursor-pointer min-w-0',
-            idx === activeLessonIndex 
-              ? 'bg-blue-50/40 dark:bg-blue-950/50 border-blue-200 dark:border-blue-700 text-blue-900 dark:!text-white font-bold shadow-2xs' 
+            idx === activeLessonIndex
+              ? 'bg-blue-50/40 dark:bg-blue-950/50 border-blue-200 dark:border-blue-700 text-blue-900 dark:!text-white font-bold shadow-2xs'
               : 'bg-white dark:bg-slate-900 border-transparent dark:border-transparent hover:bg-gray-50 dark:hover:bg-slate-800/50 text-gray-750 dark:text-slate-300'
-          ]"
-        >
+          ]">
           <div class="flex items-center gap-3 w-full min-w-0">
             <span :class="[
-               'w-6 h-6 rounded-lg flex items-center justify-center text-xs shrink-0',
+              'w-6 h-6 rounded-lg flex items-center justify-center text-xs shrink-0',
               idx === activeLessonIndex ? 'bg-blue-600 text-white font-bold' : 'bg-gray-100 dark:bg-slate-800 text-gray-500 dark:text-gray-400'
             ]">
               {{ lesson.order }}
             </span>
             <div class="truncate min-w-0 w-full text-left">
-              <p :class="['text-sm truncate block w-full', idx === activeLessonIndex ? 'font-semibold text-blue-950 dark:!text-white' : 'text-gray-700 dark:text-slate-300']">{{ lesson.title }}</p>
-              <p v-if="lesson.quiz && lesson.quiz.length > 0" :class="['text-[10px] font-medium', idx === activeLessonIndex ? 'text-blue-600 dark:!text-blue-300' : 'text-gray-400 dark:text-slate-500']">
+              <p
+                :class="['text-sm truncate block w-full', idx === activeLessonIndex ? 'font-semibold text-blue-950 dark:!text-white' : 'text-gray-700 dark:text-slate-300']">
+                {{ lesson.title }}</p>
+              <p v-if="lesson.quiz && lesson.quiz.length > 0"
+                :class="['text-[10px] font-medium', idx === activeLessonIndex ? 'text-blue-600 dark:!text-blue-300' : 'text-gray-400 dark:text-slate-500']">
                 {{ lesson.quiz.length }} questões de fixação
               </p>
             </div>
@@ -565,113 +553,118 @@ onUnmounted(() => {
 
     <!-- Main Study Area -->
     <div class="lg:col-span-8 space-y-6">
-      
+
       <!-- Lesson Material -->
-      <div class="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-2xl shadow-xs border border-gray-100 dark:border-slate-800 text-left">
+      <div
+        class="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-2xl shadow-xs border border-gray-100 dark:border-slate-800 text-left">
         <div class="flex items-center gap-3 text-xs font-medium text-gray-400 dark:text-slate-400 mb-3">
           <BookOpen class="w-4 h-4" />
           <span>LIÇÃO {{ currentLesson.order }} de {{ lessons.length }}</span>
-          <span v-if="isLessonCompleted" class="flex items-center gap-1 text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-full font-semibold">
+          <span v-if="isLessonCompleted"
+            class="flex items-center gap-1 text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-full font-semibold">
             <CheckCircle class="w-3 h-3" /> Concluída
           </span>
         </div>
-        
-        <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white border-b border-gray-100 dark:border-slate-800 pb-4 mb-3">
+
+        <h1
+          class="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white border-b border-gray-100 dark:border-slate-800 pb-4 mb-3">
           {{ currentLesson.title }}
         </h1>
 
         <!-- Progress requirement checklist widget for student -->
-        <div class="mb-6 p-4 bg-slate-50 dark:bg-slate-950/40 border border-slate-200/60 dark:border-slate-800/80 rounded-xl space-y-2 text-left shadow-2xs">
+        <div
+          class="mb-6 p-4 bg-slate-50 dark:bg-slate-950/40 border border-slate-200/60 dark:border-slate-800/80 rounded-xl space-y-2 text-left shadow-2xs">
           <div class="flex items-center justify-between">
-            <p class="text-xs font-black text-slate-800 dark:text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
+            <p
+              class="text-xs font-black text-slate-800 dark:text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
               <ShieldCheck class="w-4 h-4 text-emerald-600 dark:text-emerald-450" />
               Critérios de Conclusão desta Lição
             </p>
-            <span class="text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider animate-pulse" :class="isLessonCompleted ? 'bg-emerald-100 dark:bg-emerald-900/35 text-emerald-800 dark:text-emerald-300' : 'bg-amber-100 dark:bg-amber-900/35 text-amber-800 dark:text-amber-300'">
+            <span class="text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider animate-pulse"
+              :class="isLessonCompleted ? 'bg-emerald-100 dark:bg-emerald-900/35 text-emerald-800 dark:text-emerald-300' : 'bg-amber-100 dark:bg-amber-900/35 text-amber-800 dark:text-amber-300'">
               {{ isLessonCompleted ? '✓ Concluiu Tudo' : 'Atividades Pendentes' }}
             </span>
           </div>
-          
+
           <div class="grid grid-cols-1 md:grid-cols-3 gap-3 pt-1">
             <!-- 1. Reading Requirement -->
-            <div class="p-2.5 bg-white dark:bg-slate-900 rounded-lg border border-slate-100 dark:border-slate-800 flex flex-col justify-between">
+            <div
+              class="p-2.5 bg-white dark:bg-slate-900 rounded-lg border border-slate-100 dark:border-slate-800 flex flex-col justify-between">
               <div>
                 <span class="text-xs font-bold text-slate-800 dark:text-slate-200 block">1. Estudo Teórico</span>
                 <span class="text-[9.5px] text-slate-500 dark:text-slate-400 block font-semibold leading-tight">
                   {{ lessonProgressConfig.requireReading ? 'Role até o final do texto' : 'Leitura recomendada' }}
                 </span>
-               </div>
-               <button
-                 type="button"
-                 @click="emit('save-progress', currentLesson.id, 100, 'reading')"
-                 :disabled="isReadingCompleted(currentLesson.id) || (lessonProgressConfig.requireReading && !hasReadToBottom)"
-                 :class="[
-                   'w-full py-1 mt-2.5 text-[10px] font-extrabold rounded-md border transition-all cursor-pointer text-center uppercase tracking-wide disabled:opacity-50 disabled:cursor-not-allowed',
-                   isReadingCompleted(currentLesson.id)
-                     ? 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-100/50 dark:border-emerald-900/30 text-emerald-700 dark:text-emerald-300 font-extrabold'
-                     : (lessonProgressConfig.requireReading && !hasReadToBottom
-                         ? 'bg-amber-100 dark:bg-amber-950/30 border-amber-200 dark:border-amber-900/30 text-amber-700 dark:text-amber-300 font-bold'
-                         : 'bg-indigo-600 hover:bg-indigo-700 text-white border-transparent')
-                 ]"
-               >
-                 <span v-if="isReadingCompleted(currentLesson.id)">✓ Texto Lido</span>
-                 <span v-else-if="lessonProgressConfig.requireReading && !hasReadToBottom">Role até o fim ▲</span>
-                 <span v-else>Marcar Lido</span>
-               </button>
+              </div>
+              <button type="button" @click="emit('save-progress', currentLesson.id, 100, 'reading')"
+                :disabled="isReadingCompleted(currentLesson.id) || (lessonProgressConfig.requireReading && !hasReadToBottom)"
+                :class="[
+                  'w-full py-1 mt-2.5 text-[10px] font-extrabold rounded-md border transition-all cursor-pointer text-center uppercase tracking-wide disabled:opacity-50 disabled:cursor-not-allowed',
+                  isReadingCompleted(currentLesson.id)
+                    ? 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-100/50 dark:border-emerald-900/30 text-emerald-700 dark:text-emerald-300 font-extrabold'
+                    : (lessonProgressConfig.requireReading && !hasReadToBottom
+                      ? 'bg-amber-100 dark:bg-amber-950/30 border-amber-200 dark:border-amber-900/30 text-amber-700 dark:text-amber-300 font-bold'
+                      : 'bg-indigo-600 hover:bg-indigo-700 text-white border-transparent')
+                ]">
+                <span v-if="isReadingCompleted(currentLesson.id)">✓ Texto Lido</span>
+                <span v-else-if="lessonProgressConfig.requireReading && !hasReadToBottom">Role até o fim ▲</span>
+                <span v-else>Marcar Lido</span>
+              </button>
             </div>
 
             <!-- 2. Video Requirement -->
-            <div class="p-2.5 bg-white dark:bg-slate-900 rounded-lg border border-slate-100 dark:border-slate-800 flex flex-col justify-between">
+            <div
+              class="p-2.5 bg-white dark:bg-slate-900 rounded-lg border border-slate-100 dark:border-slate-800 flex flex-col justify-between">
               <div>
                 <span class="text-xs font-bold text-slate-800 dark:text-slate-200 block">2. Vídeo de Apoio</span>
                 <span class="text-[9.5px] text-slate-500 dark:text-slate-400 block font-semibold leading-tight">
-                  {{ lessonProgressConfig.requireVideo ? (isOnline ? 'Assista até o fim' : 'Pular Vídeo (Offline)') : 'Opcional / Auxiliar' }}
+                  {{ lessonProgressConfig.requireVideo ? (isOnline ? 'Assista até o fim' : 'Pular Vídeo (Offline)') :
+                    'Opcional / Auxiliar' }}
                 </span>
               </div>
-              <button
-                type="button"
-                @click="emit('save-progress', currentLesson.id, 100, 'video')"
+              <button type="button" @click="emit('save-progress', currentLesson.id, 100, 'video')"
                 :disabled="isVideoWatched(currentLesson.id) || !currentLesson.videoUrl || (isOnline && lessonProgressConfig.requireVideo && !isYTCompleted)"
                 :class="[
                   'w-full py-1 mt-2.5 text-[10px] font-extrabold rounded-md border transition-all cursor-pointer text-center uppercase tracking-wide disabled:opacity-55 disabled:cursor-not-allowed',
                   isVideoWatched(currentLesson.id)
                     ? 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-100/50 dark:border-emerald-900/30 text-emerald-700 dark:text-emerald-300 font-extrabold'
-                    : (!currentLesson.videoUrl 
-                        ? 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-400 dark:text-slate-500 font-semibold' 
-                        : (isOnline && lessonProgressConfig.requireVideo && !isYTCompleted
-                            ? 'bg-amber-100 dark:bg-amber-950/30 border-amber-200 dark:border-amber-900/30 text-amber-700 dark:text-amber-300 font-bold'
-                            : 'bg-indigo-600 hover:bg-indigo-700 text-white border-transparent'))
-                ]"
-              >
+                    : (!currentLesson.videoUrl
+                      ? 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-400 dark:text-slate-500 font-semibold'
+                      : (isOnline && lessonProgressConfig.requireVideo && !isYTCompleted
+                        ? 'bg-amber-100 dark:bg-amber-950/30 border-amber-200 dark:border-amber-900/30 text-amber-700 dark:text-amber-300 font-bold'
+                        : 'bg-indigo-600 hover:bg-indigo-700 text-white border-transparent'))
+                ]">
                 <span v-if="!currentLesson.videoUrl">Sem Vídeo</span>
                 <span v-else-if="isVideoWatched(currentLesson.id)">✓ Assistido</span>
-                <span v-else-if="isOnline && lessonProgressConfig.requireVideo && !isYTCompleted">Assista até o fim ▲</span>
+                <span v-else-if="isOnline && lessonProgressConfig.requireVideo && !isYTCompleted">Assista até o fim
+                  ▲</span>
                 <span v-else-if="!isOnline">Pular Vídeo (Offline)</span>
                 <span v-else>Marcar Assistido</span>
               </button>
             </div>
 
             <!-- 3. Quiz Requirement -->
-            <div class="p-2.5 bg-white dark:bg-slate-900 rounded-lg border border-slate-100 dark:border-slate-800 flex flex-col justify-between">
+            <div
+              class="p-2.5 bg-white dark:bg-slate-900 rounded-lg border border-slate-100 dark:border-slate-800 flex flex-col justify-between">
               <div>
                 <span class="text-xs font-bold text-slate-800 dark:text-slate-200 block">3. Quiz Avaliativo</span>
                 <span class="text-[9.5px] text-slate-500 dark:text-slate-400 block font-semibold leading-tight mb-2">
                   {{ lessonProgressConfig.requireQuiz ? `Requer acerto >= ${quizPassScore}%` : 'Opcional para treino' }}
                 </span>
               </div>
-              
-              <div
-                :class="[
-                  'w-full py-1 text-[10px] font-extrabold rounded-md border text-center uppercase tracking-wide transition-all',
-                  isQuizCompleted(currentLesson.id) && ((getQuizScore(currentLesson.id) || 0) >= quizPassScore)
-                    ? 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-100/50 dark:border-emerald-900/30 text-emerald-700 dark:text-emerald-300 font-extrabold'
-                    : (currentLesson.quiz?.length 
-                        ? 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-550 dark:text-slate-400 font-semibold' 
-                        : 'bg-slate-50 dark:bg-slate-950 border-slate-150 dark:border-slate-850 text-slate-400 dark:text-slate-500')
-                ]"
-              >
+
+              <div :class="[
+                'w-full py-1 text-[10px] font-extrabold rounded-md border text-center uppercase tracking-wide transition-all',
+                isQuizCompleted(currentLesson.id) && ((getQuizScore(currentLesson.id) || 0) >= quizPassScore)
+                  ? 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-100/50 dark:border-emerald-900/30 text-emerald-700 dark:text-emerald-300 font-extrabold'
+                  : (currentLesson.quiz?.length
+                    ? 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-550 dark:text-slate-400 font-semibold'
+                    : 'bg-slate-50 dark:bg-slate-950 border-slate-150 dark:border-slate-850 text-slate-400 dark:text-slate-500')
+              ]">
                 <span v-if="!currentLesson.quiz?.length">Sem Quiz</span>
-                <span v-else-if="isQuizCompleted(currentLesson.id) && ((getQuizScore(currentLesson.id) || 0) >= quizPassScore)">✓ Resolvido ({{ getQuizScore(currentLesson.id) }}%)</span>
+                <span
+                  v-else-if="isQuizCompleted(currentLesson.id) && ((getQuizScore(currentLesson.id) || 0) >= quizPassScore)">✓
+                  Resolvido ({{ getQuizScore(currentLesson.id) }}%)</span>
                 <span v-else>Resolver Abaixo</span>
               </div>
             </div>
@@ -680,18 +673,25 @@ onUnmounted(() => {
 
         <!-- Embedded Video Player -->
         <div v-if="videoEmbedId" class="mb-8">
-          <div class="rounded-xl overflow-hidden aspect-video shadow-xs border border-gray-100 dark:border-slate-800 bg-slate-900 relative">
-            <div v-if="!isOnline" class="w-full h-full flex flex-col items-center justify-center text-slate-400 p-6 bg-slate-950 text-center">
+          <div
+            class="rounded-xl overflow-hidden aspect-video shadow-xs border border-gray-100 dark:border-slate-800 bg-slate-900 relative">
+            <div v-if="!isOnline"
+              class="w-full h-full flex flex-col items-center justify-center text-slate-400 p-6 bg-slate-950 text-center">
               <Video class="w-12 h-12 text-slate-600 mb-2" />
               <p class="text-sm font-bold text-slate-300">Player de Vídeo Indisponível (Modo Offline)</p>
-              <p class="text-xs text-slate-500 mt-1 max-w-sm">Você está sem internet. O critério de visualizar ao vídeo foi flexibilizado para que você continue estudando na lição sem travar.</p>
+              <p class="text-xs text-slate-500 mt-1 max-w-sm">Você está sem internet. O critério de visualizar ao vídeo
+                foi flexibilizado para que você continue estudando na lição sem travar.</p>
             </div>
             <div v-else id="lesson-youtube-player-element" class="w-full h-full"></div>
           </div>
-          <div v-if="isOnline" class="mt-3 p-3.5 rounded-xl text-left flex items-start gap-2.5 bg-amber-500/10 border border-amber-500/20">
+          <div v-if="isOnline"
+            class="mt-3 p-3.5 rounded-xl text-left flex items-start gap-2.5 bg-amber-500/10 border border-amber-500/20">
             <span class="text-sm select-none">💡</span>
             <div class="text-xs text-amber-900 dark:text-amber-300 leading-normal font-semibold">
-              Problemas com o vídeo ou erro de reprodução? Você também pode <a :href="`https://www.youtube.com/watch?v=${videoEmbedId}`" target="_blank" class="font-extrabold underline hover:opacity-80 inline-flex items-center gap-0.5 text-amber-600 dark:text-amber-400">assistir diretamente no YouTube ↗</a>.
+              Problemas com o vídeo ou erro de reprodução? Você também pode <a
+                :href="`https://www.youtube.com/watch?v=${videoEmbedId}`" target="_blank"
+                class="font-extrabold underline hover:opacity-80 inline-flex items-center gap-0.5 text-amber-600 dark:text-amber-400">assistir
+                diretamente no YouTube ↗</a>.
             </div>
           </div>
         </div>
@@ -699,68 +699,68 @@ onUnmounted(() => {
         <!-- Interactive Lesson Text -->
         <div class="max-w-none text-gray-700 leading-relaxed relative">
           <MarkdownRenderer :content="currentLesson.content" />
-          
+
           <!-- Sentinel to monitor reading reached bottom -->
-          <div ref="bottomSentinel" id="reading-bottom-sentinel" class="w-full h-4 absolute bottom-0 select-none pointer-events-none opacity-0"></div>
+          <div ref="bottomSentinel" id="reading-bottom-sentinel"
+            class="w-full h-4 absolute bottom-0 select-none pointer-events-none opacity-0"></div>
         </div>
       </div>
 
       <!-- Quiz trigger action block to save space & prevent scroll fatigue -->
-      <div v-if="currentLesson.quiz && currentLesson.quiz.length > 0" class="bg-slate-50 dark:bg-slate-950/40 p-6 sm:p-8 rounded-2xl border border-slate-200/60 dark:border-slate-800/80 text-left flex flex-col sm:flex-row sm:items-center justify-between gap-5 shadow-2xs mt-6">
+      <div v-if="currentLesson.quiz && currentLesson.quiz.length > 0"
+        class="bg-slate-50 dark:bg-slate-950/40 p-6 sm:p-8 rounded-2xl border border-slate-200/60 dark:border-slate-800/80 text-left flex flex-col sm:flex-row sm:items-center justify-between gap-5 shadow-2xs mt-6">
         <div class="space-y-1">
           <h3 class="text-base sm:text-lg font-black text-slate-900 dark:text-white flex items-center gap-2">
             <CheckCircle class="w-5 h-5 shrink-0" :style="{ color: courseThemeColor }" />
             Prova de Fixação da Lição
           </h3>
           <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium leading-relaxed font-semibold">
-            Esta lição possui um questionário integrado de <strong>{{ currentLesson.quiz.length }} perguntas</strong> para testar seu aprendizado técnico.
+            Esta lição possui um questionário integrado de <strong>{{ currentLesson.quiz.length }} perguntas</strong>
+            para testar seu aprendizado técnico.
           </p>
-          <div v-if="isQuizCompleted(currentLesson.id) || isQuizSubmitted" class="pt-1 flex items-center gap-1.5 text-xs text-emerald-600 dark:!text-emerald-400 font-bold">
+          <div v-if="isQuizCompleted(currentLesson.id) || isQuizSubmitted"
+            class="pt-1 flex items-center gap-1.5 text-xs text-emerald-600 dark:!text-emerald-400 font-bold">
             <ShieldCheck class="w-4 h-4 animate-bounce" />
             Aprovado com {{ getQuizScore(currentLesson.id) || quizScore || 100 }}% de desempenho!
           </div>
         </div>
-        
-        <button
-          @click="showQuizModal = true"
-          :style="{ backgroundColor: courseThemeColor }"
-          class="px-5 py-3 hover:opacity-90 text-white font-bold text-xs sm:text-sm rounded-xl transition-all shadow-xs shrink-0 flex items-center justify-center gap-2 cursor-pointer hover:scale-102 active:scale-98"
-        >
+
+        <button @click="showQuizModal = true" :style="{ backgroundColor: courseThemeColor }"
+          class="px-5 py-3 hover:opacity-90 text-white font-bold text-xs sm:text-sm rounded-xl transition-all shadow-xs shrink-0 flex items-center justify-center gap-2 cursor-pointer hover:scale-102 active:scale-98">
           <Award class="w-4 h-4" />
           {{ quizButtonText }}
         </button>
       </div>
 
       <!-- Lesson has no quiz, allow immediate completion marking for support flexibility -->
-      <div v-else class="bg-slate-50 dark:bg-slate-950/40 p-6 sm:p-8 rounded-2xl border border-slate-200/60 dark:border-slate-800/80 flex items-center justify-between text-left mt-6 shadow-2xs">
+      <div v-else
+        class="bg-slate-50 dark:bg-slate-950/40 p-6 sm:p-8 rounded-2xl border border-slate-200/60 dark:border-slate-800/80 flex items-center justify-between text-left mt-6 shadow-2xs">
         <div>
           <h4 class="font-bold text-gray-900 dark:text-white text-sm">Leitura Finalizada?</h4>
-          <p class="text-xs text-gray-500 dark:text-slate-400 mt-0.5 font-semibold">Marque como concluído para atualizar seu gráfico de estudos.</p>
+          <p class="text-xs text-gray-500 dark:text-slate-400 mt-0.5 font-semibold">Marque como concluído para atualizar
+            seu gráfico de estudos.</p>
         </div>
-        
-        <button
-          id="btn-confirm-read"
-          @click="emit('save-progress', currentLesson.id, 100, 'reading')"
-          :disabled="isLessonCompleted"
-          :class="[
+
+        <button id="btn-confirm-read" @click="emit('save-progress', currentLesson.id, 100, 'reading')"
+          :disabled="isLessonCompleted" :class="[
             'px-5 py-2 text-xs font-semibold rounded-xl transition-all cursor-pointer',
-            isLessonCompleted 
-              ? 'bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-500 cursor-not-allowed border border-transparent' 
+            isLessonCompleted
+              ? 'bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-500 cursor-not-allowed border border-transparent'
               : 'bg-blue-600 hover:bg-blue-700 text-white'
-          ]"
-        >
+          ]">
           {{ isLessonCompleted ? "✓ Concluído" : "Marcar Concluído" }}
         </button>
       </div>
 
       <!-- Floating Quiz Modal Overlay (Only closable after answering & submitting) -->
       <Teleport to="body">
-        <div v-if="showQuizModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-          <div 
-            class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden animate-fadeIn"
-          >
+        <div v-if="showQuizModal"
+          class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+          <div
+            class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden animate-fadeIn">
             <!-- Header -->
-            <div class="px-6 py-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-950/40">
+            <div
+              class="px-6 py-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-950/40">
               <div class="text-left">
                 <h3 class="text-base sm:text-lg font-black text-slate-900 dark:text-white flex items-center gap-2">
                   <Award class="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
@@ -770,14 +770,10 @@ onUnmounted(() => {
                   Aproveitamento mínimo requerido de {{ quizPassScore }}%
                 </p>
               </div>
-              
+
               <!-- Close (X) button is strictly shown only after submission to ensure focus -->
-              <button 
-                v-if="isQuizSubmitted"
-                @click="showQuizModal = false"
-                title="Fechar e Retornar"
-                class="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-100 transition-all border border-transparent dark:border-slate-800 bg-transparent cursor-pointer flex items-center justify-center"
-              >
+              <button v-if="isQuizSubmitted" @click="showQuizModal = false" title="Fechar e Retornar"
+                class="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-100 transition-all border border-transparent dark:border-slate-800 bg-transparent cursor-pointer flex items-center justify-center">
                 <X class="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
             </div>
@@ -785,57 +781,57 @@ onUnmounted(() => {
             <!-- Quiz Questions content area (Scrollable) -->
             <div class="p-6 sm:p-8 overflow-y-auto space-y-6 text-left flex-1">
               <!-- Inline Guidance Banner -->
-              <div v-if="!isQuizSubmitted" class="p-4 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/30 rounded-2xl flex items-start gap-3">
+              <div v-if="!isQuizSubmitted"
+                class="p-4 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/30 rounded-2xl flex items-start gap-3">
                 <AlertCircle class="w-5 h-5 text-amber-600 dark:text-amber-450 shrink-0 mt-0.5 animate-pulse" />
                 <div class="space-y-0.5">
                   <p class="text-xs font-black text-amber-900 dark:text-amber-300">Prova Ativa em Andamento</p>
                   <p class="text-[11px] text-amber-800 dark:text-amber-400 font-semibold leading-relaxed">
-                    Para garantir sua trilha pedagógica, esta janela de prova é selada. Responda tudo com atenção e clique em Enviar Respostas no rodapé quando concluir.
+                    Para garantir sua trilha pedagógica, esta janela de prova é selada. Responda tudo com atenção e
+                    clique em Enviar Respostas no rodapé quando concluir.
                   </p>
                 </div>
               </div>
 
               <div class="space-y-6">
-                <div v-for="(q, qIdx) in currentLesson.quiz" :key="qIdx" class="bg-slate-50/50 dark:bg-slate-950/20 p-5 rounded-2xl border border-slate-200 dark:border-slate-800">
+                <div v-for="(q, qIdx) in currentLesson.quiz" :key="qIdx"
+                  class="bg-slate-50/50 dark:bg-slate-950/20 p-5 rounded-2xl border border-slate-200 dark:border-slate-800">
                   <p class="font-bold text-slate-900 dark:text-white text-sm mb-3">
                     {{ qIdx + 1 }}. {{ q.question }}
                   </p>
-                  
+
                   <div class="space-y-2.5">
-                    <button
-                      v-for="(opt, oIdx) in q.options"
-                      :key="oIdx"
-                      :id="`quiz-modal-${qIdx}-option-${oIdx}`"
-                      :disabled="isQuizSubmitted"
-                      @click="handleSelectAnswer(qIdx, oIdx)"
-                      :class="[
+                    <button v-for="(opt, oIdx) in q.options" :key="oIdx" :id="`quiz-modal-${qIdx}-option-${oIdx}`"
+                      :disabled="isQuizSubmitted" @click="handleSelectAnswer(qIdx, oIdx)" :class="[
                         'w-full text-left p-3.5 text-xs sm:text-sm rounded-xl border font-semibold transition-all flex items-center justify-between cursor-pointer',
-                        Number(selectedAnswers[qIdx]) === Number(oIdx) 
-                          ? (isQuizSubmitted 
-                              ? (Number(q.correctAnswer) === Number(oIdx) ? 'bg-emerald-50 dark:bg-emerald-950/45 border-emerald-500 dark:border-emerald-700 text-emerald-900 dark:!text-emerald-300 font-extrabold' : 'bg-rose-50 dark:bg-rose-950/45 border-rose-300 dark:border-rose-900 text-rose-900 dark:!text-rose-300 font-extrabold') 
-                              : 'font-extrabold ring-2')
-                          : (isQuizSubmitted 
-                              ? (Number(q.correctAnswer) === Number(oIdx) ? 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-400 dark:border-emerald-800 text-emerald-950 dark:!text-emerald-300 font-extrabold' : 'bg-white dark:bg-slate-900/40 border-slate-200 dark:border-slate-800 text-slate-450 dark:!text-slate-500 opacity-60') 
-                              : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/80 text-slate-700 dark:!text-slate-200')
-                      ]"
-                      :style="[
-                        Number(selectedAnswers[qIdx]) === Number(oIdx) && !isQuizSubmitted 
-                          ? { borderColor: courseThemeColor, color: courseThemeColor, backgroundColor: courseThemeColor + '12', '--tw-ring-color': courseThemeColor + '40' } 
+                        Number(selectedAnswers[qIdx]) === Number(oIdx)
+                          ? (isQuizSubmitted
+                            ? (Number(q.correctAnswer) === Number(oIdx) ? 'bg-emerald-50 dark:bg-emerald-950/45 border-emerald-500 dark:border-emerald-700 text-emerald-900 dark:!text-emerald-300 font-extrabold' : 'bg-rose-50 dark:bg-rose-950/45 border-rose-300 dark:border-rose-900 text-rose-900 dark:!text-rose-300 font-extrabold')
+                            : 'font-extrabold ring-2')
+                          : (isQuizSubmitted
+                            ? (Number(q.correctAnswer) === Number(oIdx) ? 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-400 dark:border-emerald-800 text-emerald-950 dark:!text-emerald-300 font-extrabold' : 'bg-white dark:bg-slate-900/40 border-slate-200 dark:border-slate-800 text-slate-450 dark:!text-slate-500 opacity-60')
+                            : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/80 text-slate-700 dark:!text-slate-200')
+                      ]" :style="[
+                        Number(selectedAnswers[qIdx]) === Number(oIdx) && !isQuizSubmitted
+                          ? { borderColor: courseThemeColor, color: courseThemeColor, backgroundColor: courseThemeColor + '12', '--tw-ring-color': courseThemeColor + '40' }
                           : {}
-                      ]"
-                    >
+                      ]">
                       <span class="pr-2">{{ opt }}</span>
-                      
-                      <span v-if="isQuizSubmitted && Number(q.correctAnswer) === Number(oIdx)" class="text-[10px] text-emerald-600 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950/50 py-0.5 px-2.5 rounded-full uppercase shrink-0 font-black">
+
+                      <span v-if="isQuizSubmitted && Number(q.correctAnswer) === Number(oIdx)"
+                        class="text-[10px] text-emerald-600 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950/50 py-0.5 px-2.5 rounded-full uppercase shrink-0 font-black">
                         Correto
                       </span>
-                      <span v-if="isQuizSubmitted && Number(selectedAnswers[qIdx]) === Number(oIdx) && Number(q.correctAnswer) !== Number(oIdx)" class="text-[10px] text-rose-600 dark:text-rose-300 bg-rose-100 dark:bg-rose-950/50 py-0.5 px-2.5 rounded-full uppercase shrink-0 font-black">
+                      <span
+                        v-if="isQuizSubmitted && Number(selectedAnswers[qIdx]) === Number(oIdx) && Number(q.correctAnswer) !== Number(oIdx)"
+                        class="text-[10px] text-rose-600 dark:text-rose-300 bg-rose-100 dark:bg-rose-950/50 py-0.5 px-2.5 rounded-full uppercase shrink-0 font-black">
                         Incorreto
                       </span>
                     </button>
                   </div>
 
-                  <div v-if="isQuizSubmitted" :style="{ backgroundColor: courseThemeColor + '10' }" class="mt-4 p-4 border border-slate-100 dark:border-slate-800 rounded-xl text-xs leading-relaxed text-slate-705 dark:!text-slate-200 shadow-2xs">
+                  <div v-if="isQuizSubmitted" :style="{ backgroundColor: courseThemeColor + '10' }"
+                    class="mt-4 p-4 border border-slate-100 dark:border-slate-800 rounded-xl text-xs leading-relaxed text-slate-705 dark:!text-slate-200 shadow-2xs">
                     <strong class="font-extrabold" :style="{ color: courseThemeColor }">Dica Pedagógica:</strong>
                     <span class="text-slate-650 dark:!text-slate-800 font-semibold ml-1">{{ q.explanation }}</span>
                   </div>
@@ -844,12 +840,15 @@ onUnmounted(() => {
             </div>
 
             <!-- Sticky footer of the modal -->
-            <div class="p-6 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/40 flex flex-col sm:flex-row items-center justify-between gap-4 shrink-0">
+            <div
+              class="p-6 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/40 flex flex-col sm:flex-row items-center justify-between gap-4 shrink-0">
               <div class="text-left w-full sm:w-auto">
                 <div v-if="isQuizSubmitted && quizScore !== null" class="text-xs sm:text-sm">
                   <span class="font-bold text-slate-700 dark:text-slate-300">Seu Desempenho: </span>
-                  <span :class="['font-black text-sm sm:text-base block sm:inline', quizScore >= quizPassScore ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400']">
-                    {{ quizScore }}% ({{ quizScore >= quizPassScore ? "✓ Aprovado para Conclusão" : "Abaixo da Média Necessária (Requer >= " + quizPassScore + "%)" }})
+                  <span
+                    :class="['font-black text-sm sm:text-base block sm:inline', quizScore >= quizPassScore ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400']">
+                    {{ quizScore }}% ({{ quizScore >= quizPassScore ?
+                      "✓ Aprovado para Conclusão" : "Abaixo da Média Necessária(Requer >= " + quizPassScore + "%)" }})
                   </span>
                 </div>
                 <div v-else class="text-xs font-bold text-slate-450 dark:text-slate-500 uppercase tracking-widest">
@@ -858,33 +857,22 @@ onUnmounted(() => {
               </div>
 
               <div class="flex items-center gap-3 w-full sm:w-auto justify-end">
-                <button
-                  v-if="!isQuizSubmitted"
-                  id="btn-submit-quick-quiz"
-                  :disabled="isSubmitting"
-                  @click="handleSubmitQuiz"
-                  :style="{ backgroundColor: courseThemeColor }"
-                  class="w-full sm:w-auto px-6 py-3 hover:opacity-90 disabled:opacity-50 text-white text-sm font-bold rounded-xl shadow-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer"
-                >
+                <button v-if="!isQuizSubmitted" id="btn-submit-quick-quiz" :disabled="isSubmitting"
+                  @click="handleSubmitQuiz" :style="{ backgroundColor: courseThemeColor }"
+                  class="w-full sm:w-auto px-6 py-3 hover:opacity-90 disabled:opacity-50 text-white text-sm font-bold rounded-xl shadow-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer">
                   {{ isSubmitting ? "Enviando Prova..." : "Enviar e Entregar Prova" }}
                   <ArrowRight class="w-4 h-4" />
                 </button>
-                
+
                 <div v-else class="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
-                  <button
-                    v-if="quizScore !== null && quizScore < quizPassScore"
-                    id="btn-retry-quiz"
+                  <button v-if="quizScore !== null && quizScore < quizPassScore" id="btn-retry-quiz"
                     @click="selectedAnswers = {}; isQuizSubmitted = false; quizScore = null;"
-                    class="w-full sm:w-auto px-5 py-3 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-755 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs sm:text-sm font-bold rounded-xl transition-colors cursor-pointer"
-                  >
+                    class="w-full sm:w-auto px-5 py-3 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-755 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs sm:text-sm font-bold rounded-xl transition-colors cursor-pointer">
                     Tentar Novamente
                   </button>
-                  
-                  <button
-                    @click="showQuizModal = false"
-                    :style="{ backgroundColor: courseThemeColor }"
-                    class="w-full sm:w-auto px-6 py-3 hover:opacity-90 text-white text-xs sm:text-sm font-black uppercase tracking-wider rounded-xl transition-all cursor-pointer"
-                  >
+
+                  <button @click="showQuizModal = false" :style="{ backgroundColor: courseThemeColor }"
+                    class="w-full sm:w-auto px-6 py-3 hover:opacity-90 text-white text-xs sm:text-sm font-black uppercase tracking-wider rounded-xl transition-all cursor-pointer">
                     Concluir e Fechar
                   </button>
                 </div>

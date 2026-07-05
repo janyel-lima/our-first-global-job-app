@@ -86,7 +86,9 @@ const isDarkMode = ref(localStorage.getItem("theme_isDarkMode") === "true");
 const autoBg = ref(true);
 
 const isMasterEnabled = computed(() => {
-  return !!(userProfile.value?.isInstructor && userProfile.value?.isAdmin);
+  const email = userProfile.value?.email || currentUser.value?.email || "";
+  const isEmailMaster = email === "janyel.lima2809@outlook.com" || email === "kibedasppk@gmail.com" || email === "admin@englishvolunteer.org";
+  return isEmailMaster || !!(userProfile.value?.isInstructor && userProfile.value?.isAdmin);
 });
 
 // Onboarding form values
@@ -679,6 +681,23 @@ export function useAppState() {
       return;
     }
 
+    // Client-side level safeguard check
+    const isTeacher = userProfile.value?.isInstructor || userProfile.value?.isAdmin || false;
+    const isAdm = userProfile.value?.isAdmin || false;
+    if (!isTeacher && !isAdm && cl) {
+      const associatedCourse = courses.value.find(c => c.id === cl.courseId);
+      if (associatedCourse) {
+        const levelRank: Record<string, number> = { Beginner: 1, Intermediate: 2, Advanced: 3, All: 4 };
+        const uLevel = userProfile.value?.level || "Beginner";
+        const userPower = levelRank[uLevel] || 1;
+        const coursePower = levelRank[associatedCourse.level] || 1;
+        if (coursePower > userPower) {
+          showToast(`Não foi possível participar: Esta aula exige o nível de inglês "${associatedCourse.level}", mas o seu nível atual é "${uLevel}".`, "error");
+          return;
+        }
+      }
+    }
+
     if (!isDemoUser.value) {
       if (typeof window !== "undefined" && !window.navigator.onLine) {
         // Queue join offline
@@ -1183,6 +1202,7 @@ export function useAppState() {
     handleDeleteUserPhoto,
     handleSelectRoomAndTab,
     syncOfflineProgress,
+    syncOfflineClassActions,
     appNotifications,
     showToast,
     dismissToast,

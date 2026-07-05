@@ -174,12 +174,12 @@ const handleColorSelect = (e: Event) => {
         </nav>
 
         <!-- User controls and settings combo -->
-        <div class="flex items-center gap-2 sm:gap-3 xs:border-l border-slate-200 xs:pl-3 sm:pl-4 shrink-0">
-          <!-- Adaptive User Profile Card (Adapts to Mobile and Desktop) -->
+        <div class="flex items-center gap-2 sm:gap-3 border-l border-slate-250 dark:border-slate-300 pl-2 sm:pl-4 shrink-0">
+          <!-- Adaptive User Profile Card (Adapts beautifully to Mobile and Desktop) -->
           <div 
             v-if="userProfile"
             @click="emit('open-profile')"
-            class="flex items-center gap-1.5 sm:gap-2.5 bg-slate-50 hover:bg-slate-100 dark:bg-slate-900/40 dark:hover:bg-slate-900/80 p-1 sm:pr-3 rounded-xl border border-slate-150 dark:border-slate-800 cursor-pointer transition-all duration-200 shrink-0 group active:scale-95"
+            class="flex items-center gap-1.5 sm:gap-2.5 bg-slate-50 hover:bg-slate-100 dark:bg-slate-900/40 dark:hover:bg-slate-900/80 p-1 pr-1.5 sm:pr-3 rounded-xl border border-slate-150 dark:border-slate-800 cursor-pointer transition-all duration-200 shrink-0 group active:scale-95 animate-fadeIn"
             title="Clique para editar seu perfil e nível"
           >
             <!-- Avatar circle -->
@@ -194,23 +194,18 @@ const handleColorSelect = (e: Event) => {
               </div>
             </div>
             
-            <!-- Name & Level badge - visible on xs screens and wider, styled cleanly -->
-            <div class="hidden xs:flex flex-col text-left leading-tight shrink-0">
-              <p class="text-[11px] sm:text-xs font-extrabold text-slate-800 dark:text-slate-200 max-w-[85px] sm:max-w-[140px] truncate leading-none mb-0.5 sm:mb-1 flex items-center gap-1">
+            <!-- Name & Level badge - visible on both mobile and desktop, styled cleanly -->
+            <div class="flex flex-col text-left leading-tight shrink-0">
+              <p class="text-[10px] sm:text-xs font-extrabold text-slate-800 dark:text-slate-200 max-w-[70px] sm:max-w-[140px] truncate leading-none mb-0.5 sm:mb-1 flex items-center gap-0.5">
                 <span>{{ userProfile?.displayName }}</span>
-                <span class="text-[9px] text-slate-400 group-hover:text-blue-500 transition-colors">✏️</span>
+                <span class="text-[8px] text-slate-400 group-hover:text-blue-500 transition-colors">✏️</span>
               </p>
               <span 
-                class="text-[8px] sm:text-[9px] font-black uppercase tracking-wider px-1 sm:px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 leading-none block w-max"
+                class="text-[7.5px] sm:text-[9px] font-black uppercase tracking-wider px-1 sm:px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 leading-none block w-max"
                 :style="{ color: primaryColor }"
               >
                 Nível {{ userProfile?.level }}
               </span>
-            </div>
-
-            <!-- Compact edit indicator on ultra-small viewports (less than xs) where text is hidden -->
-            <div class="xs:hidden text-[10px] pr-1 select-none text-slate-400 group-hover:text-blue-500">
-              ✏️
             </div>
           </div>
 
@@ -251,7 +246,7 @@ const handleColorSelect = (e: Event) => {
               </div>
 
               <!-- Dark/Light mode toggle -->
-              <div class="space-y-1.5">
+              <div class="space-y-1.5 pb-2 border-b border-slate-100/60">
                 <span class="text-[9px] font-black text-slate-400 uppercase tracking-wider block">Visualização</span>
                 <div class="grid grid-cols-2 gap-2">
                   <button

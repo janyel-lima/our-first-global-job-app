@@ -10,6 +10,7 @@ const props = defineProps<{
   userDisplayName: string;
   isInstructor: boolean;
   isAdmin: boolean;
+  userLevel?: string;
 }>();
 
 const emit = defineEmits<{
@@ -45,6 +46,20 @@ const classItemsPerPage = ref(6);
 
 const filteredClasses = computed(() => {
   return props.classes.filter(cl => {
+    // 1. Level check: Hide classes requiring a level above the student's current profile level (unless admin/instructor)
+    if (!props.isInstructor && !props.isAdmin) {
+      const associatedCourse = props.courses.find(c => c.id === cl.courseId);
+      if (associatedCourse) {
+        const levelRank: Record<string, number> = { Beginner: 1, Intermediate: 2, Advanced: 3, All: 4 };
+        const uLevel = props.userLevel || "Beginner";
+        const userPower = levelRank[uLevel] || 1;
+        const coursePower = levelRank[associatedCourse.level] || 1;
+        if (coursePower > userPower) {
+          return false;
+        }
+      }
+    }
+
     const queryStr = classSearchQuery.value.toLowerCase().trim();
     const courseTitleMatch = cl.courseTitle && cl.courseTitle.toLowerCase().includes(queryStr);
     const instructorMatch = cl.instructorName && cl.instructorName.toLowerCase().includes(queryStr);
