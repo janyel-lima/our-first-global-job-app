@@ -2,3 +2,17 @@
 
 @variant dark (&:where(.dark, .dark *));
 
+/* Fix for option elements in select dropdowns in dark/light mode */
+select option {
+  color: #0f172a !important; /* slate-900 */
+  background-color: #ffffff !important;
+}
+
+.dark select option,
+:where(.dark) select option,
+html.dark select option,
+.dark option,
+:where(.dark) option {
+  color: #f8fafc !important; /* slate-50 */
+  background-color: #0f172a !important; /* slate-900 */
+}
