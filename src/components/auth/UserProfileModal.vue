@@ -299,7 +299,7 @@ const submit = () => {
             type="text"
             required
             :placeholder="locale === 'pt' ? 'Digite seu nome completo' : 'Enter your full name'"
-            class="w-full text-xs font-bold px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 dark:text-white focus:outline-hidden focus:border-blue-500"
+            class="w-full text-xs font-bold px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-inset focus:ring-blue-500 focus:border-blue-500"
           />
         </div>
 
@@ -308,7 +308,7 @@ const submit = () => {
           <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider block font-bold">{{ t('header.englishLevel') }}</label>
           <select 
             v-model="profileEditLevel"
-            class="w-full text-xs font-bold px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 dark:text-white focus:outline-hidden focus:border-blue-500 cursor-pointer"
+            class="w-full text-xs font-bold px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-inset focus:ring-blue-500 focus:border-blue-500 cursor-pointer"
           >
             <option value="Beginner">{{ locale === 'pt' ? 'A1-A2: Beginner (Básico)' : 'A1-A2: Beginner (Basic)' }}</option>
             <option value="Intermediate">{{ locale === 'pt' ? 'B1-B2: Intermediate (Intermediário)' : 'B1-B2: Intermediate' }}</option>
@@ -327,7 +327,7 @@ const submit = () => {
             v-model="profileEditBio"
             rows="2"
             :placeholder="locale === 'pt' ? 'Conte brevemente sobre seus objetivos com o inglês...' : 'Tell us briefly about your goals with English...'"
-            class="w-full text-xs font-bold px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 dark:text-white focus:outline-hidden focus:border-blue-500 resize-none"
+            class="w-full text-xs font-bold px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-inset focus:ring-blue-500 focus:border-blue-500 resize-none"
           ></textarea>
         </div>
 
@@ -378,7 +378,7 @@ const submit = () => {
               v-model="signatureText"
               type="text"
               :placeholder="locale === 'pt' ? 'Ex: Prof. Silva' : 'E.g., Prof. Silva'"
-              class="w-full text-xs font-bold px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 dark:text-white focus:outline-hidden focus:border-blue-500"
+              class="w-full text-xs font-bold px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-inset focus:ring-blue-500 focus:border-blue-500"
             />
             
             <!-- Real-time design cursive font preview -->

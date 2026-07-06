@@ -855,11 +855,43 @@ onMounted(() => {
     if (isAdmin || isInstructor) {
       const unsubUsers = onSnapshot(collection(db, "users"), (snap) => {
         let list: UserProfile[] = [];
-        snap.forEach(d => list.push(d.data() as UserProfile));
+        snap.forEach(d => {
+          const data = d.data();
+          if (data) {
+            list.push({
+              uid: d.id || data.uid || "",
+              displayName: data.displayName || data.email || "Usuário Sem Nome",
+              email: data.email || "",
+              isInstructor: data.isInstructor || false,
+              level: data.level || "Beginner",
+              bio: data.bio || "",
+              isAdmin: data.isAdmin || false,
+              photoURL: data.photoURL || ""
+            } as UserProfile);
+          }
+        });
 
-        // Filtrar resquícios de usuários excluídos de cache local persistente
+        // Filtrar resquícios de usuários excluídos de cache local persistente e registros fantasmas/corrompidos
         const purgedUids = JSON.parse(localStorage.getItem("lgpd_purged_uids") || "[]");
-        list = list.filter(u => !purgedUids.includes(u.uid));
+        list = list.filter(u => {
+          if (!u || !u.uid) return false;
+          const uidStr = String(u.uid).trim();
+          if (
+            uidStr === "" || 
+            uidStr === "undefined" || 
+            uidStr === "null" || 
+            uidStr === "uid"
+          ) {
+            return false;
+          }
+          if (purgedUids.includes(uidStr)) return false;
+          
+          // Se for "Usuário Sem Nome" e não tiver e-mail e bio, é um documento vazio/corrompido no banco
+          if (u.displayName === "Usuário Sem Nome" && !u.email && !u.bio) {
+            return false;
+          }
+          return true;
+        });
 
         if (isDemoUser.value) {
           const mockList: UserProfile[] = [

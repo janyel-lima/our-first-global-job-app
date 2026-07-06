@@ -37,7 +37,7 @@ const emit = defineEmits<{
   (e: 'delete-user-completely', uid: string): void;
 }>();
 
-const { isDarkMode } = useAppState();
+const { isDarkMode, allUsers } = useAppState();
 const { t, locale } = useI18n();
 
 const searchQuery = ref('');
@@ -53,10 +53,19 @@ const editUserBio = ref("");
 const editUserRole = ref<"student" | "instructor">("student");
 const editUserEmail = ref("");
 
-const teachers = computed(() => props.users.filter(u => u.isInstructor));
+const teachers = computed(() => props.users.filter(u => u && u.isInstructor && u.uid && u.uid !== 'undefined' && u.uid !== 'null' && u.uid !== 'uid'));
 
 const filteredUsers = computed(() => {
   return props.users.filter(u => {
+    if (!u || !u.uid) return false;
+    const uidStr = String(u.uid).trim();
+    if (uidStr === "" || uidStr === "undefined" || uidStr === "null" || uidStr === "uid") {
+      return false;
+    }
+    if (u.displayName === "Usuário Sem Nome" && !u.email && !u.bio) {
+      return false;
+    }
+
     // Role matching
     if (selectedRoleFilter.value === 'teachers' && !u.isInstructor) return false;
     if (selectedRoleFilter.value === 'students' && u.isInstructor) return false;
@@ -120,14 +129,17 @@ const handleSaveUserFromAdmin = async () => {
       await setDoc(targetRef, updatedProfile, { merge: true });
     }
     
-    // Update local props directly so UI reacts immediately
-    const foundIdx = props.users.findIndex(x => x.uid === uToEdit.value?.uid);
+    // Update the shared state so UI reacts immediately
+    const foundIdx = allUsers.value.findIndex(x => x.uid === uToEdit.value?.uid);
     if (foundIdx !== -1) {
-      props.users[foundIdx].displayName = editUserName.value.trim();
-      props.users[foundIdx].level = editUserLevel.value;
-      props.users[foundIdx].bio = editUserBio.value.trim();
-      props.users[foundIdx].email = editUserEmail.value.trim();
-      props.users[foundIdx].isInstructor = isInst;
+      allUsers.value[foundIdx] = {
+        ...allUsers.value[foundIdx],
+        displayName: editUserName.value.trim(),
+        level: editUserLevel.value,
+        bio: editUserBio.value.trim(),
+        email: editUserEmail.value.trim(),
+        isInstructor: isInst
+      };
     }
     
     showToast("Dados do usuário alterados com sucesso no Firestore!", "success");

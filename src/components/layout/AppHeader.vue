@@ -87,7 +87,7 @@ const handleColorSelect = (e: Event) => {
         <!-- CONNECTION STATUS BADGE -->
         <span 
           class="text-[8px] font-black uppercase tracking-wider px-2 xs:px-3 py-1 rounded-full flex items-center gap-1.5 shrink-0 ml-3 sm:ml-5 mr-4 md:mr-8 border border-slate-150 bg-slate-50"
-          :title="isOnline ? (locale === 'pt' ? 'Conectado à Internet' : 'Connected to Internet') : (locale === 'pt' ? 'Modo Offline Ativo' : 'Offline Mode Active')"
+          :title="isOnline ? t('header.connected') : t('header.offlineMode')"
         >
           <span class="w-1.5 h-1.5 rounded-full shrink-0 animate-pulse" :class="isOnline ? 'bg-emerald-500' : 'bg-red-500'"></span>
           <span class="text-slate-600 hidden xs:inline">{{ isOnline ? 'Online' : 'Offline' }}</span>
@@ -254,7 +254,7 @@ const handleColorSelect = (e: Event) => {
             <button
               type="button"
               @click="showThemePanel = !showThemePanel"
-              :title="locale === 'pt' ? 'Personalizar Cores e Tema' : 'Customize Colors & Theme'"
+              :title="t('header.themeTitle')"
               :class="[
                 'p-2 rounded-xl transition-all border cursor-pointer flex items-center justify-center gap-1.5 hover:bg-slate-50 dark:hover:bg-slate-200 border-slate-200 dark:border-slate-250 shadow-sm hover:shadow active:scale-95 shrink-0',
                 showThemePanel 
@@ -272,9 +272,9 @@ const handleColorSelect = (e: Event) => {
               <div class="flex items-center justify-between border-b border-slate-100 pb-2">
                 <div>
                   <h4 class="text-xs font-black text-slate-900 flex items-center gap-1.5">
-                    🎨 {{ locale === 'pt' ? 'Cores & Aparência' : 'Colors & Theme' }}
+                    🎨 {{ t('header.colorsAppearance') }}
                   </h4>
-                  <p class="text-[9px] text-slate-400 font-bold">{{ locale === 'pt' ? 'Personalize seu ambiente comunitário' : 'Personalize your community space' }}</p>
+                  <p class="text-[9px] text-slate-400 font-bold">{{ t('header.themeSub') }}</p>
                 </div>
                 <button 
                   type="button" 
@@ -288,7 +288,7 @@ const handleColorSelect = (e: Event) => {
               <!-- Dark/Light mode toggle -->
               <div class="space-y-1.5 pb-2 border-b border-slate-100/60">
                 <span class="text-[9px] font-black text-slate-400 uppercase tracking-wider block">
-                  {{ locale === 'pt' ? 'Visualização' : 'Appearance' }}
+                  {{ t('header.visual') }}
                 </span>
                 <div class="grid grid-cols-2 gap-2">
                   <button
@@ -301,7 +301,7 @@ const handleColorSelect = (e: Event) => {
                     :style="!isDarkMode ? { backgroundColor: primaryColor, borderColor: primaryColor, color: '#ffffff' } : {}"
                   >
                     <Sun class="w-3.5 h-3.5" :style="!isDarkMode ? { color: '#ffffff' } : { color: '#f59e0b' }" />
-                    {{ locale === 'pt' ? 'Claro' : 'Light' }}
+                    {{ t('header.light') }}
                   </button>
                   <button
                     type="button"
@@ -313,7 +313,7 @@ const handleColorSelect = (e: Event) => {
                     :style="isDarkMode ? { backgroundColor: primaryColor, borderColor: primaryColor, color: '#ffffff' } : {}"
                   >
                     <Moon class="w-3.5 h-3.5" :style="isDarkMode ? { color: '#ffffff' } : { color: '#6366f1' }" />
-                    {{ locale === 'pt' ? 'Escuro' : 'Dark' }}
+                    {{ t('header.dark') }}
                   </button>
                 </div>
               </div>
@@ -321,7 +321,7 @@ const handleColorSelect = (e: Event) => {
               <!-- Color choices -->
               <div class="space-y-1.5">
                 <span class="text-[9px] font-black text-slate-400 uppercase tracking-wider block">
-                  {{ locale === 'pt' ? 'Cor de Destaque' : 'Highlight Color' }}
+                  {{ t('header.highlight') }}
                 </span>
                 <div class="grid grid-cols-6 gap-1.5">
                   <button
@@ -349,7 +349,7 @@ const handleColorSelect = (e: Event) => {
                         ? 'border-white dark:border-slate-900 ring-2 ring-blue-500'
                         : 'border-slate-100 dark:border-slate-800'
                     ]"
-                    :title="locale === 'pt' ? 'Escolher Cor Personalizada' : 'Choose Custom Color'"
+                    :title="t('header.customColor')"
                   >
                     <input 
                       type="color" 
@@ -381,7 +381,7 @@ const handleColorSelect = (e: Event) => {
           <button
             id="btn-nav-logout"
             @click="emit('logout')"
-            :title="locale === 'pt' ? 'Sair da plataforma' : 'Logout of Platform'"
+            :title="t('header.logoutTitle')"
             class="p-2 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/25 rounded-xl border border-rose-100 dark:border-rose-910/25 cursor-pointer flex items-center justify-center transition-all bg-white dark:bg-slate-100 shadow-xs hover:shadow active:scale-95 shrink-0"
           >
             <LogOut class="w-4 h-4" />

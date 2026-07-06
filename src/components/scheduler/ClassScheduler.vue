@@ -498,7 +498,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
             id="select-class-course"
             required
             v-model="selectedCourseId"
-            class="w-full text-xs font-medium bg-white dark:bg-slate-950 dark:text-white border border-gray-200 dark:border-slate-800 rounded-xl p-3 focus:outline-hidden focus:ring-1 focus:ring-blue-500 cursor-pointer transition-colors"
+            class="w-full text-xs font-medium bg-white dark:bg-slate-950 dark:text-white border border-gray-200 dark:border-slate-800 rounded-xl p-3 focus:outline-hidden focus:ring-2 focus:ring-inset focus:ring-blue-500 focus:border-blue-500 cursor-pointer transition-all"
           >
             <option value="" class="dark:bg-slate-950">
               {{ locale === 'pt' ? 'Selecione o Mini-Curso...' : 'Select Mini-Course...' }}
@@ -522,7 +522,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
             required
             v-model="customClassTitle"
             :placeholder="locale === 'pt' ? 'Ex: Conversação Geral, Feedback Individual, Dúvidas de Gramática...' : 'e.g., General Conversation, Individual Feedback, Grammar Questions...'"
-            class="w-full text-xs font-medium bg-white dark:bg-slate-950 dark:text-white border border-gray-200 dark:border-slate-800 rounded-xl p-3 focus:outline-hidden focus:ring-1 focus:ring-blue-500 transition-colors"
+            class="w-full text-xs font-medium bg-white dark:bg-slate-950 dark:text-white border border-gray-200 dark:border-slate-800 rounded-xl p-3 focus:outline-hidden focus:ring-2 focus:ring-inset focus:ring-blue-500 focus:border-blue-500 transition-all"
           />
         </div>
 
@@ -537,7 +537,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
             max="50"
             required
             v-model.number="maxStudents"
-            class="w-full text-xs font-medium bg-white dark:bg-slate-950 dark:text-white border border-gray-200 dark:border-slate-800 rounded-xl p-3 focus:outline-hidden focus:ring-1 focus:ring-blue-500 transition-colors"
+            class="w-full text-xs font-medium bg-white dark:bg-slate-950 dark:text-white border border-gray-200 dark:border-slate-800 rounded-xl p-3 focus:outline-hidden focus:ring-2 focus:ring-inset focus:ring-blue-500 focus:border-blue-500 transition-all"
           />
         </div>
 
@@ -550,7 +550,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
             type="date"
             required
             v-model="scheduledAt"
-            class="w-full text-xs font-medium bg-white dark:bg-slate-950 dark:text-white border border-gray-200 dark:border-slate-800 rounded-xl p-3 focus:outline-hidden focus:ring-1 focus:ring-blue-500 cursor-pointer transition-colors"
+            class="w-full text-xs font-medium bg-white dark:bg-slate-950 dark:text-white border border-gray-200 dark:border-slate-800 rounded-xl p-3 focus:outline-hidden focus:ring-2 focus:ring-inset focus:ring-blue-500 focus:border-blue-500 cursor-pointer transition-all"
           />
         </div>
 
@@ -563,7 +563,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
             type="time"
             required
             v-model="scheduledHour"
-            class="w-full text-xs font-medium bg-white dark:bg-slate-950 dark:text-white border border-gray-200 dark:border-slate-800 rounded-xl p-3 focus:outline-hidden focus:ring-1 focus:ring-blue-500 cursor-pointer transition-colors"
+            class="w-full text-xs font-medium bg-white dark:bg-slate-950 dark:text-white border border-gray-200 dark:border-slate-800 rounded-xl p-3 focus:outline-hidden focus:ring-2 focus:ring-inset focus:ring-blue-500 focus:border-blue-500 cursor-pointer transition-all"
           />
         </div>
       </div>
@@ -692,63 +692,63 @@ const handleStudentEnter = (cl: ClassTurma) => {
           ]"
         >
         <!-- EDIT MODE -->
-        <div v-if="editingClassId === cl.id" class="space-y-3.5 p-1">
+        <div v-if="editingClassId === cl.id" class="space-y-3.5 p-1 w-full">
           <p class="text-xs font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest flex items-center gap-1">
             <Edit class="w-3.5 h-3.5" />
-            <span>{{ locale === 'pt' ? 'Editar Propriedades da Aula' : 'Edit Class Properties' }}</span>
+            <span>{{ t('scheduler.editClass') }}</span>
           </p>
           
           <div>
             <label class="block text-[10px] font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1">
-              {{ locale === 'pt' ? 'Curso Associado' : 'Associated Course' }}
+              {{ t('scheduler.selectCourse') }}
             </label>
             <select
               v-model="editCourseId"
-              class="w-full text-xs bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-750 dark:text-white rounded-lg p-2 font-semibold cursor-pointer"
+              class="w-full text-xs bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-750 dark:text-white rounded-lg p-2 font-semibold cursor-pointer focus:outline-hidden focus:ring-2 focus:ring-inset focus:ring-blue-500 focus:border-blue-500"
             >
-              <option value="custom-class">⚡ {{ locale === 'pt' ? 'Aula Avulsa / Sem Curso Associado' : 'Independent Class / No Course Associated' }}</option>
+              <option value="custom-class">⚡ {{ t('scheduler.customClassOption') }}</option>
               <option v-for="c in allowedCourses" :key="c.id" :value="c.id">
-                {{ c.title }} - {{ locale === 'pt' ? 'por' : 'by' }} {{ c.creatorName || (locale === 'pt' ? 'Comunitário' : 'Community') }}
+                {{ c.title }} - {{ locale === 'pt' ? 'por' : 'by' }} {{ c.creatorName || t('courses.comunitario') }}
               </option>
             </select>
           </div>
 
           <div v-if="editCourseId === 'custom-class'">
             <label class="block text-[10px] font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1">
-              {{ locale === 'pt' ? 'Título da Aula Avulsa' : 'Independent Class Title' }}
+              {{ t('scheduler.customClassTitleLabel') }}
             </label>
             <input
               type="text"
               v-model="editCustomClassTitle"
-              :placeholder="locale === 'pt' ? 'Digite o título da aula...' : 'Enter the class title...'"
-              class="w-full text-xs bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-750 dark:text-white rounded-lg p-2 font-semibold"
+              :placeholder="t('scheduler.customClassTitlePlaceholder')"
+              class="w-full text-xs bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-755 dark:text-white rounded-lg p-2 font-semibold focus:outline-hidden focus:ring-2 focus:ring-inset focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
 
           <div class="grid grid-cols-2 gap-2">
             <div>
               <label class="block text-[10px] font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1">
-                {{ locale === 'pt' ? 'Vagas (Máx)' : 'Seats (Max)' }}
+                {{ t('scheduler.capacity') }}
               </label>
               <input
                 type="number"
                 min="2"
                 max="100"
                 v-model.number="editMaxStudents"
-                class="w-full text-xs bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-750 dark:text-white rounded-lg p-2 font-semibold"
+                class="w-full text-xs bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-750 dark:text-white rounded-lg p-2 font-semibold focus:outline-hidden focus:ring-2 focus:ring-inset focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
             <div>
               <label class="block text-[10px] font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1">
-                {{ locale === 'pt' ? 'Status' : 'Status' }}
+                {{ t('scheduler.status') }}
               </label>
               <select
                 v-model="editStatus"
-                class="w-full text-xs bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-750 dark:text-white rounded-lg p-2 font-semibold cursor-pointer"
+                class="w-full text-xs bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-750 dark:text-white rounded-lg p-2 font-semibold cursor-pointer focus:outline-hidden focus:ring-2 focus:ring-inset focus:ring-blue-500 focus:border-blue-500"
               >
-                <option value="scheduled">{{ locale === 'pt' ? 'Agendada' : 'Scheduled' }}</option>
-                <option value="completed">{{ locale === 'pt' ? 'Concluída' : 'Completed' }}</option>
-                <option value="cancelled">{{ locale === 'pt' ? 'Cancelada' : 'Cancelled' }}</option>
+                <option value="scheduled">{{ t('scheduler.statusScheduled') }}</option>
+                <option value="completed">{{ t('scheduler.statusCompleted') }}</option>
+                <option value="cancelled">{{ t('scheduler.statusCancelled') }}</option>
               </select>
             </div>
           </div>
@@ -757,22 +757,22 @@ const handleStudentEnter = (cl: ClassTurma) => {
           <div v-if="isAdmin" class="grid grid-cols-2 gap-2 bg-rose-50/40 dark:bg-rose-950/10 p-2 rounded-xl border border-rose-100 dark:border-rose-900/30">
             <div>
               <label class="block text-[10px] font-bold text-rose-700 dark:text-rose-400 uppercase tracking-wider mb-1">
-                {{ locale === 'pt' ? 'Data (Admin)' : 'Date (Admin)' }}
+                {{ t('scheduler.day') }} (Admin)
               </label>
               <input
                 type="date"
                 v-model="editScheduledDate"
-                class="w-full text-xs bg-white dark:bg-slate-900 border border-rose-200 dark:border-rose-900/40 dark:text-white rounded-lg p-2 font-semibold cursor-pointer"
+                class="w-full text-xs bg-white dark:bg-slate-900 border border-rose-200 dark:border-rose-900/40 dark:text-white rounded-lg p-2 font-semibold cursor-pointer focus:outline-hidden focus:ring-2 focus:ring-inset focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
             <div>
               <label class="block text-[10px] font-bold text-rose-700 dark:text-rose-400 uppercase tracking-wider mb-1">
-                {{ locale === 'pt' ? 'Hora (Admin)' : 'Time (Admin)' }}
+                {{ t('scheduler.hour') }} (Admin)
               </label>
               <input
                 type="time"
                 v-model="editScheduledTime"
-                class="w-full text-xs bg-white dark:bg-slate-900 border border-rose-200 dark:border-rose-900/40 dark:text-white rounded-lg p-2 font-semibold cursor-pointer"
+                class="w-full text-xs bg-white dark:bg-slate-900 border border-rose-200 dark:border-rose-900/40 dark:text-white rounded-lg p-2 font-semibold cursor-pointer focus:outline-hidden focus:ring-2 focus:ring-inset focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
           </div>
@@ -785,13 +785,13 @@ const handleStudentEnter = (cl: ClassTurma) => {
 
           <div>
             <label class="block text-[10px] font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1">
-              {{ locale === 'pt' ? 'Link de Videoconferência (Call URL)' : 'Video Conference Link (Call URL)' }}
+              {{ t('scheduler.linkLabel') }}
             </label>
             <input
               type="url"
               v-model="editCallUrl"
-              placeholder="Ex: https://meet.google.com/abc-defg-hij"
-              class="w-full text-xs bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-750 dark:text-white rounded-lg p-2 font-semibold"
+              :placeholder="t('scheduler.linkPlaceholder')"
+              class="w-full text-xs bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-750 dark:text-white rounded-lg p-2 font-semibold focus:outline-hidden focus:ring-2 focus:ring-inset focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
 
@@ -801,14 +801,14 @@ const handleStudentEnter = (cl: ClassTurma) => {
               @click="editingClassId = null"
               class="px-3 py-1.5 border border-gray-300 dark:border-slate-700 rounded-lg text-xs font-semibold text-gray-650 dark:text-gray-300 hover:bg-gray-55 dark:hover:bg-slate-700 cursor-pointer"
             >
-              {{ locale === 'pt' ? 'Cancelar' : 'Cancel' }}
+              {{ t('scheduler.cancel') }}
             </button>
             <button
               type="button"
               @click="saveEdit(cl)"
               class="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-black cursor-pointer shadow-xs"
             >
-              {{ locale === 'pt' ? 'Salvar Alterações' : 'Save Changes' }}
+              {{ t('scheduler.editBtn') }}
             </button>
           </div>
         </div>

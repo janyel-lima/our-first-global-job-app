@@ -7,7 +7,7 @@ import { ChatRoom, ChatMessage, Course } from '../../types';
 import { useAppState } from '../../composables/useAppState';
 import { useI18n } from '../../composables/useI18n';
 
-const { locale } = useI18n();
+const { t, locale } = useI18n();
 
 const props = defineProps<{
   chatRooms: ChatRoom[];
@@ -243,10 +243,10 @@ const isRoomUnread = (room: ChatRoom) => {
         <div class="shrink-0">
           <h3 class="text-base font-bold text-gray-900 dark:text-slate-100 flex items-center gap-2">
             <MessageSquare class="w-5 h-5 text-blue-600 dark:text-blue-400 animate-pulse" />
-            {{ locale === 'pt' ? 'Canais de Dúvida' : 'Q&A Channels' }}
+            {{ t('chat.channels') }}
           </h3>
           <p class="text-xs text-gray-500 dark:text-slate-400 mt-0.5 font-medium">
-            {{ locale === 'pt' ? 'Fale diretamente com o professor do curso.' : 'Talk directly with the course instructor.' }}
+            {{ t('chat.channelsDesc') }}
           </p>
         </div>
 
@@ -256,7 +256,7 @@ const isRoomUnread = (room: ChatRoom) => {
             <input
               id="input-chat-room-search"
               type="text"
-              :placeholder="locale === 'pt' ? 'Buscar por tópico ou aluno...' : 'Search by topic or student...'"
+              :placeholder="t('chat.searchPlaceholder')"
               v-model="searchQuery"
               class="w-full text-xs bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-705 rounded-lg py-1.5 pl-8 pr-3 focus:outline-hidden focus:ring-1 focus:ring-blue-500 text-gray-800 dark:text-slate-100 dark:placeholder-slate-500"
             />
@@ -270,9 +270,9 @@ const isRoomUnread = (room: ChatRoom) => {
                 v-model="statusFilter"
                 class="w-full text-[10px] bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-705 rounded-lg p-1.5 focus:outline-hidden focus:ring-1 focus:ring-blue-500 text-gray-700 dark:text-slate-300 cursor-pointer"
               >
-                <option value="all">{{ locale === 'pt' ? 'Todos Status' : 'All Status' }}</option>
-                <option value="open">{{ locale === 'pt' ? 'Aberto' : 'Open' }}</option>
-                <option value="resolved">{{ locale === 'pt' ? 'Resolvido' : 'Resolved' }}</option>
+                <option value="all">{{ t('chat.allStatus') }}</option>
+                <option value="open">{{ t('chat.open') }}</option>
+                <option value="resolved">{{ t('chat.resolved') }}</option>
               </select>
             </div>
             <div>
@@ -281,7 +281,7 @@ const isRoomUnread = (room: ChatRoom) => {
                 v-model="courseFilter"
                 class="w-full text-[10px] bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-705 rounded-lg p-1.5 focus:outline-hidden focus:ring-1 focus:ring-blue-500 text-gray-700 dark:text-slate-300 cursor-pointer truncate"
               >
-                <option value="">{{ locale === 'pt' ? 'Todos Cursos' : 'All Courses' }}</option>
+                <option value="">{{ t('chat.allCourses') }}</option>
                 <option v-for="c in courses" :key="c.id" :value="c.id">
                   {{ c.title }}
                 </option>
@@ -293,7 +293,7 @@ const isRoomUnread = (room: ChatRoom) => {
         <!-- List existing channels -->
         <div class="flex-grow overflow-y-auto pr-1 space-y-2">
           <p v-if="filteredChatRooms.length === 0" class="text-xs text-gray-400 dark:text-slate-500 italic py-8 text-center bg-slate-50/50 dark:bg-slate-900/30 rounded-xl border border-dashed border-gray-100 dark:border-slate-800">
-            {{ locale === 'pt' ? 'Nenhum canal corresponde aos filtros.' : 'No channels match the filters.' }}
+            {{ t('chat.noChannels') }}
           </p>
           <button
             v-else
@@ -316,7 +316,7 @@ const isRoomUnread = (room: ChatRoom) => {
                     ? 'bg-amber-100 text-amber-800 border border-amber-200/60 dark:bg-amber-950/50 dark:text-amber-300 dark:border-amber-900/40' 
                     : 'bg-emerald-100 text-emerald-800 border border-emerald-200/60 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-900/40'
                 ]">
-                  {{ room.status === 'open' ? (locale === 'pt' ? "Aberto" : "Open") : (locale === 'pt' ? "Resolvido" : "Resolved") }}
+                  {{ room.status === 'open' ? t('chat.open') : t('chat.resolved') }}
                 </span>
                 <span v-if="isRoomUnread(room)" class="animate-pulse bg-red-500 text-white text-[9px] font-extrabold leading-none px-1.5 py-0.5 rounded-full shrink-0 min-w-[16px] h-4 flex items-center justify-center font-mono">
                   {{ getRoomUnreadCount(room) }}
@@ -345,8 +345,8 @@ const isRoomUnread = (room: ChatRoom) => {
                 ? 'text-blue-600/85 dark:!text-gray-600 border-blue-100/50 dark:border-blue-900/30'
                 : 'text-gray-400 dark:text-slate-400 border-slate-50 dark:border-slate-800/40'
             ]">
-              <span>{{ locale === 'pt' ? 'Por: ' : 'By: ' }}{{ room.studentName }}</span>
-              <span>{{ locale === 'pt' ? 'Ativo' : 'Active' }}</span>
+              <span>{{ t('chat.by') }}{{ room.studentName }}</span>
+              <span>{{ t('chat.active') }}</span>
             </div>
           </button>
         </div>
@@ -354,12 +354,7 @@ const isRoomUnread = (room: ChatRoom) => {
         <!-- Paginator for Chat Tickets -->
         <div v-if="totalChatPages > 1" class="flex items-center justify-between gap-2 pt-2 border-t border-slate-100 dark:border-slate-800 shrink-0">
           <p class="text-[10px] font-bold text-gray-400 dark:text-slate-500">
-            <template v-if="locale === 'pt'">
-              Pág {{ chatCurrentPage }} de {{ totalChatPages }} (Filtro: {{ filteredChatRooms.length }})
-            </template>
-            <template v-else>
-              Page {{ chatCurrentPage }} of {{ totalChatPages }} (Filter: {{ filteredChatRooms.length }})
-            </template>
+            {{ t('chat.showingTicketPage', { current: chatCurrentPage, total: totalChatPages, filterCount: filteredChatRooms.length }) }}
           </p>
           <div class="flex items-center gap-1.5">
             <button
@@ -368,10 +363,10 @@ const isRoomUnread = (room: ChatRoom) => {
               :disabled="chatCurrentPage === 1"
               @click="chatCurrentPage--"
               class="p-1 px-1.5 border border-gray-200 dark:border-slate-800 rounded-lg bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 transition-colors cursor-pointer text-[10px] font-bold text-gray-600 dark:text-slate-300 flex items-center justify-center gap-0.5"
-              :title="locale === 'pt' ? 'Página Anterior' : 'Previous Page'"
+              :title="t('chat.prevPage')"
             >
               <ChevronLeft class="w-3 h-3 text-gray-700 dark:text-slate-300" />
-              <span>{{ locale === 'pt' ? 'Anterior' : 'Previous' }}</span>
+              <span>{{ t('chat.prev') }}</span>
             </button>
             <button
               id="btn-chat-next-page"
@@ -379,9 +374,9 @@ const isRoomUnread = (room: ChatRoom) => {
               :disabled="chatCurrentPage === totalChatPages"
               @click="chatCurrentPage++"
               class="p-1 px-1.5 border border-gray-200 dark:border-slate-800 rounded-lg bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 transition-colors cursor-pointer text-[10px] font-bold text-gray-600 dark:text-slate-300 flex items-center justify-center gap-0.5"
-              :title="locale === 'pt' ? 'Próxima Página' : 'Next Page'"
+              :title="t('chat.nextPage')"
             >
-              <span>{{ locale === 'pt' ? 'Próxima' : 'Next' }}</span>
+              <span>{{ t('chat.next') }}</span>
               <ChevronRight class="w-3 h-3 text-gray-700 dark:text-slate-300" />
             </button>
           </div>
@@ -396,7 +391,7 @@ const isRoomUnread = (room: ChatRoom) => {
         class="pt-3 border-t border-slate-100 dark:border-slate-800 mt-3 space-y-3 shrink-0"
       >
         <p class="text-[10px] font-black text-gray-500 dark:text-slate-400 uppercase tracking-wider">
-          {{ locale === 'pt' ? 'Mandar Nova Dúvida Acadêmica' : 'Send New Academic Question' }}
+          {{ t('chat.newQuestion') }}
         </p>
         <div class="grid grid-cols-1 gap-2">
           <select
@@ -405,7 +400,7 @@ const isRoomUnread = (room: ChatRoom) => {
             v-model="selectedCourseId"
             class="w-full text-xs bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-705 rounded-xl p-2.5 focus:outline-hidden focus:ring-1 focus:ring-blue-500 cursor-pointer text-gray-800 dark:text-slate-200"
           >
-            <option value="">{{ locale === 'pt' ? 'Selecione o Curso Relacionado...' : 'Select Related Course...' }}</option>
+            <option value="">{{ t('chat.selectCourse') }}</option>
             <option v-for="c in courses" :key="c.id" :value="c.id">
               {{ c.title }}
             </option>
@@ -414,7 +409,7 @@ const isRoomUnread = (room: ChatRoom) => {
           <input
             id="input-chat-topic"
             type="text"
-            :placeholder="locale === 'pt' ? 'Qual sua dúvida nesta matéria? Ex: Diferença de in/on' : 'What is your question? e.g., Difference between in/on'"
+            :placeholder="t('chat.questionPlaceholder')"
             required
             v-model="newTopic"
             class="w-full text-xs bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-705 rounded-xl p-2.5 focus:outline-hidden focus:ring-1 focus:ring-blue-500 text-gray-800 dark:text-slate-200 dark:placeholder-slate-500 font-medium"
@@ -427,7 +422,7 @@ const isRoomUnread = (room: ChatRoom) => {
           class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-sm active:scale-98"
         >
           <Send class="w-3.5 h-3.5 animate-pulse" />
-          {{ isSubmitting ? (locale === 'pt' ? "Enviando..." : "Sending...") : (locale === 'pt' ? "Abrir Canal com o Professor" : "Open Channel with Instructor") }}
+          {{ isSubmitting ? t('chat.sending') : t('chat.openChannel') }}
         </button>
       </form>
     </div>
@@ -442,8 +437,8 @@ const isRoomUnread = (room: ChatRoom) => {
             <h4 class="font-black text-sm text-gray-950 dark:text-white mt-1.5">{{ activeRoom.topic }}</h4>
             <div class="flex items-center gap-1.5 text-[10px] text-slate-400 dark:text-slate-400 font-medium mt-0.5">
               <User class="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 shrink-0" />
-              <span v-if="!isInstructor">{{ locale === 'pt' ? 'Professor: ' : 'Instructor: ' }}{{ getProfessorNameForRoom(activeRoom) }}</span>
-              <span v-else>{{ locale === 'pt' ? 'Estudante: ' : 'Student: ' }}{{ activeRoom.studentName }}</span>
+              <span v-if="!isInstructor">{{ t('chat.professorLabel') }}{{ getProfessorNameForRoom(activeRoom) }}</span>
+              <span v-else>{{ t('chat.studentLabel') }}{{ activeRoom.studentName }}</span>
             </div>
           </div>
 
@@ -454,7 +449,7 @@ const isRoomUnread = (room: ChatRoom) => {
             class="flex items-center gap-1 px-3 py-2 border border-emerald-200 dark:border-emerald-900/40 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 text-[10px] font-black uppercase tracking-wider rounded-xl transition shadow-3xs cursor-pointer select-none"
           >
             <CheckCircle2 class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
-            {{ locale === 'pt' ? 'Concluir' : 'Resolve' }}
+            {{ t('chat.resolveBtn') }}
           </button>
         </div>
 
@@ -462,7 +457,7 @@ const isRoomUnread = (room: ChatRoom) => {
         <div v-if="currentUserId === 'demo-student-uid'" class="bg-blue-50/75 dark:bg-slate-800 border border-blue-100 dark:border-slate-700 rounded-xl p-2.5 mt-2 text-[11px] text-blue-800 dark:text-blue-300 font-semibold flex items-start gap-1.5 shrink-0">
           <Smile class="w-4 h-4 text-blue-500 dark:text-blue-400 shrink-0 mt-0.5" />
           <span>
-            <strong>{{ locale === 'pt' ? 'Conexão Simulada Aluno-Professor:' : 'Simulated Student-Instructor Connection:' }}</strong> 
+            <strong>{{ t('chat.connectionAlert') }}</strong> 
             {{ locale === 'pt' 
               ? 'Pergunte qualquer dúvida sobre o conteúdo e receba uma resposta inteligente automática do seu professor voluntário em tempo real!' 
               : 'Ask any questions about the content and receive an automatic smart reply from your volunteer instructor in real-time!' 
@@ -481,12 +476,12 @@ const isRoomUnread = (room: ChatRoom) => {
               class="text-[10px] font-black text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100/70 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-900/40 dark:hover:bg-blue-900/30 border border-blue-200/40 py-1.5 px-3 rounded-full transition-all flex items-center gap-1.5 cursor-pointer shadow-4xs select-none"
             >
               <History class="w-3.5 h-3.5" />
-              {{ locale === 'pt' ? 'Carregar mensagens anteriores' : 'Load previous messages' }}
+              {{ t('chat.loadPrevious') }}
             </button>
           </div>
 
           <div v-if="activeMessages.length === 0" class="text-center py-16 text-gray-400 dark:text-slate-500 text-xs italic font-medium">
-            {{ locale === 'pt' ? 'Nenhuma mensagem compartilhada neste canal ainda. Fale com seu @professor abaixo!' : 'No messages shared in this channel yet. Speak with your @instructor below!' }}
+            {{ t('chat.emptyChannel') }}
           </div>
           
           <div 
@@ -522,14 +517,14 @@ const isRoomUnread = (room: ChatRoom) => {
             <div class="flex justify-between items-center pb-2 border-b border-slate-100 dark:border-slate-800 mb-2 shrink-0">
               <span class="text-[10px] font-black text-slate-700 dark:text-slate-350 uppercase tracking-wider flex items-center gap-1">
                 <Smile class="w-4 h-4 text-amber-500" />
-                {{ locale === 'pt' ? 'Seletor de Emojis' : 'Emoji Selector' }}
+                {{ t('chat.emojiSelector') }}
               </span>
               <button 
                 type="button" 
                 @click="showEmojiPicker = false" 
                 class="text-gray-400 hover:text-gray-600 dark:text-slate-400 dark:hover:text-slate-300 text-xs font-extrabold cursor-pointer select-none"
               >
-                {{ locale === 'pt' ? '✕ Fechar' : '✕ Close' }}
+                {{ t('chat.emojiClose') }}
               </button>
             </div>
             <div class="w-full h-[320px] select-none">
@@ -545,7 +540,7 @@ const isRoomUnread = (room: ChatRoom) => {
 
           <!-- Academic safety notice (Image sharing is blocked) -->
           <p class="text-[9px] text-gray-400 dark:text-slate-500 font-extrabold mb-1.5 py-0.5 tracking-wide uppercase select-none border-t border-slate-100 dark:border-slate-800 pt-2 shrink-0">
-            {{ locale === 'pt' ? '🔒 Apenas texto e emojis são permitidos por segurança pedagógica (sem imagens).' : '🔒 Only text and emojis are allowed for pedagogical security (no images).' }}
+            {{ t('chat.securityTip') }}
           </p>
 
           <form 
@@ -560,7 +555,7 @@ const isRoomUnread = (room: ChatRoom) => {
               type="button"
               @click="showEmojiPicker = !showEmojiPicker"
               class="p-2.5 border border-gray-250 border-gray-200 hover:border-gray-300 dark:border-slate-705 text-gray-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 rounded-xl transition hover:bg-slate-50 dark:hover:bg-slate-850 cursor-pointer shrink-0"
-              :title="locale === 'pt' ? 'Inserir Emoji' : 'Insert Emoji'"
+              :title="t('chat.insertEmoji')"
             >
               <Smile class="w-4.5 h-4.5" />
             </button>
@@ -568,7 +563,7 @@ const isRoomUnread = (room: ChatRoom) => {
             <input
               id="input-chat-message-text"
               type="text"
-              :placeholder="locale === 'pt' ? 'Digite sua dúvida ou resposta pedagógica aqui...' : 'Type your question or educational response here...'"
+              :placeholder="t('chat.typeMessagePlaceholder')"
               v-model="messageInput"
               autocomplete="off"
               class="flex-1 text-xs sm:text-xs bg-slate-50 hover:bg-slate-100/30 dark:bg-slate-850 dark:hover:bg-slate-800 dark:focus:bg-slate-900 focus:bg-white border border-gray-200 dark:border-slate-755 text-gray-900 dark:text-white font-medium placeholder-gray-400 dark:placeholder-slate-500"
@@ -584,7 +579,7 @@ const isRoomUnread = (room: ChatRoom) => {
           </form>
           
           <div v-else class="bg-emerald-50 border border-emerald-100 dark:bg-emerald-950/30 dark:border-emerald-900/40 rounded-xl p-3 text-center text-xs text-emerald-800 dark:text-emerald-300 font-bold shrink-0 shadow-3xs animate-fadeIn">
-            {{ locale === 'pt' ? '✔️ Este canal foi concluído e arquivado. Ótimo trabalho!' : '✔️ This channel has been closed and archived. Great job!' }}
+            {{ t('chat.archivedChannel') }}
           </div>
         </div>
       </template>
@@ -593,7 +588,7 @@ const isRoomUnread = (room: ChatRoom) => {
       <div v-else class="flex-1 flex flex-col items-center justify-center p-6 text-center text-gray-400">
         <MessageSquare id="empty-chats-illust" class="w-12 h-12 mb-3 text-blue-500 opacity-60 animate-bounce" />
         <h4 class="font-black text-gray-800 dark:text-slate-200 text-sm mb-1">
-          {{ locale === 'pt' ? 'Suporte Integrado Professor & Estudante' : 'Integrated Instructor & Student Support' }}
+          {{ t('chat.supportHeader') }}
         </h4>
         <p class="text-xs max-w-sm text-gray-500 dark:text-slate-400 font-semibold leading-relaxed">
           {{ locale === 'pt' 
