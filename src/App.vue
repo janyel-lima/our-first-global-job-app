@@ -748,7 +748,7 @@ onMounted(() => {
           const deservesRealAdmin = hasAdminClaim || isMaster;
           const deservesRealInstructor = deservesRealAdmin || hasInstructorClaim || isMaster;
           
-          onboardName.value = user.displayName || "";
+          onboardName.value = user.displayName || onboardName.value || "";
           
           if (deservesRealAdmin || deservesRealInstructor) {
             const autoProfile: UserProfile = {
@@ -852,7 +852,7 @@ onMounted(() => {
     const isAdmin = userProfile.value?.isAdmin || false;
     const isInstructor = userProfile.value?.isInstructor || false;
 
-    if (isAdmin) {
+    if (isAdmin || isInstructor) {
       const unsubUsers = onSnapshot(collection(db, "users"), (snap) => {
         let list: UserProfile[] = [];
         snap.forEach(d => list.push(d.data() as UserProfile));
@@ -1162,13 +1162,13 @@ const handleOnboardingComplete = async () => {
 
   const newProfile: UserProfile = {
     uid: currentUser.value.uid,
-    displayName: onboardName.value || currentUser.value.displayName || "Estudante",
-    email: currentUser.value ? currentUser.value.email || undefined : undefined,
+    displayName: (onboardName.value || currentUser.value.displayName || "Estudante").trim(),
+    email: currentUser.value?.email || "",
     isInstructor,
     level: onboardLevel.value,
     bio: isInstructor ? "Sou voluntário ensinando inglês!" : "Quero aprender inglês!",
     isAdmin,
-    photoURL: currentUser.value ? currentUser.value.photoURL || undefined : undefined
+    photoURL: currentUser.value?.photoURL || ""
   };
 
   try {

@@ -36,7 +36,7 @@ const detailedCourses = computed(() => {
       ...course,
       isOrphaned,
       ownerName: activeOwner 
-        ? activeOwner.displayName 
+        ? (activeOwner.displayName || activeOwner.email || "Usuário Sem Nome") 
         : (course.creatorId === "system-volunteer" 
             ? "Administração" 
             : `Ex-Instrutor (${course.creatorName || "Sem Nome"})`)
@@ -252,7 +252,7 @@ const cancelReassignment = () => {
                     :key="inst.uid" 
                     :value="inst.uid"
                   >
-                    {{ inst.displayName }} ({{ inst.isInstructor ? 'Prof' : 'Admin' }})
+                    {{ inst.displayName || inst.email || "Usuário Sem Nome" }} ({{ inst.isInstructor ? 'Prof' : 'Admin' }})
                   </option>
                 </select>
               </td>

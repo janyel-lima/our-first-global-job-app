@@ -300,7 +300,7 @@ const pedagogicalRecommendations = computed(() => {
 
 const getStudentName = (uid: string) => {
   const found = props.users?.find(u => u.uid === uid);
-  return found ? found.displayName : "Estudante Independente";
+  return found ? (found.displayName || found.email || "Estudante Sem Nome") : "Estudante Independente";
 };
 
 // Tables, Search, Pagination

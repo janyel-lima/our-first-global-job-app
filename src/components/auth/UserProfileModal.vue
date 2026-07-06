@@ -289,7 +289,7 @@ const submit = () => {
         </button>
       </div>
 
-      <form @submit.prevent="submit" class="space-y-4 overflow-y-auto max-h-[480px] pr-1.5 scrollbar-thin">
+      <form @submit.prevent="submit" class="space-y-4 overflow-y-auto max-h-[480px] px-3.5 py-1.5 pr-2.5 scrollbar-thin">
         
         <!-- DISPLAY NAME -->
         <div class="space-y-1.5">

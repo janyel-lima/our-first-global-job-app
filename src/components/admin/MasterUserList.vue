@@ -63,8 +63,9 @@ const filteredUsers = computed(() => {
     
     // Text matching
     const queryStr = searchQuery.value.toLowerCase();
-    const matchName = u.displayName.toLowerCase().includes(queryStr);
-    const matchUid = u.uid.toLowerCase().includes(queryStr);
+    const nameStr = u.displayName || u.email || u.uid || '';
+    const matchName = nameStr.toLowerCase().includes(queryStr);
+    const matchUid = u.uid ? u.uid.toLowerCase().includes(queryStr) : false;
     const matchEmail = u.email ? u.email.toLowerCase().includes(queryStr) : false;
     
     return matchName || matchUid || matchEmail;
@@ -94,8 +95,8 @@ const handleRevokeTeacher = (teacher: { uid: string; displayName: string }) => {
 
 const startEditUser = (user: UserProfile) => {
   uToEdit.value = user;
-  editUserName.value = user.displayName;
-  editUserLevel.value = user.level;
+  editUserName.value = user.displayName || "";
+  editUserLevel.value = user.level || "Beginner";
   editUserBio.value = user.bio || "";
   editUserRole.value = user.isInstructor ? "instructor" : "student";
   editUserEmail.value = user.email || "";
@@ -167,8 +168,8 @@ const exportTeachersXLSX = () => {
 
   const dataToExport = listToExport.map(t => {
     return {
-      "ID do Usuário": t.uid,
-      "Nome de Exibição": t.displayName,
+      "ID do Usuário": t.uid || "",
+      "Nome de Exibição": t.displayName || t.email || "Usuário Sem Nome",
       "É Professor?": t.isInstructor ? "Sim" : "Não",
       "É Administrador?": t.isAdmin ? "Sim" : "Não"
     };
@@ -202,10 +203,10 @@ const exportTeachersJSON = () => {
 
   const sanitizedList = listToExport.map(t => {
     return {
-      uid: t.uid,
-      displayName: t.displayName,
-      isInstructor: t.isInstructor,
-      isAdmin: t.isAdmin
+      uid: t.uid || "",
+      displayName: t.displayName || t.email || "Usuário Sem Nome",
+      isInstructor: t.isInstructor || false,
+      isAdmin: t.isAdmin || false
     };
   });
 
@@ -452,11 +453,11 @@ const copyToClipboard = (text: string) => {
               <tr v-for="user in paginatedUsers" :key="user.uid" class="hover:bg-slate-50/50 dark:hover:bg-slate-950/25 transition">
                 <td class="p-4 flex items-center gap-2.5">
                   <div class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-blue-600 dark:text-blue-400 text-xs font-black flex items-center justify-center border border-slate-200/50 dark:border-slate-700 shrink-0">
-                    {{ user.displayName.charAt(0).toUpperCase() }}
+                    {{ (user.displayName || user.email || 'U').charAt(0).toUpperCase() }}
                   </div>
                   <div class="truncate">
                     <p class="font-extrabold text-gray-900 dark:text-white flex items-center gap-1.5 leading-tight">
-                      {{ user.displayName }}
+                      {{ user.displayName || user.email || 'Usuário Sem Nome' }}
                       <span v-if="user.isAdmin" class="inline-flex text-[8.5px] font-black bg-red-50 text-red-700 px-1.5 rounded-sm border border-red-100 dark:bg-red-950/30 dark:border-red-900">Admin</span>
                     </p>
                     <span class="block text-[10px] text-gray-405 dark:text-gray-500 font-mono mt-0.5 truncate max-w-xs">UID: {{ user.uid }}</span>
