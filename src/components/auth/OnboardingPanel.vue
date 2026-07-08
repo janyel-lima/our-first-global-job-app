@@ -55,7 +55,7 @@ const showLgpdModalInOnboard = ref(false);
           />
         </div>
 
-        <div class="grid grid-cols-2 gap-4">
+        <div class="flex flex-col gap-4">
           <div>
             <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">
               {{ t('onboarding.chooseRole') }}

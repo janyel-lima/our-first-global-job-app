@@ -1339,22 +1339,36 @@ const handleStudentEnter = (cl: ClassTurma) => {
                   :style="cl.status === 'scheduled' ? { backgroundColor: props.primaryColor || '#2563eb', color: '#ffffff', borderColor: 'transparent' } : {}"
                 >
                   <div class="flex items-center justify-between gap-1 w-full overflow-hidden">
-                    <span class="text-[10px] font-mono font-black flex items-center gap-0.5 shrink-0"><Clock class="w-3 h-3 text-blue-500" />{{ cl.scheduledAt.split(' ')[1] }}</span>
+                    <span 
+                      class="text-[10px] font-mono font-black flex items-center gap-0.5 shrink-0"
+                      :class="cl.status === 'scheduled' ? 'text-white' : 'text-slate-700 dark:text-slate-300'"
+                    >
+                      <Clock class="w-3.5 h-3.5" :class="cl.status === 'scheduled' ? 'text-blue-100' : 'text-blue-500'" />
+                      {{ cl.scheduledAt.split(' ')[1] }}
+                    </span>
                     <span :class="[
                       'text-[8px] font-extrabold tracking-wider uppercase px-1 py-0.5 rounded-sm shrink-0',
                       cl.status === 'completed' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300' :
                       cl.status === 'cancelled' ? 'bg-rose-100 text-rose-800 dark:bg-rose-950/45 dark:text-rose-350' :
                       cl.studentIds.includes(currentUserId) ? 'bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300' :
-                      'bg-blue-100 text-blue-800 dark:bg-blue-950/40 dark:text-blue-300'
+                      cl.status === 'scheduled' ? 'bg-white/20 text-white' : 'bg-blue-100 text-blue-800 dark:bg-blue-950/40 dark:text-blue-300'
                     ]">
                       {{ cl.status === 'completed' ? 'Fim' : cl.status === 'cancelled' ? 'Canc' : cl.studentIds.includes(currentUserId) ? 'Insc' : 'Disp' }}
                     </span>
                   </div>
                   <h5 class="text-[11px] font-extrabold line-clamp-1 leading-tight">{{ cl.courseTitle }}</h5>
-                  <p class="text-[9px] text-gray-400 truncate">Prof: {{ cl.instructorName }}</p>
-                  <div class="mt-1 pt-1 border-t border-gray-100 dark:border-slate-800 flex items-center justify-between text-[9px] text-gray-450 dark:text-gray-400 font-semibold w-full overflow-hidden">
+                  <p 
+                    class="text-[9px] truncate"
+                    :class="cl.status === 'scheduled' ? 'text-blue-100/95 font-bold' : 'text-gray-400'"
+                  >
+                    Prof: {{ cl.instructorName }}
+                  </p>
+                  <div 
+                    class="mt-1 pt-1 border-t flex items-center justify-between text-[9px] font-semibold w-full overflow-hidden"
+                    :class="cl.status === 'scheduled' ? 'border-white/20 text-blue-50' : 'border-gray-100 dark:border-slate-800 text-gray-450 dark:text-gray-400'"
+                  >
                     <span class="flex items-center gap-0.5 shrink-0"><Users class="w-2.5 h-2.5" />{{ cl.studentIds.length }}/{{ cl.maxStudents }}</span>
-                    <span v-if="cl.studentIds.includes(currentUserId)" class="text-amber-600 dark:text-amber-400 font-extrabold shrink-0">★ Inscrito</span>
+                    <span v-if="cl.studentIds.includes(currentUserId)" :class="cl.status === 'scheduled' ? 'text-amber-300 font-extrabold shrink-0' : 'text-amber-600 dark:text-amber-400 font-extrabold shrink-0'">★ Inscrito</span>
                   </div>
                 </div>
 

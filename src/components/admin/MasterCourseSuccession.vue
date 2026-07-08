@@ -25,12 +25,32 @@ const emit = defineEmits<{
 
 // Course ownership succession (LGPD) computed properties and reassign functions
 const potentialOwners = computed(() => {
-  return props.users.filter(u => u.isInstructor || u.isAdmin);
+  return props.users.filter(u => {
+    if (!u) return false;
+    const isInst = u.isInstructor === true || String(u.isInstructor) === 'true';
+    const isAdm = u.isAdmin === true || String(u.isAdmin) === 'true';
+    const isMasterEmail = !!(u.email && (
+      u.email === "kibedasppk@gmail.com" || 
+      u.email === "admin@englishvolunteer.org" || 
+      u.email === "janyel.lima2809@outlook.com"
+    ));
+    return isInst || isAdm || isMasterEmail;
+  });
 });
 
 const detailedCourses = computed(() => {
   return props.courses.map(course => {
-    const activeOwner = props.users.find(u => u.uid === course.creatorId && (u.isInstructor || u.isAdmin));
+    const activeOwner = props.users.find(u => {
+      if (!u) return false;
+      const isInst = u.isInstructor === true || String(u.isInstructor) === 'true';
+      const isAdm = u.isAdmin === true || String(u.isAdmin) === 'true';
+      const isMasterEmail = !!(u.email && (
+        u.email === "kibedasppk@gmail.com" || 
+        u.email === "admin@englishvolunteer.org" || 
+        u.email === "janyel.lima2809@outlook.com"
+      ));
+      return u.uid === course.creatorId && (isInst || isAdm || isMasterEmail);
+    });
     const isOrphaned = course.creatorId === "system-volunteer" || !activeOwner;
     return {
       ...course,

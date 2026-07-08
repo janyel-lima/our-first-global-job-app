@@ -37,7 +37,7 @@ export function getAlmostWhiteVariant(hex: string, isDark: boolean = false): str
     h /= 6;
   }
 
-  const targetL = isDark ? 0.08 : 0.98;
+  const targetL = isDark ? 0.08 : 0.95;
   const targetS = Math.min(s + 0.1, 0.4);
 
   const hue2rgb = (p: number, q: number, t: number) => {

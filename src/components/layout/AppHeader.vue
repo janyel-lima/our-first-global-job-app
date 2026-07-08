@@ -73,29 +73,31 @@ const handleColorSelect = (e: Event) => {
 <template>
   <!-- Dynamic Header -->
   <header class="bg-white dark:bg-slate-50 border-b border-slate-100 dark:border-slate-150 sticky top-0 z-40 transition-colors duration-300">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 sm:py-3 flex items-center justify-between">
+    <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2 sm:py-3 flex items-center justify-between">
       <!-- Brand & Logo -->
       <div class="flex items-center gap-1.5 sm:gap-2.5 cursor-pointer shrink-0 animate-fadeIn" @click="handleTabClick('courses', true)">
-        <div class="p-1.5 rounded-xl bg-blue-600 shadow-sm flex items-center justify-center text-white shrink-0">
+        <div class="p-1.5 rounded-xl bg-blue-600 shadow-sm flex items-center justify-center text-white shrink-0 relative">
           <BookMarked id="main-brand-logo" class="w-4 h-4" />
+          <!-- Small dot indicator on mobile, hidden on sm where the full badge is shown -->
+          <span class="sm:hidden absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full border border-blue-600 shrink-0" :class="isOnline ? 'bg-emerald-500' : 'bg-red-500'"></span>
         </div>
         <div class="flex flex-col text-left">
-          <span class="font-black text-[10px] xs:text-xs sm:text-sm tracking-tight text-slate-900 leading-tight">Our First Global Job</span>
-          <span class="text-[8px] sm:text-[9px] font-bold text-slate-400 dark:text-slate-600 uppercase tracking-widest leading-none mt-0.5">Learning App</span>
+          <span class="font-black text-[10px] sm:text-sm tracking-tight text-slate-900 leading-tight">Our First Global Job</span>
+          <span class="text-[8px] sm:text-[9px] font-bold text-slate-400 dark:text-slate-600 uppercase tracking-widest leading-none mt-0.5 hidden sm:block">Learning App</span>
         </div>
         
         <!-- CONNECTION STATUS BADGE -->
         <span 
-          class="text-[8px] font-black uppercase tracking-wider px-2 xs:px-3 py-1 rounded-full flex items-center gap-1.5 shrink-0 ml-3 sm:ml-5 mr-4 md:mr-8 border border-slate-150 bg-slate-50"
+          class="hidden sm:flex text-[8px] font-black uppercase tracking-wider px-2 py-1 rounded-full items-center gap-1.5 shrink-0 ml-3 sm:ml-5 mr-4 md:mr-8 border border-slate-150 bg-slate-50"
           :title="isOnline ? t('header.connected') : t('header.offlineMode')"
         >
           <span class="w-1.5 h-1.5 rounded-full shrink-0 animate-pulse" :class="isOnline ? 'bg-emerald-500' : 'bg-red-500'"></span>
-          <span class="text-slate-600 hidden xs:inline">{{ isOnline ? 'Online' : 'Offline' }}</span>
+          <span class="text-slate-600">{{ isOnline ? 'Online' : 'Offline' }}</span>
         </span>
       </div>
 
       <!-- Navigation Controls & User block -->
-      <div class="flex items-center gap-2 sm:gap-6">
+      <div class="flex items-center gap-1.5 sm:gap-6">
         <nav class="hidden md:flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-150 shadow-inner">
           <button
             id="nav-tab-courses"
@@ -181,12 +183,12 @@ const handleColorSelect = (e: Event) => {
           </button>
         </nav>
         <!-- User controls and settings combo -->
-        <div class="flex items-center gap-2 sm:gap-3 border-l border-slate-250 dark:border-slate-300 pl-2 sm:pl-4 shrink-0">
+        <div class="flex items-center gap-1.5 sm:gap-3 border-l border-slate-250 dark:border-slate-300 pl-1.5 sm:pl-4 shrink-0">
           <!-- Adaptive User Profile Card (Adapts beautifully to Mobile and Desktop) -->
           <div 
             v-if="userProfile"
             @click="emit('open-profile')"
-            class="flex items-center gap-1 bg-slate-50 hover:bg-slate-100 dark:bg-slate-900/40 dark:hover:bg-slate-900/80 p-1 sm:p-1.5 rounded-xl border border-slate-150 dark:border-slate-800 cursor-pointer transition-all duration-200 shrink-0 group active:scale-95 animate-fadeIn"
+            class="flex items-center bg-slate-50 hover:bg-slate-100 dark:bg-slate-900/40 dark:hover:bg-slate-900/80 p-0.5 sm:p-1 rounded-xl border border-slate-150 dark:border-slate-800 cursor-pointer transition-all duration-200 shrink-0 group active:scale-95 animate-fadeIn"
             :title="t('header.editProfile')"
           >
             <!-- Avatar circle -->
@@ -209,20 +211,9 @@ const handleColorSelect = (e: Event) => {
                 <span class="text-[8px] text-white">✏️</span>
               </div>
             </div>
-            
-            <!-- Mobile Only level icon and edit pencil -->
-            <div class="flex sm:hidden items-center gap-1 px-1">
-              <div 
-                class="p-0.5 rounded bg-slate-100 dark:bg-slate-850 border border-slate-200 dark:border-slate-750 flex items-center justify-center"
-                :title="t('header.englishLevel')"
-              >
-                <Award class="w-3 h-3" :style="{ color: primaryColor }" />
-              </div>
-              <Pencil class="w-2.5 h-2.5 text-slate-400 group-hover:text-blue-500 transition-colors" />
-            </div>
 
             <!-- Name & Level badge - visible on desktop, beautifully formatted -->
-            <div class="hidden sm:flex flex-col text-left leading-tight shrink-0 pl-1">
+            <div class="hidden sm:flex flex-col text-left leading-tight shrink-0 pl-1.5 pr-0.5">
               <p class="text-xs font-extrabold text-slate-800 dark:text-slate-200 max-w-[100px] md:max-w-[150px] truncate leading-none mb-1 flex items-center gap-1">
                 <span>{{ userProfile?.displayName }}</span>
                 <Pencil class="w-2.5 h-2.5 text-slate-400 group-hover:text-blue-500 transition-colors shrink-0" />
@@ -243,10 +234,10 @@ const handleColorSelect = (e: Event) => {
             type="button"
             @click="toggleLocale"
             :title="t('header.selectLang')"
-            class="p-2 rounded-xl transition-all border cursor-pointer flex items-center justify-center gap-1.5 hover:bg-slate-50 dark:hover:bg-slate-200 border-slate-200 dark:border-slate-250 shadow-sm hover:shadow active:scale-95 shrink-0 bg-white dark:bg-slate-100 text-slate-600 hover:text-slate-900"
+            class="w-8 h-8 sm:w-auto sm:h-9 sm:px-3 rounded-xl transition-all border cursor-pointer flex items-center justify-center gap-1.5 hover:bg-slate-50 dark:hover:bg-slate-200 border-slate-200 dark:border-slate-250 shadow-sm hover:shadow active:scale-95 shrink-0 bg-white dark:bg-slate-100 text-slate-600 hover:text-slate-900"
           >
             <span class="text-sm select-none leading-none">{{ locale === 'pt' ? '🇺🇸' : '🇧🇷' }}</span>
-            <span class="uppercase font-black text-[10px] tracking-wider text-slate-700 dark:text-slate-300 select-none">{{ locale === 'pt' ? 'EN' : 'PT' }}</span>
+            <span class="hidden sm:inline uppercase font-black text-[10px] tracking-wider text-slate-700 dark:text-slate-300 select-none">{{ locale === 'pt' ? 'EN' : 'PT' }}</span>
           </button>
 
           <!-- Theme trigger & settings -->
@@ -256,7 +247,7 @@ const handleColorSelect = (e: Event) => {
               @click="showThemePanel = !showThemePanel"
               :title="t('header.themeTitle')"
               :class="[
-                'p-2 rounded-xl transition-all border cursor-pointer flex items-center justify-center gap-1.5 hover:bg-slate-50 dark:hover:bg-slate-200 border-slate-200 dark:border-slate-250 shadow-sm hover:shadow active:scale-95 shrink-0',
+                'w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-xl transition-all border cursor-pointer gap-1.5 hover:bg-slate-50 dark:hover:bg-slate-200 border-slate-200 dark:border-slate-250 shadow-sm hover:shadow active:scale-95 shrink-0',
                 showThemePanel 
                   ? 'text-white border-transparent bg-transparent' 
                   : 'bg-white dark:bg-slate-100 text-slate-600 hover:text-slate-900'
@@ -382,7 +373,7 @@ const handleColorSelect = (e: Event) => {
             id="btn-nav-logout"
             @click="emit('logout')"
             :title="t('header.logoutTitle')"
-            class="p-2 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/25 rounded-xl border border-rose-100 dark:border-rose-910/25 cursor-pointer flex items-center justify-center transition-all bg-white dark:bg-slate-100 shadow-xs hover:shadow active:scale-95 shrink-0"
+            class="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/25 rounded-xl border border-rose-100 dark:border-rose-910/25 cursor-pointer transition-all bg-white dark:bg-slate-100 shadow-xs hover:shadow active:scale-95 shrink-0"
           >
             <LogOut class="w-4 h-4" />
           </button>

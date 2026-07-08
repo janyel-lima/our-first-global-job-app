@@ -155,12 +155,12 @@ watch([primaryColor, secondaryColor, isDarkMode, autoBg, bgColor], () => {
 
   const neutralS = isDarkMode.value ? Math.min(hexToHsl(primaryColor.value).s, 8) : Math.min(hexToHsl(primaryColor.value).s, 5);
   const neutralShades: Record<number, string> = {
-    50: hslToHex(hexToHsl(primaryColor.value).h, neutralS, isDarkMode.value ? 12 : 98),
-    100: hslToHex(hexToHsl(primaryColor.value).h, neutralS, isDarkMode.value ? 16 : 95),
-    150: hslToHex(hexToHsl(primaryColor.value).h, neutralS, isDarkMode.value ? 20 : 91),
-    200: hslToHex(hexToHsl(primaryColor.value).h, neutralS, isDarkMode.value ? 24 : 86),
-    250: hslToHex(hexToHsl(primaryColor.value).h, neutralS, isDarkMode.value ? 28 : 81),
-    300: hslToHex(hexToHsl(primaryColor.value).h, neutralS, isDarkMode.value ? 34 : 68),
+    50: hslToHex(hexToHsl(primaryColor.value).h, neutralS, isDarkMode.value ? 12 : 96),
+    100: hslToHex(hexToHsl(primaryColor.value).h, neutralS, isDarkMode.value ? 16 : 92),
+    150: hslToHex(hexToHsl(primaryColor.value).h, neutralS, isDarkMode.value ? 20 : 88),
+    200: hslToHex(hexToHsl(primaryColor.value).h, neutralS, isDarkMode.value ? 24 : 83),
+    250: hslToHex(hexToHsl(primaryColor.value).h, neutralS, isDarkMode.value ? 28 : 77),
+    300: hslToHex(hexToHsl(primaryColor.value).h, neutralS, isDarkMode.value ? 34 : 64),
     400: hslToHex(hexToHsl(primaryColor.value).h, neutralS, isDarkMode.value ? 45 : 49),
     500: hslToHex(hexToHsl(primaryColor.value).h, neutralS, isDarkMode.value ? 60 : 40),
     650: hslToHex(hexToHsl(primaryColor.value).h, neutralS, isDarkMode.value ? 74 : 32),
