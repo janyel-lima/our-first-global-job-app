@@ -30,14 +30,14 @@ const isLoading = ref(true);
 const errorMsg = ref<string | null>(null);
 
 const isDarkCertificate = ref(false);
-const bgStyle = ref<"vintage-parchment" | "dark-velvet" | "clean-light">("vintage-parchment");
-const frameStyle = ref<"medieval-gothic" | "classic-imperial" | "modern-border">("medieval-gothic");
-const detailColor = ref<"gold" | "silver" | "bronze" | "ruby" | "emerald" | "theme">("gold");
+const bgStyle = ref<"vintage-parchment" | "dark-velvet" | "clean-light">("clean-light");
+const frameStyle = ref<"medieval-gothic" | "classic-imperial" | "modern-border">("modern-border");
+const detailColor = ref<"gold" | "silver" | "bronze" | "ruby" | "emerald" | "theme">("theme");
 
 watch(() => [props.bgStyle, props.frameStyle, props.detailColor], () => {
-  if (props.bgStyle) bgStyle.value = props.bgStyle;
-  if (props.frameStyle) frameStyle.value = props.frameStyle;
-  if (props.detailColor) detailColor.value = props.detailColor;
+  bgStyle.value = props.bgStyle || "clean-light";
+  frameStyle.value = props.frameStyle || "modern-border";
+  detailColor.value = props.detailColor || "theme";
 }, { immediate: true });
 
 const instructorName = ref(locale.value === 'pt' ? "Instrutor Voluntário" : "Volunteer Instructor");

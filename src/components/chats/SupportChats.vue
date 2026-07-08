@@ -566,7 +566,7 @@ const isRoomUnread = (room: ChatRoom) => {
               :placeholder="t('chat.typeMessagePlaceholder')"
               v-model="messageInput"
               autocomplete="off"
-              class="flex-1 text-xs sm:text-xs bg-slate-50 hover:bg-slate-100/30 dark:bg-slate-850 dark:hover:bg-slate-800 dark:focus:bg-slate-900 focus:bg-white border border-gray-200 dark:border-slate-755 text-gray-900 dark:text-white font-medium placeholder-gray-400 dark:placeholder-slate-500"
+              class="flex-1 text-xs sm:text-xs bg-slate-50 hover:bg-slate-100/30 dark:bg-slate-850 dark:hover:bg-slate-800 dark:focus:bg-slate-900 focus:bg-white border border-gray-200 dark:border-slate-755 text-gray-900 dark:text-white font-medium placeholder-gray-400 dark:placeholder-slate-500 rounded-xl py-2.5 px-3.5 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
             />
             
             <button

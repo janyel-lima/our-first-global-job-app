@@ -22,6 +22,7 @@ import { Course, Lesson, Progress, ClassTurma, UserProfile } from '../../types';
 import { showToast, useAppState } from '../../composables/useAppState';
 import CertificateViewer from '../courses/CertificateViewer.vue';
 import { watch } from 'vue';
+import { useI18n } from '../../composables/useI18n';
 
 const props = defineProps<{
   courses: Course[];
@@ -34,6 +35,7 @@ const props = defineProps<{
 }>();
 
 const { currentUser, userProfile } = useAppState();
+const { t, locale } = useI18n();
 
 const instructorId = computed(() => props.instructorId || '');
 
@@ -77,9 +79,9 @@ const isJanyelAdmin = computed(() => {
 const editingCertCourseId = ref<string | null>(null);
 const certColorInput = ref('#1e3a8a');
 const certIconUrlInput = ref('');
-const certBgStyleInput = ref<'vintage-parchment' | 'dark-velvet' | 'clean-light'>('vintage-parchment');
-const certFrameStyleInput = ref<'medieval-gothic' | 'classic-imperial' | 'modern-border'>('medieval-gothic');
-const certDetailColorInput = ref<'gold' | 'silver' | 'bronze' | 'ruby' | 'emerald' | 'theme'>('gold');
+const certBgStyleInput = ref<'vintage-parchment' | 'dark-velvet' | 'clean-light'>('clean-light');
+const certFrameStyleInput = ref<'medieval-gothic' | 'classic-imperial' | 'modern-border'>('modern-border');
+const certDetailColorInput = ref<'gold' | 'silver' | 'bronze' | 'ruby' | 'emerald' | 'theme'>('theme');
 
 // Preview certificate states
 const showPreviewCertData = ref<{
@@ -97,9 +99,9 @@ const startEditCert = (course: Course) => {
   editingCertCourseId.value = course.id;
   certColorInput.value = course.certificateConfig?.primaryColor || '#1e3a8a';
   certIconUrlInput.value = course.certificateConfig?.iconUrl || '';
-  certBgStyleInput.value = course.certificateConfig?.bgStyle || 'vintage-parchment';
-  certFrameStyleInput.value = course.certificateConfig?.frameStyle || 'medieval-gothic';
-  certDetailColorInput.value = course.certificateConfig?.detailColor || 'gold';
+  certBgStyleInput.value = course.certificateConfig?.bgStyle || 'clean-light';
+  certFrameStyleInput.value = course.certificateConfig?.frameStyle || 'modern-border';
+  certDetailColorInput.value = course.certificateConfig?.detailColor || 'theme';
 };
 
 const cancelEditCert = () => {
@@ -113,9 +115,9 @@ const saveCertConfig = () => {
     certificateConfig: {
       primaryColor: certColorInput.value,
       iconUrl: certIconUrlInput.value,
-      bgStyle: certBgStyleInput.value,
-      frameStyle: certFrameStyleInput.value,
-      detailColor: certDetailColorInput.value
+      bgStyle: isJanyelAdmin.value ? certBgStyleInput.value : 'clean-light',
+      frameStyle: isJanyelAdmin.value ? certFrameStyleInput.value : 'modern-border',
+      detailColor: isJanyelAdmin.value ? certDetailColorInput.value : 'theme'
     }
   });
   editingCertCourseId.value = null;
@@ -130,9 +132,9 @@ const openPreviewCert = (course: Course) => {
     courseTitle: course.title,
     primaryColor: certColorInput.value,
     iconUrl: certIconUrlInput.value,
-    bgStyle: certBgStyleInput.value,
-    frameStyle: certFrameStyleInput.value,
-    detailColor: certDetailColorInput.value,
+    bgStyle: isJanyelAdmin.value ? certBgStyleInput.value : 'clean-light',
+    frameStyle: isJanyelAdmin.value ? certFrameStyleInput.value : 'modern-border',
+    detailColor: isJanyelAdmin.value ? certDetailColorInput.value : 'theme',
     creatorId: course.creatorId
   };
 };
@@ -142,9 +144,9 @@ watch(() => [certColorInput.value, certIconUrlInput.value, certBgStyleInput.valu
   if (showPreviewCertData.value) {
     showPreviewCertData.value.primaryColor = certColorInput.value;
     showPreviewCertData.value.iconUrl = certIconUrlInput.value;
-    showPreviewCertData.value.bgStyle = certBgStyleInput.value;
-    showPreviewCertData.value.frameStyle = certFrameStyleInput.value;
-    showPreviewCertData.value.detailColor = certDetailColorInput.value;
+    showPreviewCertData.value.bgStyle = isJanyelAdmin.value ? certBgStyleInput.value : 'clean-light';
+    showPreviewCertData.value.frameStyle = isJanyelAdmin.value ? certFrameStyleInput.value : 'modern-border';
+    showPreviewCertData.value.detailColor = isJanyelAdmin.value ? certDetailColorInput.value : 'theme';
   }
 });
 
@@ -252,18 +254,23 @@ const pedCourseEfficiency = computed(() => {
 const pedagogicalRecommendations = computed(() => {
   const list: Array<{ id: number; title: string; text: string }> = [];
   let recId = 1;
+  const isPt = locale.value === 'pt';
 
   if (averageQuizPercentage.value < 70) {
     list.push({
       id: recId++,
-      title: "Revisão de Dificuldade Pedagógica",
-      text: `A média acadêmica geral está em ${averageQuizPercentage.value}%. Seus alunos estão enfrentando barreiras nos questionários avaliativos. Recomendamos revisar os textos de explicação de erros nas lições ou facilitar as perguntas de múltipla escolha.`
+      title: isPt ? "Revisão de Dificuldade Pedagógica" : "Pedagogical Difficulty Review",
+      text: isPt 
+        ? `A média acadêmica geral está em ${averageQuizPercentage.value}%. Seus alunos estão enfrentando barreiras nos questionários avaliativos. Recomendamos revisar os textos de explicação de erros nas lições ou facilitar as perguntas de múltipla escolha.`
+        : `The general academic average is at ${averageQuizPercentage.value}%. Your students are facing barriers in the evaluative quizzes. We recommend reviewing error explanation texts in the lessons or easing multiple-choice questions.`
     });
   } else if (averageQuizPercentage.value > 92) {
     list.push({
       id: recId++,
-      title: "Incentivo a Desafios Maiores",
-      text: `Excelente! A média dos questionários é muito alta (${averageQuizPercentage.value}%). Para incentivar a melhoria contínua de vocabulário avançado, adicione diálogos complexos opcionais ou perguntas abertas nos roteiros.`
+      title: isPt ? "Incentivo a Desafios Maiores" : "Encouraging Greater Challenges",
+      text: isPt 
+        ? `Excelente! A média dos questionários é muito alta (${averageQuizPercentage.value}%). Para incentivar a melhoria contínua de vocabulário avançado, adicione diálogos complexos opcionais ou perguntas abertas nos roteiros.`
+        : `Excellent! The average quiz score is very high (${averageQuizPercentage.value}%). To encourage continuous improvement of advanced vocabulary, add optional complex dialogues or open-ended questions to the pathways.`
     });
   }
 
@@ -271,8 +278,10 @@ const pedagogicalRecommendations = computed(() => {
     if (item.totalStudents >= 2 && item.rate < 30) {
       list.push({
         id: recId++,
-        title: `Reduzir evasão: ${item.title}`,
-        text: `O curso apresenta baixa conversão de certificados (${item.rate}%). Alunos iniciam mas não terminam. Considere fragmentar as lições mais longas ou realizar um plantão síncrono de tirar dúvidas.`
+        title: isPt ? `Reduzir evasão: ${item.title}` : `Reduce dropout rate: ${item.title}`,
+        text: isPt 
+          ? `O curso apresenta baixa conversão de certificados (${item.rate}%). Alunos iniciam mas não terminam. Considere fragmentar as lições mais longas ou realizar um plantão síncrono de tirar dúvidas.`
+          : `The course has a low certificate conversion rate (${item.rate}%). Students start but do not finish. Consider breaking down longer lessons or hosting a synchronous Q&A session.`
       });
     }
   });
@@ -282,16 +291,20 @@ const pedagogicalRecommendations = computed(() => {
   if (activeStudentsCountInReports > 5 && classesForInstructor === 0) {
     list.push({
       id: recId++,
-      title: "Ausência de Prática Ativa ao Vivo",
-      text: "Seus alunos estão estudando o conteúdo estático, mas não há turmas de Prática Conversacional agendadas. Encontros online síncronos aumentam a fixação de pronúncia em mais de 65%!"
+      title: isPt ? "Ausência de Prática Ativa ao Vivo" : "Lack of Active Live Practice",
+      text: isPt 
+        ? "Seus alunos estão estudando o conteúdo estático, mas não há turmas de Prática Conversacional agendadas. Encontros online síncronos aumentam a fixação de pronúncia em mais de 65%!"
+        : "Your students are studying static content, but there are no scheduled Conversational Practice classes. Synchronous online meetings increase pronunciation retention by more than 65%!"
     });
   }
 
   if (list.length === 0) {
     list.push({
       id: recId++,
-      title: "Desempenho Pedagógico Saudável",
-      text: "Todos os cursos operam com ótima taxa de avanço e retenção de conteúdo. Continue monitorando os cliques de engajamento para manter a constância."
+      title: isPt ? "Desempenho Pedagógico Saudável" : "Healthy Pedagogical Performance",
+      text: isPt 
+        ? "Todos os cursos operam com ótima taxa de avanço e retenção de conteúdo. Continue monitorando os cliques de engajamento para manter a constância."
+        : "All courses operate with an excellent progress and content retention rate. Continue monitoring engagement clicks to maintain consistency."
     });
   }
 
@@ -300,7 +313,10 @@ const pedagogicalRecommendations = computed(() => {
 
 const getStudentName = (uid: string) => {
   const found = props.users?.find(u => u.uid === uid);
-  return found ? (found.displayName || found.email || "Estudante Sem Nome") : "Estudante Independente";
+  const isPt = locale.value === 'pt';
+  return found 
+    ? (found.displayName || found.email || (isPt ? "Estudante Sem Nome" : "Unnamed Student")) 
+    : (isPt ? "Estudante Independente" : "Independent Student");
 };
 
 // Tables, Search, Pagination
@@ -357,7 +373,13 @@ const deleteConfirm = (course: Course) => {
 const confirmDeleteCourse = () => {
   if (courseToDelete.value) {
     emit('delete-course', courseToDelete.value.id);
-    showToast(`Curso "${courseToDelete.value.title}" removido da base com sucesso!`, "success");
+    const isPt = locale.value === 'pt';
+    showToast(
+      isPt 
+        ? `Curso "${courseToDelete.value.title}" removido da base com sucesso!` 
+        : `Course "${courseToDelete.value.title}" successfully removed from database!`, 
+      "success"
+    );
     courseToDelete.value = null;
   }
 };
@@ -395,8 +417,9 @@ const exportCourseToJson = (course: Course) => {
 };
 
 const handleExportXLSX = () => {
+  const isPt = locale.value === 'pt';
   if (progressReports.value.length === 0) {
-    showToast("Sem dados de estudantes para exportar.", "warning");
+    showToast(isPt ? "Sem dados de estudantes para exportar." : "No student data to export.", "warning");
     return;
   }
 
@@ -407,20 +430,32 @@ const handleExportXLSX = () => {
       ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
       : 0;
 
-    return {
-      "ID do Estudante": report.userId,
-      "Nome do Aluno": getStudentName(report.userId),
-      "Curso Matriculado": associatedCourse ? associatedCourse.title : "N/A",
-      "Lições Completadas": report.completedLessons.length,
-      "Média nos Quizzes (%)": scores.length > 0 ? `${average}%` : "Nenhum respondido",
-      "Certificado Emitido": report.certified ? "Sim (Aprovado)" : "Não (Em andamento)",
-      "Código do Certificado": report.certificateId || "N/A"
-    };
+    if (isPt) {
+      return {
+        "ID do Estudante": report.userId,
+        "Nome do Aluno": getStudentName(report.userId),
+        "Curso Matriculado": associatedCourse ? associatedCourse.title : "N/A",
+        "Lições Completadas": report.completedLessons.length,
+        "Média nos Quizzes (%)": scores.length > 0 ? `${average}%` : "Nenhum respondido",
+        "Certificado Emitido": report.certified ? "Sim (Aprovado)" : "Não (Em andamento)",
+        "Código do Certificado": report.certificateId || "N/A"
+      };
+    } else {
+      return {
+        "Student ID": report.userId,
+        "Student Name": getStudentName(report.userId),
+        "Enrolled Course": associatedCourse ? associatedCourse.title : "N/A",
+        "Completed Lessons": report.completedLessons.length,
+        "Quiz Average (%)": scores.length > 0 ? `${average}%` : "None answered",
+        "Issued Certificate": report.certified ? "Yes (Approved)" : "No (In progress)",
+        "Certificate Code": report.certificateId || "N/A"
+      };
+    }
   });
 
   const worksheet = XLSX.utils.json_to_sheet(dataToExport);
   const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, "Progresso Alunos");
+  XLSX.utils.book_append_sheet(workbook, worksheet, isPt ? "Progresso Alunos" : "Student Progress");
 
   // Ajustar largura de colunas automaticamente
   const headers = Object.keys(dataToExport[0]);
@@ -442,16 +477,20 @@ const handleExportXLSX = () => {
   
   const link = document.createElement("a");
   link.href = url;
-  link.download = `Relatorio_Estudantes_Excel_${new Date().toLocaleDateString("pt-BR").replace(/\//g, "-")}.xlsx`;
+  const rawDateStr = new Date().toLocaleDateString("pt-BR").replace(/\//g, "-");
+  link.download = isPt 
+    ? `Relatorio_Estudantes_Excel_${rawDateStr}.xlsx`
+    : `Student_Report_Excel_${rawDateStr}.xlsx`;
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
-  showToast("Planilha de estudantes exportada com sucesso!", "success");
+  showToast(isPt ? "Planilha de estudantes exportada com sucesso!" : "Student spreadsheet successfully exported!", "success");
 };
 
 const handleExportJSON = () => {
+  const isPt = locale.value === 'pt';
   if (progressReports.value.length === 0) {
-    showToast("Sem dados de estudantes para exportar.", "warning");
+    showToast(isPt ? "Sem dados de estudantes para exportar." : "No student data to export.", "warning");
     return;
   }
 
@@ -474,11 +513,14 @@ const handleExportJSON = () => {
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = `Relatorio_Estudantes_Raw_${new Date().toLocaleDateString("pt-BR")}.json`;
+  const rawDateStr = new Date().toLocaleDateString("pt-BR");
+  link.download = isPt 
+    ? `Relatorio_Estudantes_Raw_${rawDateStr}.json`
+    : `Student_Report_Raw_${rawDateStr}.json`;
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
-  showToast("Relatório JSON exportado com sucesso!", "success");
+  showToast(isPt ? "Relatório JSON exportado com sucesso!" : "JSON report successfully exported!", "success");
 };
 </script>
 
@@ -491,7 +533,9 @@ const handleExportJSON = () => {
           <FileText class="w-6 h-6" />
         </span>
         <div>
-          <p class="text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Cursos Online</p>
+          <p class="text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+            {{ locale === 'pt' ? 'Cursos Online' : 'Online Courses' }}
+          </p>
           <h4 class="text-xl font-black text-gray-900 dark:text-white mt-0.5">{{ courses.length }}</h4>
         </div>
       </div>
@@ -501,7 +545,9 @@ const handleExportJSON = () => {
           <Users class="w-6 h-6" />
         </span>
         <div>
-          <p class="text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Estudantes Ativos</p>
+          <p class="text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+            {{ locale === 'pt' ? 'Estudantes Ativos' : 'Active Students' }}
+          </p>
           <h4 class="text-xl font-black text-gray-900 dark:text-white mt-0.5">{{ activeStudentsCount }}</h4>
         </div>
       </div>
@@ -511,8 +557,12 @@ const handleExportJSON = () => {
           <Check class="w-6 h-6" />
         </span>
         <div>
-          <p class="text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Aproveitamento Médio</p>
-          <h4 class="text-xl font-black text-gray-900 dark:text-white mt-0.5">{{ averageQuizPercentage }}% nos Quizzes</h4>
+          <p class="text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+            {{ locale === 'pt' ? 'Aproveitamento Médio' : 'Average Score' }}
+          </p>
+          <h4 class="text-xl font-black text-gray-900 dark:text-white mt-0.5">
+            {{ locale === 'pt' ? `${averageQuizPercentage}% nos Quizzes` : `${averageQuizPercentage}% on Quizzes` }}
+          </h4>
         </div>
       </div>
 
@@ -521,8 +571,12 @@ const handleExportJSON = () => {
           <BookOpen class="w-6 h-6" />
         </span>
         <div>
-          <p class="text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Aulas Marcadas</p>
-          <h4 class="text-xl font-black text-gray-900 dark:text-white mt-0.5">{{ classes.length }} turmas</h4>
+          <p class="text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+            {{ locale === 'pt' ? 'Aulas Marcadas' : 'Scheduled Classes' }}
+          </p>
+          <h4 class="text-xl font-black text-gray-900 dark:text-white mt-0.5">
+            {{ locale === 'pt' ? `${classes.length} turmas` : `${classes.length} classes` }}
+          </h4>
         </div>
       </div>
     </div>
@@ -534,9 +588,11 @@ const handleExportJSON = () => {
         <div class="flex items-center justify-between">
           <h3 class="text-sm font-bold text-gray-950 dark:text-white tracking-tight flex items-center gap-1.5">
             <span class="w-2.5 h-2.5 rounded-full bg-blue-600 block"></span>
-            Progresso por Curso
+            {{ locale === 'pt' ? 'Progresso por Curso' : 'Progress by Course' }}
           </h3>
-          <span class="text-[9px] bg-blue-50 dark:bg-blue-950/45 text-blue-600 dark:text-blue-300 border border-transparent dark:border-blue-900/30 px-2.5 py-0.5 font-bold rounded-full">Aulas Concluídas</span>
+          <span class="text-[9px] bg-blue-50 dark:bg-blue-950/45 text-blue-600 dark:text-blue-300 border border-transparent dark:border-blue-900/30 px-2.5 py-0.5 font-bold rounded-full">
+            {{ locale === 'pt' ? 'Aulas Concluídas' : 'Lessons Completed' }}
+          </span>
         </div>
         <div class="space-y-4 pt-1.5 overflow-hidden">
           <div v-for="c in courseCompletionData" :key="c.id" class="space-y-2">
@@ -551,12 +607,12 @@ const handleExportJSON = () => {
               ></div>
             </div>
             <div class="flex items-center justify-between text-[10px] text-gray-400 dark:text-gray-500 font-semibold">
-              <span>Alunos Matriculados:</span>
+              <span>{{ locale === 'pt' ? 'Alunos Matriculados:' : 'Enrolled Students:' }}</span>
               <span class="text-slate-600 dark:text-slate-305 font-bold">{{ c.studentCount }}</span>
             </div>
           </div>
           <div v-if="courseCompletionData.length === 0" class="text-xs text-center text-gray-400 dark:text-gray-500 py-6">
-            Nenhum curso cadastrado ainda.
+            {{ locale === 'pt' ? 'Nenhum curso cadastrado ainda.' : 'No courses registered yet.' }}
           </div>
         </div>
       </div>
@@ -567,9 +623,11 @@ const handleExportJSON = () => {
           <div class="flex items-center justify-between">
             <h3 class="text-sm font-bold text-gray-950 dark:text-white tracking-tight flex items-center gap-1.5">
               <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 block"></span>
-              Desempenho nos Quizzes
+              {{ locale === 'pt' ? 'Desempenho nos Quizzes' : 'Quiz Performance' }}
             </h3>
-            <span class="text-[9px] bg-emerald-50 dark:bg-emerald-950/45 text-emerald-600 dark:text-emerald-300 border border-transparent dark:border-emerald-900/30 px-2.5 py-0.5 font-bold rounded-full">Proporções</span>
+            <span class="text-[9px] bg-emerald-50 dark:bg-emerald-950/45 text-emerald-600 dark:text-emerald-300 border border-transparent dark:border-emerald-900/30 px-2.5 py-0.5 font-bold rounded-full">
+              {{ locale === 'pt' ? 'Proporções' : 'Proportions' }}
+            </span>
           </div>
           
           <div class="flex items-center justify-center py-6">
@@ -605,7 +663,9 @@ const handleExportJSON = () => {
               </svg>
               <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
                 <span class="text-2xl font-black text-gray-900 dark:text-white leading-none">{{ gradeDistributionData.total }}</span>
-                <span class="text-[8.5px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-widest mt-1">Avaliados</span>
+                <span class="text-[8.5px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-widest mt-1">
+                  {{ locale === 'pt' ? 'Avaliados' : 'Evaluated' }}
+                </span>
               </div>
             </div>
           </div>
@@ -615,21 +675,27 @@ const handleExportJSON = () => {
           <div>
             <div class="flex items-center justify-center gap-1">
               <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-              <span class="text-[9px] text-gray-400 dark:text-gray-500 font-bold uppercase">Nota A</span>
+              <span class="text-[9px] text-gray-400 dark:text-gray-500 font-bold uppercase">
+                {{ locale === 'pt' ? 'Nota A' : 'Grade A' }}
+              </span>
             </div>
             <h5 class="text-xs font-black text-gray-800 dark:text-gray-200 mt-0.5">{{ gradeDistributionData.excellentPct }}%</h5>
           </div>
           <div>
             <div class="flex items-center justify-center gap-1">
               <span class="w-2 h-2 rounded-full bg-blue-500"></span>
-              <span class="text-[9px] text-gray-400 dark:text-gray-500 font-bold uppercase">Nota B</span>
+              <span class="text-[9px] text-gray-400 dark:text-gray-500 font-bold uppercase">
+                {{ locale === 'pt' ? 'Nota B' : 'Grade B' }}
+              </span>
             </div>
             <h5 class="text-xs font-black text-gray-800 dark:text-gray-200 mt-0.5">{{ gradeDistributionData.goodPct }}%</h5>
           </div>
           <div>
             <div class="flex items-center justify-center gap-1">
               <span class="w-2 h-2 rounded-full bg-amber-500"></span>
-              <span class="text-[9px] text-gray-400 dark:text-gray-500 font-bold uppercase">Dificuldade</span>
+              <span class="text-[9px] text-gray-400 dark:text-gray-500 font-bold uppercase">
+                {{ locale === 'pt' ? 'Dificuldade' : 'Review' }}
+              </span>
             </div>
             <h5 class="text-xs font-black text-gray-800 dark:text-gray-200 mt-0.5">{{ gradeDistributionData.reviewPct }}%</h5>
           </div>
@@ -641,9 +707,11 @@ const handleExportJSON = () => {
         <div class="flex items-center justify-between">
           <h3 class="text-sm font-bold text-gray-900 dark:text-white tracking-tight flex items-center gap-1.5">
             <span class="w-2.5 h-2.5 rounded-full bg-indigo-500 block"></span>
-            Participação de Alunos
+            {{ locale === 'pt' ? 'Participação de Alunos' : 'Student Participation' }}
           </h3>
-          <span class="text-[9px] bg-indigo-50 dark:bg-indigo-950/45 text-indigo-600 dark:text-indigo-300 border border-transparent dark:border-indigo-900/30 px-2.5 py-0.5 font-bold rounded-full">Engajamento</span>
+          <span class="text-[9px] bg-indigo-50 dark:bg-indigo-950/45 text-indigo-600 dark:text-indigo-300 border border-transparent dark:border-indigo-900/30 px-2.5 py-0.5 font-bold rounded-full">
+            {{ locale === 'pt' ? 'Engajamento' : 'Engagement' }}
+          </span>
         </div>
 
         <div class="space-y-4 pt-1">
@@ -652,7 +720,7 @@ const handleExportJSON = () => {
             <div class="flex items-center justify-between text-xs font-bold text-gray-700 dark:text-slate-300">
               <span class="flex items-center gap-1.5">
                 <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
-                Leituras de Diálogos
+                {{ locale === 'pt' ? 'Leituras de Diálogos' : 'Dialogue Readings' }}
               </span>
               <span class="text-slate-500 dark:text-slate-400">{{ activityEngagementScores.readings }} clicks</span>
             </div>
@@ -666,7 +734,7 @@ const handleExportJSON = () => {
             <div class="flex items-center justify-between text-xs font-bold text-gray-700 dark:text-slate-300">
               <span class="flex items-center gap-1.5">
                 <span class="w-2 h-2 rounded-full bg-violet-500"></span>
-                Vídeolas Assistidas
+                {{ locale === 'pt' ? 'Vídeoaulas Assistidas' : 'Video Lessons Watched' }}
               </span>
               <span class="text-slate-500 dark:text-slate-400">{{ activityEngagementScores.videos }} clicks</span>
             </div>
@@ -680,7 +748,7 @@ const handleExportJSON = () => {
             <div class="flex items-center justify-between text-xs font-bold text-gray-700 dark:text-slate-300">
               <span class="flex items-center gap-1.5">
                 <span class="w-2 h-2 rounded-full bg-fuchsia-500"></span>
-                Quizzes Entregues
+                {{ locale === 'pt' ? 'Quizzes Entregues' : 'Quizzes Submitted' }}
               </span>
               <span class="text-slate-500 dark:text-slate-400">{{ activityEngagementScores.quizzes }} clicks</span>
             </div>
@@ -696,11 +764,15 @@ const handleExportJSON = () => {
     <div class="bg-slate-50 dark:bg-slate-900/45 p-6 rounded-3xl border border-gray-100 dark:border-slate-800 space-y-6 text-left select-none">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-150/60 dark:border-slate-800/60 pb-4">
         <div>
-          <h3 class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider block">Diagnóstico de Retenção & Melhoria Pedagógica</h3>
-          <p class="text-xs text-slate-400 dark:text-slate-500 font-bold block">Detecte lições de alta complexidade ou quedas bruscas de engajamento para aprimoramento didático contínuo.</p>
+          <h3 class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider block">
+            {{ locale === 'pt' ? 'Diagnóstico de Retenção & Melhoria Pedagógica' : 'Retention & Pedagogical Improvement Diagnosis' }}
+          </h3>
+          <p class="text-xs text-slate-400 dark:text-slate-500 font-bold block">
+            {{ locale === 'pt' ? 'Detecte lições de alta complexidade ou quedas bruscas de engajamento para aprimoramento didático contínuo.' : 'Detect high complexity lessons or sudden engagement drops for continuous didactic improvement.' }}
+          </p>
         </div>
         <span class="p-1.5 bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-300 rounded-lg text-xs font-bold shrink-0 border border-transparent dark:border-indigo-900/20">
-          🔍 Auditor Didático
+          🔍 {{ locale === 'pt' ? 'Auditor Didático' : 'Didactic Auditor' }}
         </span>
       </div>
 
@@ -708,8 +780,12 @@ const handleExportJSON = () => {
         <!-- Part A: Analise de Eficiência por Curso -->
         <div class="bg-white dark:bg-slate-950 p-5 rounded-2xl border border-gray-150/40 dark:border-slate-850 space-y-4">
           <div>
-            <h4 class="text-xs font-black text-slate-800 dark:text-slate-200 uppercase tracking-wider">Índice de Conversão de Certificados</h4>
-            <p class="text-[10.5px] text-slate-400 dark:text-slate-500 font-bold">Relação de matriculados que conseguiram o selo de certificação por curso.</p>
+            <h4 class="text-xs font-black text-slate-800 dark:text-slate-200 uppercase tracking-wider">
+              {{ locale === 'pt' ? 'Índice de Conversão de Certificados' : 'Certificate Conversion Rate' }}
+            </h4>
+            <p class="text-[10.5px] text-slate-400 dark:text-slate-500 font-bold">
+              {{ locale === 'pt' ? 'Relação de matriculados que conseguiram o selo de certificação por curso.' : 'Ratio of enrolled students who obtained the certification badge per course.' }}
+            </p>
           </div>
 
           <div class="space-y-3 max-h-[220px] overflow-y-auto pr-1">
@@ -726,7 +802,7 @@ const handleExportJSON = () => {
                   c.rate >= 30 ? 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300' :
                   'bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300'
                 ]">
-                  {{ c.rate }}% Eficiência
+                  {{ c.rate }}% {{ locale === 'pt' ? 'Eficiência' : 'Efficiency' }}
                 </span>
               </div>
               <!-- Mini progress bar -->
@@ -742,14 +818,14 @@ const handleExportJSON = () => {
                 ></div>
               </div>
               <div class="flex justify-between text-[10px] text-slate-450 dark:text-slate-500 font-bold leading-none">
-                <span>Certificados: {{ c.certified }} / {{ c.totalStudents }}</span>
-                <span v-if="c.rate < 30" class="text-rose-500 dark:text-rose-400">⚠️ Alerta de Evasão</span>
-                <span v-else-if="c.rate >= 60" class="text-emerald-600 dark:text-emerald-400">✓ Fluxo Saudável</span>
-                <span v-else class="text-amber-600 dark:text-amber-400">✎ Recomenda-se Ajuste</span>
+                <span>{{ locale === 'pt' ? 'Certificados:' : 'Certificates:' }} {{ c.certified }} / {{ c.totalStudents }}</span>
+                <span v-if="c.rate < 30" class="text-rose-500 dark:text-rose-400">⚠️ {{ locale === 'pt' ? 'Alerta de Evasão' : 'Dropout Warning' }}</span>
+                <span v-else-if="c.rate >= 60" class="text-emerald-600 dark:text-emerald-400">✓ {{ locale === 'pt' ? 'Fluxo Saudável' : 'Healthy Flow' }}</span>
+                <span v-else class="text-amber-600 dark:text-amber-400">✎ {{ locale === 'pt' ? 'Recomenda-se Ajuste' : 'Adjustments Advised' }}</span>
               </div>
             </div>
             <div v-if="pedCourseEfficiency.length === 0" class="text-xs text-slate-400 dark:text-slate-500 italic py-4 text-center">
-              Sem dados históricos disponíveis para avaliar eficiência.
+              {{ locale === 'pt' ? 'Sem dados históricos disponíveis para avaliar eficiência.' : 'No historical data available to evaluate efficiency.' }}
             </div>
           </div>
         </div>
@@ -757,8 +833,12 @@ const handleExportJSON = () => {
         <!-- Part B: Recomendações de Aprimoramento Didático -->
         <div class="bg-white dark:bg-slate-950 p-5 rounded-2xl border border-gray-150/40 dark:border-slate-850 space-y-4">
           <div>
-            <h4 class="text-xs font-black text-slate-800 dark:text-slate-200 uppercase tracking-wider">Ações Estratégicas para Melhoria Contínua</h4>
-            <p class="text-[10.5px] text-slate-400 dark:text-slate-500 font-bold">Gabarito de correções acionáveis com base nas turmas e progresso dos alunos.</p>
+            <h4 class="text-xs font-black text-slate-800 dark:text-slate-200 uppercase tracking-wider">
+              {{ locale === 'pt' ? 'Ações Estratégicas para Melhoria Contínua' : 'Strategic Actions for Continuous Improvement' }}
+            </h4>
+            <p class="text-[10.5px] text-slate-400 dark:text-slate-500 font-bold">
+              {{ locale === 'pt' ? 'Gabarito de correções acionáveis com base nas turmas e progresso dos alunos.' : 'Actionable correction templates based on classes and student progress.' }}
+            </p>
           </div>
 
           <div class="space-y-3 max-h-[220px] overflow-y-auto pr-1">
@@ -774,7 +854,7 @@ const handleExportJSON = () => {
               </div>
             </div>
             <div v-if="pedagogicalRecommendations.length === 0" class="text-xs text-slate-400 dark:text-slate-500 italic py-4 text-center">
-              Tudo sob controle! Nenhum gargalo didático relevante detectado no momento.
+              {{ locale === 'pt' ? 'Tudo sob controle! Nenhum gargalo didático relevante detectado no momento.' : 'Everything under control! No relevant didactic bottleneck detected at the moment.' }}
             </div>
           </div>
         </div>
@@ -782,26 +862,26 @@ const handleExportJSON = () => {
     </div>
 
     <!-- Sub Navigation Tabs for Analytics Section -->
-    <div class="flex bg-slate-100 dark:bg-slate-805 p-1 rounded-xl w-full max-w-sm sm:max-w-md select-none border border-transparent dark:border-slate-800">
+    <div class="flex bg-slate-100 dark:bg-slate-850 p-1 rounded-xl w-full max-w-sm sm:max-w-md select-none border border-transparent dark:border-slate-800">
       <button
         type="button"
         @click="analyticsTab = 'students'"
         :class="[
           'flex-1 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer text-center',
-          analyticsTab === 'students' ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-2xs' : 'text-gray-500 dark:text-gray-450 hover:text-gray-900 dark:hover:text-white'
+          analyticsTab === 'students' ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-2xs' : 'text-gray-500 dark:text-gray-455 hover:text-gray-900 dark:hover:text-white'
         ]"
       >
-        👥 Alunos ({{ progressReports.length }})
+        👥 {{ locale === 'pt' ? `Alunos (${progressReports.length})` : `Students (${progressReports.length})` }}
       </button>
       <button
         type="button"
         @click="analyticsTab = 'courses'"
         :class="[
           'flex-1 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer text-center',
-          analyticsTab === 'courses' ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-2xs' : 'text-gray-500 dark:text-gray-450 hover:text-gray-900 dark:hover:text-white'
+          analyticsTab === 'courses' ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-2xs' : 'text-gray-500 dark:text-gray-455 hover:text-gray-900 dark:hover:text-white'
         ]"
       >
-        📚 Histórico de Cursos ({{ courses.length }})
+        📚 {{ locale === 'pt' ? `Histórico de Cursos (${courses.length})` : `Course History (${courses.length})` }}
       </button>
     </div>
 
@@ -809,8 +889,12 @@ const handleExportJSON = () => {
     <div v-if="analyticsTab === 'students'" class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-gray-100 dark:border-slate-800 space-y-4 shadow-2xs text-left animate-fadeIn">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h3 class="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider block">Estudantes sob sua Coordenação</h3>
-          <p class="text-xs text-gray-400 dark:text-gray-500 leading-tight block">Acompanhe as notas dos quizzes e emita relatórios analíticos formatados.</p>
+          <h3 class="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider block">
+            {{ locale === 'pt' ? 'Estudantes sob sua Coordenação' : 'Students Under Your Coordination' }}
+          </h3>
+          <p class="text-xs text-gray-400 dark:text-gray-500 leading-tight block">
+            {{ locale === 'pt' ? 'Acompanhe as notas dos quizzes e emita relatórios analíticos formatados.' : 'Track quiz scores and export formatted analytical reports.' }}
+          </p>
         </div>
 
         <div class="flex flex-wrap items-center gap-2">
@@ -819,7 +903,7 @@ const handleExportJSON = () => {
             @click="handleExportXLSX"
             class="p-1 px-3 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-800 dark:bg-emerald-950/45 dark:border-emerald-900/40 dark:text-emerald-300 rounded-lg text-[10.5px] font-bold cursor-pointer transition-all flex items-center gap-1"
           >
-            📥 Exportar Excel (XLSX)
+            📥 {{ locale === 'pt' ? 'Exportar Excel (XLSX)' : 'Export Excel (XLSX)' }}
           </button>
 
           <button
@@ -827,7 +911,7 @@ const handleExportJSON = () => {
             @click="handleExportJSON"
             class="p-1 px-3 bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-800 dark:bg-blue-950/45 dark:border-blue-900/40 dark:text-blue-300 rounded-lg text-[10.5px] font-bold cursor-pointer transition-all flex items-center gap-1"
           >
-            📥 Exportar JSON
+            📥 {{ locale === 'pt' ? 'Exportar JSON' : 'Export JSON' }}
           </button>
         </div>
       </div>
@@ -840,7 +924,7 @@ const handleExportJSON = () => {
           </span>
           <input
             type="text"
-            placeholder="Pesquisar estudante por nome ou ID..."
+            :placeholder="locale === 'pt' ? 'Pesquisar estudante por nome ou ID...' : 'Search student by name or ID...'"
             v-model="studentQuery"
             class="w-full text-xs pl-9 bg-slate-50 dark:bg-slate-950 focus:bg-white dark:focus:bg-slate-900 border border-gray-200 dark:border-slate-850 rounded-xl p-2.5 focus:outline-hidden text-gray-900 dark:text-white"
           />
@@ -848,17 +932,17 @@ const handleExportJSON = () => {
       </div>
 
       <p v-if="filteredStudentReports.length === 0" class="text-xs text-slate-400 dark:text-slate-500 italic py-4">
-        Nenhum estudante correspondente encontrado.
+        {{ locale === 'pt' ? 'Nenhum estudante correspondente encontrado.' : 'No matching student found.' }}
       </p>
       <div v-else class="overflow-x-auto">
         <table id="instructor-analytics-table" class="w-full text-left border-collapse text-xs">
           <thead>
             <tr class="border-b border-gray-100 dark:border-slate-850 text-gray-400 dark:text-slate-400 uppercase tracking-wider text-[10px] font-bold">
-              <th class="py-2.5 font-bold">Estudante</th>
-              <th class="py-2.5 font-bold">Curso Assinalado</th>
-              <th class="py-2.5 font-bold text-center">Lições Concluídas</th>
-              <th class="py-2.5 font-bold">Média Acadêmica</th>
-              <th class="py-2.5 font-bold">Status do Certificado</th>
+              <th class="py-2.5 font-bold">{{ locale === 'pt' ? 'Estudante' : 'Student' }}</th>
+              <th class="py-2.5 font-bold">{{ locale === 'pt' ? 'Curso Assinalado' : 'Assigned Course' }}</th>
+              <th class="py-2.5 font-bold text-center">{{ locale === 'pt' ? 'Lições Concluídas' : 'Lessons Completed' }}</th>
+              <th class="py-2.5 font-bold">{{ locale === 'pt' ? 'Média Acadêmica' : 'Academic Average' }}</th>
+              <th class="py-2.5 font-bold">{{ locale === 'pt' ? 'Status do Certificado' : 'Certificate Status' }}</th>
             </tr>
           </thead>
           <tbody>
@@ -882,13 +966,17 @@ const handleExportJSON = () => {
                     {{ Math.round(Object.values(report.quizScores).reduce((a,b)=>a+b,0)/Object.values(report.quizScores).length) }}%
                   </span>
                 </template>
-                <span v-else class="text-gray-400 dark:text-slate-500 italic">Sem notas</span>
+                <span v-else class="text-gray-400 dark:text-slate-500 italic">
+                  {{ locale === 'pt' ? 'Sem notas' : 'No grades' }}
+                </span>
               </td>
               <td class="py-3">
                 <span v-if="report.certified" class="inline-flex items-center gap-1 text-[10px] font-bold bg-emerald-100 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 px-2 py-0.5 rounded-full select-none">
-                  <Check class="w-2.5 h-2.5" /> Liberado
+                  <Check class="w-2.5 h-2.5" /> {{ locale === 'pt' ? 'Liberado' : 'Released' }}
                 </span>
-                <span v-else class="text-gray-400 dark:text-slate-500 italic font-medium">Em andamento</span>
+                <span v-else class="text-gray-400 dark:text-slate-500 italic font-medium">
+                  {{ locale === 'pt' ? 'Em andamento' : 'In progress' }}
+                </span>
               </td>
             </tr>
           </tbody>
@@ -898,9 +986,16 @@ const handleExportJSON = () => {
       <!-- Paginator Footer for Students list -->
       <div v-if="filteredStudentReports.length > 0" class="pt-4 flex items-center justify-between gap-4 text-xs font-semibold select-none text-slate-450 dark:text-slate-400 border-t border-gray-100 dark:border-slate-850/60 mt-3 flex-wrap">
         <span>
-          Mostrando <strong>{{ Math.min(filteredStudentReports.length, (studentPage - 1) * studentsPerPage + 1) }}</strong> a 
-          <strong>{{ Math.min(filteredStudentReports.length, studentPage * studentsPerPage) }}</strong> de 
-          <strong>{{ filteredStudentReports.length }}</strong> estudantes
+          <template v-if="locale === 'pt'">
+            Mostrando <strong>{{ Math.min(filteredStudentReports.length, (studentPage - 1) * studentsPerPage + 1) }}</strong> a 
+            <strong>{{ Math.min(filteredStudentReports.length, studentPage * studentsPerPage) }}</strong> de 
+            <strong>{{ filteredStudentReports.length }}</strong> estudantes
+          </template>
+          <template v-else>
+            Showing <strong>{{ Math.min(filteredStudentReports.length, (studentPage - 1) * studentsPerPage + 1) }}</strong> to 
+            <strong>{{ Math.min(filteredStudentReports.length, studentPage * studentsPerPage) }}</strong> of 
+            <strong>{{ filteredStudentReports.length }}</strong> students
+          </template>
         </span>
         <div class="flex items-center gap-1.5">
           <button
@@ -909,16 +1004,18 @@ const handleExportJSON = () => {
             @click="studentPage--"
             class="p-1 px-2.5 bg-slate-50 dark:bg-slate-950 hover:bg-slate-100 dark:hover:bg-slate-850 border border-gray-200 dark:border-slate-850 rounded-lg cursor-pointer disabled:opacity-40 transition disabled:cursor-not-allowed inline-flex items-center gap-1 text-[11px]"
           >
-            <ChevronLeft class="w-3.5 h-3.5" /> Anterior
+            <ChevronLeft class="w-3.5 h-3.5" /> {{ locale === 'pt' ? 'Anterior' : 'Previous' }}
           </button>
-          <span class="px-2 text-[11px]">Página {{ studentPage }} de {{ totalStudentPages || 1 }}</span>
+          <span class="px-2 text-[11px]">
+            {{ locale === 'pt' ? `Página ${studentPage} de ${totalStudentPages || 1}` : `Page ${studentPage} of ${totalStudentPages || 1}` }}
+          </span>
           <button
             type="button"
             :disabled="studentPage === totalStudentPages || totalStudentPages <= 1"
             @click="studentPage++"
             class="p-1 px-2.5 bg-slate-50 dark:bg-slate-950 hover:bg-slate-100 dark:hover:bg-slate-850 border border-gray-200 dark:border-slate-850 rounded-lg cursor-pointer disabled:opacity-40 transition disabled:cursor-not-allowed inline-flex items-center gap-1 text-[11px]"
           >
-            Próximo <ChevronRight class="w-3.5 h-3.5" />
+            {{ locale === 'pt' ? 'Próximo' : 'Next' }} <ChevronRight class="w-3.5 h-3.5" />
           </button>
         </div>
       </div>
@@ -928,8 +1025,12 @@ const handleExportJSON = () => {
     <div v-if="analyticsTab === 'courses'" class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-gray-100 dark:border-slate-800 space-y-4 shadow-2xs text-left animate-fadeIn">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-100/40 dark:border-slate-800/60 pb-3">
         <div>
-          <h3 class="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider block">Histórico de Cursos no Servidor</h3>
-          <p class="text-xs text-gray-400 dark:text-gray-500 leading-tight block">Veja a grade acadêmica de todas as aulas em circulação e gerencie as publicações.</p>
+          <h3 class="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider block">
+            {{ locale === 'pt' ? 'Histórico de Cursos no Servidor' : 'Course History on Server' }}
+          </h3>
+          <p class="text-xs text-gray-400 dark:text-gray-500 leading-tight block">
+            {{ locale === 'pt' ? 'Veja a grade acadêmica de todas as aulas em circulação e gerencie as publicações.' : 'View the academic curriculum of all circulating classes and manage publications.' }}
+          </p>
         </div>
 
         <!-- Search box for courses -->
@@ -939,14 +1040,16 @@ const handleExportJSON = () => {
           </span>
           <input
             type="text"
-            placeholder="Pesquisar por título ou nível..."
+            :placeholder="locale === 'pt' ? 'Pesquisar por título ou nível...' : 'Search by title or level...'"
             v-model="coursesQuery"
             class="w-full text-xs pl-9 bg-slate-50 dark:bg-slate-950 focus:bg-white dark:focus:bg-slate-900 border border-gray-200 dark:border-slate-850 rounded-xl p-2.5 focus:outline-hidden text-gray-900 dark:text-white"
           />
         </div>
       </div>
 
-      <p v-if="filteredCourses.length === 0" class="text-xs text-gray-455 dark:text-slate-500 italic py-4">Nenhum curso correspondente encontrado.</p>
+      <p v-if="filteredCourses.length === 0" class="text-xs text-gray-455 dark:text-slate-500 italic py-4">
+        {{ locale === 'pt' ? 'Nenhum curso correspondente encontrado.' : 'No matching course found.' }}
+      </p>
       <div v-else class="space-y-3.5">
         <div v-for="course in paginatedCoursesList" :key="course.id" class="p-4 bg-slate-50 dark:bg-slate-950/45 border border-slate-200/60 dark:border-slate-850 rounded-xl space-y-3">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -954,17 +1057,28 @@ const handleExportJSON = () => {
               <div class="flex items-center gap-2">
                 <span class="font-extrabold text-[12.5px] text-slate-800 dark:text-white">{{ course.title }}</span>
                 <span class="px-2 py-0.2 bg-blue-50 text-blue-700 text-[9px] font-bold border border-blue-100 rounded-sm">
-                  Nível {{ course.level }}
+                  {{ locale === 'pt' ? `Nível ${course.level}` : `Level ${course.level}` }}
                 </span>
               </div>
               <p class="text-[11px] text-gray-550 dark:text-gray-400 leading-none">
-                Criado por: <strong>{{ course.creatorName || "Voluntário" }}</strong> | {{ lessons.filter(l => l.courseId === course.id).length }} lições cadastradas
+                <template v-if="locale === 'pt'">
+                  Criado por: <strong>{{ course.creatorName || "Voluntário" }}</strong> | {{ lessons.filter(l => l.courseId === course.id).length }} lições cadastradas
+                </template>
+                <template v-else>
+                  Created by: <strong>{{ course.creatorName || "Volunteer" }}</strong> | {{ lessons.filter(l => l.courseId === course.id).length }} lessons registered
+                </template>
               </p>
               <!-- Course progress criteria tag summary -->
               <div class="flex items-center gap-1.5 mt-1.5 flex-wrap">
-                <span class="text-[9px] px-1.5 py-0.5 rounded-sm bg-slate-200/80 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-bold uppercase tracking-wider">Métricas:</span>
-                <span :class="['text-[8.5px] px-1.5 py-0.5 rounded-sm font-bold uppercase border', (!course.progressConfig || course.progressConfig.requireReading) ? 'bg-emerald-50 border-emerald-100/50 text-emerald-700' : 'bg-gray-100 border-gray-150 text-gray-400 line-through']">Leitura</span>
-                <span :class="['text-[8.5px] px-1.5 py-0.5 rounded-sm font-bold uppercase border', (course.progressConfig && course.progressConfig.requireVideo) ? 'bg-emerald-50 border-emerald-100/50 text-emerald-700' : 'bg-gray-100 border-gray-150 text-gray-400 line-through']">Vídeo</span>
+                <span class="text-[9px] px-1.5 py-0.5 rounded-sm bg-slate-200/80 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-bold uppercase tracking-wider">
+                  {{ locale === 'pt' ? 'Métricas:' : 'Metrics:' }}
+                </span>
+                <span :class="['text-[8.5px] px-1.5 py-0.5 rounded-sm font-bold uppercase border', (!course.progressConfig || course.progressConfig.requireReading) ? 'bg-emerald-50 border-emerald-100/50 text-emerald-700' : 'bg-gray-100 border-gray-150 text-gray-400 line-through']">
+                  {{ locale === 'pt' ? 'Leitura' : 'Reading' }}
+                </span>
+                <span :class="['text-[8.5px] px-1.5 py-0.5 rounded-sm font-bold uppercase border', (course.progressConfig && course.progressConfig.requireVideo) ? 'bg-emerald-50 border-emerald-100/50 text-emerald-700' : 'bg-gray-100 border-gray-150 text-gray-400 line-through']">
+                  {{ locale === 'pt' ? 'Vídeo' : 'Video' }}
+                </span>
                 <span :class="['text-[8.5px] px-1.5 py-0.5 rounded-sm font-bold uppercase border', (course.progressConfig && course.progressConfig.requireQuiz) ? 'bg-emerald-50 border-emerald-100/50 text-emerald-700' : 'bg-gray-100 border-gray-150 text-gray-400 line-through']">Quiz {{ course.progressConfig?.minQuizScore ? `(>= ${course.progressConfig.minQuizScore}%)` : '' }}</span>
               </div>
             </div>
@@ -974,10 +1088,10 @@ const handleExportJSON = () => {
                 type="button"
                 @click="exportCourseToJson(course)"
                 class="px-2.5 py-1.5 bg-emerald-50 border border-emerald-200 text-emerald-700 hover:bg-emerald-100 hover:text-emerald-950 rounded-lg text-[10.5px] font-bold flex items-center gap-1 cursor-pointer transition-all shadow-2xs"
-                title="Exportar curso completo em JSON"
+                :title="locale === 'pt' ? 'Exportar curso completo em JSON' : 'Export full course to JSON'"
               >
                 <UploadCloud class="w-3.5 h-3.5 rotate-180" />
-                Exportar (JSON)
+                {{ locale === 'pt' ? 'Exportar (JSON)' : 'Export (JSON)' }}
               </button>
 
               <button
@@ -985,7 +1099,7 @@ const handleExportJSON = () => {
                 @click="expandedCourseId = expandedCourseId === course.id ? null : course.id"
                 class="px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white rounded-lg text-[10.5px] font-bold flex items-center gap-1 cursor-pointer transition-all shadow-2xs"
               >
-                Grade de Aulas 
+                {{ locale === 'pt' ? 'Grade de Aulas' : 'Lessons Grid' }}
                 <ChevronUp v-if="expandedCourseId === course.id" class="w-3.5 h-3.5" />
                 <ChevronDown v-else class="w-3.5 h-3.5" />
               </button>
@@ -994,10 +1108,10 @@ const handleExportJSON = () => {
                 type="button"
                 @click="startEditCert(course)"
                 class="px-3 py-1.5 bg-blue-50/70 hover:bg-blue-100/90 text-blue-700 border border-blue-200 rounded-lg text-[10.5px] font-bold flex items-center gap-1 cursor-pointer transition-all shadow-2xs animate-fadeIn"
-                title="Configurar a estética do certificado emitido para o curso"
+                :title="locale === 'pt' ? 'Configurar a estética do certificado emitido para o curso' : 'Configure the aesthetics of the certificate issued for the course'"
               >
                 <Award class="w-3.5 h-3.5" />
-                Personalizar Certificado
+                {{ locale === 'pt' ? 'Personalizar Certificado' : 'Customize Certificate' }}
               </button>
 
               <button
@@ -1005,7 +1119,7 @@ const handleExportJSON = () => {
                 type="button"
                 @click="deleteConfirm(course)"
                 class="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg cursor-pointer transition-colors"
-                title="Excluir Curso"
+                :title="locale === 'pt' ? 'Excluir Curso' : 'Delete Course'"
               >
                 <Trash2 class="w-3.5 h-3.5" />
               </button>
@@ -1017,16 +1131,22 @@ const handleExportJSON = () => {
             <div class="flex items-center justify-between border-b border-slate-100 pb-2">
               <h4 class="text-xs font-black uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
                 <Award class="w-4 h-4 text-amber-500" />
-                Editor de Certificado Simplificado
+                {{ locale === 'pt' ? 'Editor de Certificado Simplificado' : 'Simplified Certificate Editor' }}
               </h4>
-              <button @click="cancelEditCert" class="text-xs font-semibold text-slate-400 hover:text-slate-600">Fechar</button>
+              <button @click="cancelEditCert" class="text-xs font-semibold text-slate-400 hover:text-slate-600">
+                {{ locale === 'pt' ? 'Fechar' : 'Close' }}
+              </button>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <!-- Color Config -->
               <div class="space-y-2">
-                <label class="block text-xs font-bold text-slate-600">Cor Temática do Certificado</label>
-                <p class="text-[10.5px] text-slate-400 leading-tight">Escolha a cor para o brasão, borda dupla e ornamentos de canto.</p>
+                <label class="block text-xs font-bold text-slate-600">
+                  {{ locale === 'pt' ? 'Cor Temática do Certificado' : 'Certificate Theme Color' }}
+                </label>
+                <p class="text-[10.5px] text-slate-400 leading-tight">
+                  {{ locale === 'pt' ? 'Escolha a cor para o brasão, borda dupla e ornamentos de canto.' : 'Choose the color for the seal, double border, and corner ornaments.' }}
+                </p>
                 
                 <!-- Preset Swatches -->
                 <div class="flex flex-wrap gap-1.5 py-1">
@@ -1036,7 +1156,7 @@ const handleExportJSON = () => {
                     @click="certColorInput = color"
                     class="w-6 h-6 rounded-full border border-slate-200 transition-transform active:scale-90 relative cursor-pointer"
                     :style="{ backgroundColor: color }"
-                    title="Clique para selecionar"
+                    :title="locale === 'pt' ? 'Clique para selecionar' : 'Click to select'"
                   >
                     <span v-if="certColorInput === color" class="absolute inset-0 flex items-center justify-center text-[10px] text-white font-bold">✓</span>
                   </button>
@@ -1050,15 +1170,21 @@ const handleExportJSON = () => {
 
               <!-- Icon seal Config -->
               <div class="space-y-2">
-                <label class="block text-xs font-bold text-slate-600">Ícone PNG Customizado (Selo)</label>
-                <p class="text-[10.5px] text-slate-400 leading-tight">Insira a URL de uma imagem PNG para ser inserida como brasão central no pé do certificado.</p>
+                <label class="block text-xs font-bold text-slate-600">
+                  {{ locale === 'pt' ? 'Ícone PNG Customizado (Selo)' : 'Custom PNG Icon (Seal)' }}
+                </label>
+                <p class="text-[10.5px] text-slate-400 leading-tight">
+                  {{ locale === 'pt' ? 'Insira a URL de uma imagem PNG para ser inserida como brasão central no pé do certificado.' : 'Enter the URL of a PNG image to be inserted as a central seal at the bottom of the certificate.' }}
+                </p>
                 
                 <input type="url" v-model="certIconUrlInput" placeholder="Ex: https://img.icons8.com/color/96/quality-badge.png" class="w-full text-xs bg-slate-50 border border-slate-250 p-2.5 rounded-lg text-slate-800 focus:outline-blue-500" />
                 
                 <!-- Suggestions quick copy -->
                 <div class="space-y-1.5">
                   <div class="flex items-center justify-between gap-2 flex-wrap">
-                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Modelos recomendados (Clique para usar):</p>
+                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">
+                      {{ locale === 'pt' ? 'Modelos recomendados (Clique para usar):' : 'Recommended models (Click to use):' }}
+                    </p>
                     <a 
                       href="https://icons8.com.br/icons" 
                       target="_blank" 
@@ -1066,13 +1192,13 @@ const handleExportJSON = () => {
                       class="text-[9px] text-blue-600 hover:underline flex items-center gap-1 font-bold cursor-pointer shrink-0"
                     >
                       <ExternalLink class="w-3 h-3" />
-                      Mais opções no Icons8 ↗
+                      {{ locale === 'pt' ? 'Mais opções no Icons8 ↗' : 'More options on Icons8 ↗' }}
                     </a>
                   </div>
                   <div class="flex flex-wrap gap-2">
-                    <button type="button" @click="certIconUrlInput = 'https://img.icons8.com/color/96/gold-medal.png'" class="text-[9.5px] bg-amber-50 text-amber-700 hover:bg-amber-100 font-semibold px-2 py-1 rounded border border-amber-200 transition-colors cursor-pointer">🏅 Medalha de Ouro</button>
-                    <button type="button" @click="certIconUrlInput = 'https://img.icons8.com/color/96/quality-badge.png'" class="text-[9.5px] bg-blue-50 text-blue-700 hover:bg-blue-100 font-semibold px-2 py-1 rounded border border-blue-200 transition-colors cursor-pointer">⭐ Estrela Real</button>
-                    <button type="button" @click="certIconUrlInput = 'https://img.icons8.com/?size=100&id=lsZBoVE2zMo3&format=png&color=000000'" class="text-[9.5px] bg-emerald-50 text-emerald-700 hover:bg-emerald-100 font-semibold px-2 py-1 rounded border border-emerald-200 transition-colors cursor-pointer">🛡️ Selo de Confiança</button>
+                    <button type="button" @click="certIconUrlInput = 'https://img.icons8.com/color/96/gold-medal.png'" class="text-[9.5px] bg-amber-50 text-amber-700 hover:bg-amber-100 font-semibold px-2 py-1 rounded border border-amber-200 transition-colors cursor-pointer">🏅 {{ locale === 'pt' ? 'Medalha de Ouro' : 'Gold Medal' }}</button>
+                    <button type="button" @click="certIconUrlInput = 'https://img.icons8.com/color/96/quality-badge.png'" class="text-[9.5px] bg-blue-50 text-blue-700 hover:bg-blue-100 font-semibold px-2 py-1 rounded border border-blue-200 transition-colors cursor-pointer">⭐ {{ locale === 'pt' ? 'Estrela Real' : 'Royal Star' }}</button>
+                    <button type="button" @click="certIconUrlInput = 'https://img.icons8.com/?size=100&id=lsZBoVE2zMo3&format=png&color=000000'" class="text-[9.5px] bg-emerald-50 text-emerald-700 hover:bg-emerald-100 font-semibold px-2 py-1 rounded border border-emerald-200 transition-colors cursor-pointer">🛡️ {{ locale === 'pt' ? 'Selo de Confiança' : 'Trust Seal' }}</button>
                   </div>
                 </div>
               </div>
@@ -1082,43 +1208,49 @@ const handleExportJSON = () => {
             <div v-if="isJanyelAdmin" class="pt-4 border-t border-slate-100 grid grid-cols-1 md:grid-cols-3 gap-4">
               <!-- Fundo (Background) Selection -->
               <div class="space-y-1.5 text-left">
-                <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Fundo do Documento</label>
+                <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
+                  {{ locale === 'pt' ? 'Fundo do Documento' : 'Document Background' }}
+                </label>
                 <select 
                   v-model="certBgStyleInput"
                   class="w-full bg-slate-50 border border-slate-200 text-slate-850 rounded-xl text-xs p-2 focus:outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer"
                 >
-                  <option value="vintage-parchment">📜 Pergaminho Vintage (Claro)</option>
-                  <option value="dark-velvet">🌌 Veludo Negro (Escuro)</option>
-                  <option value="clean-light">⬜ Branco Clássico (Limpo)</option>
+                  <option value="vintage-parchment">📜 {{ locale === 'pt' ? 'Pergaminho Vintage (Claro)' : 'Vintage Parchment (Light)' }}</option>
+                  <option value="dark-velvet">🌌 {{ locale === 'pt' ? 'Veludo Negro (Escuro)' : 'Dark Velvet (Dark)' }}</option>
+                  <option value="clean-light">⬜ {{ locale === 'pt' ? 'Branco Clássico (Limpo)' : 'Classic White (Clean)' }}</option>
                 </select>
               </div>
 
               <!-- Moldura (Frame) Selection -->
               <div class="space-y-1.5 text-left">
-                <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Estilo da Moldura</label>
+                <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
+                  {{ locale === 'pt' ? 'Estilo da Moldura' : 'Frame Style' }}
+                </label>
                 <select 
                   v-model="certFrameStyleInput"
                   class="w-full bg-slate-50 border border-slate-200 text-slate-850 rounded-xl text-xs p-2 focus:outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer"
                 >
-                  <option value="medieval-gothic">🏰 Gótico Medieval (Ornato Antigo)</option>
-                  <option value="classic-imperial">🏛️ Imperial Clássico (Bordas Duplas)</option>
-                  <option value="modern-border">📱 Moderno Minimalista (Linhas Retas)</option>
+                  <option value="medieval-gothic">🏰 {{ locale === 'pt' ? 'Gótico Medieval (Ornato Antigo)' : 'Medieval Gothic (Ancient Ornate)' }}</option>
+                  <option value="classic-imperial">🏛️ {{ locale === 'pt' ? 'Imperial Clássico (Bordas Duplas)' : 'Classic Imperial (Double Borders)' }}</option>
+                  <option value="modern-border">📱 {{ locale === 'pt' ? 'Moderno Minimalista (Linhas Retas)' : 'Modern Minimalist (Straight Lines)' }}</option>
                 </select>
               </div>
 
               <!-- Accent Color Selection -->
               <div class="space-y-1.5 text-left">
-                <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Cor dos Detalhes & Selo</label>
+                <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
+                  {{ locale === 'pt' ? 'Cor dos Detalhes & Selo' : 'Details & Seal Color' }}
+                </label>
                 <select 
                   v-model="certDetailColorInput"
                   class="w-full bg-slate-50 border border-slate-200 text-slate-850 rounded-xl text-xs p-2 focus:outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer"
                 >
-                  <option value="gold">⚜️ Ouro Nobre (Gradiente)</option>
-                  <option value="silver">🛡️ Prata Imperial (Gradiente)</option>
-                  <option value="bronze">⚔️ Bronze Antigo (Gradiente)</option>
-                  <option value="ruby">💎 Rubi Real (Gradiente)</option>
-                  <option value="emerald">🌲 Esmeralda Mágica (Gradiente)</option>
-                  <option value="theme">🎨 Cor Padrão do Curso</option>
+                  <option value="gold">⚜️ {{ locale === 'pt' ? 'Ouro Nobre (Gradiente)' : 'Noble Gold (Gradient)' }}</option>
+                  <option value="silver">🛡️ {{ locale === 'pt' ? 'Prata Imperial (Gradiente)' : 'Imperial Silver (Gradient)' }}</option>
+                  <option value="bronze">⚔️ {{ locale === 'pt' ? 'Bronze Antigo (Gradiente)' : 'Ancient Bronze (Gradient)' }}</option>
+                  <option value="ruby">💎 {{ locale === 'pt' ? 'Rubi Real (Gradiente)' : 'Royal Ruby (Gradient)' }}</option>
+                  <option value="emerald">🌲 {{ locale === 'pt' ? 'Esmeralda Mágica (Gradiente)' : 'Magic Emerald (Gradient)' }}</option>
+                  <option value="theme">🎨 {{ locale === 'pt' ? 'Cor Padrão do Curso' : 'Default Course Color' }}</option>
                 </select>
               </div>
             </div>
@@ -1129,31 +1261,37 @@ const handleExportJSON = () => {
                 @click="openPreviewCert(course)" 
                 class="w-full sm:w-auto px-4 py-1.5 text-xs bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-bold transition-colors cursor-pointer shadow-2xs flex items-center justify-center gap-1.5 mr-auto"
               >
-                <span>👁️ Ver Preview do Certificado</span>
+                <span>👁️ {{ locale === 'pt' ? 'Ver Preview do Certificado' : 'View Certificate Preview' }}</span>
               </button>
               <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
-                <button type="button" @click="cancelEditCert" class="px-3 py-1.5 text-xs text-slate-500 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer">Cancelar</button>
-                <button type="button" @click="saveCertConfig" class="px-4 py-1.5 text-xs bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold transition-colors cursor-pointer shadow-2xs">Salvar Configuração</button>
+                <button type="button" @click="cancelEditCert" class="px-3 py-1.5 text-xs text-slate-500 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer">
+                  {{ locale === 'pt' ? 'Cancelar' : 'Cancel' }}
+                </button>
+                <button type="button" @click="saveCertConfig" class="px-4 py-1.5 text-xs bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold transition-colors cursor-pointer shadow-2xs">
+                  {{ locale === 'pt' ? 'Salvar Configuração' : 'Save Configuration' }}
+                </button>
               </div>
             </div>
           </div>
 
           <!-- Expandable Table for Lesson Content/Quiz Checklist -->
           <div v-if="expandedCourseId === course.id" class="bg-white rounded-lg border border-slate-200/80 p-3.5 space-y-2.5 animate-fadeIn">
-            <p class="text-[10px] text-slate-500 uppercase font-black tracking-widest border-b border-slate-100 pb-1">📚 Matriz Curricular (Grade de Lições)</p>
+            <p class="text-[10px] text-slate-500 uppercase font-black tracking-widest border-b border-slate-100 pb-1">
+              📚 {{ locale === 'pt' ? 'Matriz Curricular (Grade de Lições)' : 'Curriculum Grid (Lessons List)' }}
+            </p>
             
             <p v-if="lessons.filter(l => l.courseId === course.id).length === 0" class="text-xs text-gray-450 italic pl-1">
-              Este curso não possui lições cadastradas na base de dados.
+              {{ locale === 'pt' ? 'Este curso não possui lições cadastradas na base de dados.' : 'This course has no lessons registered in the database.' }}
             </p>
             <div v-else class="overflow-x-auto">
               <table class="w-full text-left text-[11px] font-medium text-slate-600">
                 <thead>
                   <tr class="border-b border-slate-100 text-slate-400 font-bold">
-                    <th class="pb-1 text-center w-12">Ordem</th>
-                    <th class="pb-1 pl-2">Título da Lição</th>
-                    <th class="pb-1 text-center">Videoaumentada</th>
-                    <th class="pb-1 text-center">Comprimento Texto</th>
-                    <th class="pb-1 text-right">Qtd. Questões</th>
+                    <th class="pb-1 text-center w-12">{{ locale === 'pt' ? 'Ordem' : 'Order' }}</th>
+                    <th class="pb-1 pl-2">{{ locale === 'pt' ? 'Título da Lição' : 'Lesson Title' }}</th>
+                    <th class="pb-1 text-center">{{ locale === 'pt' ? 'Vídeo' : 'Video' }}</th>
+                    <th class="pb-1 text-center">{{ locale === 'pt' ? 'Comprimento Texto' : 'Text Length' }}</th>
+                    <th class="pb-1 text-right">{{ locale === 'pt' ? 'Qtd. Questões' : 'Quiz Qs' }}</th>
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-50">
@@ -1161,11 +1299,19 @@ const handleExportJSON = () => {
                     <td class="py-2 text-center font-bold font-mono text-blue-600 font-extrabold">#{{ l.order }}</td>
                     <td class="py-2 pl-2 font-bold text-slate-800">{{ l.title }}</td>
                     <td class="py-2 text-center">
-                      <span v-if="l.videoUrl" class="inline-flex text-[9px] font-bold bg-indigo-50 text-indigo-700 px-1.5 rounded-sm border border-indigo-100">Sim</span>
-                      <span v-else class="text-gray-400 italic">Não</span>
+                      <span v-if="l.videoUrl" class="inline-flex text-[9px] font-bold bg-indigo-50 text-indigo-700 px-1.5 rounded-sm border border-indigo-100">
+                        {{ locale === 'pt' ? 'Sim' : 'Yes' }}
+                      </span>
+                      <span v-else class="text-gray-400 italic">
+                        {{ locale === 'pt' ? 'Não' : 'No' }}
+                      </span>
                     </td>
-                    <td class="py-2 text-center font-mono text-slate-400">{{ l.content.length }} caracs.</td>
-                    <td class="py-2 text-right font-bold text-emerald-600 font-mono pr-2">{{ (l.quiz || []).length }} qts.</td>
+                    <td class="py-2 text-center font-mono text-slate-400">
+                      {{ locale === 'pt' ? `${l.content.length} caracs.` : `${l.content.length} chars.` }}
+                    </td>
+                    <td class="py-2 text-right font-bold text-emerald-600 font-mono pr-2">
+                      {{ locale === 'pt' ? `${(l.quiz || []).length} qts.` : `${(l.quiz || []).length} qs.` }}
+                    </td>
                   </tr>
                 </tbody>
               </table>
@@ -1177,9 +1323,16 @@ const handleExportJSON = () => {
       <!-- Paginator Footer for Courses list -->
       <div v-if="filteredCourses.length > 0" class="pt-4 flex items-center justify-between gap-4 text-xs font-semibold select-none text-slate-450 dark:text-slate-400 border-t border-gray-200/60 dark:border-slate-800 mt-3 flex-wrap">
         <span>
-          Mostrando <strong>{{ Math.min(filteredCourses.length, (coursesPage - 1) * coursesPerPage + 1) }}</strong> a 
-          <strong>{{ Math.min(filteredCourses.length, coursesPage * coursesPerPage) }}</strong> de 
-          <strong>{{ filteredCourses.length }}</strong> cursos no servidor
+          <template v-if="locale === 'pt'">
+            Mostrando <strong>{{ Math.min(filteredCourses.length, (coursesPage - 1) * coursesPerPage + 1) }}</strong> a 
+            <strong>{{ Math.min(filteredCourses.length, coursesPage * coursesPerPage) }}</strong> de 
+            <strong>{{ filteredCourses.length }}</strong> cursos no servidor
+          </template>
+          <template v-else>
+            Showing <strong>{{ Math.min(filteredCourses.length, (coursesPage - 1) * coursesPerPage + 1) }}</strong> to 
+            <strong>{{ Math.min(filteredCourses.length, coursesPage * coursesPerPage) }}</strong> of 
+            <strong>{{ filteredCourses.length }}</strong> server courses
+          </template>
         </span>
         <div class="flex items-center gap-1.5">
           <button
@@ -1188,16 +1341,18 @@ const handleExportJSON = () => {
             @click="coursesPage--"
             class="p-1 px-2.5 bg-slate-50 dark:bg-slate-950 hover:bg-slate-100 dark:hover:bg-slate-850 border border-gray-200 dark:border-slate-850 rounded-lg cursor-pointer disabled:opacity-40 transition disabled:cursor-not-allowed inline-flex items-center gap-1 text-[11px]"
           >
-            <ChevronLeft class="w-3.5 h-3.5" /> Anterior
+            <ChevronLeft class="w-3.5 h-3.5" /> {{ locale === 'pt' ? 'Anterior' : 'Previous' }}
           </button>
-          <span class="px-2 text-[11px]">Página {{ coursesPage }} de {{ totalCoursesPages || 1 }}</span>
+          <span class="px-2 text-[11px]">
+            {{ locale === 'pt' ? `Página ${coursesPage} de ${totalCoursesPages || 1}` : `Page ${coursesPage} of ${totalCoursesPages || 1}` }}
+          </span>
           <button
             type="button"
             :disabled="coursesPage === totalCoursesPages || totalCoursesPages <= 1"
             @click="coursesPage++"
             class="p-1 px-2.5 bg-slate-50 dark:bg-slate-950 hover:bg-slate-100 dark:hover:bg-slate-850 border border-gray-200 dark:border-slate-850 rounded-lg cursor-pointer disabled:opacity-40 transition disabled:cursor-not-allowed inline-flex items-center gap-1 text-[11px]"
           >
-            Próximo <ChevronRight class="w-3.5 h-3.5" />
+            {{ locale === 'pt' ? 'Próximo' : 'Next' }} <ChevronRight class="w-3.5 h-3.5" />
           </button>
         </div>
       </div>
@@ -1215,17 +1370,26 @@ const handleExportJSON = () => {
               <Trash2 class="w-6 h-6" />
             </div>
             <div>
-              <h3 class="text-sm sm:text-base font-extrabold text-slate-950 dark:text-white uppercase tracking-wider leading-none">Excluir Curso</h3>
-              <p class="text-[10px] text-rose-500 font-bold uppercase mt-1">Ação Irreversível</p>
+              <h3 class="text-sm sm:text-base font-extrabold text-slate-950 dark:text-white uppercase tracking-wider leading-none">
+                {{ locale === 'pt' ? 'Excluir Curso' : 'Delete Course' }}
+              </h3>
+              <p class="text-[10px] text-rose-500 font-bold uppercase mt-1">
+                {{ locale === 'pt' ? 'Ação Irreversível' : 'Irreversible Action' }}
+              </p>
             </div>
           </div>
 
           <div class="space-y-2">
             <p class="text-xs sm:text-sm text-slate-700 dark:text-slate-350 leading-relaxed font-semibold">
-              Tem certeza absoluta que deseja remover permanentemente o curso <strong class="text-slate-950 dark:text-white">"{{ courseToDelete.title }}"</strong>?
+              <template v-if="locale === 'pt'">
+                Tem certeza absoluta que deseja remover permanentemente o curso <strong class="text-slate-950 dark:text-white">"{{ courseToDelete.title }}"</strong>?
+              </template>
+              <template v-else>
+                Are you absolutely sure you want to permanently remove the course <strong class="text-slate-950 dark:text-white">"{{ courseToDelete.title }}"</strong>?
+              </template>
             </p>
             <p class="text-[11px] text-slate-400 dark:text-slate-500 leading-normal">
-              Todas as lições, quizes, e dados vinculados serão excluídos permanentemente. Os alunos inscritos perderão acesso instantaneamente.
+              {{ locale === 'pt' ? 'Todas as lições, quizes, e dados vinculados serão excluídos permanentemente. Os alunos inscritos perderão acesso instantaneamente.' : 'All lessons, quizzes, and linked data will be permanently deleted. Enrolled students will lose access instantly.' }}
             </p>
           </div>
 
@@ -1233,16 +1397,16 @@ const handleExportJSON = () => {
             <button
               type="button"
               @click="courseToDelete = null"
-              class="w-1/2 py-3 bg-slate-100 dark:bg-slate-850 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs sm:text-sm rounded-xl transition duration-150 cursor-pointer shadow-2xs"
+              class="w-1/2 py-3 bg-slate-100 dark:bg-slate-850 hover:bg-slate-200 dark:hover:bg-slate-850 text-slate-700 dark:text-slate-300 font-bold text-xs sm:text-sm rounded-xl transition duration-150 cursor-pointer shadow-2xs"
             >
-              Cancelar
+              {{ locale === 'pt' ? 'Cancelar' : 'Cancel' }}
             </button>
             <button
               type="button"
               @click="confirmDeleteCourse"
               class="w-1/2 py-3 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs sm:text-sm rounded-xl transition duration-155 cursor-pointer shadow-md"
             >
-              Sim, Excluir Curso
+              {{ locale === 'pt' ? 'Sim, Excluir Curso' : 'Yes, Delete Course' }}
             </button>
           </div>
         </div>

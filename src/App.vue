@@ -1595,6 +1595,7 @@ const toggleLoginDarkMode = () => {
             :isAdmin="userProfile?.isAdmin || false"
             :userLevel="userProfile?.level || 'Beginner'"
             :userDisplayName="userProfile?.displayName || currentUser?.displayName || 'Voluntário'"
+            :primaryColor="primaryColor"
             @join="handleJoinClass"
             @leave="handleLeaveClass"
             @create="handleCreateClass"

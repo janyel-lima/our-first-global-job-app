@@ -62,7 +62,7 @@ const filteredUsers = computed(() => {
     if (uidStr === "" || uidStr === "undefined" || uidStr === "null" || uidStr === "uid") {
       return false;
     }
-    if (u.displayName === "Usuário Sem Nome" && !u.email && !u.bio) {
+    if (u.displayName === (locale.value === 'pt' ? "Usuário Sem Nome" : "Anonymous User") && !u.email && !u.bio) {
       return false;
     }
 
@@ -142,24 +142,24 @@ const handleSaveUserFromAdmin = async () => {
       };
     }
     
-    showToast("Dados do usuário alterados com sucesso no Firestore!", "success");
+    showToast(locale.value === 'pt' ? "Dados do usuário alterados com sucesso no Firestore!" : "User data updated successfully in Firestore!", "success");
     uToEdit.value = null;
   } catch (err: any) {
-    showToast("Erro ao salvar atualização de usuário: " + err.message, "error");
+    showToast((locale.value === 'pt' ? "Erro ao salvar atualização de usuário: " : "Error saving user update: ") + err.message, "error");
   }
 };
 
 const handleAdminResetPassword = async (userEmailStr?: string) => {
   const emailToUse = userEmailStr || editUserEmail.value.trim();
   if (!emailToUse) {
-    showToast("Este usuário não possui e-mail de acesso catalogado. Cadastre o e-mail no campo antes de disparar o reset correspondente.", "warning");
+    showToast(locale.value === 'pt' ? "Este usuário não possui e-mail de acesso catalogado. Cadastre o e-mail no campo antes de disparar o reset correspondente." : "This user has no registered access email. Enter an email in the field before triggering the reset.", "warning");
     return;
   }
   try {
     await sendPasswordResetEmail(auth, emailToUse);
-    showToast(`E-mail enviado! O usuário receberá um link oficial do Firebase para cadastrar uma nova senha.`, "success");
+    showToast(locale.value === 'pt' ? `E-mail enviado! O usuário receberá um link oficial do Firebase para cadastrar uma nova senha.` : `Email sent! The user will receive an official Firebase link to register a new password.`, "success");
   } catch (err: any) {
-    showToast("Falha ao redefinir: " + err.message, "error");
+    showToast((locale.value === 'pt' ? "Falha ao redefinir: " : "Failed to reset: ") + err.message, "error");
   }
 };
 
@@ -174,22 +174,22 @@ const handleAdminDeleteUser = () => {
 const exportTeachersXLSX = () => {
   const listToExport = filteredUsers.value;
   if (listToExport.length === 0) {
-    showToast("Nenhum usuário correspondente aos filtros para exportar!", "warning");
+    showToast(locale.value === 'pt' ? "Nenhum usuário correspondente aos filtros para exportar!" : "No users matching the filters to export!", "warning");
     return;
   }
 
   const dataToExport = listToExport.map(t => {
     return {
-      "ID do Usuário": t.uid || "",
-      "Nome de Exibição": t.displayName || t.email || "Usuário Sem Nome",
-      "É Professor?": t.isInstructor ? "Sim" : "Não",
-      "É Administrador?": t.isAdmin ? "Sim" : "Não"
+      [locale.value === 'pt' ? "ID do Usuário" : "User ID"]: t.uid || "",
+      [locale.value === 'pt' ? "Nome de Exibição" : "Display Name"]: t.displayName || t.email || (locale.value === 'pt' ? "Usuário Sem Nome" : "Anonymous User"),
+      [locale.value === 'pt' ? "É Professor?" : "Is Teacher?"]: t.isInstructor ? (locale.value === 'pt' ? "Sim" : "Yes") : (locale.value === 'pt' ? "Não" : "No"),
+      [locale.value === 'pt' ? "É Administrador?" : "Is Admin?"]: t.isAdmin ? (locale.value === 'pt' ? "Sim" : "Yes") : (locale.value === 'pt' ? "Não" : "No")
     };
   });
 
   const worksheet = XLSX.utils.json_to_sheet(dataToExport);
   const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, "Usuarios_English_Volunteer");
+  XLSX.utils.book_append_sheet(workbook, worksheet, locale.value === 'pt' ? "Usuarios_English_Volunteer" : "Users_English_Volunteer");
 
   worksheet['!cols'] = Object.keys(dataToExport[0]).map(h => ({ wch: 20 }));
 
@@ -199,7 +199,8 @@ const exportTeachersXLSX = () => {
   
   const link = document.createElement("a");
   link.href = url;
-  link.download = `Relatorio_Patrulha_Usuarios_${new Date().toLocaleDateString("pt-BR").replace(/\//g, "-")}.xlsx`;
+  const dateSuffix = new Date().toLocaleDateString(locale.value === 'pt' ? "pt-BR" : "en-US").replace(/\//g, "-");
+  link.download = locale.value === 'pt' ? `Relatorio_Patrulha_Usuarios_${dateSuffix}.xlsx` : `User_Patrol_Report_${dateSuffix}.xlsx`;
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
@@ -209,14 +210,14 @@ const exportTeachersXLSX = () => {
 const exportTeachersJSON = () => {
   const listToExport = filteredUsers.value;
   if (listToExport.length === 0) {
-    showToast("Nenhum usuário correspondente aos filtros para exportar!", "warning");
+    showToast(locale.value === 'pt' ? "Nenhum usuário correspondente aos filtros para exportar!" : "No users matching the filters to export!", "warning");
     return;
   }
 
   const sanitizedList = listToExport.map(t => {
     return {
       uid: t.uid || "",
-      displayName: t.displayName || t.email || "Usuário Sem Nome",
+      displayName: t.displayName || t.email || (locale.value === 'pt' ? "Usuário Sem Nome" : "Anonymous User"),
       isInstructor: t.isInstructor || false,
       isAdmin: t.isAdmin || false
     };
@@ -227,7 +228,8 @@ const exportTeachersJSON = () => {
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = `Relatorio_Usuarios_${new Date().toLocaleDateString("pt-BR")}.json`;
+  const dateSuffix = new Date().toLocaleDateString(locale.value === 'pt' ? "pt-BR" : "en-US").replace(/\//g, "-");
+  link.download = locale.value === 'pt' ? `Relatorio_Usuarios_${dateSuffix}.json` : `Users_Report_${dateSuffix}.json`;
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
@@ -252,7 +254,7 @@ const filteredTeacherCodes = computed(() => {
     const query = codeSearchQuery.value.trim().toLowerCase();
     const matchCode = item.code.toLowerCase().includes(query);
     const matchStatus = item.status.toLowerCase().includes(query);
-    const matchDate = item.createdAt ? new Date(item.createdAt).toLocaleDateString('pt-BR').includes(query) : false;
+    const matchDate = item.createdAt ? new Date(item.createdAt).toLocaleDateString(locale.value === 'pt' ? 'pt-BR' : 'en-US').includes(query) : false;
     return matchCode || matchStatus || matchDate;
   });
 });
@@ -305,7 +307,7 @@ onMounted(() => {
 const handleCreateCode = async () => {
   const codeVal = newCodeInput.value.trim().toUpperCase();
   if (!codeVal) {
-    showToast("Por favor, digite ou gere um código válido.", "warning");
+    showToast(locale.value === 'pt' ? "Por favor, digite ou gere um código válido." : "Please type or generate a valid code.", "warning");
     return;
   }
   
@@ -327,10 +329,10 @@ const handleCreateCode = async () => {
     }
 
     newCodeInput.value = '';
-    showToast(`Código de convite ${codeVal} ativado e pronto para uso!`, "success");
+    showToast(locale.value === 'pt' ? `Código de convite ${codeVal} ativado e pronto para uso!` : `Invitation code ${codeVal} activated and ready for use!`, "success");
   } catch (err) {
     console.error("Erro ao criar código de professor:", err);
-    showToast("Erro nas permissões. Verifique se você é Administrador Master.", "error");
+    showToast(locale.value === 'pt' ? "Erro nas permissões. Verifique se você é Administrador Master." : "Permission error. Verify that you are a Master Administrator.", "error");
   } finally {
     codeLoading.value = false;
   }
@@ -344,20 +346,20 @@ const handleDeleteCode = async (id: string) => {
     if (db) {
       await deleteDoc(doc(db, "teacher_codes", id));
     }
-    showToast(`Código ${id} foi revogado com sucesso.`, "success");
+    showToast(locale.value === 'pt' ? `Código ${id} foi revogado com sucesso.` : `Code ${id} was successfully revoked.`, "success");
   } catch (err) {
     console.error("Erro ao excluir código:", err);
     teacherCodes.value = originalList;
-    showToast("Erro ao excluir o código.", "error");
+    showToast(locale.value === 'pt' ? "Erro ao excluir o código." : "Error deleting the code.", "error");
   }
 };
 
 const copyToClipboard = (text: string) => {
   navigator.clipboard.writeText(text).then(() => {
-    showToast(`Código ${text} copiado com sucesso!`, "success");
+    showToast(locale.value === 'pt' ? `Código ${text} copiado com sucesso!` : `Code ${text} copied successfully!`, "success");
   }).catch(err => {
     console.error('Erro ao copiar código:', err);
-    showToast(`Código do Tutor: ${text}`, "info", 10000);
+    showToast(locale.value === 'pt' ? `Código do Tutor: ${text}` : `Tutor Code: ${text}`, "info", 10000);
   });
 };
 </script>
@@ -469,7 +471,7 @@ const copyToClipboard = (text: string) => {
                   </div>
                   <div class="truncate">
                     <p class="font-extrabold text-gray-900 dark:text-white flex items-center gap-1.5 leading-tight">
-                      {{ user.displayName || user.email || 'Usuário Sem Nome' }}
+                      {{ user.displayName || user.email || (locale === 'pt' ? 'Usuário Sem Nome' : 'Anonymous User') }}
                       <span v-if="user.isAdmin" class="inline-flex text-[8.5px] font-black bg-red-50 text-red-700 px-1.5 rounded-sm border border-red-100 dark:bg-red-950/30 dark:border-red-900">Admin</span>
                     </p>
                     <span class="block text-[10px] text-gray-405 dark:text-gray-500 font-mono mt-0.5 truncate max-w-xs">UID: {{ user.uid }}</span>
@@ -486,13 +488,13 @@ const copyToClipboard = (text: string) => {
                       v-if="user.isInstructor" 
                       class="inline-flex items-center gap-1 text-[10px] font-black text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-slate-800 border border-indigo-100 dark:border-slate-800 px-2 py-0.5 rounded"
                     >
-                      🧑‍🏫 Professor Voluntário
+                      🧑‍🏫 {{ locale === 'pt' ? 'Professor Voluntário' : 'Volunteer Teacher' }}
                     </span>
                     <span 
                       v-else 
                       class="inline-flex items-center gap-1 text-[10px] font-bold text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-slate-850 border border-gray-150 dark:border-slate-800 px-2 py-0.5 rounded"
                     >
-                      🎓 Aluno Integrante
+                      🎓 {{ locale === 'pt' ? 'Aluno Integrante' : 'Student Member' }}
                     </span>
                   </div>
                 </td>
@@ -500,9 +502,9 @@ const copyToClipboard = (text: string) => {
                   <button
                     type="button"
                     @click="startEditUser(user)"
-                    class="px-2.5 py-1 text-[10.5px] font-black bg-slate-50 dark:bg-slate-950 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800 rounded-lg cursor-pointer select-none transition"
+                    class="px-2.5 py-1 text-[10.5px] font-black bg-slate-50 dark:bg-slate-955 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800 rounded-lg cursor-pointer select-none transition"
                   >
-                    ✏️ Detalhes
+                    ✏️ {{ locale === 'pt' ? 'Detalhes' : 'Details' }}
                   </button>
                 </td>
               </tr>
@@ -512,9 +514,16 @@ const copyToClipboard = (text: string) => {
           <!-- Pagination Control for Users -->
           <div v-if="filteredUsers.length > 0" class="p-4 border-t border-gray-100 dark:border-slate-850 flex items-center justify-between gap-4 flex-wrap text-xs font-semibold select-none text-slate-450 dark:text-slate-400">
             <span>
-              Mostrando <strong class="text-slate-900 dark:text-slate-200">{{ Math.min(filteredUsers.length, (usersPage - 1) * usersPerPage + 1) }}</strong> a 
-              <strong class="text-slate-900 dark:text-slate-200">{{ Math.min(filteredUsers.length, usersPage * usersPerPage) }}</strong> de 
-              <strong class="text-slate-900 dark:text-slate-200">{{ filteredUsers.length }}</strong> registros
+              <template v-if="locale === 'pt'">
+                Mostrando <strong class="text-slate-900 dark:text-slate-200">{{ Math.min(filteredUsers.length, (usersPage - 1) * usersPerPage + 1) }}</strong> a 
+                <strong class="text-slate-900 dark:text-slate-200">{{ Math.min(filteredUsers.length, usersPage * usersPerPage) }}</strong> de 
+                <strong class="text-slate-900 dark:text-slate-200">{{ filteredUsers.length }}</strong> registros
+              </template>
+              <template v-else>
+                Showing <strong class="text-slate-900 dark:text-slate-200">{{ Math.min(filteredUsers.length, (usersPage - 1) * usersPerPage + 1) }}</strong> to 
+                <strong class="text-slate-900 dark:text-slate-200">{{ Math.min(filteredUsers.length, usersPage * usersPerPage) }}</strong> of 
+                <strong class="text-slate-900 dark:text-slate-200">{{ filteredUsers.length }}</strong> records
+              </template>
             </span>
 
             <div class="flex items-center gap-1.5">
@@ -524,10 +533,12 @@ const copyToClipboard = (text: string) => {
                 @click="usersPage--"
                 class="p-1 px-2.5 bg-slate-50 hover:bg-slate-100 disabled:bg-slate-100 dark:bg-slate-950 dark:hover:bg-slate-850 dark:disabled:bg-slate-950 border border-gray-102 dark:border-slate-850 rounded-lg cursor-pointer disabled:cursor-not-allowed disabled:opacity-40 transition duration-150 inline-flex items-center gap-1 text-[11px]"
               >
-                <ChevronLeft class="w-3.5 h-3.5" /> Anterior
+                <ChevronLeft class="w-3.5 h-3.5" /> {{ locale === 'pt' ? 'Anterior' : 'Previous' }}
               </button>
               
-              <span class="px-2 text-[11px]">Página {{ usersPage }} de {{ totalUsersPages }}</span>
+              <span class="px-2 text-[11px]">
+                {{ locale === 'pt' ? `Página ${usersPage} de ${totalUsersPages}` : `Page ${usersPage} of ${totalUsersPages}` }}
+              </span>
               
               <button
                 type="button"
@@ -535,7 +546,7 @@ const copyToClipboard = (text: string) => {
                 @click="usersPage++"
                 class="p-1 px-2.5 bg-slate-50 hover:bg-slate-100 disabled:bg-slate-100 dark:bg-slate-950 dark:hover:bg-slate-850 dark:disabled:bg-slate-950 border border-gray-102 dark:border-slate-850 rounded-lg cursor-pointer disabled:cursor-not-allowed disabled:opacity-40 transition duration-150 inline-flex items-center gap-1 text-[11px]"
               >
-                Próxima <ChevronRight class="w-3.5 h-3.5" />
+                {{ locale === 'pt' ? 'Próxima' : 'Next' }} <ChevronRight class="w-3.5 h-3.5" />
               </button>
             </div>
           </div>
@@ -547,9 +558,9 @@ const copyToClipboard = (text: string) => {
         <div>
           <h3 class="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wide flex items-center gap-1.5">
             <Key class="w-4.5 h-4.5 text-blue-600" />
-            Códigos de Convite (Tutor)
+            {{ locale === 'pt' ? 'Códigos de Convite (Tutor)' : 'Invitation Codes (Tutor)' }}
           </h3>
-          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Gere ou remova códigos de credenciamento autônomo para instrutores parceiros.</p>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ locale === 'pt' ? 'Gere ou remova códigos de credenciamento autônomo para instrutores parceiros.' : 'Generate or remove autonomous accreditation codes for partner instructors.' }}</p>
         </div>
 
         <!-- Add code form -->
@@ -566,7 +577,7 @@ const copyToClipboard = (text: string) => {
               @click="generateRandomCode"
               class="px-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-bold transition duration-150 cursor-pointer"
             >
-              Gerar
+              {{ locale === 'pt' ? 'Gerar' : 'Generate' }}
             </button>
           </div>
           <button
@@ -575,7 +586,7 @@ const copyToClipboard = (text: string) => {
             @click="handleCreateCode"
             class="w-full py-3 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-bold text-xs rounded-xl transition duration-150 cursor-pointer flex items-center justify-center gap-1 shadow-sm"
           >
-            <Plus class="w-4 h-4" /> Ativar Código no Banco
+            <Plus class="w-4 h-4" /> {{ locale === 'pt' ? 'Ativar Código no Banco' : 'Activate Code in Database' }}
           </button>
         </div>
 
@@ -588,14 +599,14 @@ const copyToClipboard = (text: string) => {
             </span>
             <input
               type="text"
-              placeholder="Filtrar códigos cadastrados..."
+              :placeholder="locale === 'pt' ? 'Filtrar códigos cadastrados...' : 'Filter registered codes...'"
               v-model="codeSearchQuery"
               class="w-full text-[10.5px] pl-8 bg-slate-50 dark:bg-slate-955 focus:bg-white border border-gray-205 dark:border-slate-850 rounded-lg p-2 focus:outline-hidden text-gray-900 dark:text-white"
             />
           </div>
 
           <div v-if="filteredTeacherCodes.length === 0" class="py-6 text-center text-[11px] text-gray-400 dark:text-slate-500 italic">
-            Nenhum código cadastrado coincide.
+            {{ locale === 'pt' ? 'Nenhum código cadastrado coincide.' : 'No registered codes match.' }}
           </div>
           <div v-else class="space-y-1.5 max-h-[300px] overflow-y-auto pr-1">
             <div
@@ -606,10 +617,10 @@ const copyToClipboard = (text: string) => {
               <div class="truncate">
                 <p class="font-extrabold text-slate-950 dark:text-slate-100 flex items-center gap-1.5 font-mono">
                   {{ item.code }}
-                  <span v-if="item.status === 'valid'" class="text-[8px] bg-emerald-100 text-emerald-800 px-1 py-0.1 rounded font-black font-sans uppercase">Válido</span>
-                  <span v-else class="text-[8px] bg-gray-200 text-gray-600 px-1 py-0.1 rounded font-black font-sans uppercase">Usado</span>
+                  <span v-if="item.status === 'valid'" class="text-[8px] bg-emerald-100 text-emerald-800 px-1 py-0.1 rounded font-black font-sans uppercase">{{ locale === 'pt' ? 'Válido' : 'Valid' }}</span>
+                  <span v-else class="text-[8px] bg-gray-200 text-gray-600 px-1 py-0.1 rounded font-black font-sans uppercase">{{ locale === 'pt' ? 'Usado' : 'Used' }}</span>
                 </p>
-                <p class="text-[9px] text-slate-400 dark:text-slate-500 mt-0.5">Criado em: {{ item.createdAt ? new Date(item.createdAt).toLocaleDateString('pt-BR') : '-' }}</p>
+                <p class="text-[9px] text-slate-400 dark:text-slate-500 mt-0.5">{{ locale === 'pt' ? 'Criado em:' : 'Created at:' }} {{ item.createdAt ? new Date(item.createdAt).toLocaleDateString(locale === 'pt' ? 'pt-BR' : 'en-US') : '-' }}</p>
               </div>
 
               <div class="flex items-center gap-1 shrink-0">
@@ -617,7 +628,7 @@ const copyToClipboard = (text: string) => {
                   type="button"
                   @click="copyToClipboard(item.code)"
                   class="p-1 hover:bg-slate-200/60 dark:hover:bg-slate-800 rounded text-slate-400 hover:text-slate-700 cursor-pointer"
-                  title="Copiar código"
+                  :title="locale === 'pt' ? 'Copiar código' : 'Copy code'"
                 >
                   <Copy class="w-3.5 h-3.5" />
                 </button>
@@ -625,7 +636,7 @@ const copyToClipboard = (text: string) => {
                   type="button"
                   @click="handleDeleteCode(item.id)"
                   class="p-1 hover:bg-rose-50 dark:hover:bg-rose-950/30 rounded text-rose-500 cursor-pointer"
-                  title="Revogar / Excluir"
+                  :title="locale === 'pt' ? 'Revogar / Excluir' : 'Revoke / Delete'"
                 >
                   <Trash2 class="w-3.5 h-3.5" />
                 </button>
@@ -635,7 +646,7 @@ const copyToClipboard = (text: string) => {
 
           <!-- Paginator Footer for Teacher Codes -->
           <div v-if="filteredTeacherCodes.length > 5" class="pt-2 flex items-center justify-between text-[10px] text-slate-400 font-bold select-none border-t border-slate-100 dark:border-slate-800/60 mt-2">
-            <span>Pg {{ codesPage }} de {{ totalCodesPages }}</span>
+            <span>{{ locale === 'pt' ? `Pg ${codesPage} de ${totalCodesPages}` : `Pg ${codesPage} of ${totalCodesPages}` }}</span>            <span>Pg {{ codesPage }} de {{ totalCodesPages }}</span>
             <div class="flex items-center gap-1">
               <button
                 type="button"
@@ -657,9 +668,7 @@ const copyToClipboard = (text: string) => {
           </div>
         </div>
       </div>
-    </div>
-
-    <!-- Admin User Modification Modal Overlay -->
+        <!-- Admin User Modification Modal Overlay -->
     <div v-if="uToEdit" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 text-left animate-fadeIn">
       <form 
         @submit.prevent="handleSaveUserFromAdmin"
@@ -669,9 +678,11 @@ const copyToClipboard = (text: string) => {
           <div>
             <h4 class="font-extrabold text-base text-slate-950 dark:text-white flex items-center gap-1.5">
               <UserCheck class="w-5 h-5" :style="{ color: props.primaryColor || '#4f46e5' }" />
-              Alterar Informações de Conta
+              {{ locale === 'pt' ? 'Alterar Informações de Conta' : 'Change Account Information' }}
             </h4>
-            <p class="text-xs text-slate-400 dark:text-slate-500">Mude e salve dados de cadastro do voluntário diretamente no Firestore.</p>
+            <p class="text-xs text-slate-400 dark:text-slate-500">
+              {{ locale === 'pt' ? 'Mude e salve dados de cadastro do voluntário diretamente no Firestore.' : 'Change and save volunteer registration data directly in Firestore.' }}
+            </p>
           </div>
           <button 
             type="button"
@@ -685,7 +696,9 @@ const copyToClipboard = (text: string) => {
         <div class="space-y-3.5">
           <!-- Display Name -->
           <div>
-            <label class="block text-[10px] font-black uppercase text-slate-450 tracking-wider mb-1">Nome Completo do Aluno/Professor (Não editável)</label>
+            <label class="block text-[10px] font-black uppercase text-slate-450 tracking-wider mb-1">
+              {{ locale === 'pt' ? 'Nome Completo do Aluno/Professor (Não editável)' : 'Student/Teacher Full Name (Non-editable)' }}
+            </label>
             <input 
               v-model="editUserName"
               type="text"
@@ -697,51 +710,59 @@ const copyToClipboard = (text: string) => {
 
           <!-- Email -->
           <div>
-            <label class="block text-[10px] font-black uppercase text-slate-450 tracking-wider mb-1">E-mail Cadastrado (Não editável)</label>
+            <label class="block text-[10px] font-black uppercase text-slate-450 tracking-wider mb-1">
+              {{ locale === 'pt' ? 'E-mail Cadastrado (Não editável)' : 'Registered Email (Non-editable)' }}
+            </label>
             <input 
               v-model="editUserEmail"
               type="email"
               disabled
-              placeholder="Não informado"
-              class="w-full text-xs font-bold bg-slate-100 dark:bg-slate-950 text-slate-400 dark:text-slate-500 border border-slate-250 dark:border-slate-800 rounded-xl p-3 focus:outline-hidden cursor-not-allowed opacity-75"
+              :placeholder="locale === 'pt' ? 'Não informado' : 'Not informed'"
+              class="w-full text-xs font-bold bg-slate-100 dark:bg-slate-955 text-slate-400 dark:text-slate-500 border border-slate-250 dark:border-slate-800 rounded-xl p-3 focus:outline-hidden cursor-not-allowed opacity-75"
             />
           </div>
 
           <!-- English Level & Privilege Roles -->
           <div class="grid grid-cols-2 gap-3">
             <div>
-              <label class="block text-[10px] font-black uppercase text-slate-450 tracking-wider mb-1">Nível de Inglês</label>
+              <label class="block text-[10px] font-black uppercase text-slate-450 tracking-wider mb-1">
+                {{ locale === 'pt' ? 'Nível de Inglês' : 'English Level' }}
+              </label>
               <select 
                 v-model="editUserLevel"
                 class="w-full text-xs font-bold bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-800 rounded-xl p-3 cursor-pointer"
               >
-                <option value="Beginner">Beginner (Básico)</option>
-                <option value="Intermediate">Intermediate (Intermediário)</option>
-                <option value="Advanced">Advanced (Avançado)</option>
-                <option value="All">All (Profissional)</option>
+                <option value="Beginner">{{ locale === 'pt' ? 'Beginner (Básico)' : 'Beginner' }}</option>
+                <option value="Intermediate">{{ locale === 'pt' ? 'Intermediate (Intermediário)' : 'Intermediate' }}</option>
+                <option value="Advanced">{{ locale === 'pt' ? 'Advanced (Avançado)' : 'Advanced' }}</option>
+                <option value="All">{{ locale === 'pt' ? 'All (Profissional)' : 'All (Professional)' }}</option>
               </select>
             </div>
 
             <div>
-              <label class="block text-[10px] font-black uppercase text-slate-450 tracking-wider mb-1">Cargo / Role</label>
+              <label class="block text-[10px] font-black uppercase text-slate-450 tracking-wider mb-1">
+                {{ locale === 'pt' ? 'Cargo / Role' : 'Role / Type' }}
+              </label>
               <select 
                 v-model="editUserRole"
-                class="w-full text-xs font-bold bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-805 rounded-xl p-3 cursor-pointer"
+                class="w-full text-xs font-bold bg-slate-50 dark:bg-slate-955 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-805 rounded-xl p-3 cursor-pointer"
               >
-                <option value="student">Estudante</option>
-                <option value="instructor">Professor</option>
+                <option value="student">{{ locale === 'pt' ? 'Estudante' : 'Student' }}</option>
+                <option value="instructor">{{ locale === 'pt' ? 'Professor' : 'Teacher' }}</option>
               </select>
             </div>
           </div>
 
           <!-- Bio -->
           <div>
-            <label class="block text-[10px] font-black uppercase text-slate-450 tracking-wider mb-1">Anotações / Bio Pedagógica (Não editável)</label>
+            <label class="block text-[10px] font-black uppercase text-slate-450 tracking-wider mb-1">
+              {{ locale === 'pt' ? 'Anotações / Bio Pedagógica (Não editável)' : 'Notes / Pedagogical Bio (Non-editable)' }}
+            </label>
             <textarea 
               v-model="editUserBio"
               rows="2"
               disabled
-              class="w-full text-xs font-bold bg-slate-100 dark:bg-slate-950 text-slate-400 dark:text-slate-500 border border-slate-250 dark:border-slate-850 rounded-xl p-3 focus:outline-hidden resize-none cursor-not-allowed opacity-75"
+              class="w-full text-xs font-bold bg-slate-100 dark:bg-slate-955 text-slate-400 dark:text-slate-500 border border-slate-250 dark:border-slate-850 rounded-xl p-3 focus:outline-hidden resize-none cursor-not-allowed opacity-75"
             />
           </div>
 
@@ -758,10 +779,10 @@ const copyToClipboard = (text: string) => {
               :style="{ color: props.primaryColor || '#4f46e5' }"
             >
               <Lock class="w-3.5 h-3.5" :style="{ color: props.primaryColor || '#4f46e5' }" />
-              Esqueceu / Redefinir Senha
+              {{ locale === 'pt' ? 'Esqueceu / Redefinir Senha' : 'Forgot / Reset Password' }}
             </span>
             <p class="text-[9.5px] text-slate-650 dark:text-slate-350 leading-normal font-medium">
-              Você pode disparar um link de reset de senha oficial do Firebase diretamente para o e-mail cadastrado deste usuário para que ele troque a própria senha com total sigilo.
+              {{ locale === 'pt' ? 'Você pode disparar um link de reset de senha oficial do Firebase diretamente para o e-mail cadastrado deste usuário para que ele troque a própria senha com total sigilo.' : 'You can trigger an official Firebase password reset link directly to this user\'s registered email so they can change their password with absolute confidentiality.' }}
             </p>
             <button
               type="button"
@@ -769,7 +790,7 @@ const copyToClipboard = (text: string) => {
               class="w-full py-2 text-white font-black text-[10.5px] rounded-lg cursor-pointer transition flex items-center justify-center gap-1 hover:brightness-110 active:scale-[0.98]"
               :style="{ backgroundColor: props.primaryColor || '#4f46e5' }"
             >
-              Disparar Reset de Senha via E-mail
+              {{ locale === 'pt' ? 'Disparar Reset de Senha via E-mail' : 'Trigger Password Reset via Email' }}
             </button>
           </div>
         </div>
@@ -780,17 +801,18 @@ const copyToClipboard = (text: string) => {
             @click="uToEdit=null"
             class="w-1/2 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-850 font-bold text-xs rounded-xl cursor-pointer transition-colors"
           >
-            Cancelar
+            {{ locale === 'pt' ? 'Cancelar' : 'Cancel' }}
           </button>
           <button 
             type="submit"
             class="w-1/2 py-2.5 text-white font-extrabold text-xs rounded-xl cursor-pointer shadow-md text-center transition hover:brightness-110 active:scale-[0.98]"
             :style="{ backgroundColor: props.primaryColor || '#4f46e5' }"
           >
-            Salvar Cadastro
+            {{ locale === 'pt' ? 'Salvar Cadastro' : 'Save Registration' }}
           </button>
         </div>
       </form>
     </div>
+  </div>
   </div>
 </template>

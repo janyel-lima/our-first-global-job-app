@@ -315,7 +315,10 @@ const handleCreateCourseManual = async () => {
       },
       certificateConfig: {
         primaryColor: "#1e3a8a",
-        iconUrl: ""
+        iconUrl: "",
+        bgStyle: "clean-light",
+        frameStyle: "modern-border",
+        detailColor: "theme"
       }
     };
 

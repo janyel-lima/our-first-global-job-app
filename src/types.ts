@@ -39,6 +39,9 @@ export interface CourseProgressConfig {
 export interface CourseCertificateConfig {
   primaryColor?: string;
   iconUrl?: string;
+  bgStyle?: 'vintage-parchment' | 'dark-velvet' | 'clean-light';
+  frameStyle?: 'medieval-gothic' | 'classic-imperial' | 'modern-border';
+  detailColor?: 'gold' | 'silver' | 'bronze' | 'ruby' | 'emerald' | 'theme';
 }
 
 export interface Course {

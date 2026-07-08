@@ -44,9 +44,59 @@ export async function generateInteractiveHTML(course: Course, lessons: Lesson[])
   const themeColor = course.certificateConfig?.primaryColor || "#1e3a8a";
   const iconUrl = course.certificateConfig?.iconUrl || "";
 
+  const bgStyleVal = course.certificateConfig?.bgStyle || "clean-light";
+  const frameStyleVal = course.certificateConfig?.frameStyle || "modern-border";
+  const detailColorVal = course.certificateConfig?.detailColor || "theme";
+
+  const isDark = bgStyleVal === "dark-velvet";
+
+  let bgFill = "#fafaf9";
+  if (bgStyleVal === "vintage-parchment") {
+    bgFill = "url(#parchment-grad)";
+  } else if (bgStyleVal === "dark-velvet") {
+    bgFill = "url(#velvet-grad)";
+  } else {
+    bgFill = "#ffffff";
+  }
+
+  let accentColor = themeColor;
+  if (detailColorVal === "gold") accentColor = "url(#gold-grad)";
+  else if (detailColorVal === "silver") accentColor = "url(#silver-grad)";
+  else if (detailColorVal === "bronze") accentColor = "url(#bronze-grad)";
+  else if (detailColorVal === "ruby") accentColor = "url(#ruby-grad)";
+  else if (detailColorVal === "emerald") accentColor = "url(#emerald-grad)";
+
+  let solidAccent = themeColor;
+  if (detailColorVal === "gold") solidAccent = "#b8860b";
+  else if (detailColorVal === "silver") solidAccent = "#475569";
+  else if (detailColorVal === "bronze") solidAccent = "#854d0e";
+  else if (detailColorVal === "ruby") solidAccent = "#be123c";
+  else if (detailColorVal === "emerald") solidAccent = "#047857";
+
+  const outerBorderStroke = isDark ? "#1e293b" : "#e2e8f0";
+  const innerBorderOpacity = isDark ? "0.9" : "0.75";
+
+  const isMedieval = frameStyleVal === "medieval-gothic";
+  const isImperial = frameStyleVal === "classic-imperial";
+
+  let titleFont = "'Inter', 'Helvetica Neue', sans-serif";
+  if (isMedieval) titleFont = "'Cinzel Decorative', 'Cinzel', serif";
+  else if (isImperial) titleFont = "'Cinzel', serif";
+
+  let studentNameFont = "'Space Grotesk', 'Inter', sans-serif";
+  if (isMedieval || isImperial) studentNameFont = "'Great Vibes', 'Dancing Script', cursive";
+
+  const titleFill = detailColorVal === "theme" ? (isDark ? "#ffffff" : themeColor) : accentColor;
+  const subtitleFill = isDark ? "#94a3b8" : "#57534e";
+  const mainTextFill = isDark ? "#cbd5e1" : "#44403c";
+  const studentNameFill = isDark ? "#ffffff" : "#1c1917";
+  const subTitleLabelFill = isDark ? "#94a3b8" : "#78716c";
+  const watermarkOpacity = isDark ? "0.08" : "0.04";
+  const watermarkDashedOpacity = isDark ? "0.05" : "0.02";
+
   const sealSvg = iconUrl 
-    ? `<circle r="40" fill="#ffffff" stroke="${themeColor}" stroke-width="1.5"/><image href="${iconUrl}" x="-30" y="-30" height="60" width="60" />`
-    : `<g><path d="M -15 35 L -8 52 L 0 46 L 8 52 L 15 35" fill="${themeColor}" opacity="0.8"/><path d="M 0 35 L 7 52 L 15 46 L 23 52 L 30 35" fill="${themeColor}" opacity="0.6"/><circle r="32" fill="#fafaf9" stroke="#d97706" stroke-width="3"/><polygon points="0,-16 4,-6 14,-6 6,1 9,11 0,5 -9,11 -6,1 -14,-6 -4,-6" fill="#f59e0b" stroke="#b45309" stroke-width="1" /><circle r="25" fill="none" stroke="#f59e0b" stroke-width="1" stroke-dasharray="4 2"/></g>`;
+    ? `<circle r="40" fill="#ffffff" stroke="${solidAccent}" stroke-width="1.5"/><image href="${iconUrl}" x="-30" y="-30" height="60" width="60" />`
+    : `<g><path d="M -15 35 L -8 52 L 0 46 L 8 52 L 15 35" fill="${solidAccent}" opacity="0.8"/><path d="M 0 35 L 7 52 L 15 46 L 23 52 L 30 35" fill="${solidAccent}" opacity="0.6"/><circle r="32" fill="${isDark ? '#0f172a' : '#fafaf9'}" stroke="${solidAccent}" stroke-width="3"/><polygon points="0,-16 4,-6 14,-6 6,1 9,11 0,5 -9,11 -6,1 -14,-6 -4,-6" fill="${solidAccent}" opacity="0.95" /><circle r="25" fill="none" stroke="${solidAccent}" stroke-width="1" stroke-dasharray="4 2"/></g>`;
 
   const htmlContent = `<!DOCTYPE html>
 <html lang="pt-BR">
@@ -937,57 +987,164 @@ export async function generateInteractiveHTML(course: Course, lessons: Lesson[])
       <svg class="certificate-svg-print" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
         <defs>
           <style>
-            @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&amp;display=swap');
+            @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&amp;family=Cinzel:wght@600;800;900&amp;family=Cinzel+Decorative:wght@700&amp;family=MedievalSharp&amp;family=Great+Vibes&amp;display=swap');
           </style>
+          <!-- Custom Linear Gradients for Medieval Elegance -->
+          <linearGradient id="gold-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#5c3e0e" />
+            <stop offset="25%" stop-color="#a27924" />
+            <stop offset="50%" stop-color="#eed48f" />
+            <stop offset="75%" stop-color="#c29b38" />
+            <stop offset="100%" stop-color="#402a0a" />
+          </linearGradient>
+
+          <linearGradient id="silver-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#334155" />
+            <stop offset="25%" stop-color="#64748b" />
+            <stop offset="50%" stop-color="#e2e8f0" />
+            <stop offset="75%" stop-color="#94a3b8" />
+            <stop offset="100%" stop-color="#1e293b" />
+          </linearGradient>
+
+          <linearGradient id="bronze-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#451a03" />
+            <stop offset="30%" stop-color="#92400e" />
+            <stop offset="60%" stop-color="#d97706" />
+            <stop offset="100%" stop-color="#291305" />
+          </linearGradient>
+
+          <linearGradient id="ruby-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#4c0519" />
+            <stop offset="30%" stop-color="#9f1239" />
+            <stop offset="60%" stop-color="#fda4af" />
+            <stop offset="100%" stop-color="#1c0008" />
+          </linearGradient>
+
+          <linearGradient id="emerald-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#022c22" />
+            <stop offset="30%" stop-color="#065f46" />
+            <stop offset="60%" stop-color="#a7f3d0" />
+            <stop offset="100%" stop-color="#01140f" />
+          </linearGradient>
+
+          <linearGradient id="parchment-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#fcfbf9" />
+            <stop offset="50%" stop-color="#f6f3eb" />
+            <stop offset="100%" stop-color="#ede3d0" />
+          </linearGradient>
+
+          <linearGradient id="velvet-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#080c14" />
+            <stop offset="50%" stop-color="#0f1424" />
+            <stop offset="100%" stop-color="#05070c" />
+          </linearGradient>
         </defs>
+
         <!-- Premium Background Pattern -->
-        <rect width="800" height="600" fill="#fafaf9" rx="16"/>
+        <rect width="800" height="600" fill="${bgFill}" rx="16"/>
         
-        <!-- Watermark -->
-        <circle cx="400" cy="300" r="280" fill="none" stroke="${themeColor}" stroke-opacity="0.03" stroke-width="6"/>
-        <circle cx="400" cy="300" r="270" fill="none" stroke="${themeColor}" stroke-opacity="0.02" stroke-width="1.5" stroke-dasharray="10 5"/>
+        <!-- WATERMARKS -->
+        ${isMedieval ? `
+          <!-- Medieval Crest Shield Watermark in background center -->
+          <g transform="translate(400, 300) scale(1.6)" opacity="${watermarkOpacity}" fill="none" stroke="${accentColor}" stroke-width="2">
+            <path d="M -50,-60 L 50,-60 C 50,-60 50,0 0,60 C -50,0 -50,-60 -50,-60 Z" />
+            <path d="M -40,-50 L 40,-50 C 40,-50 40,-5 0,50 C -40,-5 -40,-50 -40,-50 Z" stroke-width="0.8" />
+            <path d="M 0,-35 L 10,-25 L 25,-25 L 15,-15 L 20,5 L 0,-5 L -20,5 L -15,-15 L -25,-25 L -10,-25 Z" fill="${accentColor}" />
+          </g>
+        ` : `
+          <!-- Classic Circular Watermarks -->
+          <circle cx="400" cy="300" r="280" fill="none" stroke="${accentColor}" stroke-opacity="${watermarkOpacity}" stroke-width="6"/>
+          <circle cx="400" cy="300" r="270" fill="none" stroke="${accentColor}" stroke-opacity="${watermarkDashedOpacity}" stroke-width="1.5" />
+        `}
         
-        <!-- Borders -->
-        <rect x="25" y="25" width="750" height="550" fill="none" stroke="#e7e5e4" stroke-width="1.5" rx="12"/>
-        <rect x="35" y="35" width="730" height="530" fill="none" stroke="${themeColor}" stroke-opacity="0.7" stroke-width="2.5" rx="10" stroke-dasharray="15 5"/>
-        
-        <!-- Corner Motifs -->
-        <g stroke="${themeColor}" stroke-opacity="0.8" stroke-width="2" fill="none">
-          <path d="M 45 75 L 45 45 L 75 45" />
-          <path d="M 52 75 L 52 52 L 75 52" />
-          <path d="M 755 75 L 755 45 L 725 45" />
-          <path d="M 748 75 L 748 52 L 725 52" />
-          <path d="M 45 525 L 45 555 L 75 555" />
-          <path d="M 52 525 L 52 548 L 75 548" />
-          <path d="M 755 525 L 755 555 L 725 555" />
-          <path d="M 748 525 L 748 548 L 725 548" />
-        </g>
+        <!-- BORDERS AND FRAME -->
+        ${isMedieval ? `
+          <!-- Gothic Medieval Borders -->
+          <rect x="25" y="25" width="750" height="550" fill="none" stroke="${accentColor}" stroke-width="4.5" rx="14"/>
+          <rect x="35" y="35" width="730" height="530" fill="none" stroke="${accentColor}" stroke-opacity="${innerBorderOpacity}" stroke-width="1.5" rx="10"/>
+          
+          <!-- Top Left -->
+          <g transform="translate(45, 45)" stroke="${accentColor}" fill="none" stroke-width="2">
+            <path d="M 0,25 C 0,0 25,0 25,0" />
+            <path d="M 0,35 C 0,10 35,0 35,0" stroke-width="1" />
+            <circle cx="25" cy="0" r="3.5" fill="${solidAccent}" stroke="none" />
+            <circle cx="0" cy="25" r="3.5" fill="${solidAccent}" stroke="none" />
+            <path d="M 0,0 L 12,12 L 4,16 L 0,24 L -4,16 L -12,12 Z" fill="${accentColor}" stroke="none" transform="rotate(-45) scale(0.9)" />
+          </g>
+          <!-- Top Right -->
+          <g transform="translate(755, 45) scale(-1, 1)" stroke="${accentColor}" fill="none" stroke-width="2">
+            <path d="M 0,25 C 0,0 25,0 25,0" />
+            <path d="M 0,35 C 0,10 35,0 35,0" stroke-width="1" />
+            <circle cx="25" cy="0" r="3.5" fill="${solidAccent}" stroke="none" />
+            <circle cx="0" cy="25" r="3.5" fill="${solidAccent}" stroke="none" />
+            <path d="M 0,0 L 12,12 L 4,16 L 0,24 L -4,16 L -12,12 Z" fill="${accentColor}" stroke="none" transform="rotate(-45) scale(0.9)" />
+          </g>
+          <!-- Bottom Left -->
+          <g transform="translate(45, 555) scale(1, -1)" stroke="${accentColor}" fill="none" stroke-width="2">
+            <path d="M 0,25 C 0,0 25,0 25,0" />
+            <path d="M 0,35 C 0,10 35,0 35,0" stroke-width="1" />
+            <circle cx="25" cy="0" r="3.5" fill="${solidAccent}" stroke="none" />
+            <circle cx="0" cy="25" r="3.5" fill="${solidAccent}" stroke="none" />
+            <path d="M 0,0 L 12,12 L 4,16 L 0,24 L -4,16 L -12,12 Z" fill="${accentColor}" stroke="none" transform="rotate(-45) scale(0.9)" />
+          </g>
+          <!-- Bottom Right -->
+          <g transform="translate(755, 555) scale(-1, -1)" stroke="${accentColor}" fill="none" stroke-width="2">
+            <path d="M 0,25 C 0,0 25,0 25,0" />
+            <path d="M 0,35 C 0,10 35,0 35,0" stroke-width="1" />
+            <circle cx="25" cy="0" r="3.5" fill="${solidAccent}" stroke="none" />
+            <circle cx="0" cy="25" r="3.5" fill="${solidAccent}" stroke="none" />
+            <path d="M 0,0 L 12,12 L 4,16 L 0,24 L -4,16 L -12,12 Z" fill="${accentColor}" stroke="none" transform="rotate(-45) scale(0.9)" />
+          </g>
+        ` : isImperial ? `
+          <!-- Imperial Classic double fine line borders -->
+          <rect x="25" y="25" width="750" height="550" fill="none" stroke="${outerBorderStroke}" stroke-width="1.5" rx="12"/>
+          <rect x="35" y="35" width="730" height="530" fill="none" stroke="${accentColor}" stroke-opacity="${innerBorderOpacity}" stroke-width="2.5" rx="10"/>
+          
+          <!-- Standard Line Corner Motifs -->
+          <g stroke="${accentColor}" stroke-opacity="0.85" stroke-width="2" fill="none">
+            <!-- Top Left -->
+            <path d="M 45 75 L 45 45 L 75 45" />
+            <path d="M 52 75 L 52 52 L 75 52" />
+            <!-- Top Right -->
+            <path d="M 755 75 L 755 45 L 725 45" />
+            <path d="M 748 75 L 748 52 L 725 52" />
+            <!-- Bottom Left -->
+            <path d="M 45 525 L 45 555 L 75 555" />
+            <path d="M 52 525 L 52 548 L 75 548" />
+            <!-- Bottom Right -->
+            <path d="M 755 525 L 755 555 L 725 555" />
+            <path d="M 748 525 L 748 548 L 725 548" />
+          </g>
+        ` : `
+          <!-- Modern Minimalist Border -->
+          <rect x="35" y="35" width="730" height="530" fill="none" stroke="${accentColor}" stroke-width="1.5" rx="8" />
+        `}
         
         <!-- Title -->
         <g transform="translate(400, 115)" text-anchor="middle">
-          <text font-family="'Inter', 'Helvetica Neue', sans-serif" font-weight="800" font-size="34" fill="${themeColor}" letter-spacing="3">CERTIFICADO DE CONCLUSÃO</text>
-          <text font-family="'Inter', sans-serif" font-weight="600" font-size="11" fill="#78716c" y="30" letter-spacing="5">ENSINO VOLUNTÁRIO DE LÍNGUA INGLESA</text>
-          <line x1="-120" y1="42" x2="120" y2="42" stroke="#e7e5e4" stroke-width="1.5"/>
+          <text font-family="${titleFont}" font-weight="900" font-size="${isMedieval ? '30' : '34'}" fill="${titleFill}" letter-spacing="3">CERTIFICADO DE CONCLUSÃO</text>
+          <text font-family="'Inter', sans-serif" font-weight="600" font-size="11" fill="${subtitleFill}" y="30" letter-spacing="5">ENSINO VOLUNTÁRIO DE LÍNGUA INGLESA</text>
+          <line x1="-120" y1="42" x2="120" y2="42" stroke="${outerBorderStroke}" stroke-width="1.5"/>
         </g>
 
         <!-- Student Owner name -->
         <g transform="translate(400, 220)" text-anchor="middle">
-          <text font-family="'Inter', sans-serif" font-size="14" fill="#78716c" font-style="italic">Este certificado comprova de forma simbólica e por mérito acadêmico que</text>
-          <text font-family="'Space Grotesk', 'Inter', sans-serif" font-weight="805" font-size="28" fill="#1c1917" y="48" class="cert-owner-name-print">Estudante Independente</text>
-          <line x1="-150" y1="65" x2="150" y2="65" stroke="${themeColor}" stroke-opacity="0.3" stroke-width="1.5"/>
+          <text font-family="'Inter', sans-serif" font-size="14" fill="${mainTextFill}" font-style="italic">Este certificado comprova de forma simbólica e por mérito acadêmico que</text>
+          <text font-family="${studentNameFont}" font-weight="${isMedieval || isImperial ? 'normal' : '805'}" font-size="${isMedieval || isImperial ? '45' : '28'}" fill="${studentNameFill}" y="48" class="cert-owner-name-print">Estudante Independente</text>
+          <line x1="-150" y1="65" x2="150" y2="65" stroke="${solidAccent}" stroke-opacity="${isDark ? '0.85' : '0.4'}" stroke-width="1.5"/>
         </g>
 
         <!-- Course text -->
         <g transform="translate(400, 335)" text-anchor="middle">
-          <text font-family="'Inter', sans-serif" font-size="14" fill="#78716c">concluiu com aproveitamento e dedicação todas as lições do mini-curso:</text>
+          <text font-family="'Inter', sans-serif" font-size="14" fill="${mainTextFill}">concluiu com aproveitamento e dedicação todas as lições do mini-curso:</text>
           <text font-family="'Inter', sans-serif" font-weight="bold" font-size="22" fill="${themeColor}" y="32">${courseTitle}</text>
-          <text font-family="'Inter', sans-serif" font-size="11" fill="#a8a29e" y="60">Programa de Aprendizado Autônomo e Solidário</text>
+          <text font-family="'Inter', sans-serif" font-size="11" fill="${subTitleLabelFill}" y="60">Programa de Aprendizado Autônomo e Solidário</text>
         </g>
 
         <!-- Seal -->
         <g transform="translate(400, 465)" text-anchor="middle">
           ${sealSvg}
-          <text font-family="'JetBrains Mono', monospace" font-size="9.5" font-weight="bold" fill="#78716c" y="60">CÓD: OFFLINE-STUDY</text>
+          <text font-family="'JetBrains Mono', monospace" font-size="9.5" font-weight="bold" fill="${subTitleLabelFill}" y="60">CÓD: OFFLINE-STUDY</text>
         </g>
 
         <!-- Footer signatures -->
@@ -997,19 +1154,19 @@ export async function generateInteractiveHTML(course: Course, lessons: Lesson[])
             ${sigType === 'drawn' && sigImage ? `
               <image href="${sigImage}" x="-75" y="-35" width="150" height="50" style="mix-blend-mode: multiply;" />
             ` : `
-              <text font-family="'Dancing Script', 'Brush Script MT', 'Georgia', cursive, serif" font-weight="600" font-size="22" font-style="italic" fill="#0f172a" y="10">${sigText || instructorName}</text>
+              <text font-family="'Dancing Script', 'Brush Script MT', 'Georgia', cursive, serif" font-weight="600" font-size="22" font-style="italic" fill="${studentNameFill}" y="10">${sigText || instructorName}</text>
             `}
           </g>
-          <line x1="-80" y1="0" x2="80" y2="0" stroke="#d6d3d1" stroke-width="1"/>
-          <text font-family="'Inter', sans-serif" font-weight="bold" font-size="11" fill="#1c1917" y="16">${instructorName}</text>
-          <text font-family="'Inter', sans-serif" font-size="9" fill="#a8a29e" y="28">Instrutor Voluntário</text>
+          <line x1="-80" y1="0" x2="80" y2="0" stroke="${isDark ? '#334155' : '#d6d3d1'}" stroke-width="1"/>
+          <text font-family="'Inter', sans-serif" font-weight="bold" font-size="11" fill="${studentNameFill}" y="16">${instructorName}</text>
+          <text font-family="'Inter', sans-serif" font-size="9" fill="${subTitleLabelFill}" y="28">Instrutor Voluntário</text>
         </g>
 
         <g transform="translate(650, 485)" text-anchor="middle">
-          <text font-family="'Inter', sans-serif" font-weight="bold" font-size="11" fill="#1c1917" y="-10" id="cert-date-text-print"></text>
-          <line x1="-80" y1="0" x2="80" y2="0" stroke="#d6d3d1" stroke-width="1"/>
-          <text font-family="'Inter', sans-serif" font-size="11" fill="#1c1917" y="16">Data de Emissão</text>
-          <text font-family="'Inter', sans-serif" font-size="9" fill="#a8a29e" y="28">Validação Offline</text>
+          <text font-family="'Inter', sans-serif" font-weight="bold" font-size="11" fill="${studentNameFill}" y="-10" id="cert-date-text-print"></text>
+          <line x1="-80" y1="0" x2="80" y2="0" stroke="${isDark ? '#334155' : '#d6d3d1'}" stroke-width="1"/>
+          <text font-family="'Inter', sans-serif" font-size="11" fill="${studentNameFill}" y="16">Data de Emissão</text>
+          <text font-family="'Inter', sans-serif" font-size="9" fill="${subTitleLabelFill}" y="28">Validação Offline</text>
         </g>
       </svg>
     </div>
