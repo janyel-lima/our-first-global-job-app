@@ -775,18 +775,15 @@ const handleExportJSON = () => {
         class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/60 dark:border-slate-800/60 pb-4">
         <div>
           <h3 class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider block">
-            {{ locale === 'pt' ? 'Diagnóstico de Retenção & Melhoria Pedagógica' : 'Retention & Pedagogical Improvement
-            Diagnosis' }}
+            {{ t('tutor.retentionTitle') }}
           </h3>
           <p class="text-xs text-slate-400 dark:text-slate-500 font-bold block">
-            {{ locale === 'pt' ? 'Detecte lições de alta complexidade ou quedas bruscas de engajamento para
-            aprimoramento didático contínuo.' : 'Detect high complexity lessons or sudden engagement drops for
-            continuous didactic improvement.' }}
+            {{ t('tutor.retentionSub') }}
           </p>
         </div>
         <span
           class="p-1.5 bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-300 rounded-lg text-xs font-bold shrink-0 border border-transparent dark:border-indigo-900/20">
-          🔍 {{ locale === 'pt' ? 'Auditor Didático' : 'Didactic Auditor' }}
+          🔍 {{ t('tutor.didacticAuditor') }}
         </span>
       </div>
 
@@ -795,11 +792,10 @@ const handleExportJSON = () => {
         <div class="bg-white dark:bg-slate-950 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-4">
           <div>
             <h4 class="text-xs font-black text-slate-800 dark:text-slate-200 uppercase tracking-wider">
-              {{ locale === 'pt' ? 'Índice de Conversão de Certificados' : 'Certificate Conversion Rate' }}
+              {{ t('tutor.certConversionRate') }}
             </h4>
             <p class="text-[10.5px] text-slate-400 dark:text-slate-500 font-bold">
-              {{ locale === 'pt' ? 'Relação de matriculados que conseguiram o selo de certificação por curso.' : 'Ratio
-              of enrolled students who obtained the certification badge per course.' }}
+              {{ t('tutor.certConversionSub') }}
             </p>
           </div>
 
@@ -815,7 +811,7 @@ const handleExportJSON = () => {
                     c.rate >= 30 ? 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300' :
                       'bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300'
                 ]">
-                  {{ c.rate }}% {{ locale === 'pt' ? 'Eficiência' : 'Efficiency' }}
+                  {{ t('tutor.efficiencyText', { rate: c.rate }) }}
                 </span>
               </div>
               <!-- Mini progress bar -->
@@ -827,20 +823,17 @@ const handleExportJSON = () => {
                 ]" :style="{ width: `${c.rate}%` }"></div>
               </div>
               <div class="flex justify-between text-[10px] text-slate-450 dark:text-slate-500 font-bold leading-none">
-                <span>{{ locale === 'pt' ? 'Certificados:' : 'Certificates:' }} {{ c.certified }} / {{ c.totalStudents
+                <span>{{ t('tutor.certificatesCount') }} {{ c.certified }} / {{ c.totalStudents }}</span>
+                <span v-if="c.rate < 30" class="text-rose-500 dark:text-rose-400">⚠️ {{ t('tutor.dropoutWarning')
                   }}</span>
-                <span v-if="c.rate < 30" class="text-rose-500 dark:text-rose-400">⚠️ {{ locale === 'pt' ? 'Alerta de
-                  Evasão' : 'Dropout Warning' }}</span>
-                <span v-else-if="c.rate >= 60" class="text-emerald-600 dark:text-emerald-400">✓ {{ locale === 'pt' ?
-                  'Fluxo Saudável' : 'Healthy Flow' }}</span>
-                <span v-else class="text-amber-600 dark:text-amber-400">✎ {{ locale === 'pt' ? 'Recomenda-se Ajuste' :
-                  'Adjustments Advised' }}</span>
+                <span v-else-if="c.rate >= 60" class="text-emerald-600 dark:text-emerald-400">✓ {{
+                  t('tutor.healthyFlow') }}</span>
+                <span v-else class="text-amber-600 dark:text-amber-400">✎ {{ t('tutor.adjustmentsAdvised') }}</span>
               </div>
             </div>
             <div v-if="pedCourseEfficiency.length === 0"
               class="text-xs text-slate-400 dark:text-slate-500 italic py-4 text-center">
-              {{ locale === 'pt' ? 'Sem dados históricos disponíveis para avaliar eficiência.' : 'No historical data
-              available to evaluate efficiency.' }}
+              {{ t('tutor.noHistoricalData') }}
             </div>
           </div>
         </div>
@@ -849,12 +842,10 @@ const handleExportJSON = () => {
         <div class="bg-white dark:bg-slate-950 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-4">
           <div>
             <h4 class="text-xs font-black text-slate-800 dark:text-slate-200 uppercase tracking-wider">
-              {{ locale === 'pt' ? 'Ações Estratégicas para Melhoria Contínua' : 'Strategic Actions for Continuous
-              Improvement' }}
+              {{ t('tutor.strategicActions') }}
             </h4>
             <p class="text-[10.5px] text-slate-400 dark:text-slate-500 font-bold">
-              {{ locale === 'pt' ? 'Gabarito de correções acionáveis com base nas turmas e progresso dos alunos.' :
-              'Actionable correction templates based on classes and student progress.' }}
+              {{ t('tutor.strategicActionsSub') }}
             </p>
           </div>
 
