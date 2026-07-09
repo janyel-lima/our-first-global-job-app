@@ -532,7 +532,7 @@ const handleExportJSON = () => {
         </span>
         <div>
           <p class="text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
-            {{ locale === 'pt' ? 'Cursos Online' : 'Online Courses' }}
+            {{ t('tutor.onlineCourses') }}
           </p>
           <h4 class="text-xl font-black text-gray-900 dark:text-white mt-0.5">{{ courses.length }}</h4>
         </div>
@@ -545,7 +545,7 @@ const handleExportJSON = () => {
         </span>
         <div>
           <p class="text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
-            {{ locale === 'pt' ? 'Estudantes Ativos' : 'Active Students' }}
+            {{ t('tutor.activeStudents') }}
           </p>
           <h4 class="text-xl font-black text-gray-900 dark:text-white mt-0.5">{{ activeStudentsCount }}</h4>
         </div>
@@ -558,10 +558,10 @@ const handleExportJSON = () => {
         </span>
         <div>
           <p class="text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
-            {{ locale === 'pt' ? 'Aproveitamento Médio' : 'Average Score' }}
+            {{ t('tutor.averageScore') }}
           </p>
           <h4 class="text-xl font-black text-gray-900 dark:text-white mt-0.5">
-            {{ locale === 'pt' ? `${averageQuizPercentage}% nos Quizzes` : `${averageQuizPercentage}% on Quizzes` }}
+            {{ t('tutor.averageQuizzes', { pct: averageQuizPercentage }) }}
           </h4>
         </div>
       </div>
@@ -573,10 +573,10 @@ const handleExportJSON = () => {
         </span>
         <div>
           <p class="text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
-            {{ locale === 'pt' ? 'Aulas Marcadas' : 'Scheduled Classes' }}
+            {{ t('tutor.scheduledClasses') }}
           </p>
           <h4 class="text-xl font-black text-gray-900 dark:text-white mt-0.5">
-            {{ locale === 'pt' ? `${classes.length} turmas` : `${classes.length} classes` }}
+            {{ t('tutor.scheduledClassesCount', { count: classes.length }) }}
           </h4>
         </div>
       </div>
@@ -590,11 +590,11 @@ const handleExportJSON = () => {
         <div class="flex items-center justify-between">
           <h3 class="text-sm font-bold text-gray-950 dark:text-white tracking-tight flex items-center gap-1.5">
             <span class="w-2.5 h-2.5 rounded-full bg-blue-600 block"></span>
-            {{ locale === 'pt' ? 'Progresso por Curso' : 'Progress by Course' }}
+            {{ t('tutor.progressByCourse') }}
           </h3>
           <span
             class="text-[9px] bg-blue-50 dark:bg-blue-950/45 text-blue-600 dark:text-blue-300 border border-transparent dark:border-blue-900/30 px-2.5 py-0.5 font-bold rounded-full">
-            {{ locale === 'pt' ? 'Aulas Concluídas' : 'Lessons Completed' }}
+            {{ t('tutor.lessonsCompleted') }}
           </span>
         </div>
         <div class="space-y-4 pt-1.5 overflow-hidden">
@@ -610,13 +610,13 @@ const handleExportJSON = () => {
               </div>
             </div>
             <div class="flex items-center justify-between text-[10px] text-gray-400 dark:text-gray-500 font-semibold">
-              <span>{{ locale === 'pt' ? 'Alunos Matriculados:' : 'Enrolled Students:' }}</span>
+              <span>{{ t('tutor.enrolledStudents') }}</span>
               <span class="text-slate-600 dark:text-slate-305 font-bold">{{ c.studentCount }}</span>
             </div>
           </div>
           <div v-if="courseCompletionData.length === 0"
             class="text-xs text-center text-gray-400 dark:text-gray-500 py-6">
-            {{ locale === 'pt' ? 'Nenhum curso cadastrado ainda.' : 'No courses registered yet.' }}
+            {{ t('tutor.noCoursesRegisteredYet') }}
           </div>
         </div>
       </div>
@@ -628,11 +628,11 @@ const handleExportJSON = () => {
           <div class="flex items-center justify-between">
             <h3 class="text-sm font-bold text-gray-950 dark:text-white tracking-tight flex items-center gap-1.5">
               <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 block"></span>
-              {{ locale === 'pt' ? 'Desempenho nos Quizzes' : 'Quiz Performance' }}
+              {{ t('tutor.quizPerformance') }}
             </h3>
             <span
               class="text-[9px] bg-emerald-50 dark:bg-emerald-950/45 text-emerald-600 dark:text-emerald-300 border border-transparent dark:border-emerald-900/30 px-2.5 py-0.5 font-bold rounded-full">
-              {{ locale === 'pt' ? 'Proporções' : 'Proportions' }}
+              {{ t('tutor.proportions') }}
             </span>
           </div>
 
@@ -664,7 +664,7 @@ const handleExportJSON = () => {
                   gradeDistributionData.total }}</span>
                 <span
                   class="text-[8.5px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-widest mt-1">
-                  {{ locale === 'pt' ? 'Avaliados' : 'Evaluated' }}
+                  {{ t('tutor.evaluated') }}
                 </span>
               </div>
             </div>
@@ -676,7 +676,7 @@ const handleExportJSON = () => {
             <div class="flex items-center justify-center gap-1">
               <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
               <span class="text-[9px] text-gray-400 dark:text-gray-500 font-bold uppercase">
-                {{ locale === 'pt' ? 'Nota A' : 'Grade A' }}
+                {{ t('tutor.gradeA') }}
               </span>
             </div>
             <h5 class="text-xs font-black text-gray-800 dark:text-gray-200 mt-0.5">{{ gradeDistributionData.excellentPct
@@ -686,7 +686,7 @@ const handleExportJSON = () => {
             <div class="flex items-center justify-center gap-1">
               <span class="w-2 h-2 rounded-full bg-blue-500"></span>
               <span class="text-[9px] text-gray-400 dark:text-gray-500 font-bold uppercase">
-                {{ locale === 'pt' ? 'Nota B' : 'Grade B' }}
+                {{ t('tutor.gradeB') }}
               </span>
             </div>
             <h5 class="text-xs font-black text-gray-800 dark:text-gray-200 mt-0.5">{{ gradeDistributionData.goodPct }}%
@@ -696,7 +696,7 @@ const handleExportJSON = () => {
             <div class="flex items-center justify-center gap-1">
               <span class="w-2 h-2 rounded-full bg-amber-500"></span>
               <span class="text-[9px] text-gray-400 dark:text-gray-500 font-bold uppercase">
-                {{ locale === 'pt' ? 'Dificuldade' : 'Review' }}
+                {{ t('tutor.difficultyReview') }}
               </span>
             </div>
             <h5 class="text-xs font-black text-gray-800 dark:text-gray-200 mt-0.5">{{ gradeDistributionData.reviewPct
@@ -711,11 +711,11 @@ const handleExportJSON = () => {
         <div class="flex items-center justify-between">
           <h3 class="text-sm font-bold text-gray-900 dark:text-white tracking-tight flex items-center gap-1.5">
             <span class="w-2.5 h-2.5 rounded-full bg-indigo-500 block"></span>
-            {{ locale === 'pt' ? 'Participação de Alunos' : 'Student Participation' }}
+            {{ t('tutor.studentParticipation') }}
           </h3>
           <span
             class="text-[9px] bg-indigo-50 dark:bg-indigo-950/45 text-indigo-600 dark:text-indigo-300 border border-transparent dark:border-indigo-900/30 px-2.5 py-0.5 font-bold rounded-full">
-            {{ locale === 'pt' ? 'Engajamento' : 'Engagement' }}
+            {{ t('tutor.engagement') }}
           </span>
         </div>
 
@@ -725,7 +725,7 @@ const handleExportJSON = () => {
             <div class="flex items-center justify-between text-xs font-bold text-gray-700 dark:text-slate-300">
               <span class="flex items-center gap-1.5">
                 <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
-                {{ locale === 'pt' ? 'Leituras de Diálogos' : 'Dialogue Readings' }}
+                {{ t('tutor.dialogueReadings') }}
               </span>
               <span class="text-slate-500 dark:text-slate-400">{{ activityEngagementScores.readings }} clicks</span>
             </div>
@@ -740,7 +740,7 @@ const handleExportJSON = () => {
             <div class="flex items-center justify-between text-xs font-bold text-gray-700 dark:text-slate-300">
               <span class="flex items-center gap-1.5">
                 <span class="w-2 h-2 rounded-full bg-violet-500"></span>
-                {{ locale === 'pt' ? 'Vídeoaulas Assistidas' : 'Video Lessons Watched' }}
+                {{ t('tutor.videoLessonsWatched') }}
               </span>
               <span class="text-slate-500 dark:text-slate-400">{{ activityEngagementScores.videos }} clicks</span>
             </div>
@@ -755,7 +755,7 @@ const handleExportJSON = () => {
             <div class="flex items-center justify-between text-xs font-bold text-gray-700 dark:text-slate-300">
               <span class="flex items-center gap-1.5">
                 <span class="w-2 h-2 rounded-full bg-fuchsia-500"></span>
-                {{ locale === 'pt' ? 'Quizzes Entregues' : 'Quizzes Submitted' }}
+                {{ t('tutor.quizzesSubmitted') }}
               </span>
               <span class="text-slate-500 dark:text-slate-400">{{ activityEngagementScores.quizzes }} clicks</span>
             </div>
@@ -860,8 +860,7 @@ const handleExportJSON = () => {
             </div>
             <div v-if="pedagogicalRecommendations.length === 0"
               class="text-xs text-slate-400 dark:text-slate-500 italic py-4 text-center">
-              {{ locale === 'pt' ? 'Tudo sob controle! Nenhum gargalo didático relevante detectado no momento.' :
-              'Everything under control! No relevant didactic bottleneck detected at the moment.' }}
+              {{ t('tutor.everythingUnderControl') }}
             </div>
           </div>
         </div>
@@ -875,7 +874,7 @@ const handleExportJSON = () => {
         'flex-1 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer text-center',
         analyticsTab === 'students' ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-2xs' : 'text-gray-500 dark:text-gray-455 hover:text-gray-900 dark:hover:text-white'
       ]">
-        👥 {{ locale === 'pt' ? `Alunos (${progressReports.length})` : `Students (${progressReports.length})` }}
+        👥 {{ t('tutor.studentsCountTab', { count: progressReports.length }) }}
       </button>
       <button type="button" @click="analyticsTab = 'courses'" :class="[
         'flex-1 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer text-center',
@@ -927,84 +926,86 @@ const handleExportJSON = () => {
         {{ t('tutor.noMatchingStudent') }}
       </p>
       <div v-else
-        class="overflow-x-auto rounded-xl border border-gray-100 dark:border-slate-850 bg-white dark:bg-slate-900/40">
-        <table id="instructor-analytics-table" class="w-full text-left border-collapse text-xs min-w-[800px]">
-          <thead>
-            <tr
-              class="border-b border-gray-100 dark:border-slate-850 text-gray-400 dark:text-slate-400 uppercase tracking-wider text-[10px] font-bold">
-              <th class="py-2.5 font-bold">{{ t('tutor.thStudent') }}</th>
-              <th class="py-2.5 font-bold">{{ t('tutor.thAssignedCourse') }}</th>
-              <th class="py-2.5 font-bold text-center">{{ t('tutor.thLessonsCompleted') }}</th>
-              <th class="py-2.5 font-bold">{{ t('tutor.thAcademicAverage') }}</th>
-              <th class="py-2.5 font-bold">{{ t('tutor.thCertificateStatus') }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="report in paginatedStudentReports" :key="report.id"
-              class="border-b border-gray-200/50 dark:border-slate-800/65 text-gray-600 dark:text-slate-350 hover:bg-gray-50/50 dark:hover:bg-slate-850/30 transition-colors duration-155">
-              <td class="py-3">
-                <div class="font-bold text-slate-900 dark:text-white">{{ getStudentName(report.userId) }}</div>
-                <div class="text-[9.5px] font-mono text-gray-450 dark:text-slate-500 leading-none mt-0.5">ID: {{
-                  report.userId.substring(0, 10) }}...</div>
-              </td>
-              <td class="py-3 font-medium text-gray-800 dark:text-slate-205">
-                {{courses.find(c => c.id === report.courseId)?.title || "Manual Course"}}
-              </td>
-              <td class="py-3 text-center font-bold text-blue-600 dark:text-blue-400">{{ report.completedLessons.length
-                }} check(s)</td>
-              <td class="py-3">
-                <template v-if="Object.values(report.quizScores).length > 0">
-                  <span :class="[
-                    'font-bold px-2 py-0.5 rounded-sm',
-                    (Object.values(report.quizScores).reduce((a, b) => a + b, 0) / Object.values(report.quizScores).length) >= 70
-                      ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300'
-                      : 'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300'
-                  ]">
-                    {{
-                      Math.round(Object.values(report.quizScores).reduce((a, b) => a + b, 0) / Object.values(report.quizScores).length)
-                    }}%
+        class="rounded-xl border border-gray-200/50 dark:border-slate-850 bg-white dark:bg-slate-900 overflow-hidden">
+        <div class="overflow-x-auto">
+          <table id="instructor-analytics-table" class="w-full text-left border-collapse text-xs min-w-[800px]">
+            <thead>
+              <tr
+                class="bg-slate-50 dark:bg-slate-950 border-b border-gray-100 dark:border-slate-850 text-slate-450 font-extrabold uppercase tracking-wider text-[10px]">
+                <th class="p-4 font-extrabold">{{ t('tutor.thStudent') }}</th>
+                <th class="p-4 font-extrabold">{{ t('tutor.thAssignedCourse') }}</th>
+                <th class="p-4 font-extrabold text-center">{{ t('tutor.thLessonsCompleted') }}</th>
+                <th class="p-4 font-extrabold">{{ t('tutor.thAcademicAverage') }}</th>
+                <th class="p-4 font-extrabold">{{ t('tutor.thCertificateStatus') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="report in paginatedStudentReports" :key="report.id"
+                class="border-b border-gray-250/30 dark:border-slate-800/65 text-gray-600 dark:text-slate-350 hover:bg-gray-50/50 dark:hover:bg-slate-850/30 transition-colors duration-155">
+                <td class="p-4">
+                  <div class="font-bold text-slate-900 dark:text-white">{{ getStudentName(report.userId) }}</div>
+                  <div class="text-[9.5px] font-mono text-gray-400 dark:text-slate-500 leading-none mt-0.5">ID: {{
+                    report.userId.substring(0, 10) }}...</div>
+                </td>
+                <td class="p-4 font-medium text-gray-800 dark:text-slate-200">
+                  {{courses.find(c => c.id === report.courseId)?.title || "Manual Course"}}
+                </td>
+                <td class="p-4 text-center font-bold text-blue-600 dark:text-blue-400">{{ report.completedLessons.length
+                  }} check(s)</td>
+                <td class="p-4">
+                  <template v-if="Object.values(report.quizScores).length > 0">
+                    <span :class="[
+                      'font-bold px-2 py-0.5 rounded-sm',
+                      (Object.values(report.quizScores).reduce((a, b) => a + b, 0) / Object.values(report.quizScores).length) >= 70
+                        ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300'
+                        : 'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300'
+                    ]">
+                      {{
+                        Math.round(Object.values(report.quizScores).reduce((a, b) => a + b, 0) / Object.values(report.quizScores).length)
+                      }}%
+                    </span>
+                  </template>
+                  <span v-else class="text-gray-400 dark:text-slate-500 italic">
+                    {{ t('tutor.noGrades') }}
                   </span>
-                </template>
-                <span v-else class="text-gray-400 dark:text-slate-500 italic">
-                  {{ t('tutor.noGrades') }}
-                </span>
-              </td>
-              <td class="py-3">
-                <span v-if="report.certified"
-                  class="inline-flex items-center gap-1 text-[10px] font-bold bg-emerald-100 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 px-2 py-0.5 rounded-full select-none">
-                  <Check class="w-2.5 h-2.5" /> {{ t('tutor.released') }}
-                </span>
-                <span v-else class="text-gray-400 dark:text-slate-500 italic font-medium">
-                  {{ t('tutor.inProgress') }}
-                </span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+                </td>
+                <td class="p-4">
+                  <span v-if="report.certified"
+                    class="inline-flex items-center gap-1 text-[10px] font-bold bg-emerald-100 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 px-2 py-0.5 rounded-full select-none">
+                    <Check class="w-2.5 h-2.5" /> {{ t('tutor.released') }}
+                  </span>
+                  <span v-else class="text-gray-400 dark:text-slate-500 italic font-medium">
+                    {{ t('tutor.inProgress') }}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
 
-      <!-- Paginator Footer for Students list -->
-      <div v-if="filteredStudentReports.length > 0"
-        class="pt-4 flex items-center justify-between gap-4 text-xs font-semibold select-none text-slate-450 dark:text-slate-400 border-t border-gray-100 dark:border-slate-850/60 mt-3 flex-wrap">
-        <span v-html="t('tutor.showingStudents', {
-          from: `<strong>${Math.min(filteredStudentReports.length, (studentPage - 1) * studentsPerPage + 1)}</strong>`,
-          to: `<strong>${Math.min(filteredStudentReports.length, studentPage * studentsPerPage)}</strong>`,
-          total: `<strong>${filteredStudentReports.length}</strong>`
-        })"></span>
-        <div class="flex items-center gap-1.5">
-          <button type="button" :disabled="studentPage === 1" @click="studentPage--"
-            class="p-1 px-2.5 bg-slate-50 dark:bg-slate-950 hover:bg-slate-100 dark:hover:bg-slate-850 border border-gray-200 dark:border-slate-850 rounded-lg cursor-pointer disabled:opacity-40 transition disabled:cursor-not-allowed inline-flex items-center gap-1 text-[11px]">
-            <ChevronLeft class="w-3.5 h-3.5" /> {{ t('tutor.prev') }}
-          </button>
-          <span class="px-2 text-[11px]">
-            {{ t('tutor.pageOf', { current: studentPage, total: totalStudentPages || 1 }) }}
-          </span>
-          <button type="button" :disabled="studentPage === totalStudentPages || totalStudentPages <= 1"
-            @click="studentPage++"
-            class="p-1 px-2.5 bg-slate-50 dark:bg-slate-950 hover:bg-slate-100 dark:hover:bg-slate-850 border border-gray-200 dark:border-slate-850 rounded-lg cursor-pointer disabled:opacity-40 transition disabled:cursor-not-allowed inline-flex items-center gap-1 text-[11px]">
-            {{ t('tutor.next') }}
-            <ChevronRight class="w-3.5 h-3.5" />
-          </button>
+        <!-- Paginator Footer for Students list -->
+        <div v-if="filteredStudentReports.length > 0"
+          class="p-4 border-t border-gray-100 dark:border-slate-850 flex items-center justify-between gap-4 text-xs font-semibold select-none text-slate-450 dark:text-slate-400 flex-wrap">
+          <span v-html="t('tutor.showingStudents', {
+            from: `<strong>${Math.min(filteredStudentReports.length, (studentPage - 1) * studentsPerPage + 1)}</strong>`,
+            to: `<strong>${Math.min(filteredStudentReports.length, studentPage * studentsPerPage)}</strong>`,
+            total: `<strong>${filteredStudentReports.length}</strong>`
+          })"></span>
+          <div class="flex items-center gap-1.5">
+            <button type="button" :disabled="studentPage === 1" @click="studentPage--"
+              class="p-1 px-2.5 bg-slate-50 dark:bg-slate-950 hover:bg-slate-100 dark:hover:bg-slate-850 border border-gray-200 dark:border-slate-850 rounded-lg cursor-pointer disabled:opacity-40 transition disabled:cursor-not-allowed inline-flex items-center gap-1 text-[11px]">
+              <ChevronLeft class="w-3.5 h-3.5" /> {{ t('tutor.prev') }}
+            </button>
+            <span class="px-2 text-[11px]">
+              {{ t('tutor.pageOf', { current: studentPage, total: totalStudentPages || 1 }) }}
+            </span>
+            <button type="button" :disabled="studentPage === totalStudentPages || totalStudentPages <= 1"
+              @click="studentPage++"
+              class="p-1 px-2.5 bg-slate-50 dark:bg-slate-950 hover:bg-slate-100 dark:hover:bg-slate-850 border border-gray-200 dark:border-slate-850 rounded-lg cursor-pointer disabled:opacity-40 transition disabled:cursor-not-allowed inline-flex items-center gap-1 text-[11px]">
+              {{ t('tutor.next') }}
+              <ChevronRight class="w-3.5 h-3.5" />
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -1250,47 +1251,48 @@ const handleExportJSON = () => {
               </div>
             </div>
           </div>
-
-          <!-- Expandable Table for Lesson Content/Quiz Checklist -->
           <div v-if="expandedCourseId === course.id"
-            class="bg-white rounded-lg border border-slate-200/80 p-3.5 space-y-2.5 animate-fadeIn">
-            <p class="text-[10px] text-slate-500 uppercase font-black tracking-widest border-b border-slate-100 pb-1">
+            class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800 p-4 space-y-2.5 animate-fadeIn">
+            <p
+              class="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-black tracking-widest border-b border-slate-100 dark:border-slate-800 pb-1.5">
               📚 {{ t('tutor.curriculumGridTitle') }}
             </p>
 
             <p v-if="lessons.filter(l => l.courseId === course.id).length === 0"
-              class="text-xs text-gray-455 italic pl-1">
+              class="text-xs text-slate-400 dark:text-slate-500 italic pl-1">
               {{ t('tutor.noLessonsRegistered') }}
             </p>
-            <div v-else class="overflow-x-auto rounded-lg border border-slate-100/60 bg-slate-50/20">
-              <table class="w-full text-left text-[11px] font-medium text-slate-600 min-w-[650px]">
+            <div v-else
+              class="overflow-x-auto rounded-xl border border-slate-100/60 dark:border-slate-800 bg-slate-50/20 dark:bg-slate-950/20">
+              <table class="w-full text-left text-[11px] font-medium text-slate-600 dark:text-slate-400 min-w-[650px]">
                 <thead>
-                  <tr class="border-b border-slate-100 text-slate-400 font-bold">
-                    <th class="pb-1 text-center w-12">{{ t('tutor.thOrder') }}</th>
-                    <th class="pb-1 pl-2">{{ t('tutor.thLessonTitle') }}</th>
-                    <th class="pb-1 text-center">{{ t('tutor.thVideo') }}</th>
-                    <th class="pb-1 text-center">{{ t('tutor.thTextLength') }}</th>
-                    <th class="pb-1 text-right">{{ t('tutor.thQuizQs') }}</th>
+                  <tr
+                    class="bg-slate-50 dark:bg-slate-950 border-b border-slate-100 dark:border-slate-800 text-slate-450 dark:text-slate-400 font-extrabold uppercase text-[10px]">
+                    <th class="p-3 text-center w-12">{{ t('tutor.thOrder') }}</th>
+                    <th class="p-3 pl-2">{{ t('tutor.thLessonTitle') }}</th>
+                    <th class="p-3 text-center">{{ t('tutor.thVideo') }}</th>
+                    <th class="p-3 text-center">{{ t('tutor.thTextLength') }}</th>
+                    <th class="p-3 text-right pr-4">{{ t('tutor.thQuizQs') }}</th>
                   </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-50">
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-800/60">
                   <tr v-for="l in lessons.filter(l => l.courseId === course.id)" :key="l.id"
-                    class="hover:bg-slate-50/40">
-                    <td class="py-2 text-center font-bold font-mono text-blue-600 font-extrabold">#{{ l.order }}</td>
-                    <td class="py-2 pl-2 font-bold text-slate-800">{{ l.title }}</td>
-                    <td class="py-2 text-center">
+                    class="hover:bg-slate-50/40 dark:hover:bg-slate-850/20">
+                    <td class="p-3 text-center font-bold font-mono text-blue-600 dark:text-blue-400">#{{ l.order }}</td>
+                    <td class="p-3 pl-2 font-bold text-slate-800 dark:text-white">{{ l.title }}</td>
+                    <td class="p-3 text-center">
                       <span v-if="l.videoUrl"
-                        class="inline-flex text-[9px] font-bold bg-indigo-50 text-indigo-700 px-1.5 rounded-sm border border-indigo-100">
+                        class="inline-flex text-[9px] font-bold bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 px-1.5 rounded-sm border border-indigo-100 dark:border-indigo-900/40">
                         {{ t('tutor.yes') }}
                       </span>
-                      <span v-else class="text-gray-400 italic">
+                      <span v-else class="text-gray-400 dark:text-slate-500 italic">
                         {{ t('tutor.no') }}
                       </span>
                     </td>
-                    <td class="py-2 text-center font-mono text-slate-400">
+                    <td class="p-3 text-center font-mono text-slate-400 dark:text-slate-500">
                       {{ t('tutor.charsCount', { count: l.content.length }) }}
                     </td>
-                    <td class="py-2 text-right font-bold text-emerald-600 font-mono pr-2">
+                    <td class="p-3 text-right font-bold text-emerald-600 dark:text-emerald-400 font-mono pr-4">
                       {{ t('tutor.questionsCount', { count: (l.quiz || []).length }) }}
                     </td>
                   </tr>
@@ -1303,14 +1305,12 @@ const handleExportJSON = () => {
 
       <!-- Paginator Footer for Courses list -->
       <div v-if="filteredCourses.length > 0"
-        class="pt-4 flex items-center justify-between gap-4 text-xs font-semibold select-none text-slate-450 dark:text-slate-400 border-t border-gray-200/60 dark:border-slate-800 mt-3 flex-wrap">
-        <span>
-          {{ t('tutor.showingCourses', {
-            from: Math.min(filteredCourses.length, (coursesPage - 1) * coursesPerPage + 1),
-            to: Math.min(filteredCourses.length, coursesPage * coursesPerPage),
-            total: filteredCourses.length
-          }) }}
-        </span>
+        class="pt-4 flex items-center justify-between gap-4 text-xs font-semibold select-none text-slate-450 dark:text-slate-400 border-t border-gray-100/40 dark:border-slate-800/80 mt-3 flex-wrap">
+        <span v-html="t('tutor.showingCourses', {
+          from: `<strong>${Math.min(filteredCourses.length, (coursesPage - 1) * coursesPerPage + 1)}</strong>`,
+          to: `<strong>${Math.min(filteredCourses.length, coursesPage * coursesPerPage)}</strong>`,
+          total: `<strong>${filteredCourses.length}</strong>`
+        })"></span>
         <div class="flex items-center gap-1.5">
           <button type="button" :disabled="coursesPage === 1" @click="coursesPage--"
             class="p-1 px-2.5 bg-slate-50 dark:bg-slate-950 hover:bg-slate-100 dark:hover:bg-slate-850 border border-gray-200 dark:border-slate-850 rounded-lg cursor-pointer disabled:opacity-40 transition disabled:cursor-not-allowed inline-flex items-center gap-1 text-[11px]">
