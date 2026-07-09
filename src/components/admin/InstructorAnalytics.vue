@@ -602,7 +602,7 @@ const handleExportJSON = () => {
             <div class="flex items-center justify-between text-xs font-bold text-gray-700 dark:text-slate-300">
               <span class="truncate pr-2" :title="c.title">{{ c.title }}</span>
               <span class="shrink-0 text-slate-500 dark:text-slate-400">{{ c.avgCompleted }} / {{ c.totalLessons
-                }}</span>
+              }}</span>
             </div>
             <div class="w-full bg-slate-100 dark:bg-slate-800 h-2.5 rounded-full overflow-hidden relative">
               <div class="bg-blue-600 h-full rounded-full transition-all duration-700 ease-out"
@@ -680,7 +680,7 @@ const handleExportJSON = () => {
               </span>
             </div>
             <h5 class="text-xs font-black text-gray-800 dark:text-gray-200 mt-0.5">{{ gradeDistributionData.excellentPct
-              }}%</h5>
+            }}%</h5>
           </div>
           <div>
             <div class="flex items-center justify-center gap-1">
@@ -700,7 +700,7 @@ const handleExportJSON = () => {
               </span>
             </div>
             <h5 class="text-xs font-black text-gray-800 dark:text-gray-200 mt-0.5">{{ gradeDistributionData.reviewPct
-              }}%</h5>
+            }}%</h5>
           </div>
         </div>
       </div>
@@ -804,7 +804,7 @@ const handleExportJSON = () => {
               class="p-3 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800 space-y-2">
               <div class="flex items-center justify-between text-xs font-extrabold">
                 <span class="text-slate-800 dark:text-slate-200 truncate max-w-[180px]" :title="c.title">{{ c.title
-                  }}</span>
+                }}</span>
                 <span :class="[
                   'text-[10px] font-black uppercase px-2 py-0.5 rounded-full',
                   c.rate >= 60 ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300' :
@@ -825,7 +825,7 @@ const handleExportJSON = () => {
               <div class="flex justify-between text-[10px] text-slate-450 dark:text-slate-500 font-bold leading-none">
                 <span>{{ t('tutor.certificatesCount') }} {{ c.certified }} / {{ c.totalStudents }}</span>
                 <span v-if="c.rate < 30" class="text-rose-500 dark:text-rose-400">⚠️ {{ t('tutor.dropoutWarning')
-                  }}</span>
+                }}</span>
                 <span v-else-if="c.rate >= 60" class="text-emerald-600 dark:text-emerald-400">✓ {{
                   t('tutor.healthyFlow') }}</span>
                 <span v-else class="text-amber-600 dark:text-amber-400">✎ {{ t('tutor.adjustmentsAdvised') }}</span>
@@ -861,7 +861,7 @@ const handleExportJSON = () => {
             <div v-if="pedagogicalRecommendations.length === 0"
               class="text-xs text-slate-400 dark:text-slate-500 italic py-4 text-center">
               {{ locale === 'pt' ? 'Tudo sob controle! Nenhum gargalo didático relevante detectado no momento.' :
-              'Everything under control! No relevant didactic bottleneck detected at the moment.' }}
+                'Everything under control! No relevant didactic bottleneck detected at the moment.' }}
             </div>
           </div>
         </div>
@@ -881,7 +881,7 @@ const handleExportJSON = () => {
         'flex-1 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer text-center',
         analyticsTab === 'courses' ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-2xs' : 'text-gray-500 dark:text-gray-455 hover:text-gray-900 dark:hover:text-white'
       ]">
-        📚 {{ locale === 'pt' ? `Histórico de Cursos (${courses.length})` : `Course History (${courses.length})` }}
+        📚 {{ t('tutor.courseHistoryTab', { count: courses.length }) }}
       </button>
     </div>
 
@@ -891,23 +891,22 @@ const handleExportJSON = () => {
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h3 class="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider block">
-            {{ locale === 'pt' ? 'Estudantes sob sua Coordenação' : 'Students Under Your Coordination' }}
+            {{ t('tutor.studentsUnderCoordination') }}
           </h3>
           <p class="text-xs text-gray-400 dark:text-gray-500 leading-tight block">
-            {{ locale === 'pt' ? 'Acompanhe as notas dos quizzes e emita relatórios analíticos formatados.' : 'Track
-            quiz scores and export formatted analytical reports.' }}
+            {{ t('tutor.studentsUnderCoordinationSub') }}
           </p>
         </div>
 
         <div class="flex flex-wrap items-center gap-2">
           <button type="button" @click="handleExportXLSX"
             class="p-1 px-3 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-800 dark:bg-emerald-950/45 dark:border-emerald-900/40 dark:text-emerald-300 rounded-lg text-[10.5px] font-bold cursor-pointer transition-all flex items-center gap-1">
-            📥 {{ locale === 'pt' ? 'Exportar Excel (XLSX)' : 'Export Excel (XLSX)' }}
+            📥 {{ t('tutor.exportExcel') }}
           </button>
 
           <button type="button" @click="handleExportJSON"
             class="p-1 px-3 bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-800 dark:bg-blue-950/45 dark:border-blue-900/40 dark:text-blue-300 rounded-lg text-[10.5px] font-bold cursor-pointer transition-all flex items-center gap-1">
-            📥 {{ locale === 'pt' ? 'Exportar JSON' : 'Export JSON' }}
+            📥 {{ t('tutor.exportJson') }}
           </button>
         </div>
       </div>
@@ -919,27 +918,24 @@ const handleExportJSON = () => {
             class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 dark:text-gray-500">
             <Search class="w-4 h-4" />
           </span>
-          <input type="text"
-            :placeholder="locale === 'pt' ? 'Pesquisar estudante por nome ou ID...' : 'Search student by name or ID...'"
-            v-model="studentQuery"
+          <input type="text" :placeholder="t('tutor.searchStudentPlaceholder')" v-model="studentQuery"
             class="w-full text-xs pl-9 bg-slate-50 dark:bg-slate-950 focus:bg-white dark:focus:bg-slate-900 border border-gray-200 dark:border-slate-850 rounded-xl p-2.5 focus:outline-hidden text-gray-900 dark:text-white" />
         </div>
       </div>
 
       <p v-if="filteredStudentReports.length === 0" class="text-xs text-slate-400 dark:text-slate-500 italic py-4">
-        {{ locale === 'pt' ? 'Nenhum estudante correspondente encontrado.' : 'No matching student found.' }}
+        {{ t('tutor.noMatchingStudent') }}
       </p>
       <div v-else class="overflow-x-auto">
         <table id="instructor-analytics-table" class="w-full text-left border-collapse text-xs">
           <thead>
             <tr
               class="border-b border-gray-100 dark:border-slate-850 text-gray-400 dark:text-slate-400 uppercase tracking-wider text-[10px] font-bold">
-              <th class="py-2.5 font-bold">{{ locale === 'pt' ? 'Estudante' : 'Student' }}</th>
-              <th class="py-2.5 font-bold">{{ locale === 'pt' ? 'Curso Assinalado' : 'Assigned Course' }}</th>
-              <th class="py-2.5 font-bold text-center">{{ locale === 'pt' ? 'Lições Concluídas' : 'Lessons Completed' }}
-              </th>
-              <th class="py-2.5 font-bold">{{ locale === 'pt' ? 'Média Acadêmica' : 'Academic Average' }}</th>
-              <th class="py-2.5 font-bold">{{ locale === 'pt' ? 'Status do Certificado' : 'Certificate Status' }}</th>
+              <th class="py-2.5 font-bold">{{ t('tutor.thStudent') }}</th>
+              <th class="py-2.5 font-bold">{{ t('tutor.thAssignedCourse') }}</th>
+              <th class="py-2.5 font-bold text-center">{{ t('tutor.thLessonsCompleted') }}</th>
+              <th class="py-2.5 font-bold">{{ t('tutor.thAcademicAverage') }}</th>
+              <th class="py-2.5 font-bold">{{ t('tutor.thCertificateStatus') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -954,7 +950,7 @@ const handleExportJSON = () => {
                 {{courses.find(c => c.id === report.courseId)?.title || "Manual Course"}}
               </td>
               <td class="py-3 text-center font-bold text-blue-600 dark:text-blue-400">{{ report.completedLessons.length
-                }} check(s)</td>
+              }} check(s)</td>
               <td class="py-3">
                 <template v-if="Object.values(report.quizScores).length > 0">
                   <span :class="[
@@ -964,21 +960,22 @@ const handleExportJSON = () => {
                       : 'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300'
                   ]">
                     {{
-                      Math.round(Object.values(report.quizScores).reduce((a, b) => a + b, 0) / Object.values(report.quizScores).length)
+                      Math.round(Object.values(report.quizScores).reduce((a, b) => a + b, 0) /
+                        Object.values(report.quizScores).length)
                     }}%
                   </span>
                 </template>
                 <span v-else class="text-gray-400 dark:text-slate-500 italic">
-                  {{ locale === 'pt' ? 'Sem notas' : 'No grades' }}
+                  {{ t('tutor.noGrades') }}
                 </span>
               </td>
               <td class="py-3">
                 <span v-if="report.certified"
                   class="inline-flex items-center gap-1 text-[10px] font-bold bg-emerald-100 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 px-2 py-0.5 rounded-full select-none">
-                  <Check class="w-2.5 h-2.5" /> {{ locale === 'pt' ? 'Liberado' : 'Released' }}
+                  <Check class="w-2.5 h-2.5" /> {{ t('tutor.released') }}
                 </span>
                 <span v-else class="text-gray-400 dark:text-slate-500 italic font-medium">
-                  {{ locale === 'pt' ? 'Em andamento' : 'In progress' }}
+                  {{ t('tutor.inProgress') }}
                 </span>
               </td>
             </tr>
@@ -989,33 +986,23 @@ const handleExportJSON = () => {
       <!-- Paginator Footer for Students list -->
       <div v-if="filteredStudentReports.length > 0"
         class="pt-4 flex items-center justify-between gap-4 text-xs font-semibold select-none text-slate-450 dark:text-slate-400 border-t border-gray-100 dark:border-slate-850/60 mt-3 flex-wrap">
-        <span>
-          <template v-if="locale === 'pt'">
-            Mostrando <strong>{{ Math.min(filteredStudentReports.length, (studentPage - 1) * studentsPerPage + 1)
-              }}</strong> a
-            <strong>{{ Math.min(filteredStudentReports.length, studentPage * studentsPerPage) }}</strong> de
-            <strong>{{ filteredStudentReports.length }}</strong> estudantes
-          </template>
-          <template v-else>
-            Showing <strong>{{ Math.min(filteredStudentReports.length, (studentPage - 1) * studentsPerPage + 1)
-              }}</strong> to
-            <strong>{{ Math.min(filteredStudentReports.length, studentPage * studentsPerPage) }}</strong> of
-            <strong>{{ filteredStudentReports.length }}</strong> students
-          </template>
-        </span>
+        <span v-html="t('tutor.showingStudents', {
+          from: `<strong>${Math.min(filteredStudentReports.length, (studentPage - 1) * studentsPerPage + 1)}</strong>`,
+          to: `<strong>${Math.min(filteredStudentReports.length, studentPage * studentsPerPage)}</strong>`,
+          total: `<strong>${filteredStudentReports.length}</strong>`
+        })"></span>
         <div class="flex items-center gap-1.5">
           <button type="button" :disabled="studentPage === 1" @click="studentPage--"
             class="p-1 px-2.5 bg-slate-50 dark:bg-slate-950 hover:bg-slate-100 dark:hover:bg-slate-850 border border-gray-200 dark:border-slate-850 rounded-lg cursor-pointer disabled:opacity-40 transition disabled:cursor-not-allowed inline-flex items-center gap-1 text-[11px]">
-            <ChevronLeft class="w-3.5 h-3.5" /> {{ locale === 'pt' ? 'Anterior' : 'Previous' }}
+            <ChevronLeft class="w-3.5 h-3.5" /> {{ t('tutor.prev') }}
           </button>
           <span class="px-2 text-[11px]">
-            {{ locale === 'pt' ? `Página ${studentPage} de ${totalStudentPages || 1}` : `Page ${studentPage} of
-            ${totalStudentPages || 1}` }}
+            {{ t('tutor.pageOf', { current: studentPage, total: totalStudentPages || 1 }) }}
           </span>
           <button type="button" :disabled="studentPage === totalStudentPages || totalStudentPages <= 1"
             @click="studentPage++"
             class="p-1 px-2.5 bg-slate-50 dark:bg-slate-950 hover:bg-slate-100 dark:hover:bg-slate-850 border border-gray-200 dark:border-slate-850 rounded-lg cursor-pointer disabled:opacity-40 transition disabled:cursor-not-allowed inline-flex items-center gap-1 text-[11px]">
-            {{ locale === 'pt' ? 'Próximo' : 'Next' }}
+            {{ t('tutor.next') }}
             <ChevronRight class="w-3.5 h-3.5" />
           </button>
         </div>
@@ -1029,12 +1016,10 @@ const handleExportJSON = () => {
         class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-100/40 dark:border-slate-800/60 pb-3">
         <div>
           <h3 class="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider block">
-            {{ locale === 'pt' ? 'Histórico de Cursos no Servidor' : 'Course History on Server' }}
+            {{ t('tutor.courseHistoryTitle') }}
           </h3>
           <p class="text-xs text-gray-400 dark:text-gray-500 leading-tight block">
-            {{ locale === 'pt' ? 'Veja a grade acadêmica de todas as aulas em circulação e gerencie as publicações.' :
-              'View
-            the academic curriculum of all circulating classes and manage publications.' }}
+            {{ t('tutor.courseHistorySub') }}
           </p>
         </div>
 
@@ -1044,15 +1029,13 @@ const handleExportJSON = () => {
             class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 dark:text-gray-500">
             <Search class="w-4 h-4" />
           </span>
-          <input type="text"
-            :placeholder="locale === 'pt' ? 'Pesquisar por título ou nível...' : 'Search by title or level...'"
-            v-model="coursesQuery"
+          <input type="text" :placeholder="t('tutor.searchCoursePlaceholder')" v-model="coursesQuery"
             class="w-full text-xs pl-9 bg-slate-50 dark:bg-slate-950 focus:bg-white dark:focus:bg-slate-900 border border-gray-200 dark:border-slate-850 rounded-xl p-2.5 focus:outline-hidden text-gray-900 dark:text-white" />
         </div>
       </div>
 
       <p v-if="filteredCourses.length === 0" class="text-xs text-gray-455 dark:text-slate-500 italic py-4">
-        {{ locale === 'pt' ? 'Nenhum curso correspondente encontrado.' : 'No matching course found.' }}
+        {{ t('tutor.noMatchingCourse') }}
       </p>
       <div v-else class="space-y-3.5">
         <div v-for="course in paginatedCoursesList" :key="course.id"
@@ -1063,32 +1046,27 @@ const handleExportJSON = () => {
                 <span class="font-extrabold text-[12.5px] text-slate-800 dark:text-white">{{ course.title }}</span>
                 <span
                   class="px-2 py-0.2 bg-blue-50 text-blue-700 text-[9px] font-bold border border-blue-100 rounded-sm">
-                  {{ locale === 'pt' ? `Nível ${course.level}` : `Level ${course.level}` }}
+                  {{ t('tutor.levelText', { level: course.level }) }}
                 </span>
               </div>
-              <p class="text-[11px] text-gray-550 dark:text-gray-400 leading-none">
-                <template v-if="locale === 'pt'">
-                  Criado por: <strong>{{ course.creatorName || "Voluntário" }}</strong> | {{lessons.filter(l =>
-                    l.courseId === course.id).length }} lições cadastradas
-                </template>
-                <template v-else>
-                  Created by: <strong>{{ course.creatorName || "Volunteer" }}</strong> | {{lessons.filter(l =>
-                    l.courseId === course.id).length }} lessons registered
-                </template>
+              <p class="text-[11px] text-gray-550 dark:text-gray-400 leading-none" v-html="t('tutor.courseCreatedBy', {
+                author: course.creatorName || t('tutor.volunteerFallback'),
+                count: lessons.filter(l => l.courseId === course.id).length
+              })">
               </p>
               <!-- Course progress criteria tag summary -->
               <div class="flex items-center gap-1.5 mt-1.5 flex-wrap">
                 <span
                   class="text-[9px] px-1.5 py-0.5 rounded-sm bg-slate-200/80 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-bold uppercase tracking-wider">
-                  {{ locale === 'pt' ? 'Métricas:' : 'Metrics:' }}
+                  {{ t('tutor.metricsLabel') }}
                 </span>
                 <span
                   :class="['text-[8.5px] px-1.5 py-0.5 rounded-sm font-bold uppercase border', (!course.progressConfig || course.progressConfig.requireReading) ? 'bg-emerald-50 border-emerald-100/50 text-emerald-700' : 'bg-gray-100 border-gray-150 text-gray-400 line-through']">
-                  {{ locale === 'pt' ? 'Leitura' : 'Reading' }}
+                  {{ t('tutor.reading') }}
                 </span>
                 <span
                   :class="['text-[8.5px] px-1.5 py-0.5 rounded-sm font-bold uppercase border', (course.progressConfig && course.progressConfig.requireVideo) ? 'bg-emerald-50 border-emerald-100/50 text-emerald-700' : 'bg-gray-100 border-gray-150 text-gray-400 line-through']">
-                  {{ locale === 'pt' ? 'Vídeo' : 'Video' }}
+                  {{ t('tutor.video') }}
                 </span>
                 <span
                   :class="['text-[8.5px] px-1.5 py-0.5 rounded-sm font-bold uppercase border', (course.progressConfig && course.progressConfig.requireQuiz) ? 'bg-emerald-50 border-emerald-100/50 text-emerald-700' : 'bg-gray-100 border-gray-150 text-gray-400 line-through']">Quiz
@@ -1099,28 +1077,28 @@ const handleExportJSON = () => {
             <div class="flex flex-wrap items-center gap-1.5 self-end sm:self-auto">
               <button type="button" @click="exportCourseToJson(course)"
                 class="px-2.5 py-1.5 bg-emerald-50 border border-emerald-200 text-emerald-700 hover:bg-emerald-100 hover:text-emerald-950 rounded-lg text-[10.5px] font-bold flex items-center gap-1 cursor-pointer transition-all shadow-2xs"
-                :title="locale === 'pt' ? 'Exportar curso completo em JSON' : 'Export full course to JSON'">
+                :title="t('tutor.exportCourseJsonTitle')">
                 <UploadCloud class="w-3.5 h-3.5 rotate-180" />
-                {{ locale === 'pt' ? 'Exportar (JSON)' : 'Export (JSON)' }}
+                {{ t('tutor.exportJsonLabel') }}
               </button>
 
               <button type="button" @click="expandedCourseId = expandedCourseId === course.id ? null : course.id"
                 class="px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white rounded-lg text-[10.5px] font-bold flex items-center gap-1 cursor-pointer transition-all shadow-2xs">
-                {{ locale === 'pt' ? 'Grade de Aulas' : 'Lessons Grid' }}
+                {{ t('tutor.lessonsGridLabel') }}
                 <ChevronUp v-if="expandedCourseId === course.id" class="w-3.5 h-3.5" />
                 <ChevronDown v-else class="w-3.5 h-3.5" />
               </button>
 
               <button type="button" @click="startEditCert(course)"
                 class="px-3 py-1.5 bg-blue-50/70 hover:bg-blue-100/90 text-blue-700 border border-blue-200 rounded-lg text-[10.5px] font-bold flex items-center gap-1 cursor-pointer transition-all shadow-2xs animate-fadeIn"
-                :title="locale === 'pt' ? 'Configurar a estética do certificado emitido para o curso' : 'Configure the aesthetics of the certificate issued for the course'">
+                :title="t('tutor.customizeCertTitle')">
                 <Award class="w-3.5 h-3.5" />
-                {{ locale === 'pt' ? 'Personalizar Certificado' : 'Customize Certificate' }}
+                {{ t('tutor.customizeCertLabel') }}
               </button>
 
               <button v-if="deleteCourseFn" type="button" @click="deleteConfirm(course)"
                 class="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg cursor-pointer transition-colors"
-                :title="locale === 'pt' ? 'Excluir Curso' : 'Delete Course'">
+                :title="t('tutor.deleteCourseTitle')">
                 <Trash2 class="w-3.5 h-3.5" />
               </button>
             </div>
@@ -1132,10 +1110,10 @@ const handleExportJSON = () => {
             <div class="flex items-center justify-between border-b border-slate-100 pb-2">
               <h4 class="text-xs font-black uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
                 <Award class="w-4 h-4 text-amber-500" />
-                {{ locale === 'pt' ? 'Editor de Certificado Simplificado' : 'Simplified Certificate Editor' }}
+                {{ t('tutor.certEditorTitle') }}
               </h4>
               <button @click="cancelEditCert" class="text-xs font-semibold text-slate-400 hover:text-slate-600">
-                {{ locale === 'pt' ? 'Fechar' : 'Close' }}
+                {{ t('tutor.close') }}
               </button>
             </div>
 
@@ -1143,12 +1121,10 @@ const handleExportJSON = () => {
               <!-- Color Config -->
               <div class="space-y-2">
                 <label class="block text-xs font-bold text-slate-600">
-                  {{ locale === 'pt' ? 'Cor Temática do Certificado' : 'Certificate Theme Color' }}
+                  {{ t('tutor.certThemeColor') }}
                 </label>
                 <p class="text-[10.5px] text-slate-400 leading-tight">
-                  {{ locale === 'pt' ? 'Escolha a cor para o brasão, borda dupla e ornamentos de canto.' : 'Choose the
-                  color
-                  for the seal, double border, and corner ornaments.' }}
+                  {{ t('tutor.certThemeColorSub') }}
                 </p>
 
                 <!-- Preset Swatches -->
@@ -1156,8 +1132,7 @@ const handleExportJSON = () => {
                   <button v-for="color in ['#1e3a8a', '#065f46', '#1c1917', '#881337', '#7c2d12', '#4c1d95']"
                     :key="color" type="button" @click="certColorInput = color"
                     class="w-6 h-6 rounded-full border border-slate-200 transition-transform active:scale-90 relative cursor-pointer"
-                    :style="{ backgroundColor: color }"
-                    :title="locale === 'pt' ? 'Clique para selecionar' : 'Click to select'">
+                    :style="{ backgroundColor: color }" :title="t('tutor.clickToSelect')">
                     <span v-if="certColorInput === color"
                       class="absolute inset-0 flex items-center justify-center text-[10px] text-white font-bold">✓</span>
                   </button>
@@ -1174,12 +1149,10 @@ const handleExportJSON = () => {
               <!-- Icon seal Config -->
               <div class="space-y-2">
                 <label class="block text-xs font-bold text-slate-600">
-                  {{ locale === 'pt' ? 'Ícone PNG Customizado (Selo)' : 'Custom PNG Icon (Seal)' }}
+                  {{ t('tutor.certSealIcon') }}
                 </label>
                 <p class="text-[10.5px] text-slate-400 leading-tight">
-                  {{ locale === 'pt' ? 'Insira a URL de uma imagem PNG para ser inserida como brasão central no pé do
-                  certificado.' : 'Enter the URL of a PNG image to be inserted as a central seal at the bottom of the
-                  certificate.' }}
+                  {{ t('tutor.certSealIconSub') }}
                 </p>
 
                 <input type="url" v-model="certIconUrlInput"
@@ -1190,28 +1163,26 @@ const handleExportJSON = () => {
                 <div class="space-y-1.5">
                   <div class="flex items-center justify-between gap-2 flex-wrap">
                     <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">
-                      {{ locale === 'pt' ? 'Modelos recomendados (Clique para usar):' : 'Recommended models (Click to
-                      use):'
-                      }}
+                      {{ t('tutor.recommendedModels') }}
                     </p>
                     <a href="https://icons8.com.br/icons" target="_blank" rel="noopener noreferrer"
                       class="text-[9px] text-blue-600 hover:underline flex items-center gap-1 font-bold cursor-pointer shrink-0">
                       <ExternalLink class="w-3 h-3" />
-                      {{ locale === 'pt' ? 'Mais opções no Icons8 ↗' : 'More options on Icons8 ↗' }}
+                      {{ t('tutor.moreOptionsIcons8') }}
                     </a>
                   </div>
                   <div class="flex flex-wrap gap-2">
                     <button type="button" @click="certIconUrlInput = 'https://img.icons8.com/color/96/gold-medal.png'"
                       class="text-[9.5px] bg-amber-50 text-amber-700 hover:bg-amber-100 font-semibold px-2 py-1 rounded border border-amber-200 transition-colors cursor-pointer">🏅
-                      {{ locale === 'pt' ? 'Medalha de Ouro' : 'Gold Medal' }}</button>
+                      {{ t('tutor.goldMedal') }}</button>
                     <button type="button"
                       @click="certIconUrlInput = 'https://img.icons8.com/color/96/quality-badge.png'"
                       class="text-[9.5px] bg-blue-50 text-blue-700 hover:bg-blue-100 font-semibold px-2 py-1 rounded border border-blue-200 transition-colors cursor-pointer">⭐
-                      {{ locale === 'pt' ? 'Estrela Real' : 'Royal Star' }}</button>
+                      {{ t('tutor.royalStar') }}</button>
                     <button type="button"
                       @click="certIconUrlInput = 'https://img.icons8.com/?size=100&id=lsZBoVE2zMo3&format=png&color=000000'"
                       class="text-[9.5px] bg-emerald-50 text-emerald-700 hover:bg-emerald-100 font-semibold px-2 py-1 rounded border border-emerald-200 transition-colors cursor-pointer">🛡️
-                      {{ locale === 'pt' ? 'Selo de Confiança' : 'Trust Seal' }}</button>
+                      {{ t('tutor.trustSeal') }}</button>
                   </div>
                 </div>
               </div>
@@ -1222,57 +1193,42 @@ const handleExportJSON = () => {
               <!-- Fundo (Background) Selection -->
               <div class="space-y-1.5 text-left">
                 <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
-                  {{ locale === 'pt' ? 'Fundo do Documento' : 'Document Background' }}
+                  {{ t('tutor.certBackground') }}
                 </label>
                 <select v-model="certBgStyleInput"
                   class="w-full bg-slate-50 border border-slate-200 text-slate-850 rounded-xl text-xs p-2 focus:outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer">
-                  <option value="vintage-parchment">📜 {{ locale === 'pt' ? 'Pergaminho Vintage (Claro)' : 'Vintage
-                    Parchment (Light)' }}</option>
-                  <option value="dark-velvet">🌌 {{ locale === 'pt' ? 'Veludo Negro (Escuro)' : 'Dark Velvet (Dark)' }}
-                  </option>
-                  <option value="clean-light">⬜ {{ locale === 'pt' ? 'Branco Clássico (Limpo)' : 'Classic White (Clean)'
-                    }}
-                  </option>
+                  <option value="vintage-parchment">📜 {{ t('tutor.vintageParchment') }}</option>
+                  <option value="dark-velvet">🌌 {{ t('tutor.darkVelvet') }}</option>
+                  <option value="clean-light">⬜ {{ t('tutor.cleanLight') }}</option>
                 </select>
               </div>
 
               <!-- Moldura (Frame) Selection -->
               <div class="space-y-1.5 text-left">
                 <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
-                  {{ locale === 'pt' ? 'Estilo da Moldura' : 'Frame Style' }}
+                  {{ t('tutor.certFrameStyle') }}
                 </label>
                 <select v-model="certFrameStyleInput"
                   class="w-full bg-slate-50 border border-slate-200 text-slate-850 rounded-xl text-xs p-2 focus:outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer">
-                  <option value="medieval-gothic">🏰 {{ locale === 'pt' ? 'Gótico Medieval (Ornato Antigo)' : 'Medieval
-                  Gothic(Ancient Ornate)' }}</option>
-                  <option value="classic-imperial">🏛️ {{ locale === 'pt' ? 'Imperial Clássico (Bordas Duplas)' :
-                    'Classic
-                    Imperial (Double Borders)' }}</option>
-                  <option value="modern-border">📱 {{ locale === 'pt' ? 'Moderno Minimalista (Linhas Retas)' : 'Modern
-                  Minimalist(Straight Lines)' }}</option>
+                  <option value="medieval-gothic">🏰 {{ t('tutor.medievalGothic') }}</option>
+                  <option value="classic-imperial">🏛️ {{ t('tutor.classicImperial') }}</option>
+                  <option value="modern-border">📱 {{ t('tutor.modernBorder') }}</option>
                 </select>
               </div>
 
               <!-- Accent Color Selection -->
               <div class="space-y-1.5 text-left">
                 <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
-                  {{ locale === 'pt' ? 'Cor dos Detalhes & Selo' : 'Details & Seal Color' }}
+                  {{ t('tutor.certDetailsColor') }}
                 </label>
                 <select v-model="certDetailColorInput"
                   class="w-full bg-slate-50 border border-slate-200 text-slate-850 rounded-xl text-xs p-2 focus:outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer">
-                  <option value="gold">⚜️ {{ locale === 'pt' ? 'Ouro Nobre (Gradiente)' : 'Noble Gold (Gradient)' }}
-                  </option>
-                  <option value="silver">🛡️ {{ locale === 'pt' ? 'Prata Imperial (Gradiente)' : 'Imperial Silver
-                    (Gradient)' }}</option>
-                  <option value="bronze">⚔️ {{ locale === 'pt' ? 'Bronze Antigo (Gradiente)' : 'Ancient Bronze
-                    (Gradient)'
-                    }}</option>
-                  <option value="ruby">💎 {{ locale === 'pt' ? 'Rubi Real (Gradiente)' : 'Royal Ruby (Gradient)' }}
-                  </option>
-                  <option value="emerald">🌲 {{ locale === 'pt' ? 'Esmeralda Mágica (Gradiente)' : 'Magic Emerald
-                    (Gradient)' }}</option>
-                  <option value="theme">🎨 {{ locale === 'pt' ? 'Cor Padrão do Curso' : 'Default Course Color' }}
-                  </option>
+                  <option value="gold">⚜️ {{ t('tutor.goldGradient') }}</option>
+                  <option value="silver">🛡️ {{ t('tutor.silverGradient') }}</option>
+                  <option value="bronze">⚔️ {{ t('tutor.bronzeGradient') }}</option>
+                  <option value="ruby">💎 {{ t('tutor.rubyGradient') }}</option>
+                  <option value="emerald">🌲 {{ t('tutor.emeraldGradient') }}</option>
+                  <option value="theme">🎨 {{ t('tutor.defaultCourseColor') }}</option>
                 </select>
               </div>
             </div>
@@ -1280,16 +1236,16 @@ const handleExportJSON = () => {
             <div class="flex flex-col sm:flex-row items-center justify-between gap-2 border-t border-slate-100 pt-3">
               <button type="button" @click="openPreviewCert(course)"
                 class="w-full sm:w-auto px-4 py-1.5 text-xs bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-bold transition-colors cursor-pointer shadow-2xs flex items-center justify-center gap-1.5 mr-auto">
-                <span>👁️ {{ locale === 'pt' ? 'Ver Preview do Certificado' : 'View Certificate Preview' }}</span>
+                <span>👁️ {{ t('tutor.viewCertPreview') }}</span>
               </button>
               <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
                 <button type="button" @click="cancelEditCert"
                   class="px-3 py-1.5 text-xs text-slate-500 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer">
-                  {{ locale === 'pt' ? 'Cancelar' : 'Cancel' }}
+                  {{ t('tutor.cancel') }}
                 </button>
                 <button type="button" @click="saveCertConfig"
                   class="px-4 py-1.5 text-xs bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold transition-colors cursor-pointer shadow-2xs">
-                  {{ locale === 'pt' ? 'Salvar Configuração' : 'Save Configuration' }}
+                  {{ t('tutor.saveConfiguration') }}
                 </button>
               </div>
             </div>
@@ -1299,23 +1255,22 @@ const handleExportJSON = () => {
           <div v-if="expandedCourseId === course.id"
             class="bg-white rounded-lg border border-slate-200/80 p-3.5 space-y-2.5 animate-fadeIn">
             <p class="text-[10px] text-slate-500 uppercase font-black tracking-widest border-b border-slate-100 pb-1">
-              📚 {{ locale === 'pt' ? 'Matriz Curricular (Grade de Lições)' : 'Curriculum Grid (Lessons List)' }}
+              📚 {{ t('tutor.curriculumGridTitle') }}
             </p>
 
             <p v-if="lessons.filter(l => l.courseId === course.id).length === 0"
-              class="text-xs text-gray-450 italic pl-1">
-              {{ locale === 'pt' ? 'Este curso não possui lições cadastradas na base de dados.' : 'This course has no
-              lessons registered in the database.' }}
+              class="text-xs text-gray-455 italic pl-1">
+              {{ t('tutor.noLessonsRegistered') }}
             </p>
             <div v-else class="overflow-x-auto">
               <table class="w-full text-left text-[11px] font-medium text-slate-600">
                 <thead>
                   <tr class="border-b border-slate-100 text-slate-400 font-bold">
-                    <th class="pb-1 text-center w-12">{{ locale === 'pt' ? 'Ordem' : 'Order' }}</th>
-                    <th class="pb-1 pl-2">{{ locale === 'pt' ? 'Título da Lição' : 'Lesson Title' }}</th>
-                    <th class="pb-1 text-center">{{ locale === 'pt' ? 'Vídeo' : 'Video' }}</th>
-                    <th class="pb-1 text-center">{{ locale === 'pt' ? 'Comprimento Texto' : 'Text Length' }}</th>
-                    <th class="pb-1 text-right">{{ locale === 'pt' ? 'Qtd. Questões' : 'Quiz Qs' }}</th>
+                    <th class="pb-1 text-center w-12">{{ t('tutor.thOrder') }}</th>
+                    <th class="pb-1 pl-2">{{ t('tutor.thLessonTitle') }}</th>
+                    <th class="pb-1 text-center">{{ t('tutor.thVideo') }}</th>
+                    <th class="pb-1 text-center">{{ t('tutor.thTextLength') }}</th>
+                    <th class="pb-1 text-right">{{ t('tutor.thQuizQs') }}</th>
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-50">
@@ -1326,17 +1281,17 @@ const handleExportJSON = () => {
                     <td class="py-2 text-center">
                       <span v-if="l.videoUrl"
                         class="inline-flex text-[9px] font-bold bg-indigo-50 text-indigo-700 px-1.5 rounded-sm border border-indigo-100">
-                        {{ locale === 'pt' ? 'Sim' : 'Yes' }}
+                        {{ t('tutor.yes') }}
                       </span>
                       <span v-else class="text-gray-400 italic">
-                        {{ locale === 'pt' ? 'Não' : 'No' }}
+                        {{ t('tutor.no') }}
                       </span>
                     </td>
                     <td class="py-2 text-center font-mono text-slate-400">
-                      {{ locale === 'pt' ? `${l.content.length} caracs.` : `${l.content.length} chars.` }}
+                      {{ t('tutor.charsCount', { count: l.content.length }) }}
                     </td>
                     <td class="py-2 text-right font-bold text-emerald-600 font-mono pr-2">
-                      {{ locale === 'pt' ? `${(l.quiz || []).length} qts.` : `${(l.quiz || []).length} qs.` }}
+                      {{ t('tutor.questionsCount', { count: (l.quiz || []).length }) }}
                     </td>
                   </tr>
                 </tbody>
@@ -1350,30 +1305,24 @@ const handleExportJSON = () => {
       <div v-if="filteredCourses.length > 0"
         class="pt-4 flex items-center justify-between gap-4 text-xs font-semibold select-none text-slate-450 dark:text-slate-400 border-t border-gray-200/60 dark:border-slate-800 mt-3 flex-wrap">
         <span>
-          <template v-if="locale === 'pt'">
-            Mostrando <strong>{{ Math.min(filteredCourses.length, (coursesPage - 1) * coursesPerPage + 1) }}</strong> a
-            <strong>{{ Math.min(filteredCourses.length, coursesPage * coursesPerPage) }}</strong> de
-            <strong>{{ filteredCourses.length }}</strong> cursos no servidor
-          </template>
-          <template v-else>
-            Showing <strong>{{ Math.min(filteredCourses.length, (coursesPage - 1) * coursesPerPage + 1) }}</strong> to
-            <strong>{{ Math.min(filteredCourses.length, coursesPage * coursesPerPage) }}</strong> of
-            <strong>{{ filteredCourses.length }}</strong> server courses
-          </template>
+          {{ t('tutor.showingCourses', {
+            from: Math.min(filteredCourses.length, (coursesPage - 1) * coursesPerPage + 1),
+            to: Math.min(filteredCourses.length, coursesPage * coursesPerPage),
+            total: filteredCourses.length
+          }) }}
         </span>
         <div class="flex items-center gap-1.5">
           <button type="button" :disabled="coursesPage === 1" @click="coursesPage--"
             class="p-1 px-2.5 bg-slate-50 dark:bg-slate-950 hover:bg-slate-100 dark:hover:bg-slate-850 border border-gray-200 dark:border-slate-850 rounded-lg cursor-pointer disabled:opacity-40 transition disabled:cursor-not-allowed inline-flex items-center gap-1 text-[11px]">
-            <ChevronLeft class="w-3.5 h-3.5" /> {{ locale === 'pt' ? 'Anterior' : 'Previous' }}
+            <ChevronLeft class="w-3.5 h-3.5" /> {{ t('tutor.prev') }}
           </button>
           <span class="px-2 text-[11px]">
-            {{ locale === 'pt' ? `Página ${coursesPage} de ${totalCoursesPages || 1}` : `Page ${coursesPage} of
-            ${totalCoursesPages || 1}` }}
+            {{ t('tutor.pageOf', { current: coursesPage, total: totalCoursesPages || 1 }) }}
           </span>
           <button type="button" :disabled="coursesPage === totalCoursesPages || totalCoursesPages <= 1"
             @click="coursesPage++"
             class="p-1 px-2.5 bg-slate-50 dark:bg-slate-950 hover:bg-slate-100 dark:hover:bg-slate-850 border border-gray-200 dark:border-slate-850 rounded-lg cursor-pointer disabled:opacity-40 transition disabled:cursor-not-allowed inline-flex items-center gap-1 text-[11px]">
-            {{ locale === 'pt' ? 'Próximo' : 'Next' }}
+            {{ t('tutor.next') }}
             <ChevronRight class="w-3.5 h-3.5" />
           </button>
         </div>
@@ -1394,41 +1343,31 @@ const handleExportJSON = () => {
             <div>
               <h3
                 class="text-sm sm:text-base font-extrabold text-slate-950 dark:text-white uppercase tracking-wider leading-none">
-                {{ locale === 'pt' ? 'Excluir Curso' : 'Delete Course' }}
+                {{ t('tutor.deleteCourseModalTitle') }}
               </h3>
               <p class="text-[10px] text-rose-500 font-bold uppercase mt-1">
-                {{ locale === 'pt' ? 'Ação Irreversível' : 'Irreversible Action' }}
+                {{ t('tutor.irreversibleAction') }}
               </p>
             </div>
           </div>
 
           <div class="space-y-2">
-            <p class="text-xs sm:text-sm text-slate-700 dark:text-slate-350 leading-relaxed font-semibold">
-              <template v-if="locale === 'pt'">
-                Tem certeza absoluta que deseja remover permanentemente o curso <strong
-                  class="text-slate-950 dark:text-white">"{{ courseToDelete.title }}"</strong>?
-              </template>
-              <template v-else>
-                Are you absolutely sure you want to permanently remove the course <strong
-                  class="text-slate-950 dark:text-white">"{{ courseToDelete.title }}"</strong>?
-              </template>
+            <p class="text-xs sm:text-sm text-slate-700 dark:text-slate-350 leading-relaxed font-semibold"
+              v-html="t('tutor.deleteCourseConfirmText', { title: courseToDelete.title })">
             </p>
             <p class="text-[11px] text-slate-400 dark:text-slate-500 leading-normal">
-              {{ locale === 'pt' ? 'Todas as lições, quizes, e dados vinculados serão excluídos permanentemente. Os
-              alunos
-              inscritos perderão acesso instantaneamente.' : 'All lessons, quizzes, and linked data will be permanently
-              deleted.Enrolled students will lose access instantly.' }}
+              {{ t('tutor.deleteCourseConfirmSub') }}
             </p>
           </div>
 
           <div class="flex gap-3 pt-2">
             <button type="button" @click="courseToDelete = null"
               class="w-1/2 py-3 bg-slate-100 dark:bg-slate-850 hover:bg-slate-200 dark:hover:bg-slate-850 text-slate-700 dark:text-slate-300 font-bold text-xs sm:text-sm rounded-xl transition duration-150 cursor-pointer shadow-2xs">
-              {{ locale === 'pt' ? 'Cancelar' : 'Cancel' }}
+              {{ t('tutor.cancel') }}
             </button>
             <button type="button" @click="confirmDeleteCourse"
               class="w-1/2 py-3 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs sm:text-sm rounded-xl transition duration-155 cursor-pointer shadow-md">
-              {{ locale === 'pt' ? 'Sim, Excluir Curso' : 'Yes, Delete Course' }}
+              {{ t('tutor.deleteCourseConfirmButton') }}
             </button>
           </div>
         </div>
