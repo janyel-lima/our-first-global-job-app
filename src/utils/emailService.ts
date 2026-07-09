@@ -1,3 +1,6 @@
+import { doc, getDoc } from 'firebase/firestore';
+import { activeEnvMode, db } from '../firebase';
+
 /**
  * Service to manage secure, quota-conscious EmailJS integrations.
  * Due to the tight 200 emails/month free quota limit, this module
@@ -5,13 +8,40 @@
  * to preserve the allowance.
  */
 
+export interface EmailJsConfig {
+  serviceId: string;
+  templateCommId: string;
+  templateSysId: string;
+  publicKey: string;
+}
+
+// Fetch configuration dynamically from Firestore
+export async function fetchEmailJsConfig(): Promise<EmailJsConfig | null> {
+  if (activeEnvMode === 'offline') {
+    console.warn('[EmailJS] Cannot fetch config: offline mode enabled.');
+    return null;
+  }
+  try {
+    const configDocRef = doc(db, 'settings', 'emailjs');
+    const configDoc = await getDoc(configDocRef);
+    if (configDoc.exists()) {
+      return configDoc.data() as EmailJsConfig;
+    }
+  } catch (error) {
+    console.error('[EmailJS] Error fetching emailjs config from Firestore:', error);
+  }
+  return null;
+}
+
 // Helper to check if EmailJS is configured
-export const isEmailJsConfigured = (): boolean => {
+export const isEmailJsConfigured = async (): Promise<boolean> => {
+  const config = await fetchEmailJsConfig();
   return !!(
-    import.meta.env.VITE_EMAILJS_SERVICE_ID &&
-    import.meta.env.VITE_EMAILJS_PUBLIC_KEY &&
-    import.meta.env.VITE_EMAILJS_TEMPLATE_COMM_ID &&
-    import.meta.env.VITE_EMAILJS_TEMPLATE_SYS_ID
+    config &&
+    config.serviceId &&
+    config.publicKey &&
+    config.templateCommId &&
+    config.templateSysId
   );
 };
 
@@ -19,13 +49,13 @@ export const isEmailJsConfigured = (): boolean => {
 const DAILY_EMAIL_CAP = 6;
 
 const getDailyEmailsSentCount = (): number => {
-  const today = new Date().toISOString().split("T")[0];
+  const today = new Date().toISOString().split('T')[0];
   const stored = localStorage.getItem(`emailjs_sent_count_${today}`);
   return stored ? parseInt(stored, 10) : 0;
 };
 
 const incrementDailyEmailsSent = () => {
-  const today = new Date().toISOString().split("T")[0];
+  const today = new Date().toISOString().split('T')[0];
   const count = getDailyEmailsSentCount();
   localStorage.setItem(`emailjs_sent_count_${today}`, (count + 1).toString());
 };
@@ -50,16 +80,30 @@ const markChatEmailSent = (roomId: string, recipientEmail: string) => {
  * Generic core dispatcher for EmailJS REST API
  */
 async function dispatchEmail(
-  templateId: string,
+  templateType: 'sys' | 'comm',
   params: Record<string, string>
 ): Promise<boolean> {
-  if (!isEmailJsConfigured()) {
+  if (activeEnvMode === 'offline') {
+    console.warn('[EmailJS] Dispatch aborted: System is currently running offline.');
+    return false;
+  }
+
+  const config = await fetchEmailJsConfig();
+  if (
+    !config ||
+    !config.serviceId ||
+    !config.publicKey ||
+    !config.templateCommId ||
+    !config.templateSysId
+  ) {
     console.warn(
-      `[EmailJS] Dispatch skipped. Keys not fully configured in your .env. Fired template: ${templateId}`,
+      `[EmailJS] Dispatch skipped. Keys not fully configured in your database settings. Fired template type: ${templateType}`,
       params
     );
     return false;
   }
+
+  const templateId = templateType === 'sys' ? config.templateSysId : config.templateCommId;
 
   // Enforce daily cap to keep safe under quota limits
   const dailyCount = getDailyEmailsSentCount();
@@ -72,16 +116,16 @@ async function dispatchEmail(
 
   try {
     const payload = {
-      service_id: import.meta.env.VITE_EMAILJS_SERVICE_ID,
+      service_id: config.serviceId,
       template_id: templateId,
-      user_id: import.meta.env.VITE_EMAILJS_PUBLIC_KEY,
+      user_id: config.publicKey,
       template_params: params,
     };
 
-    const response = await fetch("https://api.emailjs.com/api/v1.0/email/send", {
-      method: "POST",
+    const response = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify(payload),
     });
@@ -118,7 +162,7 @@ const wrapInElegantEmailFrame = (
         <tr>
           <td style="background-color: ${themeColor}; height: 6px;"></td>
         </tr>
-        
+
         <!-- Main Body -->
         <tr>
           <td style="padding: 40px 32px;">
@@ -126,20 +170,20 @@ const wrapInElegantEmailFrame = (
             <div style="display: inline-block; background-color: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 30px; padding: 4px 12px; margin-bottom: 24px;">
               <span style="font-size: 10px; font-weight: 800; letter-spacing: 0.05em; color: #64748b; text-transform: uppercase;">${typeLabel}</span>
             </div>
-            
+
             <!-- Branding Header -->
             <h2 style="margin: 0 0 8px 0; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: ${themeColor};">ENGLISH VOLUNTEER</h2>
-            
+
             <!-- Main Title -->
             <h1 style="margin: 0 0 24px 0; font-size: 20px; font-weight: 800; color: #0f172a; line-height: 1.3; letter-spacing: -0.02em;">${title}</h1>
-            
+
             <!-- Dynamic Content -->
             <div style="font-size: 15px; color: #334155;">
               ${contentBodyHtml}
             </div>
           </td>
         </tr>
-        
+
         <!-- Footer -->
         <tr>
           <td style="padding: 24px 32px; background-color: #f8fafc; border-top: 1px solid #f1f5f9; text-align: center;">
@@ -181,7 +225,7 @@ export async function sendDeletionConfirmationEmail(
   const formattedContent = `
     <p style="margin: 0 0 16px; font-weight: bold; font-size: 16px; color: #0f172a;">Prezado(a) ${displayName},</p>
     <p style="margin: 0 0 16px; line-height: 1.6;">Em conformidade estrita com o <strong>Artigo 18 da Lei Geral de Proteção de Dados (LGPD)</strong>, confirmamos que sua solicitação de auto-exclusão e esquecimento definitivo do English Volunteer foi totalmente processada.</p>
-    
+
     <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #fef2f2; border: 1px solid #fee2e2; border-radius: 12px; padding: 20px; margin: 24px 0;">
       <tr>
         <td style="color: #991b1b; font-size: 14px;">
@@ -195,17 +239,22 @@ export async function sendDeletionConfirmationEmail(
         </td>
       </tr>
     </table>
-    
+
     <p style="margin: 0; color: #64748b; font-size: 14px;">Lamentamos sua partida, mas asseguramos integralmente a soberania de sua privacidade e pegada digital. Sua conta encontra-se permanentemente encerrada.</p>
   `;
 
-  const finalHtml = wrapInElegantEmailFrame("Exclusão de Dados Concluída", "PRIVACIDADE - LGPD", formattedContent, themeColor);
+  const finalHtml = wrapInElegantEmailFrame(
+    'Exclusão de Dados Concluída',
+    'PRIVACIDADE - LGPD',
+    formattedContent,
+    themeColor
+  );
 
-  return await dispatchEmail(import.meta.env.VITE_EMAILJS_TEMPLATE_SYS_ID, {
+  return await dispatchEmail('sys', {
     recipient_email: recipientEmail,
     recipient_name: displayName,
     subject: `English Volunteer - Confirmação de Exclusão de Dados (LGPD)`,
-    type_label: "EXCLUSÃO DE DADOS",
+    type_label: 'EXCLUSÃO DE DADOS',
     content_html: finalHtml,
     primary_color: themeColor,
   });
@@ -277,13 +326,13 @@ export async function sendClassMeetingNotificationEmail(
   const formattedContent = `
     <p style="margin: 0 0 16px;">Olá, <strong>${recipientName}</strong>!</p>
     <p style="margin: 0 0 16px;">Seu instrutor voluntário <strong>${instructorName}</strong> ativou o agendamento e publicou as informações de sala de aula e conversação ativa para: <strong>${classTitle}</strong>.</p>
-    
+
     <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 20px; margin: 24px 0;">
       <tr>
         <td style="color: #166534; font-size: 14px; line-height: 1.6;">
           <div style="font-weight: 800; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: #16a34a; margin-bottom: 4px;">📅 DATA E HORÁRIO CONFIRMADOS:</div>
           <div style="font-size: 16px; font-weight: 850; color: #14532d; margin-bottom: 16px;">${scheduledAt}</div>
-          
+
           <div style="font-weight: 800; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: #16a34a; margin-bottom: 4px;">🔗 LINK DA VIDEOCONFERÊNCIA:</div>
           <a href="${callUrl}" target="_blank" style="color: #15803d; font-weight: 800; text-decoration: underline; word-break: break-all;">
             ${callUrl}
@@ -291,27 +340,32 @@ export async function sendClassMeetingNotificationEmail(
         </td>
       </tr>
     </table>
-    
+
     <p style="margin: 0 0 24px; line-height: 1.6; font-size: 14px;">Recomendamos que você verifique sua conexão com a internet, garanta o funcionamento de seu fone e microfone com antecedência para obter um desempenho extraordinário na prática da conversação!</p>
-    
+
     <div style="text-align: center; margin-bottom: 12px;">
       <a href="${callUrl}" target="_blank" style="display: inline-block; background-color: #22c55e; color: #ffffff; text-decoration: none; padding: 14px 28px; border-radius: 12px; font-weight: 850; font-size: 13px; letter-spacing: 0.01em; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.06));">Acessar Sala de Aula</a>
     </div>
   `;
 
-  const finalHtml = wrapInElegantEmailFrame("Aula Disponível", "SALA DE AULA ATIVA", formattedContent, themeColor);
+  const finalHtml = wrapInElegantEmailFrame(
+    'Aula Disponível',
+    'SALA DE AULA ATIVA',
+    formattedContent,
+    themeColor
+  );
 
-  const success = await dispatchEmail(import.meta.env.VITE_EMAILJS_TEMPLATE_COMM_ID, {
+  const success = await dispatchEmail('comm', {
     recipient_email: recipientEmail,
     recipient_name: recipientName,
     subject: `Link Disponível para a Aula: ${classTitle} 🔗`,
-    type_label: "AULA AO VIVO",
+    type_label: 'AULA AO VIVO',
     content_html: finalHtml,
     primary_color: themeColor,
   });
 
   if (success) {
-    localStorage.setItem(notificationKey, "true");
+    localStorage.setItem(notificationKey, 'true');
   }
   return success;
 }

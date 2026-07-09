@@ -1,23 +1,27 @@
 <script setup lang="ts">
-import { computed } from 'vue';
-import { 
-  Users, 
-  BookOpen, 
-  Calendar,
-  Award,
-  TrendingUp,
-  Target,
-  AlertTriangle,
-  LineChart,
-  CheckCircle2,
-  Zap,
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import {
   Activity,
-  Lightbulb
+  AlertTriangle,
+  Award,
+  BookOpen,
+  Calendar,
+  CheckCircle2,
+  Lightbulb,
+  Loader2,
+  Mail,
+  Target,
+  TrendingUp,
+  Users,
+  Zap
 } from 'lucide-vue-next';
-import { UserProfile, Course, ClassTurma, Progress } from '../../types';
-import MasterUserList from './MasterUserList.vue';
-import MasterCourseSuccession from './MasterCourseSuccession.vue';
+import { computed, onMounted, ref } from 'vue';
+import { showToast } from '../../composables/useAppState';
 import { useI18n } from '../../composables/useI18n';
+import { db } from '../../firebase';
+import { ClassTurma, Course, Progress, UserProfile } from '../../types';
+import MasterCourseSuccession from './MasterCourseSuccession.vue';
+import MasterUserList from './MasterUserList.vue';
 
 const props = defineProps<{
   users: UserProfile[];
@@ -75,13 +79,13 @@ const levelDistribution = computed(() => {
     Intermediate: { students: 0, courses: 0, certificates: 0, classes: 0 },
     Advanced: { students: 0, courses: 0, certificates: 0, classes: 0 }
   };
-  
+
   props.courses.forEach(c => {
     if (levels[c.level]) {
       levels[c.level].courses++;
     }
   });
-  
+
   props.progressReports.forEach(p => {
     const c = props.courses.find(course => course.id === p.courseId);
     if (c && levels[c.level]) {
@@ -91,14 +95,14 @@ const levelDistribution = computed(() => {
       }
     }
   });
-  
+
   props.classes.forEach(cl => {
     const c = props.courses.find(course => course.id === cl.courseId);
     if (c && levels[c.level]) {
       levels[c.level].classes++;
     }
   });
-  
+
   return levels;
 });
 
@@ -107,18 +111,18 @@ const systemRecommendations = computed(() => {
   const list: Array<{ id: number; title: string; type: 'warning' | 'info' | 'success'; text: string }> = [];
   let recId = 1;
   const isPt = locale.value === 'pt';
-  
+
   const beg = levelDistribution.value.Beginner;
   const inter = levelDistribution.value.Intermediate;
   const adv = levelDistribution.value.Advanced;
-  
+
   // Rule A: Low practice session density in high demand levels
   if (beg.students > 0 && beg.classes === 0) {
     list.push({
       id: recId++,
       title: isPt ? 'Déficit de Aulas de Prática: Beginner' : 'Practice Class Deficit: Beginner',
       type: 'warning',
-      text: isPt 
+      text: isPt
         ? `Há ${beg.students} alunos ativos no nível Iniciante, mas nenhuma turma de prática ao vivo agendada. Aulas síncronas evitam a evasão precoce!`
         : `There are ${beg.students} active students at the Beginner level, but no live practice classes scheduled. Synchronous classes prevent early dropout!`
     });
@@ -127,18 +131,18 @@ const systemRecommendations = computed(() => {
       id: recId++,
       title: isPt ? 'Alta densidade de alunos no nível Iniciante' : 'High student density at Beginner level',
       type: 'info',
-      text: isPt 
+      text: isPt
         ? `Cada turma de nível Beginner possui em média ${Math.round(beg.students / beg.classes)} alunos. Considere instruir tutores a abrir novos horários para turmas menores e mais interativas.`
         : `Each Beginner class has an average of ${Math.round(beg.students / beg.classes)} students. Consider advising tutors to open new slots for smaller, more interactive classes.`
     });
   }
-  
+
   if (inter.students > 0 && inter.classes === 0) {
     list.push({
       id: recId++,
       title: isPt ? 'Déficit de Aulas de Prática: Intermediate' : 'Practice Class Deficit: Intermediate',
       type: 'warning',
-      text: isPt 
+      text: isPt
         ? `Existem ${inter.students} estudantes no nível Intermediário sem turmas ativas de conversação prática. Recomendado abrir encontros semanais.`
         : `There are ${inter.students} students at the Intermediate level with no active conversation practice classes. Recommended to host weekly meetings.`
     });
@@ -155,7 +159,7 @@ const systemRecommendations = computed(() => {
           id: recId++,
           title: isPt ? `Gargalo pedagógico detectado: ${c.title}` : `Pedagogical bottleneck detected: ${c.title}`,
           type: 'warning',
-          text: isPt 
+          text: isPt
             ? `Apenas ${Math.round(rate)}% dos alunos que iniciaram este curso concluíram o certificado. Sugere-se que o tutor revise se a dificuldade do questionário está muito alta ou se faltam recursos de apoio.`
             : `Only ${Math.round(rate)}% of students who started this course completed the certificate. It is suggested that the tutor review if the quiz difficulty is too high or if support materials are missing.`
         });
@@ -171,7 +175,7 @@ const systemRecommendations = computed(() => {
       id: recId++,
       title: isPt ? 'Sobrecarga Operacional de Mentores' : 'Operational Overload of Mentors',
       type: 'warning',
-      text: isPt 
+      text: isPt
         ? `A proporção de suporte é de ${instructorStudentRatio.value} alunos ativos por tutor voluntário. Recomendamos realizar nova campanha de atração de tutores parceiros para reequilibrar o sistema.`
         : `The support ratio is ${instructorStudentRatio.value} active students per volunteer tutor. We recommend launching a new volunteer tutor recruitment campaign to rebalance the system.`
     });
@@ -183,7 +187,7 @@ const systemRecommendations = computed(() => {
       id: recId++,
       title: isPt ? 'Eficiência de Conclusão Saudável' : 'Healthy Completion Efficiency',
       type: 'success',
-      text: isPt 
+      text: isPt
         ? `${globalCertificationRate.value}% dos estudantes ativos completaram integralmente seus roteiros pedagógicos de autoestudo. Desempenho comunitário excelente!`
         : `${globalCertificationRate.value}% of active students fully completed their self-study courses. Excellent community performance!`
     });
@@ -194,7 +198,7 @@ const systemRecommendations = computed(() => {
       id: recId++,
       title: isPt ? 'Estabilidade do Ecossistema' : 'Ecosystem Stability',
       type: 'info',
-      text: isPt 
+      text: isPt
         ? 'Todos os indicadores de fluxo de alunos, turmas de prática e desempenho nos questionários operam dentro do patamar de conformidade esperado.'
         : 'All indicators of student flow, practice classes, and quiz performance are operating within the expected compliance thresholds.'
     });
@@ -202,24 +206,99 @@ const systemRecommendations = computed(() => {
 
   return list;
 });
+
+// EmailJS configurations state & persistence
+const showEmailJsModal = ref(false);
+const isLoadingConfig = ref(false);
+const isSavingConfig = ref(false);
+
+const emailJsConfig = ref({
+  serviceId: '',
+  templateCommId: '',
+  templateSysId: '',
+  publicKey: ''
+});
+
+const fetchCurrentConfig = async () => {
+  isLoadingConfig.value = true;
+  try {
+    const docRef = doc(db, 'settings', 'emailjs');
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      const data = docSnap.data();
+      emailJsConfig.value = {
+        serviceId: data.serviceId || '',
+        templateCommId: data.templateCommId || '',
+        templateSysId: data.templateSysId || '',
+        publicKey: data.publicKey || ''
+      };
+    }
+  } catch (error) {
+    console.error('Error fetching EmailJS config:', error);
+    showToast(locale.value === 'pt' ? 'Erro ao carregar configurações do Firebase' : 'Error loading settings from Firebase', 'error');
+  } finally {
+    isLoadingConfig.value = false;
+  }
+};
+
+const saveConfig = async () => {
+  if (!emailJsConfig.value.serviceId || !emailJsConfig.value.templateCommId || !emailJsConfig.value.templateSysId || !emailJsConfig.value.publicKey) {
+    showToast(locale.value === 'pt' ? 'Preencha todos os campos obrigatórios' : 'Please fill in all required fields', 'warning');
+    return;
+  }
+  isSavingConfig.value = true;
+  try {
+    const docRef = doc(db, 'settings', 'emailjs');
+    await setDoc(docRef, {
+      serviceId: emailJsConfig.value.serviceId.trim(),
+      templateCommId: emailJsConfig.value.templateCommId.trim(),
+      templateSysId: emailJsConfig.value.templateSysId.trim(),
+      publicKey: emailJsConfig.value.publicKey.trim(),
+      updatedAt: new Date().toISOString(),
+      updatedBy: props.currentUserId
+    });
+    showToast(locale.value === 'pt' ? 'Configurações do EmailJS salvas com sucesso!' : 'EmailJS configurations saved successfully!', 'success');
+    showEmailJsModal.value = false;
+  } catch (error) {
+    console.error('Error saving EmailJS config:', error);
+    showToast(locale.value === 'pt' ? 'Erro ao salvar configurações no Firestore' : 'Error saving settings in Firestore', 'error');
+  } finally {
+    isSavingConfig.value = false;
+  }
+};
+
+onMounted(() => {
+  fetchCurrentConfig();
+});
 </script>
 
 <template>
   <div class="space-y-8 animate-fadeIn text-left">
-    
+
     <!-- Banner / Overview -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-100 pb-5">
       <div>
         <h2 class="text-xl font-black text-gray-900 flex items-center gap-2">
-          <span class="p-1 px-2 border border-amber-300 bg-amber-50 text-amber-700 rounded text-[10px] sm:text-xs select-none font-bold">👑 {{ locale === 'pt' ? 'ADMIN MASTER' : 'MASTER ADMIN' }}</span>
+          <span
+            class="p-1 px-2 border border-amber-300 bg-amber-50 text-amber-700 rounded text-[10px] sm:text-xs select-none font-bold">👑
+            {{ locale === 'pt' ? 'ADMIN MASTER' : 'MASTER ADMIN' }}</span>
           {{ locale === 'pt' ? 'Gerenciamento Geral English Volunteer' : 'English Volunteer General Management' }}
         </h2>
         <p class="text-xs text-gray-500 mt-1">
-          {{ locale === 'pt' 
-            ? 'Supervisão de alunos e mentores, alteração de perfis pedagógicos, liberação de acesso e disparador de resets de senha.' 
-            : 'Supervision of students and mentors, management of pedagogical profiles, access authorization, and password reset trigger.' 
+          {{ locale === 'pt'
+            ? 'Supervisão de alunos e mentores, alteração de perfis pedagógicos, liberação de acesso e disparador de
+          resets de senha.'
+          : 'Supervision of students and mentors, management of pedagogical profiles, access authorization, and password
+          reset trigger.'
           }}
         </p>
+      </div>
+      <div class="shrink-0 flex items-center gap-3">
+        <button type="button" @click="showEmailJsModal = true"
+          class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-xs font-black rounded-xl transition cursor-pointer shadow-xs flex items-center gap-1.5">
+          <Mail class="w-4 h-4" />
+          {{ locale === 'pt' ? 'Configurar EmailJS' : 'Configure EmailJS' }}
+        </button>
       </div>
     </div>
 
@@ -293,10 +372,13 @@ const systemRecommendations = computed(() => {
       <div class="flex items-center justify-between border-b border-slate-100 pb-4">
         <div>
           <h3 class="text-sm font-black text-slate-900 uppercase tracking-wider block">
-            {{ locale === 'pt' ? 'Painel de Impacto e Melhoria Contínua de Processos' : 'Impact & Continuous Process Improvement Dashboard' }}
+            {{ locale === 'pt' ? 'Painel de Impacto e Melhoria Contínua de Processos' : 'Impact & Continuous Process
+            Improvement Dashboard' }}
           </h3>
           <p class="text-xs text-slate-400 font-bold block">
-            {{ locale === 'pt' ? 'Visão executiva baseada em métricas para otimização do ecossistema educacional de voluntariado.' : 'Executive metrics-based overview for optimization of the volunteer educational ecosystem.' }}
+            {{ locale === 'pt' ? 'Visão executiva baseada em métricas para otimização do ecossistema educacional de
+            voluntariado.' : 'Executive metrics - based overview for optimization of the volunteer educational ecosystem.'
+            }}
           </p>
         </div>
         <Activity class="w-5 h-5 text-indigo-600" />
@@ -314,7 +396,8 @@ const systemRecommendations = computed(() => {
           </div>
           <h5 class="text-2xl font-black text-slate-900">{{ globalCertificationRate }}%</h5>
           <p class="text-[10.5px] text-slate-400 font-bold">
-            {{ locale === 'pt' ? 'Taxa de alunos ativos que conquistaram o certificado.' : 'Rate of active students who earned the certificate.' }}
+            {{ locale === 'pt' ? 'Taxa de alunos ativos que conquistaram o certificado.' : 'Rate of active students who
+            earned the certificate.' }}
           </p>
         </div>
 
@@ -328,7 +411,8 @@ const systemRecommendations = computed(() => {
           </div>
           <h5 class="text-2xl font-black text-slate-900">{{ globalQuizAverage }}%</h5>
           <p class="text-[10.5px] text-slate-400 font-bold">
-            {{ locale === 'pt' ? 'Média de aproveitamento nos quizzes auto-corrigidos.' : 'Average performance on self-corrected quizzes.' }}
+            {{ locale === 'pt' ? 'Média de aproveitamento nos quizzes auto-corrigidos.' : 'Average performance on
+            self - corrected quizzes.' }}
           </p>
         </div>
 
@@ -342,7 +426,8 @@ const systemRecommendations = computed(() => {
           </div>
           <h5 class="text-2xl font-black text-slate-900">1 : {{ instructorStudentRatio }}</h5>
           <p class="text-[10.5px] text-slate-400 font-bold">
-            {{ locale === 'pt' ? 'Alunos em processo ativo gerenciados por mentor voluntário.' : 'Active students managed per volunteer mentor.' }}
+            {{ locale === 'pt' ? 'Alunos em processo ativo gerenciados por mentor voluntário.' : 'Active students
+            managed per volunteer mentor.' }}
           </p>
         </div>
       </div>
@@ -353,10 +438,12 @@ const systemRecommendations = computed(() => {
         <div class="lg:col-span-7 bg-slate-50 p-5 rounded-2xl border border-slate-100 space-y-4">
           <div>
             <h4 class="text-xs font-black text-slate-800 uppercase tracking-wider">
-              {{ locale === 'pt' ? 'Distribuição e Demanda por Nível Pedagógico' : 'Distribution & Demand by Pedagogical Level' }}
+              {{ locale === 'pt' ? 'Distribuição e Demanda por Nível Pedagógico' : 'Distribution & Demand by Pedagogical
+              Level' }}
             </h4>
             <p class="text-[11px] text-slate-400 font-bold">
-              {{ locale === 'pt' ? 'Direciona recursos voluntários de acordo com o público real ativo.' : 'Guides volunteer resources based on the active audience.' }}
+              {{ locale === 'pt' ? 'Direciona recursos voluntários de acordo com o público real ativo.' : 'Guides
+              volunteer resources based on the active audience.' }}
             </p>
           </div>
 
@@ -369,11 +456,15 @@ const systemRecommendations = computed(() => {
                   {{ locale === 'pt' ? 'Iniciante (Beginner)' : 'Beginner (Iniciante)' }}
                 </span>
                 <span class="text-slate-450 text-[10px]">
-                  {{ levelDistribution.Beginner.students }} {{ locale === 'pt' ? 'alunos' : 'students' }} · {{ levelDistribution.Beginner.certificates }} certs · {{ levelDistribution.Beginner.classes }} {{ locale === 'pt' ? 'turmas' : 'classes' }}
+                  {{ levelDistribution.Beginner.students }} {{ locale === 'pt' ? 'alunos' : 'students' }} · {{
+                    levelDistribution.Beginner.certificates }} certs · {{ levelDistribution.Beginner.classes }} {{ locale
+                    === 'pt' ? 'turmas' : 'classes' }}
                 </span>
               </div>
               <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
-                <div class="bg-blue-500 h-full rounded-full transition-all duration-500" :style="{ width: `${progressReports.length > 0 ? (levelDistribution.Beginner.students / progressReports.length) * 100 : 0}%` }"></div>
+                <div class="bg-blue-500 h-full rounded-full transition-all duration-500"
+                  :style="{ width: `${progressReports.length > 0 ? (levelDistribution.Beginner.students / progressReports.length) * 100 : 0}%` }">
+                </div>
               </div>
             </div>
 
@@ -385,11 +476,15 @@ const systemRecommendations = computed(() => {
                   {{ locale === 'pt' ? 'Intermediário (Intermediate)' : 'Intermediate (Intermediário)' }}
                 </span>
                 <span class="text-slate-450 text-[10px]">
-                  {{ levelDistribution.Intermediate.students }} {{ locale === 'pt' ? 'alunos' : 'students' }} · {{ levelDistribution.Intermediate.certificates }} certs · {{ levelDistribution.Intermediate.classes }} {{ locale === 'pt' ? 'turmas' : 'classes' }}
+                  {{ levelDistribution.Intermediate.students }} {{ locale === 'pt' ? 'alunos' : 'students' }} · {{
+                    levelDistribution.Intermediate.certificates }} certs · {{ levelDistribution.Intermediate.classes }} {{
+                    locale === 'pt' ? 'turmas' : 'classes' }}
                 </span>
               </div>
               <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
-                <div class="bg-amber-500 h-full rounded-full transition-all duration-500" :style="{ width: `${progressReports.length > 0 ? (levelDistribution.Intermediate.students / progressReports.length) * 100 : 0}%` }"></div>
+                <div class="bg-amber-500 h-full rounded-full transition-all duration-500"
+                  :style="{ width: `${progressReports.length > 0 ? (levelDistribution.Intermediate.students / progressReports.length) * 100 : 0}%` }">
+                </div>
               </div>
             </div>
 
@@ -401,18 +496,25 @@ const systemRecommendations = computed(() => {
                   {{ locale === 'pt' ? 'Avançado (Advanced)' : 'Advanced (Avançado)' }}
                 </span>
                 <span class="text-slate-450 text-[10px]">
-                  {{ levelDistribution.Advanced.students }} {{ locale === 'pt' ? 'alunos' : 'students' }} · {{ levelDistribution.Advanced.certificates }} certs · {{ levelDistribution.Advanced.classes }} {{ locale === 'pt' ? 'turmas' : 'classes' }}
+                  {{ levelDistribution.Advanced.students }} {{ locale === 'pt' ? 'alunos' : 'students' }} · {{
+                    levelDistribution.Advanced.certificates }} certs · {{ levelDistribution.Advanced.classes }} {{ locale
+                    === 'pt' ? 'turmas' : 'classes' }}
                 </span>
               </div>
               <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
-                <div class="bg-indigo-500 h-full rounded-full transition-all duration-500" :style="{ width: `${progressReports.length > 0 ? (levelDistribution.Advanced.students / progressReports.length) * 100 : 0}%` }"></div>
+                <div class="bg-indigo-500 h-full rounded-full transition-all duration-500"
+                  :style="{ width: `${progressReports.length > 0 ? (levelDistribution.Advanced.students / progressReports.length) * 100 : 0}%` }">
+                </div>
               </div>
             </div>
           </div>
-          
-          <div class="text-[9.5px] text-slate-400 font-bold leading-normal border-t border-slate-200/50 pt-2 flex items-center gap-1.5">
-            <span class="text-indigo-600">💡 {{ locale === 'pt' ? 'Dica de Planejamento:' : 'Planning Tip:' }}</span> 
-            {{ locale === 'pt' ? 'Alinhar a abertura de novas turmas de Prática ao vivo com os níveis de maior representatividade de alunos.' : 'Align the creation of new live Practice classes with the levels of highest student representation.' }}
+
+          <div
+            class="text-[9.5px] text-slate-400 font-bold leading-normal border-t border-slate-200/50 pt-2 flex items-center gap-1.5">
+            <span class="text-indigo-600">💡 {{ locale === 'pt' ? 'Dica de Planejamento:' : 'Planning Tip:' }}</span>
+            {{ locale === 'pt' ? 'Alinhar a abertura de novas turmas de Prática ao vivo com os níveis de maior
+            representatividade de alunos.' : 'Align the creation of new live Practice classes with the levels of highest
+            student representation.' }}
           </div>
         </div>
 
@@ -424,21 +526,18 @@ const systemRecommendations = computed(() => {
               {{ locale === 'pt' ? 'Recomendações de Melhoria' : 'Improvement Recommendations' }}
             </h4>
             <p class="text-[11px] text-slate-400 font-bold">
-              {{ locale === 'pt' ? 'Auditor inteligente baseado em conformidade e gargalos ativos.' : 'Intelligent auditor based on compliance and active bottlenecks.' }}
+              {{ locale === 'pt' ? 'Auditor inteligente baseado em conformidade e gargalos ativos.' : 'Intelligent
+              auditor based on compliance and active bottlenecks.' }}
             </p>
           </div>
 
           <div class="space-y-3 max-h-[175px] overflow-y-auto pr-1">
-            <div 
-              v-for="rec in systemRecommendations" 
-              :key="rec.id" 
-              class="p-3 rounded-xl border flex gap-2 text-left leading-snug"
-              :class="[
+            <div v-for="rec in systemRecommendations" :key="rec.id"
+              class="p-3 rounded-xl border flex gap-2 text-left leading-snug" :class="[
                 rec.type === 'warning' ? 'bg-amber-50 border-amber-200 text-amber-900' :
-                rec.type === 'success' ? 'bg-emerald-50 border-emerald-200 text-emerald-900' :
-                'bg-blue-50 border-blue-200 text-blue-900'
-              ]"
-            >
+                  rec.type === 'success' ? 'bg-emerald-50 border-emerald-200 text-emerald-900' :
+                    'bg-blue-50 border-blue-200 text-blue-900'
+              ]">
               <span class="shrink-0 mt-0.5">
                 <AlertTriangle v-if="rec.type === 'warning'" class="w-3.5 h-3.5 text-amber-600" />
                 <CheckCircle2 v-else-if="rec.type === 'success'" class="w-3.5 h-3.5 text-emerald-600" />
@@ -455,22 +554,121 @@ const systemRecommendations = computed(() => {
     </div>
 
     <!-- Master User List Section -->
-    <MasterUserList
-      :users="users"
-      :currentUserId="currentUserId"
-      :isDemoUser="isDemoUser"
-      :primaryColor="primaryColor"
+    <MasterUserList :users="users" :currentUserId="currentUserId" :isDemoUser="isDemoUser" :primaryColor="primaryColor"
       @update-user-role="(uid, isInst) => emit('update-user-role', uid, isInst)"
-      @delete-user-completely="(uid) => emit('delete-user-completely', uid)"
-    />
+      @delete-user-completely="(uid) => emit('delete-user-completely', uid)" />
 
     <!-- Master Course Succession Section -->
-    <MasterCourseSuccession
-      :courses="courses"
-      :users="users"
-      :primaryColor="primaryColor"
-      @reassign-course-owner="(payload) => emit('reassign-course-owner', payload)"
-    />
+    <MasterCourseSuccession :courses="courses" :users="users" :primaryColor="primaryColor"
+      @reassign-course-owner="(payload) => emit('reassign-course-owner', payload)" />
+
+    <!-- EMAILJS CONFIGURATION MODAL -->
+    <div v-if="showEmailJsModal"
+      class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs select-none">
+      <div
+        class="relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl animate-scaleUp overflow-y-auto max-h-[90vh] space-y-5">
+        <!-- Header -->
+        <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+          <div class="flex items-center gap-2 text-indigo-650 dark:text-indigo-400">
+            <Mail class="w-5 h-5" />
+            <h3 class="text-base font-black uppercase tracking-wider">
+              {{ locale === 'pt' ? 'Configurações de EmailJS' : 'EmailJS Configurations' }}
+            </h3>
+          </div>
+          <button type="button" @click="showEmailJsModal = false"
+            class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 font-bold text-lg cursor-pointer">
+            ✕
+          </button>
+        </div>
+
+        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+          {{ locale === 'pt'
+            ? 'Essas credenciais são carregadas do banco de dados em tempo real e utilizadas para disparar e-mails
+          comunitários(ex: links de aulas ao vivo e confirmações de LGPD) por qualquer tutor do ecossistema.'
+          : 'These credentials are dynamically fetched from the database in real-time and used by any tutor in the
+          ecosystem to dispatch community emails(e.g.live class meeting links and GDPR confirmations).'
+          }}
+        </p>
+
+        <!-- Loading Configuration State -->
+        <div v-if="isLoadingConfig" class="flex flex-col items-center justify-center py-8 space-y-2">
+          <Loader2 class="w-8 h-8 text-indigo-600 animate-spin" />
+          <p class="text-xs text-slate-400 font-bold">
+            {{ locale === 'pt' ? 'Consultando banco de dados...' : 'Querying database...' }}
+          </p>
+        </div>
+
+        <!-- Form fields -->
+        <form v-else @submit.prevent="saveConfig" class="space-y-4">
+          <!-- Service ID -->
+          <div class="space-y-1">
+            <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
+              {{ locale === 'pt' ? 'Service ID (ID do Serviço)' : 'Service ID' }}
+            </label>
+            <input v-model="emailJsConfig.serviceId" type="text" placeholder="e.g. service_abcdef" required
+              class="w-full text-xs font-bold px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 dark:text-white focus:outline-hidden focus:border-indigo-500" />
+          </div>
+
+          <!-- Template ID - Comunicação -->
+          <div class="space-y-1">
+            <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
+              {{ locale === 'pt' ? 'Template ID - Comunicação (Aula ao Vivo)' : 'Template ID - Communication (Live
+              Classes)' }}
+            </label>
+            <input v-model="emailJsConfig.templateCommId" type="text" placeholder="e.g. template_comm123" required
+              class="w-full text-xs font-bold px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 dark:text-white focus:outline-hidden focus:border-indigo-500" />
+          </div>
+
+          <!-- Template ID - Sistema -->
+          <div class="space-y-1">
+            <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
+              {{ locale === 'pt' ? 'Template ID - Sistema (Privacidade / LGPD)' : 'Template ID - System (Privacy /
+              GDPR)' }}
+            </label>
+            <input v-model="emailJsConfig.templateSysId" type="text" placeholder="e.g. template_sys456" required
+              class="w-full text-xs font-bold px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 dark:text-white focus:outline-hidden focus:border-indigo-500" />
+          </div>
+
+          <!-- Public Key -->
+          <div class="space-y-1">
+            <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
+              {{ locale === 'pt' ? 'Public Key (Chave Pública do Usuário)' : 'Public Key' }}
+            </label>
+            <input v-model="emailJsConfig.publicKey" type="text" placeholder="e.g. user_A1B2C3d4e5f6g7h8i" required
+              class="w-full text-xs font-bold px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 dark:text-white focus:outline-hidden focus:border-indigo-500" />
+          </div>
+
+          <!-- Information Notice -->
+          <div
+            class="p-3 bg-amber-50 dark:bg-amber-950/25 rounded-2xl border border-amber-100/40 dark:border-amber-900/40 flex items-start gap-2 select-none">
+            <AlertTriangle class="w-4 h-4 shrink-0 mt-0.5 text-amber-600 dark:text-amber-400" />
+            <p class="text-[10px] text-amber-800 dark:text-amber-300 font-bold leading-relaxed">
+              {{ locale === 'pt'
+                ? 'Nota de Segurança: Apenas administradores habilitados possuem autorização para gravar esses dados.
+              Certifique - se de que os templates configurados contenham as variáveis adequadas(recipient_email,
+                  recipient_name, subject, type_label, content_html, primary_color).'
+              : 'Security Note: Only authorized administrators have permission to write this data. Make sure the
+              configured templates contain appropriate parameters(recipient_email, recipient_name, subject, type_label,
+              content_html, primary_color).'
+              }}
+            </p>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex items-center justify-end gap-3 border-t border-slate-100 dark:border-slate-800 pt-4">
+            <button type="button" @click="showEmailJsModal = false"
+              class="px-4 py-2 text-xs font-black text-slate-500 hover:text-slate-800 dark:hover:text-white bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-800 rounded-xl transition-colors cursor-pointer">
+              {{ locale === 'pt' ? 'Cancelar' : 'Cancel' }}
+            </button>
+            <button type="submit" :disabled="isSavingConfig"
+              class="px-5 py-2 text-xs font-black text-white bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 rounded-xl shadow-md cursor-pointer transition-all active:scale-95 text-center flex items-center gap-1.5">
+              <Loader2 v-if="isSavingConfig" class="w-3.5 h-3.5 animate-spin" />
+              {{ locale === 'pt' ? 'Salvar Configuração' : 'Save Configuration' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
 
   </div>
 </template>
