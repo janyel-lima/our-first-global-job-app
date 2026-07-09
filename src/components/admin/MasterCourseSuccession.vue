@@ -8,7 +8,7 @@ import {
   Shield,
   ShieldAlert
 } from 'lucide-vue-next';
-import { computed, ref, watch } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { showToast } from '../../composables/useAppState';
 import { db } from '../../firebase';
 import { Course, UserProfile } from '../../types';
@@ -66,7 +66,27 @@ const detailedCourses = computed(() => {
 
 const courseSearchQuery = ref('');
 const coursesPage = ref(1);
-const coursesPerPage = ref(5);
+
+// Responsive check for mobile (reduces items per page)
+const isMobile = ref(false);
+const updateMobileStatus = () => {
+  isMobile.value = typeof window !== 'undefined' ? window.innerWidth < 768 : false;
+};
+
+onMounted(() => {
+  updateMobileStatus();
+  if (typeof window !== 'undefined') {
+    window.addEventListener('resize', updateMobileStatus);
+  }
+});
+
+onUnmounted(() => {
+  if (typeof window !== 'undefined') {
+    window.removeEventListener('resize', updateMobileStatus);
+  }
+});
+
+const coursesPerPage = computed(() => isMobile.value ? 2 : 5);
 
 watch([courseSearchQuery], () => {
   coursesPage.value = 1;
@@ -217,65 +237,124 @@ const cancelReassignment = () => {
       </div>
 
       <div
-        class="overflow-x-auto rounded-xl border border-gray-200/50 dark:border-slate-850 bg-white dark:bg-slate-900">
-        <table class="w-full text-left border-collapse text-xs min-w-[800px]">
-          <thead>
-            <tr
-              class="bg-slate-50 dark:bg-slate-950 border-b border-gray-100 dark:border-slate-850 text-slate-450 font-extrabold uppercase tracking-wider text-[10px]">
-              <th class="p-4">Curso / Minicurso</th>
-              <th class="p-4">Nível de Foco</th>
-              <th class="p-4">Proprietário / Mentor</th>
-              <th class="p-4">Status de Atribuição</th>
-              <th class="p-4 text-right">Transferir Sucessão</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-200/50 dark:divide-slate-850">
-            <tr v-for="course in paginatedDetailedCourses" :key="course.id"
-              class="hover:bg-slate-50/50 dark:hover:bg-slate-950/25 transition-colors">
-              <td class="p-4 font-bold text-gray-900 dark:text-white">
-                {{ course.title }}
-                <span class="block text-[10px] font-medium text-slate-450 dark:text-gray-500 mt-0.5">ID: {{ course.id
+        class="rounded-xl border border-gray-200/50 dark:border-slate-850 bg-white dark:bg-slate-900 overflow-hidden">
+        <div class="hidden md:block overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs min-w-[800px]">
+            <thead>
+              <tr
+                class="bg-slate-50 dark:bg-slate-950 border-b border-gray-100 dark:border-slate-850 text-slate-450 font-extrabold uppercase tracking-wider text-[10px]">
+                <th class="p-4">Curso / Minicurso</th>
+                <th class="p-4">Nível de Foco</th>
+                <th class="p-4">Proprietário / Mentor</th>
+                <th class="p-4">Status de Atribuição</th>
+                <th class="p-4 text-right">Transferir Sucessão</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200/50 dark:divide-slate-850">
+              <tr v-for="course in paginatedDetailedCourses" :key="course.id"
+                class="hover:bg-slate-50/50 dark:hover:bg-slate-950/25 transition-colors">
+                <td class="p-4 font-bold text-gray-900 dark:text-white">
+                  {{ course.title }}
+                  <span class="block text-[10px] font-medium text-slate-450 dark:text-gray-500 mt-0.5">ID: {{ course.id
+                    }}</span>
+                </td>
+                <td class="p-4">
+                  <span
+                    class="px-2 py-0.5 rounded bg-blue-50 dark:bg-slate-800 text-blue-700 dark:text-blue-300 font-bold uppercase text-[9px] tracking-wider font-sans">
+                    {{ course.level }}
+                  </span>
+                </td>
+                <td class="p-4 font-mono text-gray-550 dark:text-gray-300">
+                  {{ course.ownerName }}
+                </td>
+                <td class="p-4">
+                  <span v-if="course.isOrphaned"
+                    class="inline-flex items-center gap-1 text-[10px] font-black uppercase text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-slate-800/80 px-2 py-1 rounded-md border border-amber-100 dark:border-slate-850 animate-pulse font-sans">
+                    ⚠️ Sem Dono Ativo / Órfão
+                  </span>
+                  <span v-else
+                    class="inline-flex items-center gap-1 text-[10px] font-extrabold uppercase text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-slate-800/80 px-2 py-1 rounded-md border border-emerald-100 dark:border-slate-850 font-sans">
+                    ✓ Tutor Vinculado
+                  </span>
+                </td>
+                <td class="p-4 text-right">
+                  <select :value="course.creatorId"
+                    @change="(e) => handleReassignCourseOwner(e, course.id, (e.target as HTMLSelectElement).value)"
+                    class="text-xs font-bold bg-slate-50 dark:bg-slate-950 hover:bg-slate-100 dark:hover:bg-slate-900 text-slate-850 dark:text-white border border-gray-200 dark:border-slate-800 rounded-lg p-1.5 focus:outline-hidden cursor-pointer">
+                    <option value="" disabled>Selecione um tutor sucessor...</option>
+                    <option value="system-volunteer">Administração (Padrão)</option>
+                    <option v-for="inst in potentialOwners" :key="inst.uid" :value="inst.uid">
+                      {{ inst.displayName || inst.email || "Usuário Sem Nome" }} ({{ inst.isInstructor ? 'Prof' :
+                      'Admin' }})
+                    </option>
+                  </select>
+                </td>
+              </tr>
+              <tr v-if="filteredDetailedCourses.length === 0">
+                <td colspan="5" class="p-8 text-center text-slate-450 dark:text-slate-400 italic">
+                  Nenhum curso correspondente aos termos de busca.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Mobile view: shown on mobile, hidden on md and above -->
+        <div
+          class="block md:hidden p-4 space-y-3 bg-white dark:bg-slate-900 border-b border-gray-100 dark:border-slate-850">
+          <p v-if="filteredDetailedCourses.length === 0"
+            class="text-center text-slate-450 dark:text-slate-400 italic py-6">
+            Nenhum curso correspondente aos termos de busca.
+          </p>
+          <div v-else v-for="course in paginatedDetailedCourses" :key="course.id"
+            class="p-4 bg-slate-50 dark:bg-slate-950/40 border border-gray-150 dark:border-slate-850 rounded-xl space-y-3 text-xs text-left">
+            <div class="flex items-start justify-between gap-2">
+              <div>
+                <div class="font-bold text-gray-900 dark:text-white text-sm leading-tight">{{ course.title }}</div>
+                <span class="text-[10px] text-slate-450 dark:text-gray-500 font-mono block mt-0.5">ID: {{ course.id
                   }}</span>
-              </td>
-              <td class="p-4">
-                <span
-                  class="px-2 py-0.5 rounded bg-blue-50 dark:bg-slate-800 text-blue-700 dark:text-blue-300 font-bold uppercase text-[9px] tracking-wider font-sans">
-                  {{ course.level }}
-                </span>
-              </td>
-              <td class="p-4 font-mono text-gray-550 dark:text-gray-300">
-                {{ course.ownerName }}
-              </td>
-              <td class="p-4">
+              </div>
+              <span
+                class="px-2 py-0.5 rounded bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300 font-bold uppercase text-[9px] tracking-wider shrink-0">
+                {{ course.level }}
+              </span>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 pt-2 border-t border-gray-250/20 dark:border-slate-800/40 text-[11px]">
+              <div>
+                <span class="block text-[9px] uppercase font-bold text-gray-400 dark:text-gray-500 mb-0.5">Proprietário
+                  / Mentor</span>
+                <span class="font-semibold text-gray-750 dark:text-gray-300 block">{{ course.ownerName }}</span>
+              </div>
+              <div>
+                <span class="block text-[9px] uppercase font-bold text-gray-400 dark:text-gray-500 mb-0.5">Status</span>
                 <span v-if="course.isOrphaned"
-                  class="inline-flex items-center gap-1 text-[10px] font-black uppercase text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-slate-800/80 px-2 py-1 rounded-md border border-amber-100 dark:border-slate-850 animate-pulse font-sans">
-                  ⚠️ Sem Dono Ativo / Órfão
+                  class="inline-flex items-center gap-1 text-[9px] font-bold uppercase text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/20 px-1.5 py-0.5 rounded border border-amber-100/50 dark:border-amber-900/30 animate-pulse">
+                  ⚠️ Órfão
                 </span>
                 <span v-else
-                  class="inline-flex items-center gap-1 text-[10px] font-extrabold uppercase text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-slate-800/80 px-2 py-1 rounded-md border border-emerald-100 dark:border-slate-850 font-sans">
-                  ✓ Tutor Vinculado
+                  class="inline-flex items-center gap-1 text-[9px] font-bold uppercase text-emerald-600 dark:text-emerald-450 bg-emerald-50 dark:bg-emerald-950/20 px-1.5 py-0.5 rounded border border-emerald-100/50 dark:border-emerald-900/30">
+                  ✓ Atribuído
                 </span>
-              </td>
-              <td class="p-4 text-right">
-                <select :value="course.creatorId"
-                  @change="(e) => handleReassignCourseOwner(e, course.id, (e.target as HTMLSelectElement).value)"
-                  class="text-xs font-bold bg-slate-50 dark:bg-slate-950 hover:bg-slate-100 dark:hover:bg-slate-900 text-slate-850 dark:text-white border border-gray-200 dark:border-slate-800 rounded-lg p-1.5 focus:outline-hidden cursor-pointer">
-                  <option value="" disabled>Selecione um tutor sucessor...</option>
-                  <option value="system-volunteer">Administração (Padrão)</option>
-                  <option v-for="inst in potentialOwners" :key="inst.uid" :value="inst.uid">
-                    {{ inst.displayName || inst.email || "Usuário Sem Nome" }} ({{ inst.isInstructor ? 'Prof' : 'Admin'
-                    }})
-                  </option>
-                </select>
-              </td>
-            </tr>
-            <tr v-if="filteredDetailedCourses.length === 0">
-              <td colspan="5" class="p-8 text-center text-slate-450 dark:text-slate-400 italic">
-                Nenhum curso correspondente aos termos de busca.
-              </td>
-            </tr>
-          </tbody>
-        </table>
+              </div>
+            </div>
+
+            <div class="pt-2 border-t border-gray-250/20 dark:border-slate-800/40 space-y-1">
+              <label class="block text-[9px] uppercase font-bold text-gray-400 dark:text-gray-500">Transferir
+                Sucessão</label>
+              <select :value="course.creatorId"
+                @change="(e) => handleReassignCourseOwner(e, course.id, (e.target as HTMLSelectElement).value)"
+                class="w-full text-xs font-bold bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-850 text-slate-850 dark:text-white border border-gray-200 dark:border-slate-800 rounded-lg p-2 focus:outline-hidden cursor-pointer">
+                <option value="" disabled>Selecione um tutor sucessor...</option>
+                <option value="system-volunteer">Administração (Padrão)</option>
+                <option v-for="inst in potentialOwners" :key="inst.uid" :value="inst.uid">
+                  {{ inst.displayName || inst.email || "Usuário Sem Nome" }} ({{ inst.isInstructor ? 'Prof' : 'Admin'
+                  }})
+                </option>
+              </select>
+            </div>
+          </div>
+        </div>
 
         <!-- Pagination Controls for Course Succession (LGPD) -->
         <div v-if="filteredDetailedCourses.length > 0"

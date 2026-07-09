@@ -13,7 +13,7 @@ import {
   Trash2,
   UserCheck
 } from 'lucide-vue-next';
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import * as XLSX from 'xlsx';
 import { showToast, useAppState } from '../../composables/useAppState';
 import { useI18n } from '../../composables/useI18n';
@@ -76,8 +76,13 @@ const filteredUsers = computed(() => {
   });
 });
 
+const isMobile = ref(false);
+const updateMobileStatus = () => {
+  isMobile.value = typeof window !== 'undefined' ? window.innerWidth < 768 : false;
+};
+
 const usersPage = ref(1);
-const usersPerPage = ref(8);
+const usersPerPage = computed(() => isMobile.value ? 4 : 8);
 
 watch([searchQuery, selectedRoleFilter], () => {
   usersPage.value = 1;
@@ -237,7 +242,7 @@ const codeLoading = ref(false);
 
 const codeSearchQuery = ref('');
 const codesPage = ref(1);
-const codesPerPage = ref(5);
+const codesPerPage = computed(() => isMobile.value ? 3 : 5);
 
 watch([codeSearchQuery], () => {
   codesPage.value = 1;
@@ -275,6 +280,11 @@ const generateRandomCode = () => {
 
 let unsub: (() => void) | undefined;
 onMounted(() => {
+  updateMobileStatus();
+  if (typeof window !== 'undefined') {
+    window.addEventListener('resize', updateMobileStatus);
+  }
+
   if (props.isDemoUser) {
     teacherCodes.value = [
       { id: "EV-DEMO1", code: "EV-DEMO1", status: "valid", createdAt: new Date().toISOString(), usedBy: null, usedAt: null },
@@ -297,6 +307,15 @@ onMounted(() => {
   }, (err) => {
     console.error("Erro ao escutar teacher_codes:", err);
   });
+});
+
+onUnmounted(() => {
+  if (typeof window !== 'undefined') {
+    window.removeEventListener('resize', updateMobileStatus);
+  }
+  if (unsub) {
+    unsub();
+  }
 });
 
 const handleCreateCode = async () => {
@@ -431,63 +450,116 @@ const copyToClipboard = (text: string) => {
 
         <!-- Table of Users -->
         <div v-else
-          class="overflow-x-auto rounded-xl border border-gray-200/50 dark:border-slate-850 bg-white dark:bg-slate-900">
-          <table class="w-full text-left border-collapse text-xs min-w-[700px]">
-            <thead>
-              <tr
-                class="bg-slate-50 dark:bg-slate-950 border-b border-gray-100 dark:border-slate-850 text-slate-450 font-extrabold uppercase tracking-wider text-[10px]">
-                <th class="p-4">{{ t('master.thVolunteer') }}</th>
-                <th class="p-4">{{ t('master.thLevel') }}</th>
-                <th class="p-4">{{ t('master.thRole') }}</th>
-                <th class="p-4 text-right">{{ t('master.thAction') }}</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-100 dark:divide-slate-850">
-              <tr v-for="user in paginatedUsers" :key="user.uid"
-                class="hover:bg-slate-50/50 dark:hover:bg-slate-955/25 transition">
-                <td class="p-4 flex items-center gap-2.5">
-                  <div
-                    class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-blue-600 dark:text-blue-400 text-xs font-black flex items-center justify-center border border-slate-200/50 dark:border-slate-700 shrink-0">
-                    {{ (user.displayName || user.email || 'U').charAt(0).toUpperCase() }}
-                  </div>
-                  <div class="truncate">
-                    <p class="font-extrabold text-gray-900 dark:text-white flex items-center gap-1.5 leading-tight">
-                      {{ user.displayName || user.email || t('master.anonymousUser') }}
-                      <span v-if="user.isAdmin"
-                        class="inline-flex text-[8.5px] font-black bg-red-50 text-red-700 px-1.5 rounded-sm border border-red-100 dark:bg-red-955/30 dark:border-red-900">Admin</span>
-                    </p>
+          class="rounded-xl border border-gray-200/50 dark:border-slate-850 bg-white dark:bg-slate-900 overflow-hidden">
+          <div class="hidden md:block overflow-x-auto">
+            <table class="w-full text-left border-collapse text-xs min-w-[700px]">
+              <thead>
+                <tr
+                  class="bg-slate-50 dark:bg-slate-950 border-b border-gray-100 dark:border-slate-850 text-slate-450 font-extrabold uppercase tracking-wider text-[10px]">
+                  <th class="p-4">{{ t('master.thVolunteer') }}</th>
+                  <th class="p-4">{{ t('master.thLevel') }}</th>
+                  <th class="p-4">{{ t('master.thRole') }}</th>
+                  <th class="p-4 text-right">{{ t('master.thAction') }}</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-100 dark:divide-slate-850">
+                <tr v-for="user in paginatedUsers" :key="user.uid"
+                  class="hover:bg-slate-50/50 dark:hover:bg-slate-955/25 transition">
+                  <td class="p-4 flex items-center gap-2.5">
+                    <div
+                      class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-blue-600 dark:text-blue-400 text-xs font-black flex items-center justify-center border border-slate-200/50 dark:border-slate-700 shrink-0">
+                      {{ (user.displayName || user.email || 'U').charAt(0).toUpperCase() }}
+                    </div>
+                    <div class="truncate">
+                      <p class="font-extrabold text-gray-900 dark:text-white flex items-center gap-1.5 leading-tight">
+                        {{ user.displayName || user.email || t('master.anonymousUser') }}
+                        <span v-if="user.isAdmin"
+                          class="inline-flex text-[8.5px] font-black bg-red-50 text-red-700 px-1.5 rounded-sm border border-red-100 dark:bg-red-955/30 dark:border-red-900">Admin</span>
+                      </p>
+                      <span
+                        class="block text-[10px] text-gray-405 dark:text-gray-500 font-mono mt-0.5 truncate max-w-xs">UID:
+                        {{ user.uid }}</span>
+                    </div>
+                  </td>
+                  <td class="p-4">
                     <span
-                      class="block text-[10px] text-gray-405 dark:text-gray-500 font-mono mt-0.5 truncate max-w-xs">UID:
-                      {{ user.uid }}</span>
+                      class="px-2 py-0.5 rounded bg-blue-50 dark:bg-slate-850 text-blue-700 dark:text-blue-300 font-bold uppercase text-[9px] tracking-wider border border-transparent dark:border-slate-800">
+                      {{ user.level || 'Beginner' }}
+                    </span>
+                  </td>
+                  <td class="p-4">
+                    <div class="flex items-center gap-1.5">
+                      <span v-if="user.isInstructor"
+                        class="inline-flex items-center gap-1 text-[10px] font-black text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-slate-800 border border-indigo-100 dark:border-slate-800 px-2 py-0.5 rounded">
+                        🧑‍🏫 {{ t('master.volunteerTeacher') }}
+                      </span>
+                      <span v-else
+                        class="inline-flex items-center gap-1 text-[10px] font-bold text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-slate-850 border border-gray-150 dark:border-slate-800 px-2 py-0.5 rounded">
+                        🎓 {{ t('master.studentMember') }}
+                      </span>
+                    </div>
+                  </td>
+                  <td class="p-4 text-right">
+                    <button type="button" @click="startEditUser(user)"
+                      class="px-2.5 py-1 text-[10.5px] font-black bg-slate-50 dark:bg-slate-955 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800 rounded-lg cursor-pointer select-none transition">
+                      ✏️ {{ t('master.btnDetails') }}
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Mobile view: shown on mobile, hidden on md and above -->
+          <div
+            class="block md:hidden p-4 space-y-3 bg-white dark:bg-slate-900 border-b border-gray-100 dark:border-slate-850">
+            <div v-for="user in paginatedUsers" :key="user.uid"
+              class="p-4 bg-slate-50 dark:bg-slate-950/40 border border-gray-150 dark:border-slate-850 rounded-xl space-y-3 text-xs text-left">
+              <div class="flex items-center gap-2.5">
+                <div
+                  class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-blue-600 dark:text-blue-400 text-xs font-black flex items-center justify-center border border-slate-200/50 dark:border-slate-700 shrink-0">
+                  {{ (user.displayName || user.email || 'U').charAt(0).toUpperCase() }}
+                </div>
+                <div class="truncate">
+                  <div class="font-extrabold text-gray-900 dark:text-white flex items-center gap-1.5 leading-tight">
+                    {{ user.displayName || user.email || t('master.anonymousUser') }}
+                    <span v-if="user.isAdmin"
+                      class="inline-flex text-[8px] font-black bg-red-50 text-red-700 px-1 rounded border border-red-100 dark:bg-red-955/30 dark:border-red-900">Admin</span>
                   </div>
-                </td>
-                <td class="p-4">
+                  <span class="block text-[10px] text-gray-405 dark:text-gray-500 font-mono mt-0.5 truncate">UID: {{
+                    user.uid }}</span>
+                </div>
+              </div>
+
+              <div class="flex items-center justify-between pt-2 border-t border-gray-250/20 dark:border-slate-800/40">
+                <div class="space-y-1">
+                  <span class="block text-[9px] uppercase font-bold text-gray-400 dark:text-gray-500">Nível</span>
                   <span
-                    class="px-2 py-0.5 rounded bg-blue-50 dark:bg-slate-850 text-blue-700 dark:text-blue-300 font-bold uppercase text-[9px] tracking-wider border border-transparent dark:border-slate-800">
+                    class="block px-2 py-0.5 rounded bg-blue-50 dark:bg-slate-850 text-blue-700 dark:text-blue-300 font-bold uppercase text-[9px] tracking-wider border border-transparent dark:border-slate-800">
                     {{ user.level || 'Beginner' }}
                   </span>
-                </td>
-                <td class="p-4">
-                  <div class="flex items-center gap-1.5">
-                    <span v-if="user.isInstructor"
-                      class="inline-flex items-center gap-1 text-[10px] font-black text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-slate-800 border border-indigo-100 dark:border-slate-800 px-2 py-0.5 rounded">
-                      🧑‍🏫 {{ t('master.volunteerTeacher') }}
-                    </span>
-                    <span v-else
-                      class="inline-flex items-center gap-1 text-[10px] font-bold text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-slate-850 border border-gray-150 dark:border-slate-800 px-2 py-0.5 rounded">
-                      🎓 {{ t('master.studentMember') }}
-                    </span>
-                  </div>
-                </td>
-                <td class="p-4 text-right">
-                  <button type="button" @click="startEditUser(user)"
-                    class="px-2.5 py-1 text-[10.5px] font-black bg-slate-50 dark:bg-slate-955 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800 rounded-lg cursor-pointer select-none transition">
-                    ✏️ {{ t('master.btnDetails') }}
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+                </div>
+                <div class="space-y-1">
+                  <span class="block text-[9px] uppercase font-bold text-gray-400 dark:text-gray-500">Função</span>
+                  <span v-if="user.isInstructor"
+                    class="inline-flex items-center gap-1 text-[9.5px] font-black text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-slate-800 border border-indigo-100 dark:border-slate-800 px-1.5 py-0.5 rounded">
+                    🧑‍🏫 {{ t('master.volunteerTeacher') }}
+                  </span>
+                  <span v-else
+                    class="inline-flex items-center gap-1 text-[9.5px] font-bold text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-slate-850 border border-gray-150 dark:border-slate-800 px-1.5 py-0.5 rounded">
+                    🎓 {{ t('master.studentMember') }}
+                  </span>
+                </div>
+              </div>
+
+              <div class="pt-2 border-t border-gray-250/20 dark:border-slate-800/40">
+                <button type="button" @click="startEditUser(user)"
+                  class="w-full py-2 bg-white hover:bg-slate-100 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 border border-gray-200 dark:border-slate-800 text-[11px] font-bold rounded-lg transition text-center">
+                  ✏️ {{ t('master.btnDetails') }}
+                </button>
+              </div>
+            </div>
+          </div>
 
           <!-- Pagination Control for Users -->
           <div v-if="filteredUsers.length > 0"

@@ -14,7 +14,7 @@ import {
   UploadCloud,
   Users
 } from 'lucide-vue-next';
-import { computed, ref, watch } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import * as XLSX from 'xlsx';
 import { showToast, useAppState } from '../../composables/useAppState';
 import { useI18n } from '../../composables/useI18n';
@@ -316,10 +316,15 @@ const getStudentName = (uid: string) => {
     : (isPt ? "Estudante Independente" : "Independent Student");
 };
 
+const isMobile = ref(false);
+const updateMobileStatus = () => {
+  isMobile.value = typeof window !== 'undefined' ? window.innerWidth < 768 : false;
+};
+
 // Tables, Search, Pagination
 const studentQuery = ref('');
 const studentPage = ref(1);
-const studentsPerPage = ref(5);
+const studentsPerPage = computed(() => isMobile.value ? 3 : 5);
 
 const filteredStudentReports = computed(() => {
   return progressReports.value.filter(report => {
@@ -342,7 +347,7 @@ const paginatedStudentReports = computed(() => {
 
 const coursesQuery = ref('');
 const coursesPage = ref(1);
-const coursesPerPage = ref(4);
+const coursesPerPage = computed(() => isMobile.value ? 2 : 4);
 
 const filteredCourses = computed(() => {
   return courses.value.filter(course => {
@@ -483,6 +488,19 @@ const handleExportXLSX = () => {
   document.body.removeChild(link);
   showToast(isPt ? "Planilha de estudantes exportada com sucesso!" : "Student spreadsheet successfully exported!", "success");
 };
+
+onMounted(() => {
+  updateMobileStatus();
+  if (typeof window !== 'undefined') {
+    window.addEventListener('resize', updateMobileStatus);
+  }
+});
+
+onUnmounted(() => {
+  if (typeof window !== 'undefined') {
+    window.removeEventListener('resize', updateMobileStatus);
+  }
+});
 
 const handleExportJSON = () => {
   const isPt = locale.value === 'pt';
@@ -1044,9 +1062,10 @@ const handleExportJSON = () => {
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div class="space-y-1">
               <div class="flex items-center gap-2">
-                <span class="font-extrabold text-[12.5px] text-slate-800 dark:text-white">{{ course.title }}</span>
+                <span class="font-extrabold text-sm sm:text-base text-slate-800 dark:text-white leading-tight">{{
+                  course.title }}</span>
                 <span
-                  class="px-2 py-0.2 bg-blue-50 text-blue-700 text-[9px] font-bold border border-blue-100 rounded-sm">
+                  class="px-2 py-0.5 bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300 text-[10px] font-bold border border-blue-100/50 dark:border-blue-900/30 rounded">
                   {{ t('tutor.levelText', { level: course.level }) }}
                 </span>
               </div>
@@ -1058,47 +1077,47 @@ const handleExportJSON = () => {
               <!-- Course progress criteria tag summary -->
               <div class="flex items-center gap-1.5 mt-1.5 flex-wrap">
                 <span
-                  class="text-[9px] px-1.5 py-0.5 rounded-sm bg-slate-200/80 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-bold uppercase tracking-wider">
+                  class="text-[9px] px-1.5 py-0.5 rounded bg-slate-200/80 dark:bg-slate-850 text-slate-600 dark:text-slate-400 font-bold uppercase tracking-wider">
                   {{ t('tutor.metricsLabel') }}
                 </span>
                 <span
-                  :class="['text-[8.5px] px-1.5 py-0.5 rounded-sm font-bold uppercase border', (!course.progressConfig || course.progressConfig.requireReading) ? 'bg-emerald-50 border-emerald-100/50 text-emerald-700' : 'bg-gray-100 border-gray-150 text-gray-400 line-through']">
+                  :class="['text-[8.5px] px-1.5 py-0.5 rounded font-bold uppercase border', (!course.progressConfig || course.progressConfig.requireReading) ? 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-100/50 dark:border-emerald-900/40 text-emerald-700 dark:text-emerald-400' : 'bg-gray-100 dark:bg-slate-900 border-gray-150 dark:border-slate-800 text-gray-400 dark:text-gray-600 line-through']">
                   {{ t('tutor.reading') }}
                 </span>
                 <span
-                  :class="['text-[8.5px] px-1.5 py-0.5 rounded-sm font-bold uppercase border', (course.progressConfig && course.progressConfig.requireVideo) ? 'bg-emerald-50 border-emerald-100/50 text-emerald-700' : 'bg-gray-100 border-gray-150 text-gray-400 line-through']">
+                  :class="['text-[8.5px] px-1.5 py-0.5 rounded font-bold uppercase border', (course.progressConfig && course.progressConfig.requireVideo) ? 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-100/50 dark:border-emerald-900/40 text-emerald-700 dark:text-emerald-400' : 'bg-gray-100 dark:bg-slate-900 border-gray-150 dark:border-slate-800 text-gray-400 dark:text-gray-600 line-through']">
                   {{ t('tutor.video') }}
                 </span>
                 <span
-                  :class="['text-[8.5px] px-1.5 py-0.5 rounded-sm font-bold uppercase border', (course.progressConfig && course.progressConfig.requireQuiz) ? 'bg-emerald-50 border-emerald-100/50 text-emerald-700' : 'bg-gray-100 border-gray-150 text-gray-400 line-through']">Quiz
+                  :class="['text-[8.5px] px-1.5 py-0.5 rounded font-bold uppercase border', (course.progressConfig && course.progressConfig.requireQuiz) ? 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-100/50 dark:border-emerald-900/40 text-emerald-700 dark:text-emerald-400' : 'bg-gray-100 dark:bg-slate-900 border-gray-150 dark:border-slate-800 text-gray-400 dark:text-gray-600 line-through']">Quiz
                   {{ course.progressConfig?.minQuizScore ? `(>= ${course.progressConfig.minQuizScore}%)` : '' }}</span>
               </div>
             </div>
 
-            <div class="flex flex-wrap items-center gap-1.5 self-end sm:self-auto">
+            <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-start sm:justify-end mt-2 sm:mt-0">
               <button type="button" @click="exportCourseToJson(course)"
-                class="px-2.5 py-1.5 bg-emerald-50 border border-emerald-200 text-emerald-700 hover:bg-emerald-100 hover:text-emerald-950 rounded-lg text-[10.5px] font-bold flex items-center gap-1 cursor-pointer transition-all shadow-2xs"
+                class="px-2.5 py-1.5 bg-emerald-50 border border-emerald-200 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-950/20 dark:border-emerald-900 dark:text-emerald-400 dark:hover:bg-emerald-900/40 hover:text-emerald-950 rounded-lg text-[10.5px] font-bold flex items-center gap-1 cursor-pointer transition-all shadow-2xs"
                 :title="t('tutor.exportCourseJsonTitle')">
                 <UploadCloud class="w-3.5 h-3.5 rotate-180" />
                 {{ t('tutor.exportJsonLabel') }}
               </button>
 
               <button type="button" @click="expandedCourseId = expandedCourseId === course.id ? null : course.id"
-                class="px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white rounded-lg text-[10.5px] font-bold flex items-center gap-1 cursor-pointer transition-all shadow-2xs">
+                class="px-3 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white rounded-lg text-[10.5px] font-bold flex items-center gap-1 cursor-pointer transition-all shadow-2xs">
                 {{ t('tutor.lessonsGridLabel') }}
                 <ChevronUp v-if="expandedCourseId === course.id" class="w-3.5 h-3.5" />
                 <ChevronDown v-else class="w-3.5 h-3.5" />
               </button>
 
               <button type="button" @click="startEditCert(course)"
-                class="px-3 py-1.5 bg-blue-50/70 hover:bg-blue-100/90 text-blue-700 border border-blue-200 rounded-lg text-[10.5px] font-bold flex items-center gap-1 cursor-pointer transition-all shadow-2xs animate-fadeIn"
+                class="px-3 py-1.5 bg-blue-50/70 hover:bg-blue-100/90 dark:bg-blue-950/20 dark:border-blue-900 dark:text-blue-400 dark:hover:bg-blue-900/40 text-blue-700 border border-blue-200 rounded-lg text-[10.5px] font-bold flex items-center gap-1 cursor-pointer transition-all shadow-2xs animate-fadeIn"
                 :title="t('tutor.customizeCertTitle')">
                 <Award class="w-3.5 h-3.5" />
                 {{ t('tutor.customizeCertLabel') }}
               </button>
 
               <button v-if="deleteCourseFn" type="button" @click="deleteConfirm(course)"
-                class="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg cursor-pointer transition-colors"
+                class="p-1.5 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/20 dark:border-rose-900 dark:text-rose-450 dark:hover:bg-rose-900/40 text-rose-700 border border-rose-200 rounded-lg cursor-pointer transition-colors"
                 :title="t('tutor.deleteCourseTitle')">
                 <Trash2 class="w-3.5 h-3.5" />
               </button>
