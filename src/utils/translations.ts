@@ -472,6 +472,81 @@ export const translations: Record<Locale, Record<string, any>> = {
       errDeleteCode: 'Erro ao excluir o código.',
       successCodeCopied: 'Código {code} copiado com sucesso!',
       infoTutorCode: 'Código do Tutor: {code}',
+      panel: {
+        badge: 'ADMIN MASTER',
+        generalManagement: 'Gerenciamento Geral English Volunteer',
+        generalManagementSub:
+          'Supervisão de alunos e mentores, alteração de perfis pedagógicos, liberação de acesso e disparador de resets de senha.',
+        configureEmailJs: 'Configurar EmailJS',
+        registeredAccounts: 'Contas Cadastradas',
+        registeredAccountsSub: '● Alunos, Professores e Admins',
+        courseCatalog: 'Catálogo de Cursos',
+        courseCatalogSub: 'Grade didática ativa',
+        activePracticeClasses: 'Turmas de Prática Ativas',
+        activePracticeClassesSub: 'Encontros marcados',
+        validCertificates: 'Certificados Válidos',
+        validCertificatesSub: 'Conclusões com aprovação',
+        impactDashboardTitle: 'Painel de Impacto e Melhoria Contínua de Processos',
+        impactDashboardSub:
+          'Visão executiva baseada em métricas para otimização do ecossistema educacional de voluntariado.',
+        completionEfficiency: 'Eficiência de Conclusão',
+        completionEfficiencySub: 'Taxa de alunos ativos que conquistaram o certificado.',
+        knowledgeRetention: 'Retenção de Conhecimento',
+        knowledgeRetentionSub: 'Média de aproveitamento nos quizzes auto-corrigidos.',
+        studentMentorRatio: 'Relação Aluno/Mentor',
+        studentMentorRatioSub: 'Alunos em processo ativo gerenciados por mentor voluntário.',
+        demandTitle: 'Distribuição e Demanda por Nível Pedagógico',
+        demandSub: 'Direciona recursos voluntários de acordo com o público real ativo.',
+        beginnerLabel: 'Iniciante (Beginner)',
+        intermediateLabel: 'Intermediário (Intermediate)',
+        advancedLabel: 'Avançado (Advanced)',
+        studentsCountText: '{count} alunos',
+        certsCountText: '{count} certs',
+        classesCountText: '{count} turmas',
+        planningTipTitle: 'Dica de Planejamento:',
+        planningTipText:
+          'Alinhar a abertura de novas turmas de Prática ao vivo com os níveis de maior representatividade de alunos.',
+        recommendationsTitle: 'Recomendações de Melhoria',
+        recommendationsSub: 'Auditor inteligente baseado em conformidade e gargalos ativos.',
+        emailjsModalTitle: 'Configurações de EmailJS',
+        emailjsModalDesc:
+          'Essas credenciais são carregadas do banco de dados em tempo real e utilizadas para disparar e-mails comunitários (ex: links de aulas ao vivo e confirmações de LGPD) por qualquer tutor do ecossistema.',
+        queryingDatabase: 'Consultando banco de dados...',
+        serviceIdLabel: 'Service ID (ID do Serviço)',
+        templateCommIdLabel: 'Template ID - Comunicação (Aula ao Vivo)',
+        templateSysIdLabel: 'Template ID - Sistema (Privacidade / LGPD)',
+        publicKeyLabel: 'Public Key (Chave Pública do Usuário)',
+        securityNote:
+          'Nota de Segurança: Apenas administradores habilitados possuem autorização para gravar esses dados. Certifique-se de que os templates configurados contenham as variáveis adequadas (recipient_email, recipient_name, subject, type_label, content_html, primary_color).',
+        cancel: 'Cancelar',
+        saveConfiguration: 'Salvar Configuração',
+        toastLoadError: 'Erro ao carregar configurações do Firebase',
+        toastRequiredFields: 'Preencha todos os campos obrigatórios',
+        toastSaveSuccess: 'Configurações do EmailJS salvas com sucesso!',
+        toastSaveError: 'Erro ao salvar configurações no Firestore',
+        // System Recommendations
+        recBeginnerDeficitTitle: 'Déficit de Aulas de Prática: Beginner',
+        recBeginnerDeficitText:
+          'Há {count} alunos ativos no nível Iniciante, mas nenhuma turma de prática ao vivo agendada. Aulas síncronas evitam a evasão precoce!',
+        recBeginnerDensityTitle: 'Alta densidade de alunos no nível Iniciante',
+        recBeginnerDensityText:
+          'Cada turma de nível Beginner possui em média {avg} alunos. Considere instruir tutores a abrir novos horários para turmas menores e mais interativas.',
+        recIntermediateDeficitTitle: 'Déficit de Aulas de Prática: Intermediate',
+        recIntermediateDeficitText:
+          'Existem {count} estudantes no nível Intermediário sem turmas ativas de conversação prática. Recomendado abrir encontros semanais.',
+        recPedagogicalBottleneckTitle: 'Gargalo pedagógico detectado: {title}',
+        recPedagogicalBottleneckText:
+          'Apenas {rate}% dos alunos que iniciaram este curso concluíram o certificado. Sugere-se que o tutor revise se a dificuldade do questionário está muito alta ou se faltam recursos de apoio.',
+        recTutorOverloadTitle: 'Sobrecarga Operacional de Mentores',
+        recTutorOverloadText:
+          'A proporção de suporte é de {ratio} alunos ativos por tutor voluntário. Recomendamos realizar nova campanha de atração de tutores parceiros para reequilibrar o sistema.',
+        recHealthyCompletionTitle: 'Eficiência de Conclusão Saudável',
+        recHealthyCompletionText:
+          '{rate}% dos estudantes ativos completaram integralmente seus roteiros pedagógicos de autoestudo. Desempenho comunitário excelente!',
+        recEcosystemStabilityTitle: 'Estabilidade do Ecossistema',
+        recEcosystemStabilityText:
+          'Todos os indicadores de fluxo de alunos, turmas de prática e desempenho nos questionários operam dentro do patamar de conformidade esperado.',
+      },
     },
     profileModal: {
       title: 'Seu Perfil do Voluntário',
@@ -949,6 +1024,81 @@ export const translations: Record<Locale, Record<string, any>> = {
       errDeleteCode: 'Error deleting the code.',
       successCodeCopied: 'Code {code} copied successfully!',
       infoTutorCode: 'Tutor Code: {code}',
+      panel: {
+        badge: 'MASTER ADMIN',
+        generalManagement: 'English Volunteer General Management',
+        generalManagementSub:
+          'Supervision of students and mentors, management of pedagogical profiles, access authorization, and password reset trigger.',
+        configureEmailJs: 'Configure EmailJS',
+        registeredAccounts: 'Registered Accounts',
+        registeredAccountsSub: '● Students, Teachers & Admins',
+        courseCatalog: 'Course Catalog',
+        courseCatalogSub: 'Active courses schedule',
+        activePracticeClasses: 'Active Practice Classes',
+        activePracticeClassesSub: 'Scheduled meetings',
+        validCertificates: 'Valid Certificates',
+        validCertificatesSub: 'Approved completions',
+        impactDashboardTitle: 'Impact & Continuous Process Improvement Dashboard',
+        impactDashboardSub:
+          'Executive metrics-based overview for optimization of the volunteer educational ecosystem.',
+        completionEfficiency: 'Completion Efficiency',
+        completionEfficiencySub: 'Rate of active students who earned the certificate.',
+        knowledgeRetention: 'Knowledge Retention',
+        knowledgeRetentionSub: 'Average performance on self-corrected quizzes.',
+        studentMentorRatio: 'Student/Mentor Ratio',
+        studentMentorRatioSub: 'Active students managed per volunteer mentor.',
+        demandTitle: 'Distribution & Demand by Pedagogical Level',
+        demandSub: 'Guides volunteer resources based on the active audience.',
+        beginnerLabel: 'Beginner (Iniciante)',
+        intermediateLabel: 'Intermediate (Intermediário)',
+        advancedLabel: 'Advanced (Avançado)',
+        studentsCountText: '{count} students',
+        certsCountText: '{count} certs',
+        classesCountText: '{count} classes',
+        planningTipTitle: 'Planning Tip:',
+        planningTipText:
+          'Align the creation of new live Practice classes with the levels of highest student representation.',
+        recommendationsTitle: 'Improvement Recommendations',
+        recommendationsSub: 'Intelligent auditor based on compliance and active bottlenecks.',
+        emailjsModalTitle: 'EmailJS Configurations',
+        emailjsModalDesc:
+          'These credentials are dynamically fetched from the database in real-time and used by any tutor in the ecosystem to dispatch community emails (e.g. live class meeting links and GDPR confirmations).',
+        queryingDatabase: 'Querying database...',
+        serviceIdLabel: 'Service ID',
+        templateCommIdLabel: 'Template ID - Communication (Live Classes)',
+        templateSysIdLabel: 'Template ID - System (Privacy / GDPR)',
+        publicKeyLabel: 'Public Key',
+        securityNote:
+          'Security Note: Only authorized administrators have permission to write this data. Make sure the configured templates contain appropriate parameters (recipient_email, recipient_name, subject, type_label, content_html, primary_color).',
+        cancel: 'Cancel',
+        saveConfiguration: 'Save Configuration',
+        toastLoadError: 'Error loading settings from Firebase',
+        toastRequiredFields: 'Please fill in all required fields',
+        toastSaveSuccess: 'EmailJS configurations saved successfully!',
+        toastSaveError: 'Error saving settings in Firestore',
+        // System Recommendations
+        recBeginnerDeficitTitle: 'Practice Class Deficit: Beginner',
+        recBeginnerDeficitText:
+          'There are {count} active students at the Beginner level, but no live practice classes scheduled. Synchronous classes prevent early dropout!',
+        recBeginnerDensityTitle: 'High student density at Beginner level',
+        recBeginnerDensityText:
+          'Each Beginner class has an average of {avg} students. Consider advising tutors to open new slots for smaller, more interactive classes.',
+        recIntermediateDeficitTitle: 'Practice Class Deficit: Intermediate',
+        recIntermediateDeficitText:
+          'There are {count} students at the Intermediate level with no active conversation practice classes. Recommended to host weekly meetings.',
+        recPedagogicalBottleneckTitle: 'Pedagogical bottleneck detected: {title}',
+        recPedagogicalBottleneckText:
+          'Only {rate}% of students who started this course completed the certificate. It is suggested that the tutor review if the quiz difficulty is too high or if support materials are missing.',
+        recTutorOverloadTitle: 'Operational Overload of Mentors',
+        recTutorOverloadText:
+          'The support ratio is {ratio} active students per volunteer tutor. We recommend launching a new volunteer tutor recruitment campaign to rebalance the system.',
+        recHealthyCompletionTitle: 'Healthy Completion Efficiency',
+        recHealthyCompletionText:
+          '{rate}% of active students fully completed their self-study courses. Excellent community performance!',
+        recEcosystemStabilityTitle: 'Ecosystem Stability',
+        recEcosystemStabilityText:
+          'All indicators of student flow, practice classes, and quiz performance are operating within the expected compliance thresholds.',
+      },
     },
     profileModal: {
       title: 'Your Volunteer Profile',

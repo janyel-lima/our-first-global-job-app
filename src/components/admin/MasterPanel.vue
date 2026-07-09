@@ -110,7 +110,6 @@ const levelDistribution = computed(() => {
 const systemRecommendations = computed(() => {
   const list: Array<{ id: number; title: string; type: 'warning' | 'info' | 'success'; text: string }> = [];
   let recId = 1;
-  const isPt = locale.value === 'pt';
 
   const beg = levelDistribution.value.Beginner;
   const inter = levelDistribution.value.Intermediate;
@@ -120,31 +119,25 @@ const systemRecommendations = computed(() => {
   if (beg.students > 0 && beg.classes === 0) {
     list.push({
       id: recId++,
-      title: isPt ? 'Déficit de Aulas de Prática: Beginner' : 'Practice Class Deficit: Beginner',
+      title: t('master.panel.recBeginnerDeficitTitle'),
       type: 'warning',
-      text: isPt
-        ? `Há ${beg.students} alunos ativos no nível Iniciante, mas nenhuma turma de prática ao vivo agendada. Aulas síncronas evitam a evasão precoce!`
-        : `There are ${beg.students} active students at the Beginner level, but no live practice classes scheduled. Synchronous classes prevent early dropout!`
+      text: t('master.panel.recBeginnerDeficitText', { count: beg.students })
     });
   } else if (beg.classes > 0 && beg.students > (beg.classes * 4)) {
     list.push({
       id: recId++,
-      title: isPt ? 'Alta densidade de alunos no nível Iniciante' : 'High student density at Beginner level',
+      title: t('master.panel.recBeginnerDensityTitle'),
       type: 'info',
-      text: isPt
-        ? `Cada turma de nível Beginner possui em média ${Math.round(beg.students / beg.classes)} alunos. Considere instruir tutores a abrir novos horários para turmas menores e mais interativas.`
-        : `Each Beginner class has an average of ${Math.round(beg.students / beg.classes)} students. Consider advising tutors to open new slots for smaller, more interactive classes.`
+      text: t('master.panel.recBeginnerDensityText', { avg: Math.round(beg.students / beg.classes) })
     });
   }
 
   if (inter.students > 0 && inter.classes === 0) {
     list.push({
       id: recId++,
-      title: isPt ? 'Déficit de Aulas de Prática: Intermediate' : 'Practice Class Deficit: Intermediate',
+      title: t('master.panel.recIntermediateDeficitTitle'),
       type: 'warning',
-      text: isPt
-        ? `Existem ${inter.students} estudantes no nível Intermediário sem turmas ativas de conversação prática. Recomendado abrir encontros semanais.`
-        : `There are ${inter.students} students at the Intermediate level with no active conversation practice classes. Recommended to host weekly meetings.`
+      text: t('master.panel.recIntermediateDeficitText', { count: inter.students })
     });
   }
 
@@ -157,11 +150,9 @@ const systemRecommendations = computed(() => {
       if (rate < 30) {
         list.push({
           id: recId++,
-          title: isPt ? `Gargalo pedagógico detectado: ${c.title}` : `Pedagogical bottleneck detected: ${c.title}`,
+          title: t('master.panel.recPedagogicalBottleneckTitle', { title: c.title }),
           type: 'warning',
-          text: isPt
-            ? `Apenas ${Math.round(rate)}% dos alunos que iniciaram este curso concluíram o certificado. Sugere-se que o tutor revise se a dificuldade do questionário está muito alta ou se faltam recursos de apoio.`
-            : `Only ${Math.round(rate)}% of students who started this course completed the certificate. It is suggested that the tutor review if the quiz difficulty is too high or if support materials are missing.`
+          text: t('master.panel.recPedagogicalBottleneckText', { rate: Math.round(rate) })
         });
       }
     }
@@ -173,11 +164,9 @@ const systemRecommendations = computed(() => {
   if (tutorsCount > 0 && (activeStudentsCount / tutorsCount) > 12) {
     list.push({
       id: recId++,
-      title: isPt ? 'Sobrecarga Operacional de Mentores' : 'Operational Overload of Mentors',
+      title: t('master.panel.recTutorOverloadTitle'),
       type: 'warning',
-      text: isPt
-        ? `A proporção de suporte é de ${instructorStudentRatio.value} alunos ativos por tutor voluntário. Recomendamos realizar nova campanha de atração de tutores parceiros para reequilibrar o sistema.`
-        : `The support ratio is ${instructorStudentRatio.value} active students per volunteer tutor. We recommend launching a new volunteer tutor recruitment campaign to rebalance the system.`
+      text: t('master.panel.recTutorOverloadText', { ratio: instructorStudentRatio.value })
     });
   }
 
@@ -185,22 +174,18 @@ const systemRecommendations = computed(() => {
   if (globalCertificationRate.value >= 40) {
     list.push({
       id: recId++,
-      title: isPt ? 'Eficiência de Conclusão Saudável' : 'Healthy Completion Efficiency',
+      title: t('master.panel.recHealthyCompletionTitle'),
       type: 'success',
-      text: isPt
-        ? `${globalCertificationRate.value}% dos estudantes ativos completaram integralmente seus roteiros pedagógicos de autoestudo. Desempenho comunitário excelente!`
-        : `${globalCertificationRate.value}% of active students fully completed their self-study courses. Excellent community performance!`
+      text: t('master.panel.recHealthyCompletionText', { rate: globalCertificationRate.value })
     });
   }
 
   if (list.length === 0) {
     list.push({
       id: recId++,
-      title: isPt ? 'Estabilidade do Ecossistema' : 'Ecosystem Stability',
+      title: t('master.panel.recEcosystemStabilityTitle'),
       type: 'info',
-      text: isPt
-        ? 'Todos os indicadores de fluxo de alunos, turmas de prática e desempenho nos questionários operam dentro do patamar de conformidade esperado.'
-        : 'All indicators of student flow, practice classes, and quiz performance are operating within the expected compliance thresholds.'
+      text: t('master.panel.recEcosystemStabilityText')
     });
   }
 
@@ -235,7 +220,7 @@ const fetchCurrentConfig = async () => {
     }
   } catch (error) {
     console.error('Error fetching EmailJS config:', error);
-    showToast(locale.value === 'pt' ? 'Erro ao carregar configurações do Firebase' : 'Error loading settings from Firebase', 'error');
+    showToast(t('master.panel.toastLoadError'), 'error');
   } finally {
     isLoadingConfig.value = false;
   }
@@ -243,7 +228,7 @@ const fetchCurrentConfig = async () => {
 
 const saveConfig = async () => {
   if (!emailJsConfig.value.serviceId || !emailJsConfig.value.templateCommId || !emailJsConfig.value.templateSysId || !emailJsConfig.value.publicKey) {
-    showToast(locale.value === 'pt' ? 'Preencha todos os campos obrigatórios' : 'Please fill in all required fields', 'warning');
+    showToast(t('master.panel.toastRequiredFields'), 'warning');
     return;
   }
   isSavingConfig.value = true;
@@ -257,11 +242,11 @@ const saveConfig = async () => {
       updatedAt: new Date().toISOString(),
       updatedBy: props.currentUserId
     });
-    showToast(locale.value === 'pt' ? 'Configurações do EmailJS salvas com sucesso!' : 'EmailJS configurations saved successfully!', 'success');
+    showToast(t('master.panel.toastSaveSuccess'), 'success');
     showEmailJsModal.value = false;
   } catch (error) {
     console.error('Error saving EmailJS config:', error);
-    showToast(locale.value === 'pt' ? 'Erro ao salvar configurações no Firestore' : 'Error saving settings in Firestore', 'error');
+    showToast(t('master.panel.toastSaveError'), 'error');
   } finally {
     isSavingConfig.value = false;
   }
@@ -281,23 +266,18 @@ onMounted(() => {
         <h2 class="text-xl font-black text-gray-900 flex items-center gap-2">
           <span
             class="p-1 px-2 border border-amber-300 bg-amber-50 text-amber-700 rounded text-[10px] sm:text-xs select-none font-bold">👑
-            {{ locale === 'pt' ? 'ADMIN MASTER' : 'MASTER ADMIN' }}</span>
-          {{ locale === 'pt' ? 'Gerenciamento Geral English Volunteer' : 'English Volunteer General Management' }}
+            {{ t('master.panel.badge') }}</span>
+          {{ t('master.panel.generalManagement') }}
         </h2>
         <p class="text-xs text-gray-500 mt-1">
-          {{ locale === 'pt'
-            ? 'Supervisão de alunos e mentores, alteração de perfis pedagógicos, liberação de acesso e disparador de
-          resets de senha.'
-          : 'Supervision of students and mentors, management of pedagogical profiles, access authorization, and password
-          reset trigger.'
-          }}
+          {{ t('master.panel.generalManagementSub') }}
         </p>
       </div>
       <div class="shrink-0 flex items-center gap-3">
         <button type="button" @click="showEmailJsModal = true"
           class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-xs font-black rounded-xl transition cursor-pointer shadow-xs flex items-center gap-1.5">
           <Mail class="w-4 h-4" />
-          {{ locale === 'pt' ? 'Configurar EmailJS' : 'Configure EmailJS' }}
+          {{ t('master.panel.configureEmailJs') }}
         </button>
       </div>
     </div>
@@ -307,7 +287,7 @@ onMounted(() => {
       <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-2xs">
         <div class="flex justify-between items-start">
           <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-            {{ locale === 'pt' ? 'Contas Cadastradas' : 'Registered Accounts' }}
+            {{ t('master.panel.registeredAccounts') }}
           </p>
           <span class="p-1.5 bg-blue-50 text-blue-600 rounded-lg">
             <Users class="w-5 h-5" />
@@ -315,14 +295,14 @@ onMounted(() => {
         </div>
         <h4 class="text-2xl font-black text-gray-900 mt-2">{{ users.length }}</h4>
         <p class="text-[10px] text-emerald-600 font-bold mt-1">
-          {{ locale === 'pt' ? '● Alunos, Professores e Admins' : '● Students, Teachers & Admins' }}
+          {{ t('master.panel.registeredAccountsSub') }}
         </p>
       </div>
 
       <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-2xs">
         <div class="flex justify-between items-start">
           <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-            {{ locale === 'pt' ? 'Catálogo de Cursos' : 'Course Catalog' }}
+            {{ t('master.panel.courseCatalog') }}
           </p>
           <span class="p-1.5 bg-indigo-50 text-indigo-600 rounded-lg">
             <BookOpen class="w-5 h-5" />
@@ -330,14 +310,14 @@ onMounted(() => {
         </div>
         <h4 class="text-2xl font-black text-gray-900 mt-2">{{ courses.length }}</h4>
         <p class="text-[10px] text-gray-450 mt-1">
-          {{ locale === 'pt' ? 'Grade didática ativa' : 'Active courses schedule' }}
+          {{ t('master.panel.courseCatalogSub') }}
         </p>
       </div>
 
       <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-2xs">
         <div class="flex justify-between items-start">
           <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-            {{ locale === 'pt' ? 'Turmas de Prática Ativas' : 'Active Practice Classes' }}
+            {{ t('master.panel.activePracticeClasses') }}
           </p>
           <span class="p-1.5 bg-amber-50 text-amber-600 rounded-lg">
             <Calendar class="w-5 h-5" />
@@ -345,14 +325,14 @@ onMounted(() => {
         </div>
         <h4 class="text-2xl font-black text-gray-900 mt-2">{{ totalClassesCount }}</h4>
         <p class="text-[10px] text-amber-600 font-bold mt-1">
-          {{ locale === 'pt' ? 'Encontros marcados' : 'Scheduled meetings' }}
+          {{ t('master.panel.activePracticeClassesSub') }}
         </p>
       </div>
 
       <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-2xs">
         <div class="flex justify-between items-start">
           <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-            {{ locale === 'pt' ? 'Certificados Válidos' : 'Valid Certificates' }}
+            {{ t('master.panel.validCertificates') }}
           </p>
           <span class="p-1.5 bg-emerald-50 text-emerald-600 rounded-lg">
             <Award class="w-5 h-5" />
@@ -362,7 +342,7 @@ onMounted(() => {
           {{ totalCertified }}
         </h4>
         <p class="text-[10px] text-indigo-600 font-bold mt-1">
-          {{ locale === 'pt' ? 'Conclusões com aprovação' : 'Approved completions' }}
+          {{ t('master.panel.validCertificatesSub') }}
         </p>
       </div>
     </div>
@@ -372,13 +352,10 @@ onMounted(() => {
       <div class="flex items-center justify-between border-b border-slate-100 pb-4">
         <div>
           <h3 class="text-sm font-black text-slate-900 uppercase tracking-wider block">
-            {{ locale === 'pt' ? 'Painel de Impacto e Melhoria Contínua de Processos' : 'Impact & Continuous Process
-            Improvement Dashboard' }}
+            {{ t('master.panel.impactDashboardTitle') }}
           </h3>
           <p class="text-xs text-slate-400 font-bold block">
-            {{ locale === 'pt' ? 'Visão executiva baseada em métricas para otimização do ecossistema educacional de
-            voluntariado.' : 'Executive metrics - based overview for optimization of the volunteer educational ecosystem.'
-            }}
+            {{ t('master.panel.impactDashboardSub') }}
           </p>
         </div>
         <Activity class="w-5 h-5 text-indigo-600" />
@@ -390,14 +367,13 @@ onMounted(() => {
         <div class="bg-slate-50 p-4 rounded-xl space-y-2 border border-slate-100/50">
           <div class="flex items-center justify-between">
             <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">
-              {{ locale === 'pt' ? 'Eficiência de Conclusão' : 'Completion Efficiency' }}
+              {{ t('master.panel.completionEfficiency') }}
             </span>
             <Target class="w-4 h-4 text-emerald-600" />
           </div>
           <h5 class="text-2xl font-black text-slate-900">{{ globalCertificationRate }}%</h5>
           <p class="text-[10.5px] text-slate-400 font-bold">
-            {{ locale === 'pt' ? 'Taxa de alunos ativos que conquistaram o certificado.' : 'Rate of active students who
-            earned the certificate.' }}
+            {{ t('master.panel.completionEfficiencySub') }}
           </p>
         </div>
 
@@ -405,14 +381,13 @@ onMounted(() => {
         <div class="bg-slate-50 p-4 rounded-xl space-y-2 border border-slate-100/50">
           <div class="flex items-center justify-between">
             <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">
-              {{ locale === 'pt' ? 'Retenção de Conhecimento' : 'Knowledge Retention' }}
+              {{ t('master.panel.knowledgeRetention') }}
             </span>
             <TrendingUp class="w-4 h-4 text-indigo-600" />
           </div>
           <h5 class="text-2xl font-black text-slate-900">{{ globalQuizAverage }}%</h5>
           <p class="text-[10.5px] text-slate-400 font-bold">
-            {{ locale === 'pt' ? 'Média de aproveitamento nos quizzes auto-corrigidos.' : 'Average performance on
-            self - corrected quizzes.' }}
+            {{ t('master.panel.knowledgeRetentionSub') }}
           </p>
         </div>
 
@@ -420,14 +395,13 @@ onMounted(() => {
         <div class="bg-slate-50 p-4 rounded-xl space-y-2 border border-slate-100/50">
           <div class="flex items-center justify-between">
             <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">
-              {{ locale === 'pt' ? 'Relação Aluno/Mentor' : 'Student/Mentor Ratio' }}
+              {{ t('master.panel.studentMentorRatio') }}
             </span>
             <Users class="w-4 h-4 text-blue-600" />
           </div>
           <h5 class="text-2xl font-black text-slate-900">1 : {{ instructorStudentRatio }}</h5>
           <p class="text-[10.5px] text-slate-400 font-bold">
-            {{ locale === 'pt' ? 'Alunos em processo ativo gerenciados por mentor voluntário.' : 'Active students
-            managed per volunteer mentor.' }}
+            {{ t('master.panel.studentMentorRatioSub') }}
           </p>
         </div>
       </div>
@@ -438,12 +412,10 @@ onMounted(() => {
         <div class="lg:col-span-7 bg-slate-50 p-5 rounded-2xl border border-slate-100 space-y-4">
           <div>
             <h4 class="text-xs font-black text-slate-800 uppercase tracking-wider">
-              {{ locale === 'pt' ? 'Distribuição e Demanda por Nível Pedagógico' : 'Distribution & Demand by Pedagogical
-              Level' }}
+              {{ t('master.panel.demandTitle') }}
             </h4>
             <p class="text-[11px] text-slate-400 font-bold">
-              {{ locale === 'pt' ? 'Direciona recursos voluntários de acordo com o público real ativo.' : 'Guides
-              volunteer resources based on the active audience.' }}
+              {{ t('master.panel.demandSub') }}
             </p>
           </div>
 
@@ -453,12 +425,12 @@ onMounted(() => {
               <div class="flex items-center justify-between text-[11px] font-bold text-slate-700">
                 <span class="flex items-center gap-1.5">
                   <span class="w-2.5 h-2.5 rounded bg-blue-500 block"></span>
-                  {{ locale === 'pt' ? 'Iniciante (Beginner)' : 'Beginner (Iniciante)' }}
+                  {{ t('master.panel.beginnerLabel') }}
                 </span>
                 <span class="text-slate-450 text-[10px]">
-                  {{ levelDistribution.Beginner.students }} {{ locale === 'pt' ? 'alunos' : 'students' }} · {{
-                    levelDistribution.Beginner.certificates }} certs · {{ levelDistribution.Beginner.classes }} {{ locale
-                    === 'pt' ? 'turmas' : 'classes' }}
+                  {{ t('master.panel.studentsCountText', { count: levelDistribution.Beginner.students }) }} · {{
+                    t('master.panel.certsCountText', { count: levelDistribution.Beginner.certificates }) }} · {{
+                    t('master.panel.classesCountText', { count: levelDistribution.Beginner.classes }) }}
                 </span>
               </div>
               <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
@@ -473,12 +445,12 @@ onMounted(() => {
               <div class="flex items-center justify-between text-[11px] font-bold text-slate-700">
                 <span class="flex items-center gap-1.5">
                   <span class="w-2.5 h-2.5 rounded bg-amber-500 block"></span>
-                  {{ locale === 'pt' ? 'Intermediário (Intermediate)' : 'Intermediate (Intermediário)' }}
+                  {{ t('master.panel.intermediateLabel') }}
                 </span>
                 <span class="text-slate-450 text-[10px]">
-                  {{ levelDistribution.Intermediate.students }} {{ locale === 'pt' ? 'alunos' : 'students' }} · {{
-                    levelDistribution.Intermediate.certificates }} certs · {{ levelDistribution.Intermediate.classes }} {{
-                    locale === 'pt' ? 'turmas' : 'classes' }}
+                  {{ t('master.panel.studentsCountText', { count: levelDistribution.Intermediate.students }) }} · {{
+                    t('master.panel.certsCountText', { count: levelDistribution.Intermediate.certificates }) }} · {{
+                    t('master.panel.classesCountText', { count: levelDistribution.Intermediate.classes }) }}
                 </span>
               </div>
               <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
@@ -493,12 +465,12 @@ onMounted(() => {
               <div class="flex items-center justify-between text-[11px] font-bold text-slate-700">
                 <span class="flex items-center gap-1.5">
                   <span class="w-2.5 h-2.5 rounded bg-indigo-500 block"></span>
-                  {{ locale === 'pt' ? 'Avançado (Advanced)' : 'Advanced (Avançado)' }}
+                  {{ t('master.panel.advancedLabel') }}
                 </span>
                 <span class="text-slate-450 text-[10px]">
-                  {{ levelDistribution.Advanced.students }} {{ locale === 'pt' ? 'alunos' : 'students' }} · {{
-                    levelDistribution.Advanced.certificates }} certs · {{ levelDistribution.Advanced.classes }} {{ locale
-                    === 'pt' ? 'turmas' : 'classes' }}
+                  {{ t('master.panel.studentsCountText', { count: levelDistribution.Advanced.students }) }} · {{
+                    t('master.panel.certsCountText', { count: levelDistribution.Advanced.certificates }) }} · {{
+                    t('master.panel.classesCountText', { count: levelDistribution.Advanced.classes }) }}
                 </span>
               </div>
               <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
@@ -511,10 +483,8 @@ onMounted(() => {
 
           <div
             class="text-[9.5px] text-slate-400 font-bold leading-normal border-t border-slate-200/50 pt-2 flex items-center gap-1.5">
-            <span class="text-indigo-600">💡 {{ locale === 'pt' ? 'Dica de Planejamento:' : 'Planning Tip:' }}</span>
-            {{ locale === 'pt' ? 'Alinhar a abertura de novas turmas de Prática ao vivo com os níveis de maior
-            representatividade de alunos.' : 'Align the creation of new live Practice classes with the levels of highest
-            student representation.' }}
+            <span class="text-indigo-600">💡 {{ t('master.panel.planningTipTitle') }}</span>
+            {{ t('master.panel.planningTipText') }}
           </div>
         </div>
 
@@ -523,11 +493,10 @@ onMounted(() => {
           <div>
             <h4 class="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
               <Lightbulb class="w-4 h-4 text-amber-500" />
-              {{ locale === 'pt' ? 'Recomendações de Melhoria' : 'Improvement Recommendations' }}
+              {{ t('master.panel.recommendationsTitle') }}
             </h4>
             <p class="text-[11px] text-slate-400 font-bold">
-              {{ locale === 'pt' ? 'Auditor inteligente baseado em conformidade e gargalos ativos.' : 'Intelligent
-              auditor based on compliance and active bottlenecks.' }}
+              {{ t('master.panel.recommendationsSub') }}
             </p>
           </div>
 
@@ -572,7 +541,7 @@ onMounted(() => {
           <div class="flex items-center gap-2 text-indigo-650 dark:text-indigo-400">
             <Mail class="w-5 h-5" />
             <h3 class="text-base font-black uppercase tracking-wider">
-              {{ locale === 'pt' ? 'Configurações de EmailJS' : 'EmailJS Configurations' }}
+              {{ t('master.panel.emailjsModalTitle') }}
             </h3>
           </div>
           <button type="button" @click="showEmailJsModal = false"
@@ -582,19 +551,14 @@ onMounted(() => {
         </div>
 
         <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-          {{ locale === 'pt'
-            ? 'Essas credenciais são carregadas do banco de dados em tempo real e utilizadas para disparar e-mails
-          comunitários(ex: links de aulas ao vivo e confirmações de LGPD) por qualquer tutor do ecossistema.'
-          : 'These credentials are dynamically fetched from the database in real-time and used by any tutor in the
-          ecosystem to dispatch community emails(e.g.live class meeting links and GDPR confirmations).'
-          }}
+          {{ t('master.panel.emailjsModalDesc') }}
         </p>
 
         <!-- Loading Configuration State -->
         <div v-if="isLoadingConfig" class="flex flex-col items-center justify-center py-8 space-y-2">
           <Loader2 class="w-8 h-8 text-indigo-600 animate-spin" />
           <p class="text-xs text-slate-400 font-bold">
-            {{ locale === 'pt' ? 'Consultando banco de dados...' : 'Querying database...' }}
+            {{ t('master.panel.queryingDatabase') }}
           </p>
         </div>
 
@@ -603,7 +567,7 @@ onMounted(() => {
           <!-- Service ID -->
           <div class="space-y-1">
             <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
-              {{ locale === 'pt' ? 'Service ID (ID do Serviço)' : 'Service ID' }}
+              {{ t('master.panel.serviceIdLabel') }}
             </label>
             <input v-model="emailJsConfig.serviceId" type="text" placeholder="e.g. service_abcdef" required
               class="w-full text-xs font-bold px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 dark:text-white focus:outline-hidden focus:border-indigo-500" />
@@ -612,8 +576,7 @@ onMounted(() => {
           <!-- Template ID - Comunicação -->
           <div class="space-y-1">
             <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
-              {{ locale === 'pt' ? 'Template ID - Comunicação (Aula ao Vivo)' : 'Template ID - Communication (Live
-              Classes)' }}
+              {{ t('master.panel.templateCommIdLabel') }}
             </label>
             <input v-model="emailJsConfig.templateCommId" type="text" placeholder="e.g. template_comm123" required
               class="w-full text-xs font-bold px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 dark:text-white focus:outline-hidden focus:border-indigo-500" />
@@ -622,8 +585,7 @@ onMounted(() => {
           <!-- Template ID - Sistema -->
           <div class="space-y-1">
             <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
-              {{ locale === 'pt' ? 'Template ID - Sistema (Privacidade / LGPD)' : 'Template ID - System (Privacy /
-              GDPR)' }}
+              {{ t('master.panel.templateSysIdLabel') }}
             </label>
             <input v-model="emailJsConfig.templateSysId" type="text" placeholder="e.g. template_sys456" required
               class="w-full text-xs font-bold px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 dark:text-white focus:outline-hidden focus:border-indigo-500" />
@@ -632,7 +594,7 @@ onMounted(() => {
           <!-- Public Key -->
           <div class="space-y-1">
             <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
-              {{ locale === 'pt' ? 'Public Key (Chave Pública do Usuário)' : 'Public Key' }}
+              {{ t('master.panel.publicKeyLabel') }}
             </label>
             <input v-model="emailJsConfig.publicKey" type="text" placeholder="e.g. user_A1B2C3d4e5f6g7h8i" required
               class="w-full text-xs font-bold px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 dark:text-white focus:outline-hidden focus:border-indigo-500" />
@@ -643,14 +605,7 @@ onMounted(() => {
             class="p-3 bg-amber-50 dark:bg-amber-950/25 rounded-2xl border border-amber-100/40 dark:border-amber-900/40 flex items-start gap-2 select-none">
             <AlertTriangle class="w-4 h-4 shrink-0 mt-0.5 text-amber-600 dark:text-amber-400" />
             <p class="text-[10px] text-amber-800 dark:text-amber-300 font-bold leading-relaxed">
-              {{ locale === 'pt'
-                ? 'Nota de Segurança: Apenas administradores habilitados possuem autorização para gravar esses dados.
-              Certifique - se de que os templates configurados contenham as variáveis adequadas(recipient_email,
-                  recipient_name, subject, type_label, content_html, primary_color).'
-              : 'Security Note: Only authorized administrators have permission to write this data. Make sure the
-              configured templates contain appropriate parameters(recipient_email, recipient_name, subject, type_label,
-              content_html, primary_color).'
-              }}
+              {{ t('master.panel.securityNote') }}
             </p>
           </div>
 
@@ -658,12 +613,12 @@ onMounted(() => {
           <div class="flex items-center justify-end gap-3 border-t border-slate-100 dark:border-slate-800 pt-4">
             <button type="button" @click="showEmailJsModal = false"
               class="px-4 py-2 text-xs font-black text-slate-500 hover:text-slate-800 dark:hover:text-white bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-800 rounded-xl transition-colors cursor-pointer">
-              {{ locale === 'pt' ? 'Cancelar' : 'Cancel' }}
+              {{ t('master.panel.cancel') }}
             </button>
             <button type="submit" :disabled="isSavingConfig"
               class="px-5 py-2 text-xs font-black text-white bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 rounded-xl shadow-md cursor-pointer transition-all active:scale-95 text-center flex items-center gap-1.5">
               <Loader2 v-if="isSavingConfig" class="w-3.5 h-3.5 animate-spin" />
-              {{ locale === 'pt' ? 'Salvar Configuração' : 'Save Configuration' }}
+              {{ t('master.panel.saveConfiguration') }}
             </button>
           </div>
         </form>
