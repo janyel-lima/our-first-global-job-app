@@ -1,6 +1,6 @@
 # 🎓 Our First Global Job - Learning App
 
-> Plataforma inteligente de mini-cursos interativos de inglês voluntário com inteligência artificial para geração de lições, simulados de quizzes, formação de turmas combinadas e emissão simbólica de certificados.
+> Plataforma de mini-cursos interativos de inglês voluntário, com geração de lições, simulados de quizzes, formação de turmas combinadas e emissão simbólica de certificados.
 
 ---
 
@@ -8,7 +8,7 @@
 
 O **Our First Global Job - Learning App** é uma plataforma full-stack e moderna desenvolvida com **Vue 3**, **TypeScript**, **Tailwind CSS** e **Firebase** (Authentication & Firestore). Ela foi projetada para conectar professores voluntários a alunos que querem aprender inglês através de mini-cursos estruturados de forma dinâmica.
 
-O grande diferencial do sistema é o uso do modelo de inteligência artificial **Gemini** (através da SDK oficial `@google/genai`), que permite aos professores criarem conteúdos pedagógicos, explicações e simulados de forma automatizada e com alto padrão de qualidade em poucos segundos.
+O grande diferencial do sistema é a ferramenta de criação de conteúdo pedagógico integrada ao Painel de Tutores, que permite aos professores montarem aulas, explicações e simulados de forma estruturada e com alto padrão de qualidade.
 
 ---
 
@@ -18,7 +18,7 @@ O grande diferencial do sistema é o uso do modelo de inteligência artificial *
 
 - **Visualização de Cursos:** Navegação por trilhas de aprendizado nos níveis _Beginner_ (Iniciante), _Intermediate_ (Intermediário) e _Advanced_ (Avançado).
 - **Leitura & Estudo Interativo:** Aulas estruturadas com suporte a conteúdo formatado em Markdown, vídeos explicativos acoplados e acompanhamento em tempo real do progresso.
-- **Simulado & Quizzes:** Resolução de testes interativos com validação instantânea, pontuação dinâmica e explicações detalhadas geradas por IA para cada alternativa.
+- **Simulado & Quizzes:** Resolução de testes interativos com validação instantânea, pontuação dinâmica e explicações detalhadas para cada alternativa.
 - **Emissão de Certificados:** Geração de certificados simbólicos digitais customizados para os alunos que cumprem os pré-requisitos configurados para o curso (leitura completa, visualização de vídeos ou pontuação mínima em quizzes).
 - **Agendamento de Aulas Ao Vivo:** Grade de horários semanal interativa (com visualização otimizada para Desktop e Slider deslizante fluido para Mobile) que permite a inscrição em aulas de conversação em grupo limitadas por vagas.
 - **Chat de Suporte (Suporte Técnico/Pedagógico):** Abertura de salas de chat individuais com os instrutores dos cursos para tirar dúvidas sobre lições.
@@ -26,10 +26,10 @@ O grande diferencial do sistema é o uso do modelo de inteligência artificial *
 ### 🧑‍🏫 Painel de Tutores (Instructor Panel)
 
 - **Criador de Cursos:** Interface completa para cadastro, edição e exclusão de cursos com níveis de proficiência personalizados.
-- **Gerador de Lições com IA (Gemini):**
-  - Geração instantânea de conteúdo completo de aula (formato Markdown rico, com tabelas, vocabulários, diálogos e exercícios).
-  - Criação automática de Quizzes associados (perguntas, opções de resposta múltipla escolha e explicação para cada questão).
-  - Input de objetivos pedagógicos personalizados ou tópicos específicos para a IA focar.
+- **Criador de Lições:**
+  - Editor de conteúdo completo de aula (formato Markdown rico, com tabelas, vocabulários, diálogos e exercícios).
+  - Criação de Quizzes associados (perguntas, opções de resposta múltipla escolha e explicação para cada questão).
+  - Definição de objetivos pedagógicos personalizados ou tópicos específicos para cada curso.
 - **Configuração de Requisitos de Progresso:** Controle fino sobre o que é necessário para concluir o curso (Leitura obrigatória, assistir ao vídeo, pontuação mínima de aproveitamento no Quiz).
 - **Agendador de Aulas Síncronas (Turmas):** Criação e acompanhamento de salas de aula virtuais integradas com links de chamada (Meet, Zoom, Teams, etc.), gerenciamento de presença e limite de alunos por turma.
 - **Gestão de Dúvidas (Inbox de Chats):** Painel para responder e resolver de forma ágil as dúvidas enviadas pelos alunos em tempo real através do chat interno.
@@ -42,9 +42,9 @@ O grande diferencial do sistema é o uso do modelo de inteligência artificial *
 - **Reset de Senha Seguro:** Mecanismo integrado direto ao Firebase Auth para disparar e-mails de redefinição de senha para qualquer usuário cadastrado no sistema em caso de perda.
 - **Painel de Impacto e Melhoria Contínua de Processos:** Visão executiva em tempo real com métricas cruciais de _Eficiência de Conclusão_ (taxa de certificação), _Retenção de Conhecimento_ (aproveitamento médio nos quizzes) e _Relação Aluno/Mentor_ para supervisão de qualidade do ecossistema.
 - **Distribuição e Demanda por Nível Pedagógico:** Gráficos de barras dinâmicos que mapeiam a quantidade de alunos ativos, certificados emitidos e turmas agendadas nos níveis _Beginner_, _Intermediate_ e _Advanced_, direcionando a alocação de recursos voluntários.
-- **Motor de Recomendações e Auditoria Inteligente:** Sistema reativo de heurísticas que detecta automaticamente gargalos de aprendizado em cursos (baixa taxa de conclusão), sobrecarga operacional de tutores, alta densidade de turmas ou ausência de aulas práticas para os alunos ativos, gerando cartões de ação preventivos e corretivos.
+- **Motor de Recomendações e Auditoria de Processos:** Sistema reativo de heurísticas que detecta automaticamente gargalos de aprendizado em cursos (baixa taxa de conclusão), sobrecarga operacional de tutores, alta densidade de turmas ou ausência de aulas práticas para os alunos ativos, gerando cartões de ação preventivos e corretivos.
 - **Configuração Dinâmica de EmailJS:** Gerenciamento integrado de credenciais e chaves do EmailJS (Service ID, template de comunicação de aulas ao vivo, template de políticas de privacidade/sistema e Public Key) persistidas e consultadas em tempo real via Firestore para que tutores possam disparar e-mails do sistema de forma uniforme.
-- **Centralização de Tradução de Interface (i18n):** Suporte completo à internacionalização bilíngue (Português e Inglês) cobrindo todos os módulos do painel, métricas complexas, diagnósticos do auditor inteligente e configurações gerais.
+- **Centralização de Tradução de Interface (i18n):** Suporte completo à internacionalização bilíngue (Português e Inglês) cobrindo todos os módulos do painel, métricas complexas, diagnósticos do auditor de processos e configurações gerais.
 
 ---
 
@@ -80,7 +80,7 @@ A estrutura de pastas foi modularizada visando a reutilização de componentes e
 
 ## ⚙️ Configuração e Variáveis de Ambiente
 
-O projeto utiliza o Firebase para autenticação e banco de dados em tempo real, além da API Key do Gemini para os recursos inteligentes.
+O projeto utiliza o Firebase para autenticação e banco de dados em tempo real.
 
 ### 1. Criar o Arquivo `.env`
 
@@ -93,9 +93,6 @@ VITE_FIREBASE_PROJECT_ID=seu_project_id_aqui
 VITE_FIREBASE_STORAGE_BUCKET=seu_storage_bucket_aqui
 VITE_FIREBASE_MESSAGING_SENDER_ID=seu_sender_id_aqui
 VITE_FIREBASE_APP_ID=seu_app_id_aqui
-
-# API Key do Gemini (utilizada pelo tutor para geração de aulas)
-VITE_GEMINI_API_KEY=sua_gemini_api_key_aqui
 ```
 
 ### 2. Regras do Firestore (`firestore.rules`)
