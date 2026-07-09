@@ -86,16 +86,16 @@ const showLgpdModalInOnboard = ref(false);
               class="w-full bg-slate-50 dark:bg-slate-800 text-xs sm:text-sm border border-gray-250 dark:border-slate-700 rounded-xl p-3 cursor-pointer text-gray-700 dark:text-slate-200 font-bold"
             >
               <option value="Beginner" class="dark:bg-slate-900">
-                {{ t('onboarding.beginner') }}
+                {{ locale === 'pt' ? 'Beginner (Básico)' : 'Beginner (Basic)' }}
               </option>
               <option value="Intermediate" class="dark:bg-slate-900">
-                {{ t('onboarding.intermediate') }}
+                {{ locale === 'pt' ? 'Intermediate (Intermediário)' : 'Intermediate' }}
               </option>
               <option value="Advanced" class="dark:bg-slate-900">
-                {{ t('onboarding.advancedLong') }}
+                {{ locale === 'pt' ? 'Advanced (Avançado)' : 'Advanced' }}
               </option>
               <option value="All" class="dark:bg-slate-900">
-                {{ t('onboarding.allLong') }}
+                All
               </option>
             </select>
           </div>

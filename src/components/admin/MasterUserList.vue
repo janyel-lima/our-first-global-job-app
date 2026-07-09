@@ -732,10 +732,10 @@ const copyToClipboard = (text: string) => {
                 v-model="editUserLevel"
                 class="w-full text-xs font-bold bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-800 rounded-xl p-3 cursor-pointer"
               >
-                <option value="Beginner">{{ locale === 'pt' ? 'Beginner (Básico)' : 'Beginner' }}</option>
+                <option value="Beginner">{{ locale === 'pt' ? 'Beginner (Básico)' : 'Beginner (Basic)' }}</option>
                 <option value="Intermediate">{{ locale === 'pt' ? 'Intermediate (Intermediário)' : 'Intermediate' }}</option>
                 <option value="Advanced">{{ locale === 'pt' ? 'Advanced (Avançado)' : 'Advanced' }}</option>
-                <option value="All">{{ locale === 'pt' ? 'All (Profissional)' : 'All (Professional)' }}</option>
+                <option value="All">All</option>
               </select>
             </div>
 

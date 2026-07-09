@@ -41,7 +41,8 @@ const filteredCourses = computed(() => {
   
   // Custom rank mappings to permit dynamic unlocking!
   const levelRank: Record<string, number> = { Beginner: 1, Intermediate: 2, Advanced: 3, All: 4 };
-  const userLevel = props.userProfile?.level || "Beginner";
+  const isAdmin = props.userProfile?.isAdmin === true || String(props.userProfile?.isAdmin) === 'true';
+  const userLevel = isAdmin ? "All" : (props.userProfile?.level || "Beginner");
   const userPower = levelRank[userLevel] || 1;
 
   return props.courses.filter((course) => {
@@ -66,6 +67,41 @@ const filteredCourses = computed(() => {
 
     return true;
   });
+});
+
+const filterOptions = computed(() => {
+  const options = [{ value: "All", label: "All" }];
+  
+  options.push({
+    value: "Beginner",
+    label: locale.value === 'pt' ? 'Beginner (Básico)' : 'Beginner (Basic)'
+  });
+  
+  const levelRank: Record<string, number> = { Beginner: 1, Intermediate: 2, Advanced: 3, All: 4 };
+  const isAdmin = props.userProfile?.isAdmin === true || String(props.userProfile?.isAdmin) === 'true';
+  const userLevel = isAdmin ? "All" : (props.userProfile?.level || "Beginner");
+  const userPower = levelRank[userLevel] || 1;
+
+  if (userPower >= 2) {
+    options.push({
+      value: "Intermediate",
+      label: locale.value === 'pt' ? 'Intermediate (Intermediário)' : 'Intermediate'
+    });
+  }
+  if (userPower >= 3) {
+    options.push({
+      value: "Advanced",
+      label: locale.value === 'pt' ? 'Advanced (Avançado)' : 'Advanced'
+    });
+  }
+  return options;
+});
+
+watch(filterOptions, (newOptions) => {
+  const exists = newOptions.some(opt => opt.value === courseLevelFilter.value);
+  if (!exists) {
+    courseLevelFilter.value = "All";
+  }
 });
 
 const totalCoursePages = computed(() => {
@@ -138,10 +174,9 @@ const paginatedCourses = computed(() => {
           v-model="courseLevelFilter"
           class="text-xs sm:text-sm bg-white dark:bg-slate-900 dark:text-white border border-gray-250 dark:border-slate-700 rounded-xl px-3 py-2.5 font-bold cursor-pointer focus:ring-2 focus:ring-blue-500"
         >
-          <option value="All">{{ t('onboarding.all') }}</option>
-          <option value="Beginner">{{ t('onboarding.beginner') }}</option>
-          <option value="Intermediate">{{ t('onboarding.intermediate') }}</option>
-          <option value="Advanced">{{ t('onboarding.advanced') }}</option>
+          <option v-for="opt in filterOptions" :key="opt.value" :value="opt.value">
+            {{ opt.label }}
+          </option>
         </select>
       </div>
     </div>

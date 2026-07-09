@@ -310,10 +310,10 @@ const submit = () => {
             v-model="profileEditLevel"
             class="w-full text-xs font-bold px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-inset focus:ring-blue-500 focus:border-blue-500 cursor-pointer"
           >
-            <option value="Beginner">{{ locale === 'pt' ? 'A1-A2: Beginner (Básico)' : 'A1-A2: Beginner (Basic)' }}</option>
-            <option value="Intermediate">{{ locale === 'pt' ? 'B1-B2: Intermediate (Intermediário)' : 'B1-B2: Intermediate' }}</option>
-            <option value="Advanced">{{ locale === 'pt' ? 'C1-C2: Advanced (Avançado)' : 'C1-C2: Advanced' }}</option>
-            <option value="All">{{ locale === 'pt' ? 'All: Professional (Acesso Geral)' : 'All: Professional (General Access)' }}</option>
+            <option value="Beginner">{{ locale === 'pt' ? 'Beginner (Básico)' : 'Beginner (Basic)' }}</option>
+            <option value="Intermediate">{{ locale === 'pt' ? 'Intermediate (Intermediário)' : 'Intermediate' }}</option>
+            <option value="Advanced">{{ locale === 'pt' ? 'Advanced (Avançado)' : 'Advanced' }}</option>
+            <option value="All">All</option>
           </select>
           <p class="text-[9.5px] text-slate-400 dark:text-slate-500 leading-normal font-semibold">
             {{ locale === 'pt' ? 'Ao escolher um nível mais avançado, você verá cumulativamente todos os mini-cursos de dificuldades anteriores correspondentes!' : 'By choosing a more advanced level, you will cumulatively see all corresponding mini-courses from previous difficulties!' }}
