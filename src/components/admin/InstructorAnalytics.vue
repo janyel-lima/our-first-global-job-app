@@ -602,7 +602,7 @@ const handleExportJSON = () => {
             <div class="flex items-center justify-between text-xs font-bold text-gray-700 dark:text-slate-300">
               <span class="truncate pr-2" :title="c.title">{{ c.title }}</span>
               <span class="shrink-0 text-slate-500 dark:text-slate-400">{{ c.avgCompleted }} / {{ c.totalLessons
-              }}</span>
+                }}</span>
             </div>
             <div class="w-full bg-slate-100 dark:bg-slate-800 h-2.5 rounded-full overflow-hidden relative">
               <div class="bg-blue-600 h-full rounded-full transition-all duration-700 ease-out"
@@ -680,7 +680,7 @@ const handleExportJSON = () => {
               </span>
             </div>
             <h5 class="text-xs font-black text-gray-800 dark:text-gray-200 mt-0.5">{{ gradeDistributionData.excellentPct
-            }}%</h5>
+              }}%</h5>
           </div>
           <div>
             <div class="flex items-center justify-center gap-1">
@@ -700,7 +700,7 @@ const handleExportJSON = () => {
               </span>
             </div>
             <h5 class="text-xs font-black text-gray-800 dark:text-gray-200 mt-0.5">{{ gradeDistributionData.reviewPct
-            }}%</h5>
+              }}%</h5>
           </div>
         </div>
       </div>
@@ -804,7 +804,7 @@ const handleExportJSON = () => {
               class="p-3 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800 space-y-2">
               <div class="flex items-center justify-between text-xs font-extrabold">
                 <span class="text-slate-800 dark:text-slate-200 truncate max-w-[180px]" :title="c.title">{{ c.title
-                }}</span>
+                  }}</span>
                 <span :class="[
                   'text-[10px] font-black uppercase px-2 py-0.5 rounded-full',
                   c.rate >= 60 ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300' :
@@ -825,7 +825,7 @@ const handleExportJSON = () => {
               <div class="flex justify-between text-[10px] text-slate-450 dark:text-slate-500 font-bold leading-none">
                 <span>{{ t('tutor.certificatesCount') }} {{ c.certified }} / {{ c.totalStudents }}</span>
                 <span v-if="c.rate < 30" class="text-rose-500 dark:text-rose-400">⚠️ {{ t('tutor.dropoutWarning')
-                }}</span>
+                  }}</span>
                 <span v-else-if="c.rate >= 60" class="text-emerald-600 dark:text-emerald-400">✓ {{
                   t('tutor.healthyFlow') }}</span>
                 <span v-else class="text-amber-600 dark:text-amber-400">✎ {{ t('tutor.adjustmentsAdvised') }}</span>
@@ -861,7 +861,7 @@ const handleExportJSON = () => {
             <div v-if="pedagogicalRecommendations.length === 0"
               class="text-xs text-slate-400 dark:text-slate-500 italic py-4 text-center">
               {{ locale === 'pt' ? 'Tudo sob controle! Nenhum gargalo didático relevante detectado no momento.' :
-                'Everything under control! No relevant didactic bottleneck detected at the moment.' }}
+              'Everything under control! No relevant didactic bottleneck detected at the moment.' }}
             </div>
           </div>
         </div>
@@ -926,8 +926,9 @@ const handleExportJSON = () => {
       <p v-if="filteredStudentReports.length === 0" class="text-xs text-slate-400 dark:text-slate-500 italic py-4">
         {{ t('tutor.noMatchingStudent') }}
       </p>
-      <div v-else class="overflow-x-auto">
-        <table id="instructor-analytics-table" class="w-full text-left border-collapse text-xs">
+      <div v-else
+        class="overflow-x-auto rounded-xl border border-gray-100 dark:border-slate-850 bg-white dark:bg-slate-900/40">
+        <table id="instructor-analytics-table" class="w-full text-left border-collapse text-xs min-w-[800px]">
           <thead>
             <tr
               class="border-b border-gray-100 dark:border-slate-850 text-gray-400 dark:text-slate-400 uppercase tracking-wider text-[10px] font-bold">
@@ -950,7 +951,7 @@ const handleExportJSON = () => {
                 {{courses.find(c => c.id === report.courseId)?.title || "Manual Course"}}
               </td>
               <td class="py-3 text-center font-bold text-blue-600 dark:text-blue-400">{{ report.completedLessons.length
-              }} check(s)</td>
+                }} check(s)</td>
               <td class="py-3">
                 <template v-if="Object.values(report.quizScores).length > 0">
                   <span :class="[
@@ -960,8 +961,7 @@ const handleExportJSON = () => {
                       : 'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300'
                   ]">
                     {{
-                      Math.round(Object.values(report.quizScores).reduce((a, b) => a + b, 0) /
-                        Object.values(report.quizScores).length)
+                      Math.round(Object.values(report.quizScores).reduce((a, b) => a + b, 0) / Object.values(report.quizScores).length)
                     }}%
                   </span>
                 </template>
@@ -1262,8 +1262,8 @@ const handleExportJSON = () => {
               class="text-xs text-gray-455 italic pl-1">
               {{ t('tutor.noLessonsRegistered') }}
             </p>
-            <div v-else class="overflow-x-auto">
-              <table class="w-full text-left text-[11px] font-medium text-slate-600">
+            <div v-else class="overflow-x-auto rounded-lg border border-slate-100/60 bg-slate-50/20">
+              <table class="w-full text-left text-[11px] font-medium text-slate-600 min-w-[650px]">
                 <thead>
                   <tr class="border-b border-slate-100 text-slate-400 font-bold">
                     <th class="pb-1 text-center w-12">{{ t('tutor.thOrder') }}</th>
