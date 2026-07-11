@@ -952,16 +952,16 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
         </div>
 
         <!-- Multiple file upload connector -->
-        <div class="p-3.5 bg-blue-50/50 dark:bg-slate-900/60 border border-dashed border-blue-200 dark:border-slate-750 rounded-xl text-center space-y-2">
+        <div class="p-3.5 bg-blue-50/50 dark:bg-slate-50/40 border border-dashed border-blue-200 dark:border-slate-150 rounded-xl text-center space-y-2">
           <div class="text-center">
             <UploadCloud class="w-6 h-6 text-blue-500 dark:text-blue-400 mx-auto" />
-            <p class="text-[10.5px] font-bold text-blue-900 dark:text-slate-100 mt-1">Carregar Múltiplos Arquivos .MD</p>
-            <p class="text-[9.5px] text-blue-600 dark:text-slate-350">Importe textos prontos com tabelas e diálogos para acelerar.</p>
+            <p class="text-[10.5px] font-bold text-blue-900 dark:text-slate-900 mt-1">Carregar Múltiplos Arquivos .MD</p>
+            <p class="text-[9.5px] text-blue-600 dark:text-slate-850">Importe textos prontos com tabelas e diálogos para acelerar.</p>
           </div>
           <button
             type="button"
             @click="triggerMultiMdUpload"
-            class="px-2.5 py-1 bg-white hover:bg-gray-50 dark:bg-slate-800 dark:hover:bg-slate-700 text-blue-700 dark:text-slate-200 text-[10px] font-bold border border-blue-200 dark:border-slate-700 rounded-lg cursor-pointer transition-colors"
+            class="px-2.5 py-1 bg-white hover:bg-gray-50 dark:bg-slate-100 dark:hover:bg-slate-150 text-blue-700 dark:text-slate-900 text-[10px] font-bold border border-blue-200 dark:border-slate-200 rounded-lg cursor-pointer transition-colors"
           >
             Procurar Arquivos
           </button>
@@ -985,21 +985,21 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
             :class="[
               'p-3 rounded-xl border flex items-center justify-between transition-all cursor-pointer',
               selectedLessonId === less.tempId 
-                ? 'bg-blue-50/50 dark:bg-slate-800/65 border-blue-300 dark:border-blue-900/60' 
-                : 'bg-white dark:bg-slate-950/40 border-transparent dark:border-transparent hover:bg-gray-50 dark:hover:bg-slate-800/40'
+                ? 'bg-blue-50/50 dark:bg-slate-100/80 border-blue-300 dark:border-blue-500' 
+                : 'bg-white dark:bg-slate-50/40 border-transparent dark:border-transparent hover:bg-gray-50 dark:hover:bg-slate-100/50'
             ]"
             @click="selectedLessonId = less.tempId"
           >
             <div class="flex items-center gap-2 truncate pr-1">
-              <span class="w-5 h-5 rounded bg-slate-100 dark:bg-slate-800 text-[10px] text-slate-500 dark:text-slate-405 font-bold flex items-center justify-center shrink-0">
+              <span class="w-5 h-5 rounded bg-slate-100 dark:bg-slate-150 text-[10px] text-slate-500 dark:text-slate-800 font-bold flex items-center justify-center shrink-0">
                 {{ idx + 1 }}
               </span>
               <p 
                 :class="[
                   'text-xs font-bold truncate',
                   selectedLessonId === less.tempId 
-                    ? 'text-blue-800 dark:text-blue-300' 
-                    : 'text-slate-800 dark:text-slate-200'
+                    ? 'text-blue-800 dark:text-blue-400' 
+                    : 'text-slate-800 dark:text-slate-800'
                 ]"
               >{{ less.title }}</p>
             </div>
@@ -1043,13 +1043,13 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
           
           <!-- Workspace panel tab selection -->
           <div class="flex justify-between items-center border-b border-gray-150 dark:border-slate-800 pb-2">
-            <div class="flex bg-slate-100 dark:bg-slate-950 p-0.5 rounded-lg select-none border border-transparent dark:border-slate-800">
+            <div class="flex bg-slate-100 dark:bg-slate-50 p-0.5 rounded-lg select-none border border-transparent dark:border-slate-100/30">
               <button
                 type="button"
                 @click="activeLessonTab = 'edit'"
                 :class="[
                   'px-3 py-1.5 text-[11px] font-bold rounded-md transition-all cursor-pointer',
-                  activeLessonTab === 'edit' ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-2xs' : 'text-slate-550 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+                  activeLessonTab === 'edit' ? 'bg-white dark:bg-slate-150 text-blue-600 dark:text-blue-400 shadow-2xs' : 'text-slate-550 dark:text-slate-700 hover:text-slate-900 dark:hover:text-slate-900'
                 ]"
               >
                 📝 Editor e Texto
@@ -1059,7 +1059,7 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
                 @click="activeLessonTab = 'preview'"
                 :class="[
                   'px-3 py-1.5 text-[11px] font-bold rounded-md transition-all cursor-pointer',
-                  activeLessonTab === 'preview' ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-2xs' : 'text-slate-550 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+                  activeLessonTab === 'preview' ? 'bg-white dark:bg-slate-150 text-blue-600 dark:text-blue-400 shadow-2xs' : 'text-slate-550 dark:text-slate-700 hover:text-slate-900 dark:hover:text-slate-900'
                 ]"
               >
                 👁️ Pré-visualização Real
@@ -1069,7 +1069,7 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
                 @click="activeLessonTab = 'quiz'"
                 :class="[
                   'px-3 py-1.5 text-[11px] font-bold rounded-md transition-all cursor-pointer',
-                  activeLessonTab === 'quiz' ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-2xs' : 'text-slate-550 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+                  activeLessonTab === 'quiz' ? 'bg-white dark:bg-slate-150 text-blue-600 dark:text-blue-400 shadow-2xs' : 'text-slate-550 dark:text-slate-700 hover:text-slate-900 dark:hover:text-slate-900'
                 ]"
               >
                 ✔️ Quiz de Fixação ({{ activeLessonObject.quiz.length }})
@@ -1090,20 +1090,20 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
                   type="text"
                   required
                   v-model="activeLessonObject.title"
-                  class="w-full text-xs sm:text-sm bg-white dark:bg-slate-950 border border-gray-205 dark:border-slate-800 rounded-lg p-2.5 focus:ring-1 focus:ring-blue-500 text-slate-900 dark:text-white"
+                  class="w-full text-xs sm:text-sm bg-white dark:bg-slate-50 border border-gray-205 dark:border-slate-150 rounded-lg p-2.5 focus:ring-1 focus:ring-blue-500 text-slate-900 dark:text-white"
                 />
               </div>
               <div class="animate-fadeIn">
                 <label class="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1 flex items-center justify-between">
                   <span class="flex items-center gap-1.5">
                     <span>Vídeo do YouTube</span>
-                    <span class="text-[9px] font-bold text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 px-1.5 py-0.25 rounded uppercase tracking-wider">Opcional</span>
+                    <span class="text-[9px] font-bold text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-100/60 border border-slate-200 dark:border-slate-150 px-1.5 py-0.25 rounded uppercase tracking-wider">Opcional</span>
                   </span>
                   <span v-if="requireVideo" class="text-[9px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/40 px-1.5 py-0.25 rounded-md flex items-center gap-1">
                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                     Obrigatório para concluir aula
                   </span>
-                  <span v-else class="text-[9px] font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 border border-slate-150 dark:border-slate-705 px-1.5 py-0.25 rounded-md">
+                  <span v-else class="text-[9px] font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-150 border border-slate-150 dark:border-slate-200 px-1.5 py-0.25 rounded-md">
                     Complementar (informativo)
                   </span>
                 </label>
@@ -1111,7 +1111,7 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
                   type="text"
                   v-model="activeLessonObject.videoUrl"
                   placeholder="Ex: https://www.youtube.com/watch?v=Fw0S1ZPr6pE"
-                  class="w-full text-xs sm:text-sm bg-white dark:bg-slate-950 border border-gray-205 dark:border-slate-800 rounded-lg p-2.5 focus:ring-1 focus:ring-blue-500 text-slate-900 dark:text-white"
+                  class="w-full text-xs sm:text-sm bg-white dark:bg-slate-50 border border-gray-205 dark:border-slate-150 rounded-lg p-2.5 focus:ring-1 focus:ring-blue-500 text-slate-900 dark:text-white"
                 />
                 <p class="text-[10px] leading-tight text-slate-500 dark:text-slate-400 mt-1 font-medium">
                   Suporta links de vídeo inteiros ou IDs simples (Ex: <span class="font-mono text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-1 rounded">Fw0S1ZPr6pE</span>).
@@ -1120,12 +1120,12 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
             </div>
 
             <!-- Quick syntax shortcuts toolbar -->
-            <div class="flex flex-wrap items-center gap-1.5 bg-slate-50 dark:bg-slate-955 p-2 rounded-xl border border-slate-150 dark:border-slate-800">
+            <div class="flex flex-wrap items-center gap-1.5 bg-slate-50 dark:bg-slate-100/50 p-2 rounded-xl border border-slate-150 dark:border-slate-150">
               <span class="text-[10px] text-slate-400 dark:text-slate-500 font-black uppercase tracking-wider mr-1">Markup:</span>
               <button
                 type="button"
                 @click="handleInsertMarkdownSyntax('bold')"
-                class="p-1 px-2.5 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-850 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white text-[10px] font-bold border border-slate-200 dark:border-slate-800 rounded-md cursor-pointer transition-colors flex items-center gap-1"
+                class="p-1 px-2.5 bg-white dark:bg-slate-100 hover:bg-slate-100 dark:hover:bg-slate-150 text-slate-700 dark:text-slate-800 hover:text-slate-900 dark:hover:text-white text-[10px] font-bold border border-slate-200 dark:border-slate-150 rounded-md cursor-pointer transition-colors flex items-center gap-1"
                 title="Negrito"
               >
                 <Bold class="w-3 h-3" /> Bold
@@ -1133,7 +1133,7 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
               <button
                 type="button"
                 @click="handleInsertMarkdownSyntax('italic')"
-                class="p-1 px-2.5 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-850 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white text-[10px] font-bold border border-slate-200 dark:border-slate-800 rounded-md cursor-pointer transition-colors flex items-center gap-1"
+                class="p-1 px-2.5 bg-white dark:bg-slate-100 hover:bg-slate-100 dark:hover:bg-slate-150 text-slate-700 dark:text-slate-800 hover:text-slate-900 dark:hover:text-white text-[10px] font-bold border border-slate-200 dark:border-slate-150 rounded-md cursor-pointer transition-colors flex items-center gap-1"
                 title="Itálico"
               >
                 <Italic class="w-3 h-3" /> Italic
@@ -1141,7 +1141,7 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
               <button
                 type="button"
                 @click="handleInsertMarkdownSyntax('heading')"
-                class="p-1 px-2.5 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-855 text-slate-705 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white text-[10px] font-bold border border-slate-200 dark:border-slate-800 rounded-md cursor-pointer transition-colors flex items-center gap-1"
+                class="p-1 px-2.5 bg-white dark:bg-slate-100 hover:bg-slate-100 dark:hover:bg-slate-150 text-slate-700 dark:text-slate-800 hover:text-slate-900 dark:hover:text-white text-[10px] font-bold border border-slate-200 dark:border-slate-150 rounded-md cursor-pointer transition-colors flex items-center gap-1"
                 title="Subtítulo"
               >
                 <Heading3 class="w-3 h-3" /> H3
@@ -1149,7 +1149,7 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
               <button
                 type="button"
                 @click="handleInsertMarkdownSyntax('list')"
-                class="p-1 px-2.5 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-855 text-slate-705 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white text-[10px] font-bold border border-slate-200 dark:border-slate-800 rounded-md cursor-pointer transition-colors flex items-center gap-1"
+                class="p-1 px-2.5 bg-white dark:bg-slate-100 hover:bg-slate-100 dark:hover:bg-slate-150 text-slate-700 dark:text-slate-800 hover:text-slate-900 dark:hover:text-white text-[10px] font-bold border border-slate-200 dark:border-slate-150 rounded-md cursor-pointer transition-colors flex items-center gap-1"
                 title="Marcadores"
               >
                 <List class="w-3 h-3" /> Lista
@@ -1157,7 +1157,7 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
               <button
                 type="button"
                 @click="handleInsertMarkdownSyntax('dialogue')"
-                class="p-1 px-2.5 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-855 text-slate-705 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white text-[10px] font-bold border border-slate-200 dark:border-slate-800 rounded-md cursor-pointer transition-colors flex items-center gap-1"
+                class="p-1 px-2.5 bg-white dark:bg-slate-100 hover:bg-slate-100 dark:hover:bg-slate-150 text-slate-700 dark:text-slate-800 hover:text-slate-900 dark:hover:text-white text-[10px] font-bold border border-slate-200 dark:border-slate-150 rounded-md cursor-pointer transition-colors flex items-center gap-1"
                 title="Montar Diálogo"
               >
                 <MessageSquare class="w-3 h-3" /> Diálogo
@@ -1165,7 +1165,7 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
               <button
                 type="button"
                 @click="handleInsertMarkdownSyntax('table')"
-                class="p-1 px-2.5 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-855 text-slate-705 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white text-[10px] font-bold border border-slate-200 dark:border-slate-800 rounded-md cursor-pointer transition-colors flex items-center gap-1"
+                class="p-1 px-2.5 bg-white dark:bg-slate-100 hover:bg-slate-100 dark:hover:bg-slate-150 text-slate-700 dark:text-slate-800 hover:text-slate-900 dark:hover:text-white text-[10px] font-bold border border-slate-200 dark:border-slate-150 rounded-md cursor-pointer transition-colors flex items-center gap-1"
                 title="Criar Lista Glossária"
               >
                 <Table class="w-3 h-3" /> Glossário
@@ -1173,7 +1173,7 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
               <button
                 type="button"
                 @click="handleInsertMarkdownSyntax('alert')"
-                class="p-1 px-2.5 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-855 text-slate-705 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white text-[10px] font-bold border border-slate-200 dark:border-slate-800 rounded-md cursor-pointer transition-colors flex items-center gap-1"
+                class="p-1 px-2.5 bg-white dark:bg-slate-100 hover:bg-slate-100 dark:hover:bg-slate-150 text-slate-700 dark:text-slate-800 hover:text-slate-900 dark:hover:text-white text-[10px] font-bold border border-slate-200 dark:border-slate-150 rounded-md cursor-pointer transition-colors flex items-center gap-1"
                 title="Adicionar Nota / Dica"
               >
                 <Lightbulb class="w-3 h-3 text-amber-500" /> Dica Box
@@ -1189,83 +1189,83 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
                 required
                 v-model="activeLessonObject.content"
                 placeholder="Escreva as tabelas de vocubulário, regras gramaticais e exemplos de conversações utilizando as regras de injeção acima..."
-                class="w-full text-xs sm:text-sm bg-white dark:bg-slate-950 border border-gray-200 dark:border-slate-800 rounded-xl p-3.5 focus:ring-1 focus:ring-blue-500 font-mono leading-relaxed text-slate-800 dark:text-slate-100"
+                class="w-full text-xs sm:text-sm bg-white dark:bg-slate-50 border border-gray-200 dark:border-slate-150 rounded-xl p-3.5 focus:ring-1 focus:ring-blue-500 font-mono leading-relaxed text-slate-800 dark:text-white"
               />
             </div>
           </div>
 
           <!-- TAB 2: Live Preview -->
           <div v-if="activeLessonTab === 'preview'" class="space-y-4">
-            <div class="p-3 bg-slate-50 dark:bg-slate-900/60 rounded-xl border border-indigo-100/40 dark:border-indigo-950/80 text-[11px] text-slate-700 dark:text-slate-300 leading-relaxed">
+            <div class="p-3 bg-slate-50 dark:bg-slate-100/30 rounded-xl border border-indigo-100/40 dark:border-indigo-200/20 text-[11px] text-slate-700 dark:text-slate-800 leading-relaxed">
               📍 <strong>Visão de Consumo Prático:</strong> É exatamente dessa maneira que os estudantes visualizarão o material em seus respectivos celulares ou computadores. Revise o layout!
             </div>
 
-            <div class="border border-slate-150 dark:border-slate-800 rounded-2xl p-5 bg-white dark:bg-slate-950">
+            <div class="border border-slate-150 dark:border-slate-150 rounded-2xl p-5 bg-white dark:bg-slate-50">
               <MarkdownRenderer :content="activeLessonObject.content" />
             </div>
           </div>
 
           <!-- TAB 3: Quiz Builder -->
           <div v-if="activeLessonTab === 'quiz'" class="space-y-6">
-            <div class="bg-slate-50 dark:bg-slate-950 p-4 sm:p-5 rounded-xl border border-slate-200 dark:border-slate-850 space-y-4">
-              <p class="text-xs font-extrabold text-slate-700 dark:text-slate-300 uppercase tracking-wider text-left">Adicionar Questão de Múltipla Escolha</p>
+            <div class="bg-slate-50 dark:bg-slate-50 p-4 sm:p-5 rounded-xl border border-slate-200 dark:border-slate-150 space-y-4">
+              <p class="text-xs font-extrabold text-slate-700 dark:text-slate-800 uppercase tracking-wider text-left">Adicionar Questão de Múltipla Escolha</p>
               
               <div class="space-y-3 text-left">
                 <div>
-                  <label class="block text-xs font-bold text-slate-650 dark:text-slate-350 mb-1">Enunciado da Pergunta *</label>
+                  <label class="block text-xs font-bold text-slate-650 dark:text-slate-805 mb-1">Enunciado da Pergunta *</label>
                   <input
                     type="text"
                     v-model="newQuestionText"
                     placeholder="Ex: Qual a tradução mais aceitável de 'How are you doing?' no cotidiano?"
-                    class="w-full text-xs sm:text-sm bg-white dark:bg-slate-900 border border-slate-205 dark:border-slate-800 rounded-lg p-2.5 focus:ring-1 focus:ring-blue-500 text-slate-900 dark:text-white"
+                    class="w-full text-xs sm:text-sm bg-white dark:bg-slate-100 border border-slate-205 dark:border-slate-150 rounded-lg p-2.5 focus:ring-1 focus:ring-blue-500 text-slate-900 dark:text-white"
                   />
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-0.5">Alternativa A (Opção 1) *</label>
+                    <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-650 mb-0.5">Alternativa A (Opção 1) *</label>
                     <input
                       type="text"
                       v-model="newOption1"
                       placeholder="Ex: Como vai você?"
-                      class="w-full text-xs bg-white dark:bg-slate-900 border border-slate-205 dark:border-slate-800 rounded-lg p-2 focus:ring-1 focus:ring-blue-500 text-slate-900 dark:text-white"
+                      class="w-full text-xs bg-white dark:bg-slate-100 border border-slate-205 dark:border-slate-150 rounded-lg p-2 focus:ring-1 focus:ring-blue-500 text-slate-900 dark:text-white"
                     />
                   </div>
                   <div>
-                    <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-0.5">Alternativa B (Opção 2) *</label>
+                    <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-650 mb-0.5">Alternativa B (Opção 2) *</label>
                     <input
                       type="text"
                       v-model="newOption2"
                       placeholder="Ex: O que você faz diariamente?"
-                      class="w-full text-xs bg-white dark:bg-slate-900 border border-slate-205 dark:border-slate-800 rounded-lg p-2 focus:ring-1 focus:ring-blue-500 text-slate-900 dark:text-white"
+                      class="w-full text-xs bg-white dark:bg-slate-100 border border-slate-205 dark:border-slate-150 rounded-lg p-2 focus:ring-1 focus:ring-blue-500 text-slate-900 dark:text-white"
                     />
                   </div>
                   <div>
-                    <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-0.5">Alternativa C (Opção 3)</label>
+                    <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-650 mb-0.5">Alternativa C (Opção 3)</label>
                     <input
                       type="text"
                       v-model="newOption3"
                       placeholder="Ex: O que você está vestindo?"
-                      class="w-full text-xs bg-white dark:bg-slate-900 border border-slate-205 dark:border-slate-800 rounded-lg p-2 focus:ring-1 focus:ring-blue-500 text-slate-900 dark:text-white"
+                      class="w-full text-xs bg-white dark:bg-slate-100 border border-slate-205 dark:border-slate-150 rounded-lg p-2 focus:ring-1 focus:ring-blue-500 text-slate-900 dark:text-white"
                     />
                   </div>
                   <div>
-                    <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-0.5">Alternativa D (Opção 4)</label>
+                    <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-650 mb-0.5">Alternativa D (Opção 4)</label>
                     <input
                       type="text"
                       v-model="newOption4"
                       placeholder="Ex: Onde fica seu trabalho?"
-                      class="w-full text-xs bg-white dark:bg-slate-900 border border-slate-205 dark:border-slate-800 rounded-lg p-2 focus:ring-1 focus:ring-blue-500 text-slate-900 dark:text-white"
+                      class="w-full text-xs bg-white dark:bg-slate-100 border border-slate-205 dark:border-slate-150 rounded-lg p-2 focus:ring-1 focus:ring-blue-500 text-slate-900 dark:text-white"
                     />
                   </div>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
                   <div class="sm:col-span-1">
-                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-350 mb-1">Qual a opção correta? *</label>
+                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-805 mb-1">Qual a opção correta? *</label>
                     <select
                       v-model="newCorrectIndex"
-                      class="w-full text-xs bg-white dark:bg-slate-900 border border-slate-205 dark:border-slate-800 rounded-lg p-2 focus:ring-1 focus:ring-blue-500 cursor-pointer font-bold text-slate-800 dark:text-slate-100"
+                      class="w-full text-xs bg-white dark:bg-slate-100 border border-slate-205 dark:border-slate-150 rounded-lg p-2 focus:ring-1 focus:ring-blue-500 cursor-pointer font-bold text-slate-800 dark:text-slate-800"
                     >
                       <option :value="0">Alternativa A (Opção 1)</option>
                       <option :value="1">Alternativa B (Opção 2)</option>
@@ -1275,12 +1275,12 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
                   </div>
 
                   <div class="sm:col-span-2">
-                    <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">Explicação Curta (Feedback Didático)</label>
+                    <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-650 mb-1">Explicação Curta (Feedback Didático)</label>
                     <input
                       type="text"
                       v-model="newExplanation"
                       placeholder="Ex: A expressão 'How are you doing?' é equivalente a 'como vai você?' ou 'tudo bem?'..."
-                      class="w-full text-xs bg-white dark:bg-slate-900 border border-slate-205 dark:border-slate-800 rounded-lg p-2 focus:ring-1 focus:ring-blue-500 text-slate-900 dark:text-white"
+                      class="w-full text-xs bg-white dark:bg-slate-100 border border-slate-205 dark:border-slate-150 rounded-lg p-2 focus:ring-1 focus:ring-blue-500 text-slate-900 dark:text-white"
                     />
                   </div>
                 </div>
@@ -1307,7 +1307,7 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
                 <div
                   v-for="(q, qIdx) in activeLessonObject.quiz"
                   :key="qIdx"
-                  class="p-4 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-850 rounded-xl space-y-2 relative"
+                  class="p-4 bg-white dark:bg-slate-50 border border-slate-200 dark:border-slate-150 rounded-xl space-y-2 relative"
                 >
                   <button
                     type="button"
@@ -1318,7 +1318,7 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
                     <Trash2 class="w-3.5 h-3.5" />
                   </button>
 
-                  <p class="font-extrabold text-xs text-slate-800 dark:text-slate-205 pr-8">
+                  <p class="font-extrabold text-xs text-slate-800 dark:text-slate-800 pr-8">
                     Q{{ qIdx + 1 }}: {{ q.question }}
                   </p>
 
@@ -1330,7 +1330,7 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
                         'p-2 rounded text-[11px] font-medium text-left',
                         q.correctAnswer === optIdx 
                           ? 'bg-emerald-50 dark:bg-emerald-950/35 text-emerald-800 dark:text-emerald-405 font-bold border border-emerald-100 dark:border-emerald-900/50' 
-                          : 'bg-slate-50 dark:bg-slate-900 text-slate-500 dark:text-slate-400'
+                          : 'bg-slate-50 dark:bg-slate-100 text-slate-500 dark:text-slate-700'
                       ]"
                     >
                       {{ String.fromCharCode(65 + optIdx) }}) {{ opt }}
@@ -1353,7 +1353,7 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
     </div>
 
     <!-- Submit manual course block -->
-    <div class="bg-slate-50 dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-left shadow-2xs">
+    <div class="bg-slate-50 dark:bg-slate-50 p-5 rounded-2xl border border-slate-200 dark:border-slate-150 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-left shadow-2xs">
       <div>
         <h4 class="font-extrabold text-sm text-slate-900 dark:text-white">Passo 3: Publicação dos Dados</h4>
         <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Certifique-se de que a estrutura esteja impecável antes de submeter ao banco.</p>
