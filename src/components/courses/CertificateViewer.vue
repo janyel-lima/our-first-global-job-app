@@ -15,6 +15,7 @@ const props = defineProps<{
   primaryColor?: string;
   iconUrl?: string;
   creatorId?: string;
+  isTransferred?: boolean;
   isMaster?: boolean;
   bgStyle?: "vintage-parchment" | "dark-velvet" | "clean-light";
   frameStyle?: "medieval-gothic" | "classic-imperial" | "modern-border";
@@ -66,7 +67,14 @@ async function loadCertificate() {
     const themeColor = props.primaryColor || "#1e3a8a";
     const iconUrl = props.iconUrl;
 
-    if (props.creatorId && !isLoadedProfile.value) {
+    if (props.isTransferred) {
+      instructorName.value = locale.value === 'pt' ? "Equipe de Admin da Iniciativa" : "Initiative Admin Team";
+      sigText.value = instructorName.value;
+      sigType.value = "text";
+      sigImage.value = "";
+      hasDrawnSignature.value = false;
+      isLoadedProfile.value = true;
+    } else if (props.creatorId && !isLoadedProfile.value) {
       try {
         const docRef = doc(db, "users", props.creatorId);
         const docSnap = await getDoc(docRef);
@@ -381,7 +389,7 @@ async function loadCertificate() {
   }
 }
 
-watch(() => [props.studentName, props.courseTitle, props.primaryColor, props.iconUrl, props.creatorId, sigType.value, bgStyle.value, frameStyle.value, detailColor.value], () => {
+watch(() => [props.studentName, props.courseTitle, props.primaryColor, props.iconUrl, props.creatorId, props.isTransferred, sigType.value, bgStyle.value, frameStyle.value, detailColor.value], () => {
   loadCertificate();
 }, { immediate: true });
 

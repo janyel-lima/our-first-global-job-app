@@ -55,6 +55,7 @@ export interface Course {
   updatedAt: string;
   progressConfig?: CourseProgressConfig;
   certificateConfig?: CourseCertificateConfig;
+  isTransferred?: boolean;
 }
 
 export interface ClassTurma {

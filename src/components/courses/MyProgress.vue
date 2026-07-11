@@ -291,7 +291,8 @@ const setPage = (page: number) => {
                   bgStyle: item.course.certificateConfig?.bgStyle,
                   frameStyle: item.course.certificateConfig?.frameStyle,
                   detailColor: item.course.certificateConfig?.detailColor,
-                  creatorId: item.course.creatorId
+                  creatorId: item.course.creatorId,
+                  isTransferred: item.course.isTransferred
                 })"
                 :style="{ backgroundColor: primaryColor }"
                 class="px-3.5 py-1.5 text-white hover:brightness-110 font-black text-[10.5px] rounded-lg shadow-sm transition-all flex items-center gap-1 cursor-pointer hover:shadow"

@@ -184,7 +184,8 @@ const handleClaimCertificate = () => {
       bgStyle: props.course.certificateConfig?.bgStyle,
       frameStyle: props.course.certificateConfig?.frameStyle,
       detailColor: props.course.certificateConfig?.detailColor,
-      creatorId: props.course.creatorId
+      creatorId: props.course.creatorId,
+      isTransferred: props.course.isTransferred
     });
   }
 };

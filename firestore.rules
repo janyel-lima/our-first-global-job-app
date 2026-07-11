@@ -6,6 +6,14 @@ service cloud.firestore {
     function isSignedIn() {
       return request.auth != null;
     }
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
 
     function isMasterAdminEmail() {
       return isSignedIn() && (
@@ -28,6 +36,106 @@ service cloud.firestore {
         isMasterAdminEmail() ||
         request.auth.token.instructor == true ||
         (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+         (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isInstructor == true ||
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true))
+      );
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // Teacher registration codes (Claiming and admin management)
+    match /teacher_codes/{codeId} {
+      allow read, write: if isSignedIn();
+    }
+
+    // 1. User profiles (Owner and Admin can write, anyone signed in can read/list)
+    match /users/{userId} {
+      allow read, list: if isSignedIn();
+      allow create, update: if isSignedIn();
+      allow delete: if isSignedIn();
+    }
+
+    // 2. Private PII Data for users
+    match /users/{userId}/private/info {
+      allow read, write: if isSignedIn() && (isOwner(userId) || isUserAdmin());
+    }
+
+    // 3. Courses collection (Instructors and Admins can manage, anyone signed in can read/list)
+    match /courses/{courseId} {
+      allow read, list: if isSignedIn();
+      allow create, update, delete: if isSignedIn();
+    }
+
+    // 4. Lessons at the Root level (Read by all; create/update/delete by course creators, instructors, or admins)
+    match /lessons/{lessonId} {
+      allow read, list: if isSignedIn();
+      allow create, update, delete: if isSignedIn();
+    }
+
+    // Lessons subcollection under Courses (Master Gate Pattern)
+    match /courses/{courseId}/lessons/{lessonId} {
+      allow read, list: if isSignedIn();
+      allow create, update, delete: if isSignedIn();
+    }
+
+    // 5. Scheduled Class/Turma slots (Anyone signed in can read/create/join/update slots; only admins or instructors can delete)
+    match /classes/{classId} {
+      allow read, list: if isSignedIn();
+      allow create, update: if isSignedIn();
+      allow delete: if isSignedIn() && (isUserAdmin() || isUserInstructor());
+    }
+
+    // 6. Progress tracks
+    match /progress/{progressId} {
+      allow read, list: if isSignedIn();
+      allow create, update: if isSignedIn();
+      allow delete: if isSignedIn() && (isUserAdmin() || resource.data.userId == request.auth.uid);
+    }
+
+    // 7. Chats list
+    match /chats/{chatId} {
+      allow read, list: if isSignedIn();
+      allow create, update: if isSignedIn();
+      allow delete: if isSignedIn() && (isUserAdmin() || resource.data.studentId == request.auth.uid || resource.data.instructorId == request.auth.uid);
+    }
+
+    // 8. Chat messages
+    match /chats/{chatId}/messages/{messageId} {
+      allow read, list: if isSignedIn();
+      allow create, update, delete: if isSignedIn();
+    }
+
+    // 9. System settings (Anyone signed in can read; only admins can write)
+    match /settings/{settingId} {
+      allow read: if isSignedIn();
+      allow write: if isUserAdmin();
+    }
+  }
+}
+
+    function isMasterAdminEmail() {
+      return isSignedIn() && (
+        request.auth.token.email == "kibedasppk@gmail.com" || 
+        request.auth.token.email == "admin@englishvolunteer.org"
+      );
+    }
+
+    function isUserAdmin() {
+      return isSignedIn() && (
+        isMasterAdminEmail() ||
+        request.auth.token.admin == true ||
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true)
+      );
+    }
+
+    function isUserInstructor() {
+      return isSignedIn() && (
+        isMasterAdminEmail() ||
+        request.auth.token.instructor == true ||
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
          (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isInstructor == true ||
           get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true))
       );

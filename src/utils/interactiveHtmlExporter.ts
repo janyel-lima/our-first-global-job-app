@@ -23,7 +23,12 @@ export async function generateInteractiveHTML(course: Course, lessons: Lesson[])
   let sigText = "";
   let sigImage = "";
 
-  if (course.creatorId) {
+  if (course.isTransferred) {
+    instructorName = "Equipe de Admin da Iniciativa";
+    sigType = "text";
+    sigText = "Equipe de Admin da Iniciativa";
+    sigImage = "";
+  } else if (course.creatorId) {
     try {
       const docRef = doc(db, "users", course.creatorId);
       const docSnap = await getDoc(docRef);
