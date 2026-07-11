@@ -188,7 +188,7 @@ const cancelReassignment = () => {
   <div>
     <!-- Gestão de Direitos Autorais e Cursos Transferidos (LGPD) -->
     <div
-      class="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 p-6 shadow-xs text-left space-y-4">
+      class="bg-white dark:bg-slate-900 rounded-3xl border border-gray-100 dark:border-slate-800 p-6 shadow-xs text-left space-y-4">
       <div
         class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-100 dark:border-slate-800 pb-4">
         <div>
@@ -197,7 +197,7 @@ const cancelReassignment = () => {
             Sucessão de Propriedade de Curso (LGPD)
           </h3>
           <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-            Transfira direitos autorais e atribua tutores válidos para cursos de professores desligados da plataforma
+            Transfira direitos autorais and atribua tutores válidos para cursos de professores desligados da plataforma
             (solicitação de eliminação de dados pessoais / esquecimento).
           </p>
         </div>
@@ -214,7 +214,7 @@ const cancelReassignment = () => {
       <div :style="{
         borderColor: (props.primaryColor || '#4f46e5') + '25',
         backgroundColor: (props.primaryColor || '#4f46e5') + '08'
-      }" class="border rounded-2xl p-4 text-xs text-slate-650 dark:text-slate-350 leading-relaxed w-full">
+      }" class="border rounded-3xl p-4 text-xs text-slate-650 dark:text-slate-350 leading-relaxed w-full">
         De acordo com as regras de continuidade e termos descritos de acordo com a <strong>Lei Geral de Proteção de
           Dados (LGPD)</strong>, quando um instrutor decide excluir permanentemente seu cadastro e e-mail no English
         Volunteer, os materiais e minicursos autorais fornecidos continuam sob propriedade da administração do

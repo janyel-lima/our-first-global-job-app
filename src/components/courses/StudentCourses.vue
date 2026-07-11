@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
-import { Search, Filter, Award, ChevronLeft, ChevronRight, ChevronRight as ChevronRightIcon } from 'lucide-vue-next';
-import { Course, Lesson, Progress, UserProfile } from '../../types';
+import { Award, ChevronLeft, ChevronRight, ChevronRight as ChevronRightIcon, Filter, Search } from 'lucide-vue-next';
+import { computed, ref, watch } from 'vue';
 import { useI18n } from '../../composables/useI18n';
+import { Course, Lesson, Progress, UserProfile } from '../../types';
 
 const { t, locale } = useI18n();
 
@@ -38,7 +38,7 @@ const getProgressForCourse = (courseId: string) => {
 // Filter courses based on search query, level constraints, and accessible levels
 const filteredCourses = computed(() => {
   const queryText = courseSearchQuery.value.trim().toLowerCase();
-  
+
   // Custom rank mappings to permit dynamic unlocking!
   const levelRank: Record<string, number> = { Beginner: 1, Intermediate: 2, Advanced: 3, All: 4 };
   const isAdmin = props.userProfile?.isAdmin === true || String(props.userProfile?.isAdmin) === 'true';
@@ -71,12 +71,12 @@ const filteredCourses = computed(() => {
 
 const filterOptions = computed(() => {
   const options = [{ value: "All", label: "All" }];
-  
+
   options.push({
     value: "Beginner",
     label: locale.value === 'pt' ? 'Beginner (Básico)' : 'Beginner (Basic)'
   });
-  
+
   const levelRank: Record<string, number> = { Beginner: 1, Intermediate: 2, Advanced: 3, All: 4 };
   const isAdmin = props.userProfile?.isAdmin === true || String(props.userProfile?.isAdmin) === 'true';
   const userLevel = isAdmin ? "All" : (props.userProfile?.level || "Beginner");
@@ -118,9 +118,11 @@ const paginatedCourses = computed(() => {
 <template>
   <div id="student-courses-panel" class="space-y-6">
     <!-- Hero banner welcoming students -->
-    <div class="bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-950/90 dark:to-blue-900/40 rounded-3xl p-6 sm:p-10 border border-blue-500/20 dark:border-blue-500/15 absolute-decor text-white relative overflow-hidden shadow-lg animate-fadeIn text-left">
+    <div
+      class="bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-950/90 dark:to-blue-900/40 rounded-3xl p-6 sm:p-10 border border-blue-500/20 dark:border-blue-500/15 absolute-decor text-white relative overflow-hidden shadow-lg animate-fadeIn text-left">
       <div class="space-y-4 max-w-xl z-10 relative">
-        <span class="inline-block py-1 px-3 bg-white/20 dark:bg-white/10 backdrop-blur-md text-white rounded-full text-[10px] font-black uppercase tracking-wider">
+        <span
+          class="inline-block py-1 px-3 bg-white/20 dark:bg-white/10 backdrop-blur-md text-white rounded-full text-[10px] font-black uppercase tracking-wider">
           🚀 {{ t('hero.badge') }}
         </span>
         <h2 class="text-xl sm:text-3xl font-black tracking-tight leading-none text-white">
@@ -131,11 +133,14 @@ const paginatedCourses = computed(() => {
         </p>
 
         <div class="flex flex-wrap items-center gap-3 pt-2">
-          <div class="bg-white/10 dark:bg-white/5 backdrop-blur-xs px-4 py-2 rounded-2xl border border-white/10 dark:border-white/5 shadow-xs">
-            <p class="text-xs text-blue-100 dark:text-blue-200 uppercase tracking-wide font-black">{{ t('hero.certBadge') }}</p>
+          <div
+            class="bg-white/10 dark:bg-white/5 backdrop-blur-xs px-4 py-2 rounded-2xl border border-white/10 dark:border-white/5 shadow-xs">
+            <p class="text-xs text-blue-100 dark:text-blue-200 uppercase tracking-wide font-black">{{
+              t('hero.certBadge') }}</p>
             <p class="text-base font-black text-white">{{ completedCountGlobal }} {{ t('hero.certBadgeSub') }}</p>
           </div>
-          <div class="bg-white/10 dark:bg-white/5 backdrop-blur-xs px-4 py-2 rounded-2xl border border-white/10 dark:border-white/5 shadow-xs">
+          <div
+            class="bg-white/10 dark:bg-white/5 backdrop-blur-xs px-4 py-2 rounded-2xl border border-white/10 dark:border-white/5 shadow-xs">
             <p class="text-xs text-blue-100 dark:text-blue-200 uppercase tracking-wide font-black">
               {{ locale === 'pt' ? 'Metodologia' : 'Methodology' }}
             </p>
@@ -150,30 +155,25 @@ const paginatedCourses = computed(() => {
     </div>
 
     <!-- Search & Filter Controls -->
-    <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 bg-slate-50 dark:bg-slate-800/40 p-4 rounded-2xl border border-gray-150 dark:border-slate-700/80">
+    <div
+      class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 bg-slate-50 dark:bg-slate-800/40 p-4 rounded-3xl border border-gray-150 dark:border-slate-700/80">
       <!-- Search query input -->
-      <div class="relative flex-1">
+      <div class="relative flex-1 w-full">
         <Search class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-        <input
-          id="input-course-search"
-          v-model="courseSearchQuery"
-          type="text"
+        <input id="input-course-search" v-model="courseSearchQuery" type="text"
           :placeholder="t('courses.searchPlaceholder')"
-          class="w-full text-xs sm:text-sm bg-white dark:bg-slate-900 dark:text-white border border-gray-250 dark:border-slate-700 pl-10 pr-4 py-2.5 rounded-xl focus:ring-2 focus:ring-blue-500 font-semibold"
-        />
+          class="w-full text-xs sm:text-sm bg-white dark:bg-slate-900 dark:text-white border border-gray-250 dark:border-slate-700 pl-10 pr-4 py-2.5 rounded-xl focus:ring-2 focus:ring-blue-500 font-semibold" />
       </div>
 
       <!-- Filter level select -->
-      <div class="flex items-center gap-3 shrink-0">
-        <span class="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1.5 whitespace-nowrap">
+      <div class="flex flex-row items-center gap-3 shrink-0 w-full sm:w-auto justify-between sm:justify-start">
+        <span
+          class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider flex items-center gap-1.5 whitespace-nowrap">
           <Filter class="w-3.5 h-3.5 text-gray-400" />
           {{ t('header.englishLevel') }}:
         </span>
-        <select
-          id="select-course-level-filter"
-          v-model="courseLevelFilter"
-          class="text-xs sm:text-sm bg-white dark:bg-slate-900 dark:text-white border border-gray-250 dark:border-slate-700 rounded-xl px-3 py-2.5 font-bold cursor-pointer focus:ring-2 focus:ring-blue-500"
-        >
+        <select id="select-course-level-filter" v-model="courseLevelFilter"
+          class="flex-1 sm:flex-initial text-xs sm:text-sm bg-white dark:bg-slate-900 dark:text-white border border-gray-250 dark:border-slate-700 rounded-xl px-3 py-2.5 font-bold cursor-pointer focus:ring-2 focus:ring-blue-500 min-w-[100px] max-w-[200px] sm:max-w-none">
           <option v-for="opt in filterOptions" :key="opt.value" :value="opt.value">
             {{ opt.label }}
           </option>
@@ -184,14 +184,16 @@ const paginatedCourses = computed(() => {
     <!-- Listed Cursos Grid catalog -->
     <div class="space-y-4">
       <div class="flex items-center justify-between pl-1">
-        <p class="text-xs font-black text-gray-500 uppercase tracking-widest block text-left">{{ t('courses.activeCourses') }}</p>
+        <p class="text-xs font-black text-gray-500 uppercase tracking-widest block text-left">{{
+          t('courses.activeCourses') }}</p>
         <p class="text-[11px] font-bold text-gray-400" v-if="filteredCourses.length > 0">
           {{ t('courses.pageIndicator', { current: courseCurrentPage, total: totalCoursePages }) }}
         </p>
       </div>
-      
+
       <!-- Empty state when searching/filtering yields zero results -->
-      <div v-if="filteredCourses.length === 0" class="p-12 text-center bg-gray-50 dark:bg-slate-850 rounded-3xl border border-gray-200/60 dark:border-slate-700 text-gray-500 max-w-sm mx-auto">
+      <div v-if="filteredCourses.length === 0"
+        class="p-12 text-center bg-gray-50 dark:bg-slate-850 rounded-3xl border border-gray-200/60 dark:border-slate-700 text-gray-500 max-w-sm mx-auto">
         <Search class="w-8 h-8 mx-auto mb-2 text-gray-400 animate-pulse" />
         <p class="text-sm font-semibold text-gray-700 dark:text-gray-300">
           {{ t('courses.noCoursesTitle') }}
@@ -202,24 +204,21 @@ const paginatedCourses = computed(() => {
       </div>
 
       <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
-        <div 
-          v-for="course in paginatedCourses" 
-          :key="course.id"
-          id="course-card"
-          class="bg-white dark:bg-slate-850 p-5 sm:p-6 rounded-3xl border border-gray-150 dark:border-slate-700 hover:shadow-md transition-all flex flex-col justify-between space-y-4 shadow-2xs relative"
-        >
+        <div v-for="course in paginatedCourses" :key="course.id" id="course-card"
+          class="bg-white dark:bg-slate-850 p-5 sm:p-6 rounded-3xl border border-gray-150 dark:border-slate-700 hover:shadow-md transition-all flex flex-col justify-between space-y-4 shadow-2xs relative">
           <div class="space-y-2.5">
             <div class="flex items-center justify-between gap-2">
-               <span :class="[
+              <span :class="[
                 'px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider',
-                course.level === 'Beginner' ? 'bg-blue-100 text-blue-800 dark:bg-blue-950/40 dark:text-blue-300' 
-                : (course.level === 'Intermediate' ? 'bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300' : 'bg-indigo-100 text-indigo-850 dark:bg-indigo-950/40 dark:text-indigo-300')
+                course.level === 'Beginner' ? 'bg-blue-100 text-blue-800 dark:bg-blue-950/40 dark:text-blue-300'
+                  : (course.level === 'Intermediate' ? 'bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300' : 'bg-indigo-100 text-indigo-850 dark:bg-indigo-950/40 dark:text-indigo-300')
               ]">
                 {{ t('courses.level', { level: course.level }) }}
               </span>
 
               <!-- Completion badge -->
-              <span v-if="getProgressForCourse(course.id)?.certified" class="inline-flex items-center gap-1 text-[10px] font-black text-emerald-800 bg-emerald-100 dark:bg-emerald-950/40 dark:text-emerald-300 px-2 py-0.5 rounded-full">
+              <span v-if="getProgressForCourse(course.id)?.certified"
+                class="inline-flex items-center gap-1 text-[10px] font-black text-emerald-800 bg-emerald-100 dark:bg-emerald-950/40 dark:text-emerald-300 px-2 py-0.5 rounded-full">
                 <Award class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" /> {{ t('courses.completed') }}
               </span>
             </div>
@@ -235,23 +234,23 @@ const paginatedCourses = computed(() => {
 
           <div class="pt-4 border-t border-gray-150 dark:border-slate-700/80 flex items-center justify-between gap-4">
             <p class="text-[10px] text-gray-400 dark:text-gray-500 font-bold">
-              Tutor: <strong class="text-gray-700 dark:text-gray-300">{{ course.creatorName || t('courses.comunitario') }}</strong>
+              Tutor: <strong class="text-gray-700 dark:text-gray-300">{{ course.creatorName || t('courses.comunitario')
+                }}</strong>
             </p>
 
-            <button
-              id="btn-access-course"
-              @click="$emit('select-course', course.id)"
+            <button id="btn-access-course" @click="$emit('select-course', course.id)"
               class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-black rounded-xl transition-all cursor-pointer flex items-center gap-1 shadow-2xs shrink-0"
-              :style="{ backgroundColor: primaryColor }"
-            >
-              {{ t('courses.accessBtn') }} <ChevronRightIcon class="w-3.5 h-3.5 text-white" />
+              :style="{ backgroundColor: primaryColor }">
+              {{ t('courses.accessBtn') }}
+              <ChevronRightIcon class="w-3.5 h-3.5 text-white" />
             </button>
           </div>
         </div>
       </div>
 
       <!-- Paginator for Courses -->
-      <div v-if="totalCoursePages > 1" class="flex items-center justify-between gap-4 mt-6 pt-4 border-t border-gray-100 dark:border-slate-755">
+      <div v-if="totalCoursePages > 1"
+        class="flex items-center justify-between gap-4 mt-6 pt-4 border-t border-gray-100 dark:border-slate-755">
         <p class="text-xs font-bold text-gray-500 dark:text-gray-400">
           {{ t('courses.showingPageOf', {
             start: (courseCurrentPage - 1) * courseItemsPerPage + 1,
@@ -259,42 +258,29 @@ const paginatedCourses = computed(() => {
             total: filteredCourses.length
           }) }}
         </p>
-        
+
         <div class="flex items-center gap-1.5">
-          <button
-            id="btn-course-prev-page"
-            :disabled="courseCurrentPage === 1"
-            @click="courseCurrentPage--"
+          <button id="btn-course-prev-page" :disabled="courseCurrentPage === 1" @click="courseCurrentPage--"
             class="p-2 border border-gray-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-900 hover:bg-gray-50 dark:hover:bg-slate-800 disabled:opacity-40 transition-colors cursor-pointer"
-            :title="t('courses.prevPage')"
-          >
+            :title="t('courses.prevPage')">
             <ChevronLeft class="w-4 h-4 text-gray-700 dark:text-gray-200" />
           </button>
 
           <div class="flex items-center gap-1">
-            <button
-              v-for="page in totalCoursePages"
-              :key="page"
-              @click="courseCurrentPage = page"
-              :class="[
-                'w-8 h-8 rounded-xl text-xs font-black transition-all cursor-pointer',
-                courseCurrentPage === page 
-                  ? 'bg-blue-600 text-white shadow-xs' 
-                  : 'bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800'
-              ]"
-              :style="courseCurrentPage === page ? { backgroundColor: primaryColor } : {}"
-            >
+            <button v-for="page in totalCoursePages" :key="page" @click="courseCurrentPage = page" :class="[
+              'w-8 h-8 rounded-xl text-xs font-black transition-all cursor-pointer',
+              courseCurrentPage === page
+                ? 'bg-blue-600 text-white shadow-xs'
+                : 'bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800'
+            ]" :style="courseCurrentPage === page ? { backgroundColor: primaryColor } : {}">
               {{ page }}
             </button>
           </div>
 
-          <button
-            id="btn-course-next-page"
-            :disabled="courseCurrentPage === totalCoursePages"
+          <button id="btn-course-next-page" :disabled="courseCurrentPage === totalCoursePages"
             @click="courseCurrentPage++"
             class="p-2 border border-gray-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-900 hover:bg-gray-50 dark:hover:bg-slate-800 disabled:opacity-40 transition-colors cursor-pointer"
-            :title="t('courses.nextPage')"
-          >
+            :title="t('courses.nextPage')">
             <ChevronRight class="w-4 h-4 text-gray-700 dark:text-gray-200" />
           </button>
         </div>

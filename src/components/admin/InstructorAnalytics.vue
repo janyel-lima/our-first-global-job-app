@@ -544,7 +544,7 @@ const handleExportJSON = () => {
     <!-- Key cards metrics -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-left">
       <div
-        class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-gray-100 dark:border-slate-800 flex items-center gap-4">
+        class="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-gray-100 dark:border-slate-800 flex items-center gap-4">
         <span class="p-3 bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-300 rounded-xl">
           <FileText class="w-6 h-6" />
         </span>
@@ -557,7 +557,7 @@ const handleExportJSON = () => {
       </div>
 
       <div
-        class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-gray-100 dark:border-slate-800 flex items-center gap-4">
+        class="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-gray-100 dark:border-slate-800 flex items-center gap-4">
         <span class="p-3 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-300 rounded-xl">
           <Users class="w-6 h-6" />
         </span>
@@ -570,7 +570,7 @@ const handleExportJSON = () => {
       </div>
 
       <div
-        class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-gray-100 dark:border-slate-800 flex items-center gap-4">
+        class="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-gray-100 dark:border-slate-800 flex items-center gap-4">
         <span class="p-3 bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-300 rounded-xl">
           <Check class="w-6 h-6" />
         </span>
@@ -585,7 +585,7 @@ const handleExportJSON = () => {
       </div>
 
       <div
-        class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-gray-100 dark:border-slate-800 flex items-center gap-4">
+        class="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-gray-100 dark:border-slate-800 flex items-center gap-4">
         <span class="p-3 bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-300 rounded-xl">
           <BookOpen class="w-6 h-6" />
         </span>
@@ -604,7 +604,7 @@ const handleExportJSON = () => {
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 text-left">
       <!-- Chart 1: Progress comparison -->
       <div
-        class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-2xs space-y-4">
+        class="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-gray-100 dark:border-slate-800 shadow-2xs space-y-4">
         <div class="flex items-center justify-between">
           <h3 class="text-sm font-bold text-gray-950 dark:text-white tracking-tight flex items-center gap-1.5">
             <span class="w-2.5 h-2.5 rounded-full bg-blue-600 block"></span>
@@ -641,7 +641,7 @@ const handleExportJSON = () => {
 
       <!-- Chart 2: Distribuicao de notas -->
       <div
-        class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-2xs space-y-4 flex flex-col justify-between">
+        class="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-gray-100 dark:border-slate-800 shadow-2xs space-y-4 flex flex-col justify-between">
         <div>
           <div class="flex items-center justify-between">
             <h3 class="text-sm font-bold text-gray-950 dark:text-white tracking-tight flex items-center gap-1.5">
@@ -725,7 +725,7 @@ const handleExportJSON = () => {
 
       <!-- Chart 3: Engajamento de Atendimento -->
       <div
-        class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-2xs space-y-4">
+        class="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-gray-100 dark:border-slate-800 shadow-2xs space-y-4">
         <div class="flex items-center justify-between">
           <h3 class="text-sm font-bold text-gray-900 dark:text-white tracking-tight flex items-center gap-1.5">
             <span class="w-2.5 h-2.5 rounded-full bg-indigo-500 block"></span>
@@ -857,7 +857,7 @@ const handleExportJSON = () => {
         </div>
 
         <!-- Part B: Recomendações de Aprimoramento Didático -->
-        <div class="bg-white dark:bg-slate-950 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-4">
+        <div class="bg-white dark:bg-slate-950 p-5 rounded-3xl border border-slate-200 dark:border-slate-800 space-y-4">
           <div>
             <h4 class="text-xs font-black text-slate-800 dark:text-slate-200 uppercase tracking-wider">
               {{ t('tutor.strategicActions') }}
@@ -904,7 +904,7 @@ const handleExportJSON = () => {
 
     <!-- Tab 1: Students performance list with Excel and JSON export features -->
     <div v-if="analyticsTab === 'students'"
-      class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-gray-100 dark:border-slate-800 space-y-4 shadow-2xs text-left animate-fadeIn">
+      class="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-gray-100 dark:border-slate-800 space-y-4 shadow-2xs text-left animate-fadeIn">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h3 class="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider block">
@@ -1030,7 +1030,7 @@ const handleExportJSON = () => {
 
     <!-- Tab 2: Course History List & Expandable Lessons Grid -->
     <div v-if="analyticsTab === 'courses'"
-      class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-gray-100 dark:border-slate-800 space-y-4 shadow-2xs text-left animate-fadeIn">
+      class="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-gray-100 dark:border-slate-800 space-y-4 shadow-2xs text-left animate-fadeIn">
       <div
         class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-100/40 dark:border-slate-800/60 pb-3">
         <div>

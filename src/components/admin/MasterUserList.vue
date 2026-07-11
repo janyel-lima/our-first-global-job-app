@@ -385,7 +385,7 @@ const copyToClipboard = (text: string) => {
 
       <!-- Main User Monitoring & Account Editing panel -->
       <div
-        class="lg:col-span-8 bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 p-5 sm:p-6 shadow-xs text-left space-y-4">
+        class="lg:col-span-8 bg-white dark:bg-slate-900 rounded-3xl border border-gray-100 dark:border-slate-800 p-5 sm:p-6 shadow-xs text-left space-y-4">
         <div
           class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-50 dark:border-slate-800 pb-4">
           <div>
@@ -592,7 +592,7 @@ const copyToClipboard = (text: string) => {
 
       <!-- Invite Codes -->
       <div
-        class="lg:col-span-4 bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 p-5 sm:p-6 shadow-xs text-left space-y-4">
+        class="lg:col-span-4 bg-white dark:bg-slate-900 rounded-3xl border border-gray-100 dark:border-slate-800 p-5 sm:p-6 shadow-xs text-left space-y-4">
         <div>
           <h3 class="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wide flex items-center gap-1.5">
             <Key class="w-4.5 h-4.5 text-blue-600" />
