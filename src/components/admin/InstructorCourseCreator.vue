@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import {
   AlertCircle,
+  AlertTriangle,
   ArrowDown,
   ArrowUp,
   Bold,
@@ -8,17 +9,22 @@ import {
   Check,
   CheckCircle,
   CheckSquare,
+  Code,
   Edit,
   FileText,
+  Heading1,
+  Heading2,
   Heading3,
   Info,
   Italic,
   Lightbulb,
   Link as LinkIcon,
   List,
+  ListOrdered,
   Maximize2,
   MessageSquare,
   Minimize2,
+  Minus,
   Plus,
   PlusCircle,
   Quote,
@@ -697,11 +703,21 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
     case 'italic':
       insertion = `*${selectedText || 'Texto em itálico'}*`;
       break;
+    case 'h1':
+      insertion = `\n# ${selectedText || 'Título Principal H1'}\n`;
+      break;
+    case 'h2':
+      insertion = `\n## ${selectedText || 'Título Secundário H2'}\n`;
+      break;
     case 'heading':
+    case 'h3':
       insertion = `\n### ${selectedText || 'Subtítulo'}\n`;
       break;
     case 'list':
       insertion = `\n- ${selectedText || 'Item 1'}\n- Item 2\n`;
+      break;
+    case 'ordered_list':
+      insertion = `\n1. ${selectedText || 'Primeiro Item'}\n2. Segundo Item\n`;
       break;
     case 'dialogue':
       insertion = `\n**Lucas:** ${selectedText || 'Hi, Sofia! How is it going?'}\n**Sofia:** I am fine, thank you!\n`;
@@ -711,6 +727,9 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
       break;
     case 'alert':
       insertion = `\n> 💡 **Tip (Dica de Ouro):**\n> ${selectedText || 'Insira uma dica gramatical prática aqui.'}\n`;
+      break;
+    case 'warning':
+      insertion = `\n> ⚠️ **Attention (Atenção / Cuidado):**\n> ${selectedText || 'Ponto de atenção importante ou exceção da regra.'}\n`;
       break;
     case 'quote':
       insertion = `\n> ${selectedText || 'Citação importante ou provérbio.'}\n`;
@@ -1128,10 +1147,22 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
                       <Italic class="w-3.5 h-3.5 text-pink-500" /> <span class="hidden lg:inline">{{
                         t('tutor.eslItalic') }}</span>
                     </button>
+                    <button type="button" @click="handleInsertMarkdownSyntax('h1')"
+                      class="p-1.5 px-2 bg-white dark:bg-slate-950 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-[10px] font-bold border border-slate-200 dark:border-slate-850 rounded-md cursor-pointer transition-colors flex items-center gap-1 hover:text-indigo-600 dark:hover:text-indigo-400"
+                      :title="t('tutor.eslH1')">
+                      <Heading1 class="w-3.5 h-3.5 text-indigo-500" /> <span class="hidden lg:inline">{{
+                        t('tutor.eslH1') }}</span>
+                    </button>
+                    <button type="button" @click="handleInsertMarkdownSyntax('h2')"
+                      class="p-1.5 px-2 bg-white dark:bg-slate-950 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-[10px] font-bold border border-slate-200 dark:border-slate-850 rounded-md cursor-pointer transition-colors flex items-center gap-1 hover:text-indigo-600 dark:hover:text-indigo-400"
+                      :title="t('tutor.eslH2')">
+                      <Heading2 class="w-3.5 h-3.5 text-indigo-550" /> <span class="hidden lg:inline">{{
+                        t('tutor.eslH2') }}</span>
+                    </button>
                     <button type="button" @click="handleInsertMarkdownSyntax('heading')"
                       class="p-1.5 px-2 bg-white dark:bg-slate-950 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-[10px] font-bold border border-slate-200 dark:border-slate-850 rounded-md cursor-pointer transition-colors flex items-center gap-1 hover:text-indigo-600 dark:hover:text-indigo-400"
                       :title="t('tutor.eslH3')">
-                      <Heading3 class="w-3.5 h-3.5 text-indigo-500" /> <span class="hidden lg:inline">{{
+                      <Heading3 class="w-3.5 h-3.5 text-indigo-600" /> <span class="hidden lg:inline">{{
                         t('tutor.eslH3') }}</span>
                     </button>
                     <button type="button" @click="handleInsertMarkdownSyntax('list')"
@@ -1139,6 +1170,12 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
                       :title="t('tutor.eslList')">
                       <List class="w-3.5 h-3.5 text-emerald-500" /> <span class="hidden lg:inline">{{ t('tutor.eslList')
                         }}</span>
+                    </button>
+                    <button type="button" @click="handleInsertMarkdownSyntax('ordered_list')"
+                      class="p-1.5 px-2 bg-white dark:bg-slate-950 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-[10px] font-bold border border-slate-200 dark:border-slate-855 rounded-md cursor-pointer transition-colors flex items-center gap-1 hover:text-emerald-650 dark:hover:text-emerald-450"
+                      :title="t('tutor.eslOrderedList')">
+                      <ListOrdered class="w-3.5 h-3.5 text-emerald-600" /> <span class="hidden lg:inline">{{
+                        t('tutor.eslOrderedList') }}</span>
                     </button>
                     <button type="button" @click="handleInsertMarkdownSyntax('task')"
                       class="p-1.5 px-2 bg-white dark:bg-slate-955 hover:bg-slate-100 dark:hover:bg-slate-850 text-slate-700 dark:text-slate-300 text-[10px] font-bold border border-slate-200 dark:border-slate-855 rounded-md cursor-pointer transition-colors flex items-center gap-1 hover:text-teal-600 dark:hover:text-teal-400"
@@ -1161,8 +1198,14 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
                     <button type="button" @click="handleInsertMarkdownSyntax('alert')"
                       class="p-1.5 px-2 bg-white dark:bg-slate-950 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-[10px] font-bold border border-slate-200 dark:border-slate-855 rounded-md cursor-pointer transition-colors flex items-center gap-1 hover:text-amber-600 dark:hover:text-amber-550"
                       :title="t('tutor.eslTipBox')">
-                      <Lightbulb class="w-3.5 h-3.5 text-amber-550 animate-pulse" /> <span class="hidden lg:inline">{{
+                      <Lightbulb class="w-3.5 h-3.5 text-amber-500 animate-pulse" /> <span class="hidden lg:inline">{{
                         t('tutor.eslTipBox') }}</span>
+                    </button>
+                    <button type="button" @click="handleInsertMarkdownSyntax('warning')"
+                      class="p-1.5 px-2 bg-white dark:bg-slate-950 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-[10px] font-bold border border-slate-200 dark:border-slate-855 rounded-md cursor-pointer transition-colors flex items-center gap-1 hover:text-red-600 dark:hover:text-red-400"
+                      :title="t('tutor.eslWarningBox')">
+                      <AlertTriangle class="w-3.5 h-3.5 text-red-500" /> <span class="hidden lg:inline">{{
+                        t('tutor.eslWarningBox') }}</span>
                     </button>
                     <button type="button" @click="handleInsertMarkdownSyntax('quote')"
                       class="p-1.5 px-2 bg-white dark:bg-slate-955 hover:bg-slate-100 dark:hover:bg-slate-850 text-slate-700 dark:text-slate-300 text-[10px] font-bold border border-slate-200 dark:border-slate-855 rounded-md cursor-pointer transition-colors flex items-center gap-1 hover:text-yellow-600 dark:hover:text-yellow-500"
@@ -1176,6 +1219,12 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
                       <FileText class="w-3.5 h-3.5 text-rose-500" /> <span class="hidden lg:inline">{{
                         t('tutor.eslCode') }}</span>
                     </button>
+                    <button type="button" @click="handleInsertMarkdownSyntax('codeblock')"
+                      class="p-1.5 px-2 bg-white dark:bg-slate-950 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-[10px] font-bold border border-slate-200 dark:border-slate-855 rounded-md cursor-pointer transition-colors flex items-center gap-1 hover:text-rose-600 dark:hover:text-rose-450"
+                      :title="t('tutor.eslCodeBlock')">
+                      <Code class="w-3.5 h-3.5 text-rose-600" /> <span class="hidden lg:inline">{{
+                        t('tutor.eslCodeBlock') }}</span>
+                    </button>
                     <button type="button" @click="handleInsertMarkdownSyntax('link')"
                       class="p-1.5 px-2 bg-white dark:bg-slate-955 hover:bg-slate-100 dark:hover:bg-slate-850 text-slate-700 dark:text-slate-300 text-[10px] font-bold border border-slate-200 dark:border-slate-855 rounded-md cursor-pointer transition-colors flex items-center gap-1 hover:text-sky-600 dark:hover:text-sky-450"
                       :title="t('tutor.eslLink')">
@@ -1183,9 +1232,10 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
                         }}</span>
                     </button>
                     <button type="button" @click="handleInsertMarkdownSyntax('rule')"
-                      class="p-1.5 px-2 bg-white dark:bg-slate-950 hover:bg-slate-100 dark:hover:bg-slate-850 text-slate-700 dark:text-slate-300 text-[10px] font-bold border border-slate-200 dark:border-slate-855 rounded-md cursor-pointer transition-colors flex items-center gap-1 hover:text-slate-900 dark:hover:text-white"
+                      class="p-1.5 px-2 bg-white dark:bg-slate-955 hover:bg-slate-100 dark:hover:bg-slate-850 text-slate-700 dark:text-slate-300 text-[10px] font-bold border border-slate-200 dark:border-slate-855 rounded-md cursor-pointer transition-colors flex items-center gap-1 hover:text-slate-900 dark:hover:text-white"
                       :title="t('tutor.eslDivider')">
-                      {{ t('tutor.eslDivider') }}
+                      <Minus class="w-3.5 h-3.5 text-slate-500" /> <span class="hidden lg:inline">{{
+                        t('tutor.eslDivider') }}</span>
                     </button>
                   </div>
 
@@ -1517,10 +1567,22 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
                 <Italic class="w-3.5 h-3.5 text-pink-500" /> <span class="hidden xl:inline">{{ t('tutor.eslItalic')
                   }}</span>
               </button>
-              <button type="button" @click="handleInsertMarkdownSyntax('heading')"
+              <button type="button" @click="handleInsertMarkdownSyntax('h1')"
                 class="p-1 px-2 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-[10px] font-bold border border-slate-200 dark:border-slate-800 rounded-md cursor-pointer transition-colors flex items-center gap-1 hover:text-indigo-600 dark:hover:text-indigo-400"
+                :title="t('tutor.eslH1')">
+                <Heading1 class="w-3.5 h-3.5 text-indigo-500" /> <span class="hidden xl:inline">{{ t('tutor.eslH1')
+                  }}</span>
+              </button>
+              <button type="button" @click="handleInsertMarkdownSyntax('h2')"
+                class="p-1 px-2 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-[10px] font-bold border border-slate-200 dark:border-slate-800 rounded-md cursor-pointer transition-colors flex items-center gap-1 hover:text-indigo-600 dark:hover:text-indigo-400"
+                :title="t('tutor.eslH2')">
+                <Heading2 class="w-3.5 h-3.5 text-indigo-550" /> <span class="hidden xl:inline">{{ t('tutor.eslH2')
+                  }}</span>
+              </button>
+              <button type="button" @click="handleInsertMarkdownSyntax('heading')"
+                class="p-1 px-2 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-[10px] font-bold border border-slate-200 dark:border-slate-800 rounded-md cursor-pointer transition-colors flex items-center gap-1 hover:text-indigo-650 dark:hover:text-indigo-450"
                 :title="t('tutor.eslH3')">
-                <Heading3 class="w-3.5 h-3.5 text-indigo-500" /> <span class="hidden xl:inline">{{ t('tutor.eslH3')
+                <Heading3 class="w-3.5 h-3.5 text-indigo-600" /> <span class="hidden xl:inline">{{ t('tutor.eslH3')
                   }}</span>
               </button>
               <button type="button" @click="handleInsertMarkdownSyntax('list')"
@@ -1528,6 +1590,12 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
                 :title="t('tutor.eslList')">
                 <List class="w-3.5 h-3.5 text-emerald-500" /> <span class="hidden xl:inline">{{ t('tutor.eslList')
                   }}</span>
+              </button>
+              <button type="button" @click="handleInsertMarkdownSyntax('ordered_list')"
+                class="p-1 px-2 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-[10px] font-bold border border-slate-200 dark:border-slate-800 rounded-md cursor-pointer transition-colors flex items-center gap-1 hover:text-emerald-650 dark:hover:text-emerald-450"
+                :title="t('tutor.eslOrderedList')">
+                <ListOrdered class="w-3.5 h-3.5 text-emerald-600" /> <span class="hidden xl:inline">{{
+                  t('tutor.eslOrderedList') }}</span>
               </button>
               <button type="button" @click="handleInsertMarkdownSyntax('task')"
                 class="p-1 px-2 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-[10px] font-bold border border-slate-200 dark:border-slate-800 rounded-md cursor-pointer transition-colors flex items-center gap-1 hover:text-teal-600 dark:hover:text-teal-400"
@@ -1550,19 +1618,31 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
               <button type="button" @click="handleInsertMarkdownSyntax('alert')"
                 class="p-1 px-2 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-[10px] font-bold border border-slate-200 dark:border-slate-800 rounded-md cursor-pointer transition-colors flex items-center gap-1 hover:text-amber-600 dark:hover:text-amber-550"
                 :title="t('tutor.eslTipBox')">
-                <Lightbulb class="w-3.5 h-3.5 text-amber-550 animate-pulse" /> <span class="hidden xl:inline">{{
+                <Lightbulb class="w-3.5 h-3.5 text-amber-500 animate-pulse" /> <span class="hidden xl:inline">{{
                   t('tutor.eslTipBox') }}</span>
               </button>
+              <button type="button" @click="handleInsertMarkdownSyntax('warning')"
+                class="p-1 px-2 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-[10px] font-bold border border-slate-200 dark:border-slate-800 rounded-md cursor-pointer transition-colors flex items-center gap-1 hover:text-red-600 dark:hover:text-red-400"
+                :title="t('tutor.eslWarningBox')">
+                <AlertTriangle class="w-3.5 h-3.5 text-red-500" /> <span class="hidden xl:inline">{{
+                  t('tutor.eslWarningBox') }}</span>
+              </button>
               <button type="button" @click="handleInsertMarkdownSyntax('quote')"
-                class="p-1 px-2 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-[10px] font-bold border border-slate-200 dark:border-slate-800 rounded-md cursor-pointer transition-colors flex items-center gap-1 hover:text-yellow-600 dark:hover:text-yellow-500"
+                class="p-1 px-2 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-[10px] font-bold border border-slate-200 dark:border-slate-800 rounded-md cursor-pointer transition-colors flex items-center gap-1 hover:text-yellow-600 dark:hover:text-yellow-550"
                 :title="t('tutor.eslQuote')">
                 <Quote class="w-3.5 h-3.5 text-yellow-500" /> <span class="hidden xl:inline">{{ t('tutor.eslQuote')
                   }}</span>
               </button>
               <button type="button" @click="handleInsertMarkdownSyntax('code')"
-                class="p-1 px-2 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-[10px] font-bold border border-slate-200 dark:border-slate-800 rounded-md cursor-pointer transition-colors flex items-center gap-1 hover:text-rose-600 dark:hover:text-rose-450"
+                class="p-1 px-2 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-[10px] font-bold border border-slate-200 dark:border-slate-800 rounded-md cursor-pointer transition-colors flex items-center gap-1 hover:text-rose-600 dark:hover:text-rose-455"
                 :title="t('tutor.eslCode')">
                 <FileText class="w-3.5 h-3.5 text-rose-500" /> <span class="hidden xl:inline">{{ t('tutor.eslCode')
+                  }}</span>
+              </button>
+              <button type="button" @click="handleInsertMarkdownSyntax('codeblock')"
+                class="p-1 px-2 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-[10px] font-bold border border-slate-200 dark:border-slate-800 rounded-md cursor-pointer transition-colors flex items-center gap-1 hover:text-rose-600 dark:hover:text-rose-455"
+                :title="t('tutor.eslCodeBlock')">
+                <Code class="w-3.5 h-3.5 text-rose-650" /> <span class="hidden xl:inline">{{ t('tutor.eslCodeBlock')
                   }}</span>
               </button>
               <button type="button" @click="handleInsertMarkdownSyntax('link')"
@@ -1574,7 +1654,8 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
               <button type="button" @click="handleInsertMarkdownSyntax('rule')"
                 class="p-1 px-2 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-[10px] font-bold border border-slate-200 dark:border-slate-800 rounded-md cursor-pointer transition-colors flex items-center gap-1 hover:text-slate-900 dark:hover:text-white"
                 :title="t('tutor.eslDivider')">
-                {{ t('tutor.eslDivider') }}
+                <Minus class="w-3.5 h-3.5 text-slate-500" /> <span class="hidden xl:inline">{{ t('tutor.eslDivider')
+                  }}</span>
               </button>
             </div>
 
