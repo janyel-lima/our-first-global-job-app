@@ -174,8 +174,7 @@ const handleColorSelect = (e: Event) => {
           </button>
         </nav>
         <!-- User controls and settings combo -->
-        <div
-          class="flex items-center gap-1.5 sm:gap-3 border-l border-slate-250 dark:border-slate-300 pl-1.5 sm:pl-4 shrink-0">
+        <div class="flex items-center gap-1.5 sm:gap-3 pl-1.5 sm:pl-4 shrink-0">
           <!-- Unified Profile Dropdown Button -->
           <div v-if="userProfile" class="relative shrink-0">
             <button type="button" @click="toggleProfileDropdown"
@@ -194,10 +193,10 @@ const handleColorSelect = (e: Event) => {
                 </template>
               </div>
 
-              <!-- Name and Chevron (Hidden on mobile to keep header clean) -->
-              <div class="hidden sm:flex items-center gap-1.5 pr-1 text-left">
+              <!-- Name and Chevron (Shown on mobile as well) -->
+              <div class="flex items-center gap-1.5 pr-1 text-left">
                 <span
-                  class="text-xs font-extrabold text-slate-800 dark:text-slate-200 truncate max-w-[100px] leading-none">
+                  class="text-xs font-extrabold text-slate-800 dark:text-slate-200 truncate max-w-[65px] sm:max-w-[100px] leading-none">
                   {{ userProfile?.displayName }}
                 </span>
                 <ChevronDown class="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-600 transition-colors" />

@@ -154,33 +154,6 @@ const paginatedCourses = computed(() => {
       <span class="absolute top-[20px] right-[20px] w-24 h-24 bg-white/5 rounded-full select-none" />
     </div>
 
-    <!-- Search & Filter Controls -->
-    <div
-      class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 bg-slate-50 dark:bg-slate-800/40 p-4 rounded-3xl border border-gray-150 dark:border-slate-700/80">
-      <!-- Search query input -->
-      <div class="relative flex-1 w-full">
-        <Search class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-        <input id="input-course-search" v-model="courseSearchQuery" type="text"
-          :placeholder="t('courses.searchPlaceholder')"
-          class="w-full text-xs sm:text-sm bg-white dark:bg-slate-900 dark:text-white border border-gray-250 dark:border-slate-700 pl-10 pr-4 py-2.5 rounded-xl focus:ring-2 focus:ring-blue-500 font-semibold" />
-      </div>
-
-      <!-- Filter level select -->
-      <div class="flex flex-row items-center gap-3 shrink-0 w-full sm:w-auto justify-between sm:justify-start">
-        <span
-          class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider flex items-center gap-1.5 whitespace-nowrap">
-          <Filter class="w-3.5 h-3.5 text-gray-400" />
-          {{ t('header.englishLevel') }}:
-        </span>
-        <select id="select-course-level-filter" v-model="courseLevelFilter"
-          class="flex-1 sm:flex-initial text-xs sm:text-sm bg-white dark:bg-slate-900 dark:text-white border border-gray-250 dark:border-slate-700 rounded-xl px-3 py-2.5 font-bold cursor-pointer focus:ring-2 focus:ring-blue-500 min-w-[100px] max-w-[200px] sm:max-w-none">
-          <option v-for="opt in filterOptions" :key="opt.value" :value="opt.value">
-            {{ opt.label }}
-          </option>
-        </select>
-      </div>
-    </div>
-
     <!-- Canais Oficiais de Comunicação -->
     <div id="community-channels-widget"
       class="bg-white dark:bg-slate-850 p-5 sm:p-6 rounded-3xl border border-gray-150 dark:border-slate-700/80 shadow-2xs space-y-4 text-left">
@@ -244,6 +217,33 @@ const paginatedCourses = computed(() => {
       </div>
     </div>
 
+    <!-- Search & Filter Controls -->
+    <div
+      class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 bg-slate-50 dark:bg-slate-800/40 p-4 rounded-3xl border border-gray-150 dark:border-slate-700/80">
+      <!-- Search query input -->
+      <div class="relative flex-1 w-full">
+        <Search class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+        <input id="input-course-search" v-model="courseSearchQuery" type="text"
+          :placeholder="t('courses.searchPlaceholder')"
+          class="w-full text-xs sm:text-sm bg-white dark:bg-slate-900 dark:text-white border border-gray-250 dark:border-slate-700 pl-10 pr-4 py-2.5 rounded-xl focus:ring-2 focus:ring-blue-500 font-semibold" />
+      </div>
+
+      <!-- Filter level select -->
+      <div class="flex flex-row items-center gap-3 shrink-0 w-full sm:w-auto justify-between sm:justify-start">
+        <span
+          class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider flex items-center gap-1.5 whitespace-nowrap">
+          <Filter class="w-3.5 h-3.5 text-gray-400" />
+          {{ t('header.englishLevel') }}:
+        </span>
+        <select id="select-course-level-filter" v-model="courseLevelFilter"
+          class="flex-1 sm:flex-initial text-xs sm:text-sm bg-white dark:bg-slate-900 dark:text-white border border-gray-250 dark:border-slate-700 rounded-xl px-3 py-2.5 font-bold cursor-pointer focus:ring-2 focus:ring-blue-500 min-w-[100px] max-w-[200px] sm:max-w-none">
+          <option v-for="opt in filterOptions" :key="opt.value" :value="opt.value">
+            {{ opt.label }}
+          </option>
+        </select>
+      </div>
+    </div>
+
     <!-- Listed Cursos Grid catalog -->
     <div class="space-y-4">
       <div class="flex items-center justify-between pl-1">
@@ -299,7 +299,7 @@ const paginatedCourses = computed(() => {
             <p class="text-[10px] text-gray-400 dark:text-gray-500 font-bold">
               {{ t('courses.tutorLabel') }} <strong class="text-gray-700 dark:text-gray-300">{{ course.creatorName ||
                 t('courses.comunitario')
-                }}</strong>
+              }}</strong>
             </p>
 
             <button id="btn-access-course" @click="$emit('select-course', course.id)"
