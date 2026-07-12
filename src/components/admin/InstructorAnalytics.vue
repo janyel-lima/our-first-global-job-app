@@ -33,8 +33,39 @@ const props = defineProps<{
   instructorId?: string;
 }>();
 
-const { currentUser, userProfile } = useAppState();
+const { currentUser, userProfile, reviews } = useAppState();
 const { t, locale } = useI18n();
+
+const getCourseReviews = (courseId: string) => {
+  return (reviews.value || []).filter(r => r.courseId === courseId);
+};
+
+const getCourseAverageRating = (courseId: string) => {
+  const courseReviews = getCourseReviews(courseId);
+  if (courseReviews.length === 0) return 0;
+  const sum = courseReviews.reduce((acc, r) => acc + r.rating, 0);
+  return (sum / courseReviews.length).toFixed(1);
+};
+
+const getCourseReactionDistribution = (courseId: string) => {
+  const courseReviews = getCourseReviews(courseId);
+  const total = courseReviews.length;
+  const counts = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+  courseReviews.forEach(r => {
+    const star = Math.round(r.rating) as 1|2|3|4|5;
+    if (counts[star] !== undefined) {
+      counts[star]++;
+    }
+  });
+  return {
+    total,
+    5: total > 0 ? Math.round((counts[5] / total) * 100) : 0,
+    4: total > 0 ? Math.round((counts[4] / total) * 100) : 0,
+    3: total > 0 ? Math.round((counts[3] / total) * 100) : 0,
+    2: total > 0 ? Math.round((counts[2] / total) * 100) : 0,
+    1: total > 0 ? Math.round((counts[1] / total) * 100) : 0,
+  };
+};
 
 const instructorId = computed(() => props.instructorId || '');
 
@@ -1284,46 +1315,139 @@ const handleExportJSON = () => {
               </div>
             </div>
           </div>
-          <div v-if="expandedCourseId === course.id" class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800 p-4 space-y-2.5 animate-fadeIn">
-            <p class="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-black tracking-widest border-b border-slate-100 dark:border-slate-800 pb-1.5">
-              📚 {{ t('tutor.curriculumGridTitle') }}
-            </p>
-            
-            <p v-if="lessons.filter(l => l.courseId === course.id).length === 0" class="text-xs text-slate-400 dark:text-slate-500 italic pl-1">
-              {{ t('tutor.noLessonsRegistered') }}
-            </p>
-            <div v-else class="overflow-x-auto rounded-xl border border-slate-100/60 dark:border-slate-800 bg-slate-50/20 dark:bg-slate-950/20">
-              <table class="w-full text-left text-[11px] font-medium text-slate-600 dark:text-slate-400 min-w-[650px]">
-                <thead>
-                  <tr class="bg-slate-50 dark:bg-slate-950 border-b border-slate-100 dark:border-slate-800 text-slate-450 dark:text-slate-400 font-extrabold uppercase text-[10px]">
-                    <th class="p-3 text-center w-12">{{ t('tutor.thOrder') }}</th>
-                    <th class="p-3 pl-2">{{ t('tutor.thLessonTitle') }}</th>
-                    <th class="p-3 text-center">{{ t('tutor.thVideo') }}</th>
-                    <th class="p-3 text-center">{{ t('tutor.thTextLength') }}</th>
-                    <th class="p-3 text-right pr-4">{{ t('tutor.thQuizQs') }}</th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-100 dark:divide-slate-800/60">
-                  <tr v-for="l in lessons.filter(l => l.courseId === course.id)" :key="l.id" class="hover:bg-slate-50/40 dark:hover:bg-slate-850/20">
-                    <td class="p-3 text-center font-bold font-mono text-blue-600 dark:text-blue-400">#{{ l.order }}</td>
-                    <td class="p-3 pl-2 font-bold text-slate-800 dark:text-white">{{ l.title }}</td>
-                    <td class="p-3 text-center">
-                      <span v-if="l.videoUrl" class="inline-flex text-[9px] font-bold bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 px-1.5 rounded-sm border border-indigo-100 dark:border-indigo-900/40">
-                        {{ t('tutor.yes') }}
+          <div v-if="expandedCourseId === course.id" class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800 p-5 animate-fadeIn">
+            <div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
+              
+              <!-- Left Column: Lessons Grid (xl:col-span-7) -->
+              <div class="xl:col-span-7 space-y-3">
+                <p class="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-black tracking-widest border-b border-slate-100 dark:border-slate-800 pb-1.5 flex items-center gap-1.5">
+                  📚 {{ t('tutor.curriculumGridTitle') }}
+                </p>
+                
+                <p v-if="lessons.filter(l => l.courseId === course.id).length === 0" class="text-xs text-slate-400 dark:text-slate-500 italic pl-1">
+                  {{ t('tutor.noLessonsRegistered') }}
+                </p>
+                <div v-else class="overflow-x-auto rounded-xl border border-slate-100/60 dark:border-slate-800 bg-slate-50/20 dark:bg-slate-950/20">
+                  <table class="w-full text-left text-[11px] font-medium text-slate-600 dark:text-slate-400 min-w-[500px]">
+                    <thead>
+                      <tr class="bg-slate-50 dark:bg-slate-950 border-b border-slate-100 dark:border-slate-800 text-slate-450 dark:text-slate-400 font-extrabold uppercase text-[9.5px]">
+                        <th class="p-3 text-center w-12">{{ t('tutor.thOrder') }}</th>
+                        <th class="p-3 pl-2">{{ t('tutor.thLessonTitle') }}</th>
+                        <th class="p-3 text-center">{{ t('tutor.thVideo') }}</th>
+                        <th class="p-3 text-center">{{ t('tutor.thTextLength') }}</th>
+                        <th class="p-3 text-right pr-4">{{ t('tutor.thQuizQs') }}</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 dark:divide-slate-800/60">
+                      <tr v-for="l in lessons.filter(l => l.courseId === course.id)" :key="l.id" class="hover:bg-slate-50/40 dark:hover:bg-slate-850/20">
+                        <td class="p-3 text-center font-bold font-mono text-blue-600 dark:text-blue-400">#{{ l.order }}</td>
+                        <td class="p-3 pl-2 font-bold text-slate-800 dark:text-white">{{ l.title }}</td>
+                        <td class="p-3 text-center">
+                          <span v-if="l.videoUrl" class="inline-flex text-[9px] font-bold bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 px-1.5 rounded-sm border border-indigo-100 dark:border-indigo-900/40">
+                            {{ t('tutor.yes') }}
+                          </span>
+                          <span v-else class="text-gray-400 dark:text-slate-500 italic">
+                            {{ t('tutor.no') }}
+                          </span>
+                        </td>
+                        <td class="p-3 text-center font-mono text-slate-400 dark:text-slate-500">
+                          {{ t('tutor.charsCount', { count: l.content.length }) }}
+                        </td>
+                        <td class="p-3 text-right font-bold text-emerald-600 dark:text-emerald-400 font-mono pr-4">
+                          {{ t('tutor.questionsCount', { count: (l.quiz || []).length }) }}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- Right Column: Course Reviews & Reaction Metrics (xl:col-span-5) -->
+              <div class="xl:col-span-5 space-y-4 border-t xl:border-t-0 xl:border-l border-slate-100 dark:border-slate-800 pt-4 xl:pt-0 xl:pl-6 text-left">
+                <p class="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-black tracking-widest border-b border-slate-100 dark:border-slate-800 pb-1.5 flex items-center gap-1.5">
+                  ⭐ {{ t('tutor.reviewsTitle') }}
+                </p>
+
+                <!-- Average Score & Overall Reaction indicators -->
+                <div class="bg-slate-50 dark:bg-slate-950/40 p-4 rounded-xl border border-slate-150 dark:border-slate-850 flex items-center justify-between">
+                  <div class="text-left">
+                    <p class="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider">
+                      {{ t('tutor.averageRating') }}
+                    </p>
+                    <div class="flex items-baseline gap-1 mt-1">
+                      <span class="text-2xl font-black text-slate-900 dark:text-white">
+                        {{ getCourseAverageRating(course.id) }}
                       </span>
-                      <span v-else class="text-gray-400 dark:text-slate-500 italic">
-                        {{ t('tutor.no') }}
-                      </span>
-                    </td>
-                    <td class="p-3 text-center font-mono text-slate-400 dark:text-slate-500">
-                      {{ t('tutor.charsCount', { count: l.content.length }) }}
-                    </td>
-                    <td class="p-3 text-right font-bold text-emerald-600 dark:text-emerald-400 font-mono pr-4">
-                      {{ t('tutor.questionsCount', { count: (l.quiz || []).length }) }}
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+                      <span class="text-xs font-bold text-slate-400">/ 5.0</span>
+                    </div>
+                  </div>
+                  <div class="text-right">
+                    <p class="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider">
+                      {{ t('tutor.totalReviews') }}
+                    </p>
+                    <p class="text-sm font-black text-slate-800 dark:text-slate-200 mt-1">
+                      {{ t('tutor.reviewsCount', { count: getCourseReviews(course.id).length }) }}
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Star breakdown progress bars (Indicators) -->
+                <div class="space-y-1.5 text-xs text-left">
+                  <div v-for="star in [5, 4, 3, 2, 1]" :key="star" class="flex items-center gap-2">
+                    <span class="w-8 text-right font-bold text-slate-500 dark:text-slate-400 flex items-center justify-end gap-0.5 select-none">
+                      {{ star }}<span class="text-amber-500">★</span>
+                    </span>
+                    <div class="flex-1 bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
+                      <div 
+                        class="bg-amber-500 h-full rounded-full transition-all duration-500" 
+                        :style="{ width: `${getCourseReactionDistribution(course.id)[star]}%` }"
+                      ></div>
+                    </div>
+                    <span class="w-8 text-slate-400 dark:text-slate-500 font-bold text-right font-mono">
+                      {{ getCourseReactionDistribution(course.id)[star] }}%
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Feedbacks and Comments -->
+                <div class="space-y-2">
+                  <p class="text-[10px] font-bold uppercase text-slate-400 tracking-wider">
+                    {{ t('tutor.commentsFeedbacks') }}
+                  </p>
+                  
+                  <div v-if="getCourseReviews(course.id).length === 0" class="text-xs text-slate-400 dark:text-slate-500 italic py-4">
+                    {{ t('tutor.noFeedbackYet') }}
+                  </div>
+                  <div v-else class="space-y-2 max-h-[180px] overflow-y-auto pr-1 scrollbar-thin">
+                    <div v-for="rev in getCourseReviews(course.id)" :key="rev.id" class="p-3 bg-slate-50 dark:bg-slate-950/40 rounded-xl border border-slate-150/40 dark:border-slate-850 space-y-1.5 text-left">
+                      <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-1.5">
+                          <img v-if="rev.userPhoto" :src="rev.userPhoto" class="w-4.5 h-4.5 rounded-full object-cover border border-slate-200 dark:border-slate-800" />
+                          <div v-else class="w-4.5 h-4.5 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-[8px] font-bold text-slate-600 dark:text-slate-300">
+                            {{ rev.userName.charAt(0) }}
+                          </div>
+                          <span class="font-extrabold text-[11px] text-slate-800 dark:text-slate-200 truncate max-w-[120px]">{{ rev.userName }}</span>
+                        </div>
+                        
+                        <div class="flex text-amber-500 text-[9px] tracking-tighter shrink-0 select-none">
+                          <span v-for="i in 5" :key="i">
+                            {{ i <= rev.rating ? '★' : '☆' }}
+                          </span>
+                        </div>
+                      </div>
+                      
+                      <p class="text-[11px] text-slate-650 dark:text-slate-300 leading-normal pl-0.5 break-words font-medium">
+                        {{ rev.comment }}
+                      </p>
+                      
+                      <p class="text-[9px] text-slate-400 dark:text-slate-500 text-right pr-0.5 font-mono select-none">
+                        {{ rev.createdAt }}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
             </div>
           </div>
         </div>

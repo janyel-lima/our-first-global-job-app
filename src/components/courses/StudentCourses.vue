@@ -299,7 +299,7 @@ const paginatedCourses = computed(() => {
             <p class="text-[10px] text-gray-400 dark:text-gray-500 font-bold">
               {{ t('courses.tutorLabel') }} <strong class="text-gray-700 dark:text-gray-300">{{ course.creatorName ||
                 t('courses.comunitario')
-              }}</strong>
+                }}</strong>
             </p>
 
             <button id="btn-access-course" @click="$emit('select-course', course.id)"

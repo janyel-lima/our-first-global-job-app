@@ -1,56 +1,76 @@
 <script setup lang="ts">
-import {
-  collection,
-  deleteDoc,
-  doc,
+import { ref, computed, onMounted, watch, onUnmounted } from "vue";
+import { 
+  collection, 
+  onSnapshot, 
+  setDoc, 
+  doc, 
   getDoc,
-  getDocs,
-  limit,
-  onSnapshot,
-  orderBy,
+  updateDoc, 
+  deleteDoc, 
+  arrayUnion, 
+  arrayRemove,
   query,
-  setDoc,
-  updateDoc,
+  orderBy,
   where,
+  limit,
+  getDocs,
   writeBatch
 } from "firebase/firestore";
-import {
-  AlertCircle,
-  Check,
-  CheckCircle,
-  Info,
-  Moon,
+import { 
+  BookOpen, 
+  Calendar, 
+  MessageSquare, 
+  ShieldAlert, 
+  LogOut, 
+  User, 
+  Sparkles, 
+  Compass, 
+  ExternalLink,
+  Award,
+  ChevronRight,
+  ChevronLeft,
+  Search,
+  Filter,
+  Plus,
+  ArrowRight,
+  BookMarked,
+  Trash2,
+  ChevronDown,
+  ChevronUp,
   Paintbrush,
-  RefreshCw,
-  ShieldAlert,
-  Sparkles,
+  Check,
   Sun,
-  X
+  Moon,
+  RefreshCw,
+  Info,
+  X,
+  AlertCircle,
+  CheckCircle
 } from "lucide-vue-next";
-import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 
-import { createUserWithEmailAndPassword, sendPasswordResetEmail, signInWithEmailAndPassword, updateEmail, updatePassword, updateProfile } from "firebase/auth";
-import { activeEnvMode, auth, db, handleFirestoreError, loginWithGoogle, logoutUser, OperationType } from "./firebase";
-import { ChatMessage, ChatRoom, ClassTurma, Course, Lesson, Progress, UserProfile } from "./types";
-import { sendDeletionConfirmationEmail } from "./utils/emailService";
+import { signInWithEmailAndPassword, updateProfile, sendPasswordResetEmail, createUserWithEmailAndPassword, updateEmail, updatePassword } from "firebase/auth";
+import { db, auth, loginWithGoogle, logoutUser, handleFirestoreError, OperationType, activeEnvMode } from "./firebase";
+import { UserProfile, Course, Lesson, ClassTurma, Progress, ChatRoom, ChatMessage, CourseReview } from "./types";
 import { hexToHsl, hslToHex } from "./utils/theme";
+import { sendDeletionConfirmationEmail } from "./utils/emailService";
 
 // Composables & subcomponents
-import { useAppState } from "./composables/useAppState";
 import { useI18n } from "./composables/useI18n";
+import { useAppState } from "./composables/useAppState";
 
+import CourseView from "./components/courses/CourseView.vue";
+import ClassScheduler from "./components/scheduler/ClassScheduler.vue";
+import SupportChats from "./components/chats/SupportChats.vue";
 import InstructorPanel from "./components/admin/InstructorPanel.vue";
+import CertificateViewer from "./components/courses/CertificateViewer.vue";
 import MasterPanel from "./components/admin/MasterPanel.vue";
 import LoginPanel from "./components/auth/LoginPanel.vue";
 import OnboardingPanel from "./components/auth/OnboardingPanel.vue";
-import UserProfileModal from "./components/auth/UserProfileModal.vue";
-import SupportChats from "./components/chats/SupportChats.vue";
-import CertificateViewer from "./components/courses/CertificateViewer.vue";
-import CourseView from "./components/courses/CourseView.vue";
-import MyProgress from "./components/courses/MyProgress.vue";
 import StudentCourses from "./components/courses/StudentCourses.vue";
+import MyProgress from "./components/courses/MyProgress.vue";
+import UserProfileModal from "./components/auth/UserProfileModal.vue";
 import AppHeader from "./components/layout/AppHeader.vue";
-import ClassScheduler from "./components/scheduler/ClassScheduler.vue";
 
 // Instantiate State Composable
 const {
@@ -79,6 +99,7 @@ const {
   lessons,
   classes,
   progressList,
+  reviews,
   chatRooms,
   unreadChatsCount,
   allUsers,
@@ -114,6 +135,7 @@ const {
   handleUpdateUserRole,
   handleDeleteUserPhoto,
   handleSelectRoomAndTab,
+  handleAddCourseReview,
   syncOfflineProgress,
   syncOfflineClassActions,
   appNotifications,
@@ -144,7 +166,7 @@ const clearUserSessionCache = () => {
   progressList.value = [];
   chatRooms.value = [];
   allUsers.value = [];
-
+  
   // Clean up all non-global, user-specific localStorage items
   const keysToKeep = [
     "app_locale",
@@ -155,7 +177,7 @@ const clearUserSessionCache = () => {
     "theme_autoBg",
     "pwa_closed_banner_session"
   ];
-
+  
   if (typeof window !== "undefined" && window.localStorage) {
     const keysToRemove: string[] = [];
     for (let i = 0; i < localStorage.length; i++) {
@@ -203,7 +225,7 @@ const filteredCourses = computed(() => {
 
     const userRoleLevel = userProfile.value?.level || "Beginner";
     const isAdmin = isUserAdmin.value;
-
+    
     let isPermittedByLevel = false;
     if (isAdmin || userRoleLevel === "All") {
       isPermittedByLevel = true;
@@ -239,14 +261,14 @@ watch([courseSearchQuery, courseLevelFilter], () => {
 watch([userProfile, activeTab], () => {
   const isAdmin = isUserAdmin.value;
   const isInstructor = isUserInstructor.value;
-
+  
   if (!userProfile.value) {
     if (activeTab.value === 'master' || activeTab.value === 'instructor') {
       activeTab.value = 'courses';
     }
     return;
   }
-
+  
   if (activeTab.value === 'master' && !isAdmin) {
     activeTab.value = 'courses';
   } else if (activeTab.value === 'instructor' && !isInstructor && !isAdmin) {
@@ -274,7 +296,7 @@ const handleSaveProfileFromModal = async () => {
     const updatedName = profileEditName.value.trim();
     const updatedLevel = profileEditLevel.value;
     const updatedBio = profileEditBio.value.trim();
-
+    
     if (!updatedName) {
       showToast("Por favor, preencha o seu nome.", "warning");
       return;
@@ -303,11 +325,11 @@ const handleSaveProfileFromModal = async () => {
   }
 };
 
-const onUpdateProfileFromModal = async (data: {
-  displayName: string,
-  level: string,
-  bio: string,
-  email?: string,
+const onUpdateProfileFromModal = async (data: { 
+  displayName: string, 
+  level: string, 
+  bio: string, 
+  email?: string, 
   password?: string,
   signatureType?: "text" | "drawn",
   signatureText?: string,
@@ -316,7 +338,7 @@ const onUpdateProfileFromModal = async (data: {
   profileEditName.value = data.displayName;
   profileEditLevel.value = data.level as UserProfile["level"];
   profileEditBio.value = data.bio;
-
+  
   if (!isDemoUser.value && currentUser.value) {
     if (data.email && data.email.trim() !== currentUser.value.email) {
       try {
@@ -332,7 +354,7 @@ const onUpdateProfileFromModal = async (data: {
         }
       }
     }
-
+    
     if (data.password && data.password.trim() !== "") {
       try {
         await updatePassword(currentUser.value, data.password.trim());
@@ -392,10 +414,10 @@ const handleRequestLgpdDataDeletion = async () => {
   const userName = userProfile.value?.displayName || currentUser.value?.displayName || "Voluntário";
   const userEmail = userProfile.value?.email || currentUser.value?.email;
   const isInstructor = userProfile.value?.isInstructor || (userProfile.value?.uid === "demo-instructor-uid") || false;
-
+  
   // O usuário já confirmou clicando no botão vermelho "Sim, excluir meus dados permanentemente" no modal do perfil.
   // Ignoramos a caixa nativa confirm() para evitar bloqueios de sandbox do iframe no ambiente AI Studio.
-
+  
   try {
     isDeletingAccount.value = true;
     showProfileModal.value = false;
@@ -411,7 +433,7 @@ const handleRequestLgpdDataDeletion = async () => {
           })
       );
     }
-
+    
     // ---- REAL FIREBASE RECURSIVE DELETION (Executed concurrently whenever Firestore is available for real users) ----
     if (db && uid && !isDemoUser.value && activeEnvMode !== "offline") {
       // 1. Se o usuário for um Instrutor/Professor, transferir a propriedade dos cursos e turmas ministradas ANTES de perder permissões
@@ -519,7 +541,7 @@ const handleRequestLgpdDataDeletion = async () => {
         try {
           const studentChatsQuery = query(collection(db, "chats"), where("studentId", "==", uid));
           const studentChatsSnap = await getDocs(studentChatsQuery);
-
+          
           await Promise.all(studentChatsSnap.docs.map(async (chatDoc) => {
             const chatRoomId = chatDoc.id;
             const messagesSnap = await getDocs(collection(db, "chats", chatRoomId, "messages"));
@@ -598,7 +620,7 @@ const handleRequestLgpdDataDeletion = async () => {
 
     // ---- ALSO SINK CHANGES TO LOCAL CACHES & SIMULATED CORES ----
     progressList.value = progressList.value.filter(p => p.userId !== uid);
-
+    
     // Obter IDs dos canais de chat do estudante ANTES de filtrá-los da lista local
     const studentChatRoomIds = demoChatRooms.value.filter(r => r.studentId === uid).map(r => r.id);
     studentChatRoomIds.forEach(id => {
@@ -615,7 +637,7 @@ const handleRequestLgpdDataDeletion = async () => {
 
     demoChatRooms.value = demoChatRooms.value.filter(r => r.studentId !== uid);
     chatRooms.value = [...demoChatRooms.value];
-
+    
     // Sincronizar o cache local de chats imediatamente
     localStorage.setItem("all_chats_cache", JSON.stringify(chatRooms.value));
 
@@ -677,7 +699,7 @@ const handleRequestLgpdDataDeletion = async () => {
 
     // Remover da lista de renderização local
     allUsers.value = allUsers.value.filter(u => u.uid !== uid);
-
+    
     isDeletingAccount.value = false;
     showToast("Solicitação processada com sucesso de acordo com a LGPD! Seus dados foram permanentemente excluídos.", "success", 10000);
     await handleLogout();
@@ -751,8 +773,8 @@ const verifyTokenSecurely = async (force = false) => {
     console.warn("[SECURITY] Falha na verificação de autenticidade do token:", err);
     const errCode = err?.code || "";
     const errMsg = err?.message || "";
-
-    const isInvalidUser =
+    
+    const isInvalidUser = 
       errCode.includes("not-found") ||
       errCode.includes("disabled") ||
       errCode.includes("expired") ||
@@ -779,7 +801,7 @@ onMounted(() => {
       currentUser.value = user;
       isDemoUser.value = false;
       const profileRef = doc(db, "users", user.uid);
-
+      
       let hasAdminClaim = false;
       let hasInstructorClaim = false;
       try {
@@ -814,7 +836,7 @@ onMounted(() => {
           return;
         }
       }
-
+      
       const isSimulatedAdmin = localStorage.getItem(`dev_claim_admin_${user.uid}`) === "true";
       const isSimulatedInstructor = localStorage.getItem(`dev_claim_instructor_${user.uid}`) === "true";
       const isMaster = user.email === "kibedasppk@gmail.com" || user.email === "admin@englishvolunteer.org" || user.email === "janyel.lima2809@outlook.com";
@@ -825,7 +847,7 @@ onMounted(() => {
           const profile = snap.data() as UserProfile;
           const deservesAdmin = hasAdminClaim || isSimulatedAdmin || profile.isAdmin || isMaster;
           const deservesInstructor = deservesAdmin || isSimulatedInstructor || profile.isInstructor || hasInstructorClaim || isMaster;
-
+          
           if (!snap.metadata.fromCache) {
             // Sincronizar foto do Google caso não esteja gravada no documento do Firestore
             if (user.photoURL && !profile.photoURL) {
@@ -853,20 +875,20 @@ onMounted(() => {
               profile.photoURL = user.photoURL;
             }
           }
-
+          
           userProfile.value = profile;
           isOnboarding.value = false;
         } else {
-          // Se o documento não existe e o snapshot vem do cache offline local, ignore para evitar recriar
+          // Se o documento não existe e o snapshot vem do cache offline local, ignore para evitar recriar 
           // com dados velhos antes da resposta final limpa ser obtida do servidor.
           if (snap.metadata.fromCache) return;
 
           // Se o perfil foi de fato apagado do servidor, apenas autogeramos se houver claims reais (não simulados na máquina local)
           const deservesRealAdmin = hasAdminClaim || isMaster;
           const deservesRealInstructor = deservesRealAdmin || hasInstructorClaim || isMaster;
-
+          
           onboardName.value = user.displayName || onboardName.value || "";
-
+          
           if (deservesRealAdmin || deservesRealInstructor) {
             const autoProfile: UserProfile = {
               uid: user.uid,
@@ -912,12 +934,12 @@ onMounted(() => {
         isOnboarding.value = false;
       });
     } else {
-      // Se for um usuário de demonstração, ignoramos o onAuthStateChanged(null)
+      // Se for um usuário de demonstração, ignoramos o onAuthStateChanged(null) 
       // pois usuários de demonstração não possuem uma sessão real no Firebase Auth SDK.
       if (isDemoUser.value) {
         return;
       }
-
+      
       // Se estiver offline e possuir sessão em cache local, mantém a sessão do usuário ativa
       const hasCachedSession = !!localStorage.getItem("cached_auth_user");
       if (isOnline.value || !hasCachedSession) {
@@ -931,13 +953,13 @@ onMounted(() => {
 
   let activeUnsubs: (() => void)[] = [];
   const clearActiveSubscriptions = () => {
-    activeUnsubs.forEach(u => { try { u(); } catch { } });
+    activeUnsubs.forEach(u => { try { u(); } catch {} });
     activeUnsubs = [];
   };
 
   watch([currentUser, isDemoUser, userProfile], () => {
     clearActiveSubscriptions();
-
+    
     // Save to local storage for instant offline / reload restore
     if (!currentUser.value && !isDemoUser.value) {
       clearUserSessionCache();
@@ -993,15 +1015,15 @@ onMounted(() => {
           if (!u || !u.uid) return false;
           const uidStr = String(u.uid).trim();
           if (
-            uidStr === "" ||
-            uidStr === "undefined" ||
-            uidStr === "null" ||
+            uidStr === "" || 
+            uidStr === "undefined" || 
+            uidStr === "null" || 
             uidStr === "uid"
           ) {
             return false;
           }
           if (purgedUids.includes(uidStr)) return false;
-
+          
           // Se for "Usuário Sem Nome" e não tiver e-mail e bio, é um documento vazio/corrompido no banco
           if (u.displayName === "Usuário Sem Nome" && !u.email && !u.bio) {
             return false;
@@ -1083,7 +1105,7 @@ onMounted(() => {
     const unsubLessons = onSnapshot(collection(db, "lessons"), (snap) => {
       const list: Lesson[] = [];
       snap.forEach(d => list.push(d.data() as Lesson));
-      const uniqueSorted = list.sort((a, b) => a.order - b.order).filter((item, index, self) => self.findIndex(l => l.id === item.id) === index);
+      const uniqueSorted = list.sort((a,b) => a.order - b.order).filter((item, index, self) => self.findIndex(l => l.id === item.id) === index);
       lessons.value = uniqueSorted;
       localStorage.setItem("all_lessons_cache", JSON.stringify(uniqueSorted));
     }, (error) => {
@@ -1180,6 +1202,23 @@ onMounted(() => {
     });
     activeUnsubs.push(unsubChats);
 
+    const unsubReviews = onSnapshot(collection(db, "reviews"), (snap) => {
+      const list: CourseReview[] = [];
+      snap.forEach(d => list.push(d.data() as CourseReview));
+      const uniqueList = list.filter((item, index, self) => self.findIndex(r => r.id === item.id) === index);
+      reviews.value = uniqueList;
+      localStorage.setItem("all_reviews_cache", JSON.stringify(uniqueList));
+    }, (error) => {
+      if (isOnline.value && activeEnvMode !== "offline") {
+        reviews.value = [];
+        localStorage.setItem("all_reviews_cache", JSON.stringify([]));
+      } else {
+        reviews.value = getCachedVal<CourseReview[]>("all_reviews_cache", []);
+      }
+      console.warn("[Sync] reviews snapshot error:", error);
+    });
+    activeUnsubs.push(unsubReviews);
+
     isDbLoading.value = false;
   }, { immediate: true });
 
@@ -1227,7 +1266,7 @@ onMounted(() => {
           progressList.value = list;
         }
       }
-    } catch { }
+    } catch {}
   }
 });
 
@@ -1260,7 +1299,7 @@ watch([selectedRoomId, chatMessagesLimit], ([roomId, limitVal], [oldRoomId, _], 
   }
   onCleanup(() => {
     if (unsub) {
-      try { unsub(); } catch { }
+      try { unsub(); } catch {}
     }
   });
 });
@@ -1273,8 +1312,8 @@ const handleDemoLogin = (role: "student" | "instructor" | "admin") => {
   const isAdmin = role === "admin";
 
   const dUid = isStudent ? "demo-student-uid" : (isInstructorOnly ? "demo-instructor-uid" : "demo-admin-uid");
-  const dName = isStudent
-    ? "Lucas Ribeiro (Estudante)"
+  const dName = isStudent 
+    ? "Lucas Ribeiro (Estudante)" 
     : (isInstructorOnly ? "Thiago Martins (Professor Voluntário)" : "Felipe Almeida (Professor Admin)");
 
   currentUser.value = { uid: dUid, displayName: dName };
@@ -1456,7 +1495,7 @@ const handleEmailSignupClick = async ({ name, email, pass }: { name: string, ema
     const cred = await createUserWithEmailAndPassword(auth, email, pass);
     const user = cred.user;
     await updateProfile(user, { displayName: name });
-
+    
     onboardName.value = name;
     // Ensure email is preset
     if (user) {
@@ -1530,60 +1569,84 @@ const toggleLoginDarkMode = () => {
 
 <template>
   <!-- Main template wrapper -->
-  <div v-if="!currentUser && !isDemoUser"
-    class="min-h-screen bg-slate-50 flex items-center justify-center p-4 selection:bg-blue-100 relative">
-    <LoginPanel :loading="adminLoading" @google-login="handleGoogleLoginClick" @email-login="handleEmailLoginClick"
-      @email-signup="handleEmailSignupClick" />
+  <div v-if="!currentUser && !isDemoUser" class="min-h-screen bg-slate-50 flex items-center justify-center p-4 selection:bg-blue-100 relative">
+    <LoginPanel
+      :loading="adminLoading"
+      @google-login="handleGoogleLoginClick"
+      @email-login="handleEmailLoginClick"
+      @email-signup="handleEmailSignupClick"
+    />
 
     <!-- Floating Theme Controls on Login Page -->
     <div class="fixed bottom-6 right-6 flex flex-col items-end gap-3 z-50">
       <!-- Theme Color Palette Selector -->
-      <transition enter-active-class="transition duration-200 ease-out"
+      <transition
+        enter-active-class="transition duration-200 ease-out"
         enter-from-class="transform translate-y-2 opacity-0 scale-95"
         enter-to-class="transform translate-y-0 opacity-100 scale-100"
         leave-active-class="transition duration-150 ease-in"
         leave-from-class="transform translate-y-0 opacity-100 scale-100"
-        leave-to-class="transform translate-y-2 opacity-0 scale-95">
-        <div v-if="showLoginColors"
-          class="bg-white border rounded-2xl p-3 shadow-2xl flex gap-2 items-center transition-all duration-350" :style="{
+        leave-to-class="transform translate-y-2 opacity-0 scale-95"
+      >
+        <div 
+          v-if="showLoginColors" 
+          class="bg-white border rounded-2xl p-3 shadow-2xl flex gap-2 items-center transition-all duration-350"
+          :style="{
             borderColor: primaryColor,
             boxShadow: '0 8px 30px -4px ' + primaryColor + '30'
-          }">
-          <button v-for="preset in loginPresets" :key="preset.hex" type="button"
+          }"
+        >
+          <button
+            v-for="preset in loginPresets"
+            :key="preset.hex"
+            type="button"
             @click="updateLoginThemeColor(preset.hex)"
             class="w-7 h-7 rounded-full border-2 border-transparent transition-all scale-100 hover:scale-115 active:scale-90 cursor-pointer relative flex items-center justify-center shrink-0"
-            :style="{
+            :style="{ 
               backgroundColor: preset.hex,
               borderColor: primaryColor === preset.hex ? '#ffffff' : 'transparent',
               boxShadow: primaryColor === preset.hex ? '0 0 0 2px ' + primaryColor : 'none'
-            }" :title="preset.name">
+            }"
+            :title="preset.name"
+          >
             <Check v-if="primaryColor === preset.hex" class="w-3.5 h-3.5 text-white stroke-[4px]" />
           </button>
         </div>
       </transition>
 
       <!-- FAB trigger buttons -->
-      <div class="flex gap-2 bg-white p-1.5 rounded-full shadow-2xl border transition-all duration-350" :style="{
-        borderColor: primaryColor,
-        boxShadow: '0 4px 20px -2px ' + primaryColor + '40'
-      }">
+      <div 
+        class="flex gap-2 bg-white p-1.5 rounded-full shadow-2xl border transition-all duration-350"
+        :style="{
+          borderColor: primaryColor,
+          boxShadow: '0 4px 20px -2px ' + primaryColor + '40'
+        }"
+      >
         <!-- Paintbrush / Color cycle -->
-        <button type="button" @click="showLoginColors = !showLoginColors"
+        <button
+          type="button"
+          @click="showLoginColors = !showLoginColors"
           class="w-10 h-10 rounded-full flex items-center justify-center transition-all cursor-pointer hover:bg-black/5 dark:hover:bg-white/10"
           :style="{
             color: showLoginColors ? '#ffffff' : primaryColor,
             backgroundColor: showLoginColors ? primaryColor : 'transparent'
-          }" title="Mudar Cor de Destaque">
+          }"
+          title="Mudar Cor de Destaque"
+        >
           <Paintbrush class="w-5 h-5" :class="{ 'animate-pulse': showLoginColors }" />
         </button>
 
         <!-- Dark/Light theme toggle -->
-        <button type="button" @click="toggleLoginDarkMode"
+        <button
+          type="button"
+          @click="toggleLoginDarkMode"
           class="w-10 h-10 rounded-full flex items-center justify-center transition-all cursor-pointer hover:opacity-90"
           :style="{
             backgroundColor: primaryColor,
             color: '#ffffff'
-          }" :title="isDarkMode ? 'Mudar para Modo Claro' : 'Mudar para Modo Escuro'">
+          }"
+          :title="isDarkMode ? 'Mudar para Modo Claro' : 'Mudar para Modo Escuro'"
+        >
           <Sun v-if="isDarkMode" class="w-5 h-5 animate-spin-slow" />
           <Moon v-else class="w-5 h-5" />
         </button>
@@ -1592,51 +1655,68 @@ const toggleLoginDarkMode = () => {
   </div>
 
   <div v-else-if="isOnboarding" class="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-    <OnboardingPanel v-model:onboardName="onboardName" v-model:onboardRole="onboardRole"
-      v-model:onboardLevel="onboardLevel" v-model:onboardCode="onboardCode" @submit="handleOnboardingComplete" />
+    <OnboardingPanel
+      v-model:onboardName="onboardName"
+      v-model:onboardRole="onboardRole"
+      v-model:onboardLevel="onboardLevel"
+      v-model:onboardCode="onboardCode"
+      @submit="handleOnboardingComplete"
+    />
   </div>
 
-  <div v-else
-    class="min-h-screen bg-slate-50 text-gray-800 font-sans selection:bg-blue-100 flex flex-col justify-between">
+  <div v-else class="min-h-screen bg-slate-50 text-gray-800 font-sans selection:bg-blue-100 flex flex-col justify-between">
     <!-- PWA CUSTOM SETUP DIALOG BANNER -->
-    <div v-if="showInstallBanner"
-      class="bg-blue-600 text-white text-[11.5px] sm:text-xs py-2.5 px-4 font-bold flex items-center justify-between gap-3 text-left animate-fadeIn shadow-md h-auto">
+    <div 
+      v-if="showInstallBanner" 
+      class="bg-blue-600 text-white text-[11.5px] sm:text-xs py-2.5 px-4 font-bold flex items-center justify-between gap-3 text-left animate-fadeIn shadow-md h-auto"
+    >
       <div class="flex items-center gap-2">
         <Sparkles class="w-4 h-4 text-amber-300 shrink-0 select-none animate-pulse" />
-        <span>Instale o aplicativo English Volunteer para estudar 100% offline e sincronizar seu progresso
-          automaticamente ao reconectar!</span>
+        <span>Instale o aplicativo English Volunteer para estudar 100% offline e sincronizar seu progresso automaticamente ao reconectar!</span>
       </div>
       <div class="flex items-center gap-2 shrink-0">
-        <button @click="triggerPwaInstall"
-          class="bg-amber-400 hover:bg-amber-500 text-gray-950 px-3 py-1 rounded-md text-[10px] font-black transition cursor-pointer">
+        <button 
+          @click="triggerPwaInstall" 
+          class="bg-amber-400 hover:bg-amber-500 text-gray-950 px-3 py-1 rounded-md text-[10px] font-black transition cursor-pointer"
+        >
           Instalar App
         </button>
-        <button @click="closeInstallBanner"
-          class="bg-blue-700 hover:bg-blue-800 text-blue-100 px-2 py-1 rounded-md text-[10px] transition cursor-pointer">
+        <button 
+          @click="closeInstallBanner" 
+          class="bg-blue-700 hover:bg-blue-800 text-blue-100 px-2 py-1 rounded-md text-[10px] transition cursor-pointer"
+        >
           Depois
         </button>
       </div>
     </div>
 
     <!-- Dynamic Header -->
-    <AppHeader v-model:activeTab="activeTab" v-model:activeCourseId="activeCourseId" v-model:primaryColor="primaryColor"
-      v-model:secondaryColor="secondaryColor" v-model:isDarkMode="isDarkMode" v-model:autoBg="autoBg"
-      v-model:bgColor="bgColor" :userProfile="headerProfile" :isOnline="isOnline" :isMasterEnabled="isMasterEnabled"
-      :unreadChatsCount="unreadChatsCount" @open-profile="openProfileModal" @logout="handleLogout" />
+    <AppHeader
+      v-model:activeTab="activeTab"
+      v-model:activeCourseId="activeCourseId"
+      v-model:primaryColor="primaryColor"
+      v-model:secondaryColor="secondaryColor"
+      v-model:isDarkMode="isDarkMode"
+      v-model:autoBg="autoBg"
+      v-model:bgColor="bgColor"
+      :userProfile="headerProfile"
+      :isOnline="isOnline"
+      :isMasterEnabled="isMasterEnabled"
+      :unreadChatsCount="unreadChatsCount"
+      @open-profile="openProfileModal"
+      @logout="handleLogout"
+    />
 
     <!-- Main Container Content with dynamic contrast layout -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full flex flex-col justify-between">
-
+      
       <!-- Fallback catalog warnings -->
-      <div v-if="isUsingFallback"
-        class="mb-6 p-3 bg-amber-50 border border-amber-100 text-amber-800 rounded-xl text-xs flex items-center justify-between text-left">
+      <div v-if="isUsingFallback" class="mb-6 p-3 bg-amber-50 border border-amber-100 text-amber-800 rounded-xl text-xs flex items-center justify-between text-left">
         <div class="flex items-center gap-2">
           <ShieldAlert class="w-4.5 h-4.5 shrink-0 text-amber-600" />
-          <p class="font-bold">Modo de Contingência Ativos: Exibindo catálogo de mini-cursos local devido ao limite de
-            conexões Firestore.</p>
+          <p class="font-bold">Modo de Contingência Ativos: Exibindo catálogo de mini-cursos local devido ao limite de conexões Firestore.</p>
         </div>
-        <button @click="isUsingFallback = false"
-          class="text-xs underline font-black hover:opacity-80 shrink-0 cursor-pointer">✕ Ignorar</button>
+        <button @click="isUsingFallback = false" class="text-xs underline font-black hover:opacity-80 shrink-0 cursor-pointer">✕ Ignorar</button>
       </div>
 
       <!-- Database loading state -->
@@ -1646,74 +1726,133 @@ const toggleLoginDarkMode = () => {
       </div>
 
       <div v-else class="w-full flex-1">
-
+        
         <!-- Tab 1: Courses view -->
         <div v-if="activeTab === 'courses'" class="space-y-6">
           <div v-if="!activeCourseId" class="space-y-8 text-left">
-            <StudentCourses :courses="courses" :lessons="lessons" :progressList="activeProgressList"
-              :completedCountGlobal="completedCountGlobal" :currentUser="currentUser" :userProfile="userProfile"
-              :primaryColor="primaryColor" @select-course="(courseId) => activeCourseId = courseId" />
+            <StudentCourses
+              :courses="courses"
+              :lessons="lessons"
+              :progressList="activeProgressList"
+              :completedCountGlobal="completedCountGlobal"
+              :currentUser="currentUser"
+              :userProfile="userProfile"
+              :primaryColor="primaryColor"
+              @select-course="(courseId) => activeCourseId = courseId"
+            />
           </div>
 
           <div v-else>
             <!-- Course View container -->
-            <CourseView :course="courses.find(c => c.id === activeCourseId)!"
+            <CourseView
+              :course="courses.find(c => c.id === activeCourseId)!"
               :lessons="lessons.filter(l => l.courseId === activeCourseId)"
               :progressReport="getProgressForCourse(activeCourseId)"
               :currentUserId="currentUser?.uid || 'demo-student-uid'"
               :studentName="userProfile?.displayName || currentUser?.displayName || 'Estudante Voluntário'"
-              :primaryColor="primaryColor" @save-progress="handleSaveProgress" @back="activeCourseId = null"
-              @show-certificate="(cert) => showCertificateData = cert" @navigate-chat="handleSelectRoomAndTab" />
+              :primaryColor="primaryColor"
+              @save-progress="handleSaveProgress"
+              @back="activeCourseId = null"
+              @show-certificate="(cert) => showCertificateData = cert"
+              @navigate-chat="handleSelectRoomAndTab"
+            />
           </div>
         </div>
 
         <!-- Tab 2: Scheduler booking list -->
         <div v-if="activeTab === 'scheduler'">
-          <ClassScheduler :classes="classes" :courses="courses" :currentUserId="currentUser?.uid || 'demo-student-uid'"
-            :isInstructor="isUserInstructor" :isAdmin="isUserAdmin" :userLevel="userProfile?.level || 'Beginner'"
+          <ClassScheduler
+            :classes="classes"
+            :courses="courses"
+            :currentUserId="currentUser?.uid || 'demo-student-uid'"
+            :isInstructor="isUserInstructor"
+            :isAdmin="isUserAdmin"
+            :userLevel="userProfile?.level || 'Beginner'"
             :userDisplayName="userProfile?.displayName || currentUser?.displayName || 'Voluntário'"
-            :primaryColor="primaryColor" @join="handleJoinClass" @leave="handleLeaveClass" @create="handleCreateClass"
-            @delete="handleDeleteClass" @join-class="handleJoinClass" @leave-class="handleLeaveClass"
-            @create-class="handleCreateClass" @delete-class="handleDeleteClass" @update-class="handleUpdateClass"
-            @mark-presence="handleMarkPresence" />
+            :primaryColor="primaryColor"
+            @join="handleJoinClass"
+            @leave="handleLeaveClass"
+            @create="handleCreateClass"
+            @delete="handleDeleteClass"
+            @join-class="handleJoinClass"
+            @leave-class="handleLeaveClass"
+            @create-class="handleCreateClass"
+            @delete-class="handleDeleteClass"
+            @update-class="handleUpdateClass"
+            @mark-presence="handleMarkPresence"
+          />
         </div>
 
         <!-- Tab 3: Chat Q&A helproom -->
         <div v-if="activeTab === 'chats'">
-          <SupportChats :chatRooms="chatRooms" :activeMessages="activeMessages" :courses="courses"
+          <SupportChats
+            :chatRooms="chatRooms"
+            :activeMessages="activeMessages"
+            :courses="courses"
             :currentUserId="currentUser?.uid || 'demo-student-uid'"
             :userDisplayName="userProfile?.displayName || currentUser?.displayName || 'Estudante'"
-            :isInstructor="isUserInstructor" :isAdmin="isUserAdmin" :selectedRoomId="selectedRoomId"
-            :messagesLimit="chatMessagesLimit" :isDarkMode="isDarkMode"
-            @select-room="(roomId) => selectedRoomId = roomId" @start-room="handleStartChatRoom"
-            @send-message="handleSendMessage" @resolve-room="handleResolveRoom"
-            @load-more-messages="chatMessagesLimit += 15" />
+            :isInstructor="isUserInstructor"
+            :isAdmin="isUserAdmin"
+            :selectedRoomId="selectedRoomId"
+            :messagesLimit="chatMessagesLimit"
+            :isDarkMode="isDarkMode"
+            @select-room="(roomId) => selectedRoomId = roomId"
+            @start-room="handleStartChatRoom"
+            @send-message="handleSendMessage"
+            @resolve-room="handleResolveRoom"
+            @load-more-messages="chatMessagesLimit += 15"
+          />
         </div>
 
         <!-- Tab 4: Instructor Content publisher section -->
         <div v-if="activeTab === 'instructor'">
-          <InstructorPanel :courses="courses" :progressReports="activeProgressList" :chatRooms="chatRooms"
-            :classes="classes" :lessons="lessons" :users="allUsers"
-            :userDisplayName="userProfile?.displayName || 'Instrutor'" :instructorId="userProfile?.uid || ''"
-            :uploadCourseFn="handleUploadCourse" :deleteCourseFn="handleDeleteCourse"
-            @upload-course="handleUploadCourse" @delete-course="handleDeleteCourse"
-            @update-course-config="handleUpdateCourseConfig" />
+          <InstructorPanel
+            :courses="courses"
+            :progressReports="activeProgressList"
+            :chatRooms="chatRooms"
+            :classes="classes"
+            :lessons="lessons"
+            :users="allUsers"
+            :userDisplayName="userProfile?.displayName || 'Instrutor'"
+            :instructorId="userProfile?.uid || ''"
+            :uploadCourseFn="handleUploadCourse"
+            :deleteCourseFn="handleDeleteCourse"
+            @upload-course="handleUploadCourse"
+            @delete-course="handleDeleteCourse"
+            @update-course-config="handleUpdateCourseConfig"
+          />
         </div>
 
         <!-- Tab 5: Master control Panel monitoring -->
         <div v-if="activeTab === 'master'">
-          <MasterPanel :users="allUsers" :courses="courses" :classes="classes" :progressReports="activeProgressList"
-            :currentUserId="currentUser?.uid || 'demo-admin-uid'" :isDemoUser="isDemoUser" :primaryColor="primaryColor"
-            @update-user-role="handleUpdateUserRole" @delete-user="handleDeleteUserPhoto"
-            @delete-user-completely="handleDeleteUserCompletely" @reassign-course-owner="handleReassignCoursePayload" />
+          <MasterPanel
+            :users="allUsers"
+            :courses="courses"
+            :classes="classes"
+            :progressReports="activeProgressList"
+            :currentUserId="currentUser?.uid || 'demo-admin-uid'"
+            :isDemoUser="isDemoUser"
+            :primaryColor="primaryColor"
+            @update-user-role="handleUpdateUserRole"
+            @delete-user="handleDeleteUserPhoto"
+            @delete-user-completely="handleDeleteUserCompletely"
+            @reassign-course-owner="handleReassignCoursePayload"
+          />
         </div>
 
         <!-- Tab 6: Progress Tracking of Completed Courses (Independent of level) -->
         <div v-if="activeTab === 'tracking'" class="space-y-6 text-left">
-          <MyProgress :completedCoursesWithCertificates="completedCoursesWithCertificates"
-            :progressList="activeProgressList" :courses="courses" :currentUser="currentUser" :userProfile="userProfile"
-            :primaryColor="primaryColor" @open-profile="openProfileModal"
-            @show-certificate="(cert) => showCertificateData = cert" @navigate-courses="activeTab = 'courses'" />
+          <MyProgress
+            :completedCoursesWithCertificates="completedCoursesWithCertificates"
+            :progressList="activeProgressList"
+            :courses="courses"
+            :currentUser="currentUser"
+            :userProfile="userProfile"
+            :primaryColor="primaryColor"
+            @open-profile="openProfileModal"
+            @show-certificate="(cert) => showCertificateData = cert"
+            @navigate-courses="activeTab = 'courses'"
+          />
         </div>
 
       </div>
@@ -1721,22 +1860,39 @@ const toggleLoginDarkMode = () => {
     </main>
 
     <!-- Certificate viewer popup Dialog -->
-    <CertificateViewer v-if="showCertificateData" :studentName="showCertificateData.studentName"
-      :courseTitle="showCertificateData.courseTitle" :certificateId="showCertificateData.id"
-      :primaryColor="showCertificateData.primaryColor" :iconUrl="showCertificateData.iconUrl"
-      :bgStyle="showCertificateData.bgStyle" :frameStyle="showCertificateData.frameStyle"
-      :detailColor="showCertificateData.detailColor" :creatorId="showCertificateData.creatorId"
-      :isTransferred="showCertificateData.isTransferred" :isMaster="isMasterEnabled"
-      @close="showCertificateData = null" />
+    <CertificateViewer
+      v-if="showCertificateData"
+      :studentName="showCertificateData.studentName"
+      :courseTitle="showCertificateData.courseTitle"
+      :certificateId="showCertificateData.id"
+      :primaryColor="showCertificateData.primaryColor"
+      :iconUrl="showCertificateData.iconUrl"
+      :bgStyle="showCertificateData.bgStyle"
+      :frameStyle="showCertificateData.frameStyle"
+      :detailColor="showCertificateData.detailColor"
+      :creatorId="showCertificateData.creatorId"
+      :isTransferred="showCertificateData.isTransferred"
+      :isMaster="isMasterEnabled"
+      @close="showCertificateData = null"
+    />
 
 
     <!-- User Profile Editor Modal Dialog -->
-    <UserProfileModal :isOpen="showProfileModal" :initialName="profileEditName" :initialLevel="profileEditLevel"
-      :initialBio="profileEditBio" :initialEmail="currentUser?.email || undefined" :primaryColor="primaryColor"
-      :isInstructor="isUserInstructor" :initialSignatureType="userProfile?.signatureType"
-      :initialSignatureText="userProfile?.signatureText" :initialSignatureImage="userProfile?.signatureImage"
-      @close="showProfileModal = false" @update-profile="onUpdateProfileFromModal"
-      @delete-account="handleRequestLgpdDataDeletion" />
+    <UserProfileModal
+      :isOpen="showProfileModal"
+      :initialName="profileEditName"
+      :initialLevel="profileEditLevel"
+      :initialBio="profileEditBio"
+      :initialEmail="currentUser?.email || undefined"
+      :primaryColor="primaryColor"
+      :isInstructor="isUserInstructor"
+      :initialSignatureType="userProfile?.signatureType"
+      :initialSignatureText="userProfile?.signatureText"
+      :initialSignatureImage="userProfile?.signatureImage"
+      @close="showProfileModal = false"
+      @update-profile="onUpdateProfileFromModal"
+      @delete-account="handleRequestLgpdDataDeletion"
+    />
 
 
 
@@ -1752,25 +1908,36 @@ const toggleLoginDarkMode = () => {
 
   <!-- Custom Tray Notification Center -->
   <div class="fixed top-5 right-5 z-[10000] flex flex-col gap-3 max-w-sm w-full pointer-events-none px-4 sm:px-0">
-    <transition-group enter-active-class="transform transition duration-300 ease-out"
-      enter-from-class="translate-y-[-20px] opacity-0 scale-95" enter-to-class="translate-y-0 opacity-100 scale-100"
-      leave-active-class="transition duration-205 ease-in" leave-from-class="opacity-100 scale-100"
-      leave-to-class="opacity-0 scale-95">
-      <div v-for="toast in appNotifications" :key="toast.id"
+    <transition-group
+      enter-active-class="transform transition duration-300 ease-out"
+      enter-from-class="translate-y-[-20px] opacity-0 scale-95"
+      enter-to-class="translate-y-0 opacity-100 scale-100"
+      leave-active-class="transition duration-205 ease-in"
+      leave-from-class="opacity-100 scale-100"
+      leave-to-class="opacity-0 scale-95"
+    >
+      <div
+        v-for="toast in appNotifications"
+        :key="toast.id"
         class="pointer-events-auto w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl p-4 flex items-start gap-3 text-left relative overflow-hidden animate-scaleIn"
         :style="{
-          borderLeft: `5px solid ${toast.type === 'success' ? '#10b981' :
-              toast.type === 'error' ? '#f43f5e' :
-                toast.type === 'warning' ? '#f59e0b' : '#3b82f6'
-            }`
-        }">
+          borderLeft: `5px solid ${
+            toast.type === 'success' ? '#10b981' : 
+            toast.type === 'error' ? '#f43f5e' : 
+            toast.type === 'warning' ? '#f59e0b' : '#3b82f6'
+          }`
+        }"
+      >
         <!-- Accent top-bar for decoration -->
-        <div class="absolute top-0 left-0 right-0 h-[3px]" :class="{
-          'bg-emerald-500': toast.type === 'success',
-          'bg-rose-500': toast.type === 'error',
-          'bg-amber-500': toast.type === 'warning',
-          'bg-blue-500': toast.type === 'info'
-        }"></div>
+        <div 
+          class="absolute top-0 left-0 right-0 h-[3px]"
+          :class="{
+            'bg-emerald-500': toast.type === 'success',
+            'bg-rose-500': toast.type === 'error',
+            'bg-amber-500': toast.type === 'warning',
+            'bg-blue-500': toast.type === 'info'
+          }"
+        ></div>
 
         <!-- Type icons -->
         <div class="shrink-0 mt-0.5">
@@ -1788,8 +1955,11 @@ const toggleLoginDarkMode = () => {
         </div>
 
         <!-- Dismiss button -->
-        <button type="button" @click="dismissToast(toast.id)"
-          class="text-slate-305 hover:text-slate-500 dark:text-slate-600 dark:hover:text-slate-400 p-0.5 rounded transition cursor-pointer">
+        <button
+          type="button"
+          @click="dismissToast(toast.id)"
+          class="text-slate-305 hover:text-slate-500 dark:text-slate-600 dark:hover:text-slate-400 p-0.5 rounded transition cursor-pointer"
+        >
           <X class="w-3.5 h-3.5" />
         </button>
       </div>
@@ -1806,450 +1976,133 @@ const toggleLoginDarkMode = () => {
 }
 
 /* Dynamically map blue-related properties to calculated shades */
-.text-blue-50 {
-  color: var(--color-blue-50) !important;
-}
+.text-blue-50 { color: var(--color-blue-50) !important; }
+.text-blue-100 { color: var(--color-blue-100) !important; }
+.text-blue-200 { color: var(--color-blue-200) !important; }
+.text-blue-300 { color: var(--color-blue-300) !important; }
+.text-blue-400 { color: var(--color-blue-400) !important; }
+.text-blue-500 { color: var(--color-blue-500) !important; }
+.text-blue-600 { color: var(--color-blue-600) !important; }
+.text-blue-700 { color: var(--color-blue-700) !important; }
+.text-blue-800 { color: var(--color-blue-800) !important; }
+.text-blue-900 { color: var(--color-blue-900) !important; }
+.text-blue-950 { color: var(--color-blue-950) !important; }
 
-.text-blue-100 {
-  color: var(--color-blue-100) !important;
-}
+.bg-blue-50 { background-color: var(--color-blue-50) !important; }
+.bg-blue-100 { background-color: var(--color-blue-100) !important; }
+.bg-blue-200 { background-color: var(--color-blue-200) !important; }
+.bg-blue-300 { background-color: var(--color-blue-300) !important; }
+.bg-blue-400 { background-color: var(--color-blue-400) !important; }
+.bg-blue-500 { background-color: var(--color-blue-500) !important; }
+.bg-blue-600 { background-color: var(--color-blue-600) !important; }
+.bg-blue-700 { background-color: var(--color-blue-700) !important; }
+.bg-blue-800 { background-color: var(--color-blue-800) !important; }
+.bg-blue-900 { background-color: var(--color-blue-900) !important; }
+.bg-blue-950 { background-color: var(--color-blue-950) !important; }
 
-.text-blue-200 {
-  color: var(--color-blue-200) !important;
-}
-
-.text-blue-300 {
-  color: var(--color-blue-300) !important;
-}
-
-.text-blue-400 {
-  color: var(--color-blue-400) !important;
-}
-
-.text-blue-500 {
-  color: var(--color-blue-500) !important;
-}
-
-.text-blue-600 {
-  color: var(--color-blue-600) !important;
-}
-
-.text-blue-700 {
-  color: var(--color-blue-700) !important;
-}
-
-.text-blue-800 {
-  color: var(--color-blue-800) !important;
-}
-
-.text-blue-900 {
-  color: var(--color-blue-900) !important;
-}
-
-.text-blue-950 {
-  color: var(--color-blue-950) !important;
-}
-
-.bg-blue-50 {
-  background-color: var(--color-blue-50) !important;
-}
-
-.bg-blue-100 {
-  background-color: var(--color-blue-100) !important;
-}
-
-.bg-blue-200 {
-  background-color: var(--color-blue-200) !important;
-}
-
-.bg-blue-300 {
-  background-color: var(--color-blue-300) !important;
-}
-
-.bg-blue-400 {
-  background-color: var(--color-blue-400) !important;
-}
-
-.bg-blue-500 {
-  background-color: var(--color-blue-500) !important;
-}
-
-.bg-blue-600 {
-  background-color: var(--color-blue-600) !important;
-}
-
-.bg-blue-700 {
-  background-color: var(--color-blue-700) !important;
-}
-
-.bg-blue-800 {
-  background-color: var(--color-blue-800) !important;
-}
-
-.bg-blue-900 {
-  background-color: var(--color-blue-900) !important;
-}
-
-.bg-blue-950 {
-  background-color: var(--color-blue-950) !important;
-}
-
-.border-blue-50 {
-  border-color: var(--color-blue-50) !important;
-}
-
-.border-blue-100 {
-  border-color: var(--color-blue-100) !important;
-}
-
-.border-blue-200 {
-  border-color: var(--color-blue-200) !important;
-}
-
-.border-blue-300 {
-  border-color: var(--color-blue-300) !important;
-}
-
-.border-blue-400 {
-  border-color: var(--color-blue-400) !important;
-}
-
-.border-blue-500 {
-  border-color: var(--color-blue-500) !important;
-}
-
-.border-blue-600 {
-  border-color: var(--color-blue-600) !important;
-}
-
-.border-blue-700 {
-  border-color: var(--color-blue-700) !important;
-}
-
-.border-blue-800 {
-  border-color: var(--color-blue-800) !important;
-}
-
-.border-blue-900 {
-  border-color: var(--color-blue-900) !important;
-}
-
-.border-blue-950 {
-  border-color: var(--color-blue-950) !important;
-}
+.border-blue-50 { border-color: var(--color-blue-50) !important; }
+.border-blue-100 { border-color: var(--color-blue-100) !important; }
+.border-blue-200 { border-color: var(--color-blue-200) !important; }
+.border-blue-300 { border-color: var(--color-blue-300) !important; }
+.border-blue-400 { border-color: var(--color-blue-400) !important; }
+.border-blue-500 { border-color: var(--color-blue-500) !important; }
+.border-blue-600 { border-color: var(--color-blue-600) !important; }
+.border-blue-700 { border-color: var(--color-blue-700) !important; }
+.border-blue-800 { border-color: var(--color-blue-800) !important; }
+.border-blue-900 { border-color: var(--color-blue-900) !important; }
+.border-blue-950 { border-color: var(--color-blue-950) !important; }
 
 /* Dynamically map indigo-related fields so they follow secondary-color */
-.text-indigo-50 {
-  color: var(--color-indigo-50) !important;
-}
+.text-indigo-50 { color: var(--color-indigo-50) !important; }
+.text-indigo-100 { color: var(--color-indigo-100) !important; }
+.text-indigo-200 { color: var(--color-indigo-200) !important; }
+.text-indigo-300 { color: var(--color-indigo-300) !important; }
+.text-indigo-400 { color: var(--color-indigo-400) !important; }
+.text-indigo-500 { color: var(--color-indigo-500) !important; }
+.text-indigo-600 { color: var(--color-indigo-600) !important; }
+.text-indigo-700 { color: var(--color-indigo-700) !important; }
+.text-indigo-800 { color: var(--color-indigo-800) !important; }
+.text-indigo-900 { color: var(--color-indigo-900) !important; }
+.text-indigo-950 { color: var(--color-indigo-950) !important; }
 
-.text-indigo-100 {
-  color: var(--color-indigo-100) !important;
-}
+.bg-indigo-50 { background-color: var(--color-indigo-50) !important; }
+.bg-indigo-100 { background-color: var(--color-indigo-100) !important; }
+.bg-indigo-200 { background-color: var(--color-indigo-200) !important; }
+.bg-indigo-300 { background-color: var(--color-indigo-300) !important; }
+.bg-indigo-400 { background-color: var(--color-indigo-400) !important; }
+.bg-indigo-500 { background-color: var(--color-indigo-500) !important; }
+.bg-indigo-600 { background-color: var(--color-indigo-600) !important; }
+.bg-indigo-700 { background-color: var(--color-indigo-700) !important; }
+.bg-indigo-800 { background-color: var(--color-indigo-800) !important; }
+.bg-indigo-900 { background-color: var(--color-indigo-900) !important; }
+.bg-indigo-950 { background-color: var(--color-indigo-950) !important; }
 
-.text-indigo-200 {
-  color: var(--color-indigo-200) !important;
-}
-
-.text-indigo-300 {
-  color: var(--color-indigo-300) !important;
-}
-
-.text-indigo-400 {
-  color: var(--color-indigo-400) !important;
-}
-
-.text-indigo-500 {
-  color: var(--color-indigo-500) !important;
-}
-
-.text-indigo-600 {
-  color: var(--color-indigo-600) !important;
-}
-
-.text-indigo-700 {
-  color: var(--color-indigo-700) !important;
-}
-
-.text-indigo-800 {
-  color: var(--color-indigo-800) !important;
-}
-
-.text-indigo-900 {
-  color: var(--color-indigo-900) !important;
-}
-
-.text-indigo-950 {
-  color: var(--color-indigo-950) !important;
-}
-
-.bg-indigo-50 {
-  background-color: var(--color-indigo-50) !important;
-}
-
-.bg-indigo-100 {
-  background-color: var(--color-indigo-100) !important;
-}
-
-.bg-indigo-200 {
-  background-color: var(--color-indigo-200) !important;
-}
-
-.bg-indigo-300 {
-  background-color: var(--color-indigo-300) !important;
-}
-
-.bg-indigo-400 {
-  background-color: var(--color-indigo-400) !important;
-}
-
-.bg-indigo-500 {
-  background-color: var(--color-indigo-500) !important;
-}
-
-.bg-indigo-600 {
-  background-color: var(--color-indigo-600) !important;
-}
-
-.bg-indigo-700 {
-  background-color: var(--color-indigo-700) !important;
-}
-
-.bg-indigo-800 {
-  background-color: var(--color-indigo-800) !important;
-}
-
-.bg-indigo-900 {
-  background-color: var(--color-indigo-900) !important;
-}
-
-.bg-indigo-950 {
-  background-color: var(--color-indigo-950) !important;
-}
-
-.border-indigo-50 {
-  border-color: var(--color-indigo-50) !important;
-}
-
-.border-indigo-100 {
-  border-color: var(--color-indigo-100) !important;
-}
-
-.border-indigo-200 {
-  border-color: var(--color-indigo-200) !important;
-}
-
-.border-indigo-300 {
-  border-color: var(--color-indigo-300) !important;
-}
-
-.border-indigo-400 {
-  border-color: var(--color-indigo-400) !important;
-}
-
-.border-indigo-500 {
-  border-color: var(--color-indigo-500) !important;
-}
-
-.border-indigo-600 {
-  border-color: var(--color-indigo-600) !important;
-}
-
-.border-indigo-700 {
-  border-color: var(--color-indigo-700) !important;
-}
-
-.border-indigo-800 {
-  border-color: var(--color-indigo-800) !important;
-}
-
-.border-indigo-900 {
-  border-color: var(--color-indigo-900) !important;
-}
-
-.border-indigo-950 {
-  border-color: var(--color-indigo-950) !important;
-}
+.border-indigo-50 { border-color: var(--color-indigo-50) !important; }
+.border-indigo-100 { border-color: var(--color-indigo-100) !important; }
+.border-indigo-200 { border-color: var(--color-indigo-200) !important; }
+.border-indigo-300 { border-color: var(--color-indigo-300) !important; }
+.border-indigo-400 { border-color: var(--color-indigo-400) !important; }
+.border-indigo-500 { border-color: var(--color-indigo-500) !important; }
+.border-indigo-600 { border-color: var(--color-indigo-600) !important; }
+.border-indigo-700 { border-color: var(--color-indigo-700) !important; }
+.border-indigo-800 { border-color: var(--color-indigo-800) !important; }
+.border-indigo-900 { border-color: var(--color-indigo-900) !important; }
+.border-indigo-950 { border-color: var(--color-indigo-950) !important; }
 
 /* Map gray and slate palettes so headers, text titles, borders, backgrounds follow primary-derived gray harmoniously! */
-.text-gray-950 {
-  color: var(--color-gray-950) !important;
-}
+.text-gray-950 { color: var(--color-gray-950) !important; }
+.text-gray-900 { color: var(--color-gray-900) !important; }
+.text-gray-800 { color: var(--color-gray-800) !important; }
+.text-gray-700 { color: var(--color-gray-700) !important; }
+.text-gray-650 { color: var(--color-gray-650) !important; }
+.text-gray-600 { color: var(--color-gray-600) !important; }
+.text-gray-500 { color: var(--color-gray-500) !important; }
+.text-gray-400 { color: var(--color-gray-400) !important; }
+.text-gray-300 { color: var(--color-gray-300) !important; }
+.text-gray-200 { color: var(--color-gray-200) !important; }
+.text-gray-100 { color: var(--color-gray-100) !important; }
+.text-gray-50 { color: var(--color-gray-50) !important; }
 
-.text-gray-900 {
-  color: var(--color-gray-900) !important;
-}
+.text-slate-950 { color: var(--color-slate-950) !important; }
+.text-slate-900 { color: var(--color-slate-900) !important; }
+.text-slate-800 { color: var(--color-slate-800) !important; }
+.text-slate-705 { color: var(--color-slate-705) !important; }
+.text-slate-700 { color: var(--color-slate-700) !important; }
+.text-slate-600 { color: var(--color-slate-600) !important; }
+.text-slate-500 { color: var(--color-slate-500) !important; }
+.text-slate-400 { color: var(--color-slate-400) !important; }
+.text-slate-300 { color: var(--color-slate-300) !important; }
+.text-slate-200 { color: var(--color-slate-200) !important; }
+.text-slate-100 { color: var(--color-slate-100) !important; }
+.text-slate-50 { color: var(--color-slate-50) !important; }
 
-.text-gray-800 {
-  color: var(--color-gray-800) !important;
-}
+.bg-slate-50 { background-color: var(--color-slate-50) !important; }
+.bg-slate-100 { background-color: var(--color-slate-100) !important; }
+.bg-slate-200 { background-color: var(--color-slate-200) !important; }
+.bg-slate-300 { background-color: var(--color-slate-300) !important; }
 
-.text-gray-700 {
-  color: var(--color-gray-700) !important;
-}
+.bg-gray-50 { background-color: var(--color-gray-50) !important; }
+.bg-gray-100 { background-color: var(--color-gray-100) !important; }
+.bg-gray-200 { background-color: var(--color-gray-200) !important; }
+.bg-gray-300 { background-color: var(--color-gray-300) !important; }
 
-.text-gray-650 {
-  color: var(--color-gray-650) !important;
-}
+.border-gray-100 { border-color: var(--color-gray-100) !important; }
+.border-gray-150 { border-color: var(--color-gray-150) !important; }
+.border-gray-200 { border-color: var(--color-gray-200) !important; }
+.border-gray-250 { border-color: var(--color-gray-250) !important; }
+.border-gray-300 { border-color: var(--color-gray-300) !important; }
 
-.text-gray-600 {
-  color: var(--color-gray-600) !important;
-}
-
-.text-gray-500 {
-  color: var(--color-gray-500) !important;
-}
-
-.text-gray-400 {
-  color: var(--color-gray-400) !important;
-}
-
-.text-gray-300 {
-  color: var(--color-gray-300) !important;
-}
-
-.text-gray-200 {
-  color: var(--color-gray-200) !important;
-}
-
-.text-gray-100 {
-  color: var(--color-gray-100) !important;
-}
-
-.text-gray-50 {
-  color: var(--color-gray-50) !important;
-}
-
-.text-slate-950 {
-  color: var(--color-slate-950) !important;
-}
-
-.text-slate-900 {
-  color: var(--color-slate-900) !important;
-}
-
-.text-slate-800 {
-  color: var(--color-slate-800) !important;
-}
-
-.text-slate-705 {
-  color: var(--color-slate-705) !important;
-}
-
-.text-slate-700 {
-  color: var(--color-slate-700) !important;
-}
-
-.text-slate-600 {
-  color: var(--color-slate-600) !important;
-}
-
-.text-slate-500 {
-  color: var(--color-slate-500) !important;
-}
-
-.text-slate-400 {
-  color: var(--color-slate-400) !important;
-}
-
-.text-slate-300 {
-  color: var(--color-slate-300) !important;
-}
-
-.text-slate-200 {
-  color: var(--color-slate-200) !important;
-}
-
-.text-slate-100 {
-  color: var(--color-slate-100) !important;
-}
-
-.text-slate-50 {
-  color: var(--color-slate-50) !important;
-}
-
-.bg-slate-50 {
-  background-color: var(--color-slate-50) !important;
-}
-
-.bg-slate-100 {
-  background-color: var(--color-slate-100) !important;
-}
-
-.bg-slate-200 {
-  background-color: var(--color-slate-200) !important;
-}
-
-.bg-slate-300 {
-  background-color: var(--color-slate-300) !important;
-}
-
-.bg-gray-50 {
-  background-color: var(--color-gray-50) !important;
-}
-
-.bg-gray-100 {
-  background-color: var(--color-gray-100) !important;
-}
-
-.bg-gray-200 {
-  background-color: var(--color-gray-200) !important;
-}
-
-.bg-gray-300 {
-  background-color: var(--color-gray-300) !important;
-}
-
-.border-gray-100 {
-  border-color: var(--color-gray-100) !important;
-}
-
-.border-gray-150 {
-  border-color: var(--color-gray-150) !important;
-}
-
-.border-gray-200 {
-  border-color: var(--color-gray-200) !important;
-}
-
-.border-gray-250 {
-  border-color: var(--color-gray-250) !important;
-}
-
-.border-gray-300 {
-  border-color: var(--color-gray-300) !important;
-}
-
-.border-slate-100 {
-  border-color: var(--color-slate-100) !important;
-}
-
-.border-slate-150 {
-  border-color: var(--color-slate-150) !important;
-}
-
-.border-slate-200 {
-  border-color: var(--color-slate-200) !important;
-}
-
-.border-slate-300 {
-  border-color: var(--color-slate-300) !important;
-}
+.border-slate-100 { border-color: var(--color-slate-100) !important; }
+.border-slate-150 { border-color: var(--color-slate-150) !important; }
+.border-slate-200 { border-color: var(--color-slate-200) !important; }
+.border-slate-300 { border-color: var(--color-slate-300) !important; }
 
 /* Background layout components */
-body,
-.bg-slate-50,
-.dark body,
-.dark .min-h-screen,
-.dark .bg-slate-50,
-.dark .bg-slate-50\/50 {
+body, .bg-slate-50, .dark body, .dark .min-h-screen, .dark .bg-slate-50, .dark .bg-slate-50\/50 {
   background-color: var(--bg-color) !important;
 }
 
-.bg-white,
-header.bg-white,
-.dark .bg-white,
-.dark header.bg-white {
+.bg-white, header.bg-white, .dark .bg-white, .dark header.bg-white {
   background-color: var(--card-background) !important;
 }
 
@@ -2263,18 +2116,13 @@ header {
   color: var(--color-blue-900) !important;
 }
 
-a,
-button,
-select,
-input,
-textarea {
+a, button, select, input, textarea {
   transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 a {
   color: var(--color-blue-600);
 }
-
 a:hover {
   color: var(--color-blue-700);
 }
@@ -2283,32 +2131,21 @@ a:hover {
   width: 6px;
   height: 6px;
 }
-
 ::-webkit-scrollbar-track {
   background: transparent;
 }
-
 ::-webkit-scrollbar-thumb {
   background: var(--color-blue-300);
   border-radius: 4px;
 }
-
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-blue-500);
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: scale(0.98);
-  }
-
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
+  from { opacity: 0; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1); }
 }
-
 .animate-fadeIn {
   animation: fadeIn 200ms ease-out forwards;
 }
@@ -2319,209 +2156,105 @@ body {
 }
 
 /* Status overlays / alerts high contrast */
-.bg-amber-50,
-.bg-amber-50\/50 {
+.bg-amber-50, .bg-amber-50\/50 {
   background-color: #fffbeb !important;
   border-color: #fcd34d !important;
   color: #b45309 !important;
 }
-
 .bg-amber-100 {
   background-color: #fef3c7 !important;
   border-color: #fcd34d !important;
   color: #92400e !important;
 }
+.text-amber-650, .text-amber-600 { color: #d97706 !important; }
+.text-amber-700 { color: #b45309 !important; }
+.text-amber-800 { color: #92400e !important; }
+.border-amber-100, .border-amber-200 { border-color: #fde68a !important; }
 
-.text-amber-650,
-.text-amber-600 {
-  color: #d97706 !important;
-}
-
-.text-amber-700 {
-  color: #b45309 !important;
-}
-
-.text-amber-800 {
-  color: #92400e !important;
-}
-
-.border-amber-100,
-.border-amber-200 {
-  border-color: #fde68a !important;
-}
-
-.bg-rose-50,
-.bg-rose-50\/50 {
+.bg-rose-50, .bg-rose-50\/50 {
   background-color: #fef2f2 !important;
   border-color: #fca5a5 !important;
   color: #991b1b !important;
 }
-
 .bg-rose-100 {
   background-color: #fee2e2 !important;
   border-color: #fecaca !important;
   color: #991b1b !important;
 }
+.text-rose-600 { color: #dc2626 !important; }
+.text-rose-700 { color: #b45309 !important; /* fallback or specific color */ color: #b91c1c !important; }
+.text-rose-800 { color: #991b1b !important; }
+.border-rose-100, .border-rose-200 { border-color: #fecaca !important; }
 
-.text-rose-600 {
-  color: #dc2626 !important;
-}
-
-.text-rose-700 {
-  color: #b45309 !important;
-  /* fallback or specific color */
-  color: #b91c1c !important;
-}
-
-.text-rose-800 {
-  color: #991b1b !important;
-}
-
-.border-rose-100,
-.border-rose-200 {
-  border-color: #fecaca !important;
-}
-
-.bg-emerald-50,
-.bg-emerald-50\/50 {
+.bg-emerald-50, .bg-emerald-50\/50 {
   background-color: #f0fdf4 !important;
   border-color: #a7f3d0 !important;
   color: #065f46 !important;
 }
-
 .bg-emerald-100 {
   background-color: #d1fae5 !important;
   border-color: #a7f3d0 !important;
   color: #065f46 !important;
 }
-
-.text-emerald-600 {
-  color: #059669 !important;
-}
-
-.text-emerald-700 {
-  color: #047857 !important;
-}
-
-.text-emerald-800 {
-  color: #065f46 !important;
-}
-
-.border-emerald-100,
-.border-emerald-250,
-.border-emerald-200 {
-  border-color: #a7f3d0 !important;
-}
+.text-emerald-600 { color: #059669 !important; }
+.text-emerald-700 { color: #047857 !important; }
+.text-emerald-800 { color: #065f46 !important; }
+.border-emerald-100, .border-emerald-250, .border-emerald-200 { border-color: #a7f3d0 !important; }
 
 /* Dark mode explicit overrides for semantic status alerts */
-.dark .bg-amber-50,
-.dark .bg-amber-50\/50 {
+.dark .bg-amber-50, .dark .bg-amber-50\/50 {
   background-color: #2e1a05 !important;
   border-color: #78350f !important;
   color: #fbbf24 !important;
 }
-
 .dark .bg-amber-100 {
   background-color: #451a03 !important;
   border-color: #78350f !important;
   color: #fdeb8a !important;
 }
+.dark .text-amber-600 { color: #f59e0b !important; }
+.dark .text-amber-700 { color: #fbbf24 !important; }
+.dark .text-amber-800 { color: #fde68a !important; }
+.dark .border-amber-100, .dark .border-amber-200 { border-color: #78350f !important; }
 
-.dark .text-amber-600 {
-  color: #f59e0b !important;
-}
-
-.dark .text-amber-700 {
-  color: #fbbf24 !important;
-}
-
-.dark .text-amber-800 {
-  color: #fde68a !important;
-}
-
-.dark .border-amber-100,
-.dark .border-amber-200 {
-  border-color: #78350f !important;
-}
-
-.dark .bg-rose-50,
-.dark .bg-rose-50\/50 {
+.dark .bg-rose-50, .dark .bg-rose-50\/50 {
   background-color: #2d0f0f !important;
   border-color: #7f1d1d !important;
   color: #fca5a5 !important;
 }
-
 .dark .bg-rose-100 {
   background-color: #4c1d1d !important;
   border-color: #7f1d1d !important;
   color: #fecaca !important;
 }
+.dark .text-rose-600 { color: #f87171 !important; }
+.dark .text-rose-700 { color: #fca5a5 !important; }
+.dark .text-rose-800 { color: #fee2e2 !important; }
+.dark .border-rose-100, .dark .border-rose-200 { border-color: #7f1d1d !important; }
 
-.dark .text-rose-600 {
-  color: #f87171 !important;
-}
-
-.dark .text-rose-700 {
-  color: #fca5a5 !important;
-}
-
-.dark .text-rose-800 {
-  color: #fee2e2 !important;
-}
-
-.dark .border-rose-100,
-.dark .border-rose-200 {
-  border-color: #7f1d1d !important;
-}
-
-.dark .bg-emerald-50,
-.dark .bg-emerald-50\/50 {
+.dark .bg-emerald-50, .dark .bg-emerald-50\/50 {
   background-color: #022c22 !important;
   border-color: #065f46 !important;
   color: #34d399 !important;
 }
-
 .dark .bg-emerald-100 {
   background-color: #064e3b !important;
   border-color: #065f46 !important;
   color: #a7f3d0 !important;
 }
-
-.dark .text-emerald-600 {
-  color: #34d399 !important;
-}
-
-.dark .text-emerald-700 {
-  color: #6ee7b7 !important;
-}
-
-.dark .text-emerald-800 {
-  color: #a7f3d0 !important;
-}
-
-.dark .border-emerald-100,
-.dark .border-emerald-200 {
-  border-color: #065f46 !important;
-}
+.dark .text-emerald-600 { color: #34d399 !important; }
+.dark .text-emerald-700 { color: #6ee7b7 !important; }
+.dark .text-emerald-800 { color: #a7f3d0 !important; }
+.dark .border-emerald-100, .dark .border-emerald-200 { border-color: #065f46 !important; }
 
 /* Input boxes dynamic mapping */
-input,
-select,
-textarea,
-.dark input,
-.dark select,
-.dark textarea {
+input, select, textarea, .dark input, .dark select, .dark textarea {
   background-color: var(--card-background) !important;
   border-color: var(--color-slate-200) !important;
   color: var(--color-slate-900) !important;
 }
 
-.dark input:focus,
-.dark select:focus,
-.dark textarea:focus,
-input:focus,
-select:focus,
-textarea:focus {
+.dark input:focus, .dark select:focus, .dark textarea:focus, input:focus, select:focus, textarea:focus {
   outline: none !important;
   border-color: var(--color-blue-500) !important;
   box-shadow: 0 0 0 2px var(--color-blue-100) !important;
@@ -2533,15 +2266,12 @@ tr th {
   border-color: var(--color-slate-200) !important;
 }
 
-tr:hover,
-.hover\:bg-slate-50\/50:hover,
-.hover\:bg-gray-50\/50:hover {
+tr:hover, .hover\:bg-slate-50\/50:hover, .hover\:bg-gray-50\/50:hover {
   background-color: var(--color-slate-50) !important;
 }
 
 /* Button overrides for standard template layouts */
-button,
-.cursor-pointer {
+button, .cursor-pointer {
   outline: none;
 }
 
@@ -2575,54 +2305,29 @@ button,
 
 /* Mobile responsive adjustments */
 @media (max-width: 640px) {
-
-  h1,
-  .text-2xl,
-  .text-xl {
+  h1, .text-2xl, .text-xl {
     font-size: 1.25rem !important;
     line-height: 1.625rem !important;
     letter-spacing: -0.02em !important;
   }
-
-  h2,
-  .text-lg {
+  h2, .text-lg {
     font-size: 1.125rem !important;
     line-height: 1.5rem !important;
   }
-
-  h3,
-  .text-base {
+  h3, .text-base {
     font-size: 0.95rem !important;
     line-height: 1.35rem !important;
   }
-
-  p,
-  td,
-  th,
-  li,
-  label,
-  select,
-  input,
-  textarea,
-  span,
-  button {
+  p, td, th, li, label, select, input, textarea, span, button {
     font-size: 0.8125rem !important;
   }
-
-  .p-5,
-  .p-6,
-  .p-8 {
+  .p-5, .p-6, .p-8 {
     padding: 0.875rem !important;
   }
-
   .gap-6 {
     gap: 0.875rem !important;
   }
-
-  button,
-  select,
-  input,
-  a {
+  button, select, input, a {
     min-height: 38px !important;
   }
 }

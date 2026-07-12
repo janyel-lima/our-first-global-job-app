@@ -107,3 +107,15 @@ export interface ChatMessage {
   text: string;
   createdAt: string;
 }
+
+export interface CourseReview {
+  id: string;
+  courseId: string;
+  userId: string;
+  userName: string;
+  userPhoto?: string;
+  rating: number; // 1 to 5 stars
+  comment: string;
+  createdAt: string; // "YYYY-MM-DD" or localized ISO
+}
+

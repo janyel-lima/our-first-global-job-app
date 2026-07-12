@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
+import { useI18n } from '../../composables/useI18n';
+
+const { locale, t } = useI18n();
 import { 
   FileText, 
   UploadCloud, 
@@ -26,7 +29,13 @@ import {
   X,
   CheckCircle,
   ArrowUp,
-  ArrowDown
+  ArrowDown,
+  Maximize2,
+  Minimize2,
+  Quote,
+  Link as LinkIcon,
+  CheckSquare,
+  Sparkles
 } from 'lucide-vue-next';
 import MarkdownRenderer from '../common/MarkdownRenderer.vue';
 import { Course, Lesson, QuizQuestion } from '../../types';
@@ -81,6 +90,22 @@ const generationError = ref<string | null>(null);
 const generationSuccess = ref(false);
 const importSuccess = ref(false);
 const showTutorial = ref(true);
+
+const isFullscreen = ref(false);
+
+const wordCount = computed(() => {
+  if (!activeLessonObject.value) return 0;
+  return activeLessonObject.value.content.split(/\s+/).filter(Boolean).length;
+});
+
+const charCount = computed(() => {
+  if (!activeLessonObject.value) return 0;
+  return activeLessonObject.value.content.length;
+});
+
+const readTime = computed(() => {
+  return Math.max(1, Math.round(wordCount.value / 200));
+});
 
 const triggerMultiMdUpload = () => {
   if (multiFileInputRef.value) {
@@ -657,7 +682,10 @@ const handleRemoveQuizQuestion = (lessonId: string, qIndex: number) => {
 
 const handleInsertMarkdownSyntax = (syntax: string) => {
   if (!selectedLessonId.value) return;
-  const textarea = document.getElementById(`textarea-markdown-editor-${selectedLessonId.value}`) as HTMLTextAreaElement;
+  const textarea = (
+    document.getElementById(`textarea-markdown-editor-fs-${selectedLessonId.value}`) || 
+    document.getElementById(`textarea-markdown-editor-${selectedLessonId.value}`)
+  ) as HTMLTextAreaElement;
   if (!textarea) return;
 
   const start = textarea.selectionStart;
@@ -687,6 +715,24 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
       break;
     case 'alert':
       insertion = `\n> 💡 **Tip (Dica de Ouro):**\n> ${selectedText || 'Insira uma dica gramatical prática aqui.'}\n`;
+      break;
+    case 'quote':
+      insertion = `\n> ${selectedText || 'Citação importante ou provérbio.'}\n`;
+      break;
+    case 'code':
+      insertion = `\`${selectedText || 'expressão'}\``;
+      break;
+    case 'codeblock':
+      insertion = `\n\`\`\`english\n${selectedText || '// Diálogo estruturado ou transcrição'}\n\`\`\`\n`;
+      break;
+    case 'link':
+      insertion = `[${selectedText || 'Nome do Link'}](https://example.com)`;
+      break;
+    case 'rule':
+      insertion = `\n---\n`;
+      break;
+    case 'task':
+      insertion = `\n- [ ] ${selectedText || 'Atividade de audição / leitura'}\n`;
       break;
   }
 
@@ -1042,7 +1088,7 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
         <div v-else class="space-y-4">
           
           <!-- Workspace panel tab selection -->
-          <div class="flex justify-between items-center border-b border-gray-150 dark:border-slate-800 pb-2">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-150 dark:border-slate-800 pb-2">
             <div class="flex bg-slate-100 dark:bg-slate-50 p-0.5 rounded-lg select-none border border-transparent dark:border-slate-100/30">
               <button
                 type="button"
@@ -1076,9 +1122,21 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
               </button>
             </div>
 
-            <span class="text-[10px] text-indigo-600 dark:text-indigo-400 font-bold bg-indigo-50 dark:bg-indigo-950/45 px-2.5 py-0.5 rounded-full uppercase tracking-wider border border-transparent dark:border-indigo-900/50">
-              Rascunho Ativo
-            </span>
+            <div class="flex items-center gap-2">
+              <button
+                type="button"
+                @click="isFullscreen = true"
+                class="px-2.5 py-1 text-[10.5px] font-black uppercase tracking-wider bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/40 dark:hover:bg-indigo-900/50 border border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 rounded-lg transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs hover:scale-102 active:scale-98"
+                title="Abrir editor lado a lado em tela cheia para foco total"
+              >
+                <Maximize2 class="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+                Lado a Lado / Tela Cheia
+              </button>
+
+              <span class="text-[10px] text-indigo-600 dark:text-indigo-400 font-bold bg-indigo-50 dark:bg-indigo-950/45 px-2.5 py-0.5 rounded-full uppercase tracking-wider border border-transparent dark:border-indigo-900/50">
+                Rascunho Ativo
+              </span>
+            </div>
           </div>
 
           <!-- TAB 1: Advanced Editor with helper syntax shortcuts -->
@@ -1120,77 +1178,132 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
             </div>
 
             <!-- Quick syntax shortcuts toolbar -->
-            <div class="flex flex-wrap items-center gap-1.5 bg-slate-50 dark:bg-slate-100/50 p-2 rounded-xl border border-slate-150 dark:border-slate-150">
-              <span class="text-[10px] text-slate-400 dark:text-slate-500 font-black uppercase tracking-wider mr-1">Markup:</span>
-              <button
-                type="button"
-                @click="handleInsertMarkdownSyntax('bold')"
-                class="p-1 px-2.5 bg-white dark:bg-slate-100 hover:bg-slate-100 dark:hover:bg-slate-150 text-slate-700 dark:text-slate-800 hover:text-slate-900 dark:hover:text-white text-[10px] font-bold border border-slate-200 dark:border-slate-150 rounded-md cursor-pointer transition-colors flex items-center gap-1"
-                title="Negrito"
-              >
-                <Bold class="w-3 h-3" /> Bold
-              </button>
-              <button
-                type="button"
-                @click="handleInsertMarkdownSyntax('italic')"
-                class="p-1 px-2.5 bg-white dark:bg-slate-100 hover:bg-slate-100 dark:hover:bg-slate-150 text-slate-700 dark:text-slate-800 hover:text-slate-900 dark:hover:text-white text-[10px] font-bold border border-slate-200 dark:border-slate-150 rounded-md cursor-pointer transition-colors flex items-center gap-1"
-                title="Itálico"
-              >
-                <Italic class="w-3 h-3" /> Italic
-              </button>
-              <button
-                type="button"
-                @click="handleInsertMarkdownSyntax('heading')"
-                class="p-1 px-2.5 bg-white dark:bg-slate-100 hover:bg-slate-100 dark:hover:bg-slate-150 text-slate-700 dark:text-slate-800 hover:text-slate-900 dark:hover:text-white text-[10px] font-bold border border-slate-200 dark:border-slate-150 rounded-md cursor-pointer transition-colors flex items-center gap-1"
-                title="Subtítulo"
-              >
-                <Heading3 class="w-3 h-3" /> H3
-              </button>
-              <button
-                type="button"
-                @click="handleInsertMarkdownSyntax('list')"
-                class="p-1 px-2.5 bg-white dark:bg-slate-100 hover:bg-slate-100 dark:hover:bg-slate-150 text-slate-700 dark:text-slate-800 hover:text-slate-900 dark:hover:text-white text-[10px] font-bold border border-slate-200 dark:border-slate-150 rounded-md cursor-pointer transition-colors flex items-center gap-1"
-                title="Marcadores"
-              >
-                <List class="w-3 h-3" /> Lista
-              </button>
-              <button
-                type="button"
-                @click="handleInsertMarkdownSyntax('dialogue')"
-                class="p-1 px-2.5 bg-white dark:bg-slate-100 hover:bg-slate-100 dark:hover:bg-slate-150 text-slate-700 dark:text-slate-800 hover:text-slate-900 dark:hover:text-white text-[10px] font-bold border border-slate-200 dark:border-slate-150 rounded-md cursor-pointer transition-colors flex items-center gap-1"
-                title="Montar Diálogo"
-              >
-                <MessageSquare class="w-3 h-3" /> Diálogo
-              </button>
-              <button
-                type="button"
-                @click="handleInsertMarkdownSyntax('table')"
-                class="p-1 px-2.5 bg-white dark:bg-slate-100 hover:bg-slate-100 dark:hover:bg-slate-150 text-slate-700 dark:text-slate-800 hover:text-slate-900 dark:hover:text-white text-[10px] font-bold border border-slate-200 dark:border-slate-150 rounded-md cursor-pointer transition-colors flex items-center gap-1"
-                title="Criar Lista Glossária"
-              >
-                <Table class="w-3 h-3" /> Glossário
-              </button>
-              <button
-                type="button"
-                @click="handleInsertMarkdownSyntax('alert')"
-                class="p-1 px-2.5 bg-white dark:bg-slate-100 hover:bg-slate-100 dark:hover:bg-slate-150 text-slate-700 dark:text-slate-800 hover:text-slate-900 dark:hover:text-white text-[10px] font-bold border border-slate-200 dark:border-slate-150 rounded-md cursor-pointer transition-colors flex items-center gap-1"
-                title="Adicionar Nota / Dica"
-              >
-                <Lightbulb class="w-3 h-3 text-amber-500" /> Dica Box
-              </button>
+            <div class="space-y-1.5">
+              <label class="block text-xs font-semibold text-gray-700 dark:text-slate-300">Ferramentas de Formatação ESL</label>
+              <div class="flex flex-wrap items-center gap-1.5 bg-slate-50 dark:bg-slate-950/40 p-2.5 rounded-xl border border-slate-200 dark:border-slate-800">
+                <button
+                  type="button"
+                  @click="handleInsertMarkdownSyntax('bold')"
+                  class="p-1.5 px-2.5 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-[10.5px] font-bold border border-slate-200 dark:border-slate-800 rounded-lg cursor-pointer transition-colors flex items-center gap-1 hover:text-blue-600 dark:hover:text-blue-400"
+                  title="Negrito"
+                >
+                  <Bold class="w-3.5 h-3.5 text-blue-500" /> Bold
+                </button>
+                <button
+                  type="button"
+                  @click="handleInsertMarkdownSyntax('italic')"
+                  class="p-1.5 px-2.5 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-[10.5px] font-bold border border-slate-200 dark:border-slate-800 rounded-lg cursor-pointer transition-colors flex items-center gap-1 hover:text-pink-600 dark:hover:text-pink-400"
+                  title="Itálico"
+                >
+                  <Italic class="w-3.5 h-3.5 text-pink-500" /> Italic
+                </button>
+                <button
+                  type="button"
+                  @click="handleInsertMarkdownSyntax('heading')"
+                  class="p-1.5 px-2.5 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-[10.5px] font-bold border border-slate-200 dark:border-slate-800 rounded-lg cursor-pointer transition-colors flex items-center gap-1 hover:text-indigo-600 dark:hover:text-indigo-400"
+                  title="Subtítulo H3"
+                >
+                  <Heading3 class="w-3.5 h-3.5 text-indigo-500" /> H3
+                </button>
+                <button
+                  type="button"
+                  @click="handleInsertMarkdownSyntax('list')"
+                  class="p-1.5 px-2.5 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-[10.5px] font-bold border border-slate-200 dark:border-slate-800 rounded-lg cursor-pointer transition-colors flex items-center gap-1 hover:text-emerald-600 dark:hover:text-emerald-400"
+                  title="Marcadores"
+                >
+                  <List class="w-3.5 h-3.5 text-emerald-500" /> Lista
+                </button>
+                <button
+                  type="button"
+                  @click="handleInsertMarkdownSyntax('task')"
+                  class="p-1.5 px-2.5 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-[10.5px] font-bold border border-slate-200 dark:border-slate-800 rounded-lg cursor-pointer transition-colors flex items-center gap-1 hover:text-teal-600 dark:hover:text-teal-400"
+                  title="Lista de tarefas"
+                >
+                  <CheckSquare class="w-3.5 h-3.5 text-teal-500" /> Checklist
+                </button>
+                <button
+                  type="button"
+                  @click="handleInsertMarkdownSyntax('dialogue')"
+                  class="p-1.5 px-2.5 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-[10.5px] font-bold border border-slate-200 dark:border-slate-800 rounded-lg cursor-pointer transition-colors flex items-center gap-1 hover:text-amber-600 dark:hover:text-amber-400"
+                  title="Montar Diálogo"
+                >
+                  <MessageSquare class="w-3.5 h-3.5 text-amber-500" /> Diálogo
+                </button>
+                <button
+                  type="button"
+                  @click="handleInsertMarkdownSyntax('table')"
+                  class="p-1.5 px-2.5 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-[10.5px] font-bold border border-slate-200 dark:border-slate-800 rounded-lg cursor-pointer transition-colors flex items-center gap-1 hover:text-purple-600 dark:hover:text-purple-400"
+                  title="Criar Lista Glossária"
+                >
+                  <Table class="w-3.5 h-3.5 text-purple-500" /> Glossário
+                </button>
+                <button
+                  type="button"
+                  @click="handleInsertMarkdownSyntax('alert')"
+                  class="p-1.5 px-2.5 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-[10.5px] font-bold border border-slate-200 dark:border-slate-800 rounded-lg cursor-pointer transition-colors flex items-center gap-1 hover:text-amber-600 dark:hover:text-amber-550"
+                  title="Adicionar Nota / Dica"
+                >
+                  <Lightbulb class="w-3.5 h-3.5 text-amber-550 animate-pulse" /> Dica Box
+                </button>
+                <button
+                  type="button"
+                  @click="handleInsertMarkdownSyntax('quote')"
+                  class="p-1.5 px-2.5 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-[10.5px] font-bold border border-slate-200 dark:border-slate-800 rounded-lg cursor-pointer transition-colors flex items-center gap-1 hover:text-yellow-600 dark:hover:text-yellow-500"
+                  title="Citação"
+                >
+                  <Quote class="w-3.5 h-3.5 text-yellow-500" /> Citação
+                </button>
+                <button
+                  type="button"
+                  @click="handleInsertMarkdownSyntax('code')"
+                  class="p-1.5 px-2.5 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-[10.5px] font-bold border border-slate-200 dark:border-slate-800 rounded-lg cursor-pointer transition-colors flex items-center gap-1 hover:text-rose-600 dark:hover:text-rose-400"
+                  title="Código inline"
+                >
+                  <FileText class="w-3.5 h-3.5 text-rose-500" /> Código
+                </button>
+                <button
+                  type="button"
+                  @click="handleInsertMarkdownSyntax('link')"
+                  class="p-1.5 px-2.5 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-[10.5px] font-bold border border-slate-200 dark:border-slate-800 rounded-lg cursor-pointer transition-colors flex items-center gap-1 hover:text-sky-600 dark:hover:text-sky-400"
+                  title="Inserir Link"
+                >
+                  <LinkIcon class="w-3.5 h-3.5 text-sky-500" /> Link
+                </button>
+                <button
+                  type="button"
+                  @click="handleInsertMarkdownSyntax('rule')"
+                  class="p-1.5 px-2.5 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-[10.5px] font-bold border border-slate-200 dark:border-slate-800 rounded-lg cursor-pointer transition-colors flex items-center gap-1 hover:text-slate-900 dark:hover:text-white"
+                  title="Linha Divisória"
+                >
+                  Divider
+                </button>
+              </div>
             </div>
 
-            <!-- Content Editor Textarea -->
-            <div>
-              <label class="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">Conteúdo da Lição (Suporta Tabelas, Gráficos e Box) *</label>
-              <textarea
-                :id="`textarea-markdown-editor-${activeLessonObject.tempId}`"
-                rows="14"
-                required
-                v-model="activeLessonObject.content"
-                placeholder="Escreva as tabelas de vocubulário, regras gramaticais e exemplos de conversações utilizando as regras de injeção acima..."
-                class="w-full text-xs sm:text-sm bg-white dark:bg-slate-50 border border-gray-200 dark:border-slate-150 rounded-xl p-3.5 focus:ring-1 focus:ring-blue-500 font-mono leading-relaxed text-slate-800 dark:text-white"
-              />
+            <!-- Content Editor Textarea Area with Stats Bar -->
+            <div class="space-y-1">
+              <label class="block text-xs font-semibold text-gray-700 dark:text-slate-300">Conteúdo da Lição (Markdown Estilizado) *</label>
+              <div class="relative flex flex-col border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden focus-within:ring-1 focus-within:ring-blue-500">
+                <textarea
+                  :id="`textarea-markdown-editor-${activeLessonObject.tempId}`"
+                  rows="15"
+                  required
+                  v-model="activeLessonObject.content"
+                  placeholder="Escreva as tabelas de vocubulário, regras gramaticais e exemplos de conversações utilizando as regras de injeção acima..."
+                  class="w-full text-xs sm:text-sm bg-white dark:bg-slate-950 p-4 font-mono leading-relaxed text-slate-800 dark:text-white border-0 focus:ring-0 focus:outline-none"
+                />
+                
+                <!-- Bottom Status Bar -->
+                <div class="bg-slate-50 dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 p-2.5 px-4 flex justify-between items-center text-[10.5px] font-mono text-slate-550 select-none">
+                  <span class="flex items-center gap-1.5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    Salvo localmente
+                  </span>
+                  <span class="font-bold">
+                    {{ wordCount }} palavras • {{ charCount }} caracteres • ~{{ readTime }} min leitura
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -1455,6 +1568,204 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
             </button>
           </div>
         </TransitionGroup>
+      </div>
+    </Teleport>
+
+    <!-- Teleport for Fullscreen Side-by-Side Editor & Preview -->
+    <Teleport to="body">
+      <div v-if="isFullscreen && activeLessonObject" class="fixed inset-0 bg-slate-950 text-slate-100 z-[99999] flex flex-col p-4 sm:p-6 overflow-hidden select-none animate-fadeIn">
+        <!-- Fullscreen Header -->
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 border-b border-slate-850 pb-4">
+          <div class="flex items-center gap-3">
+            <div class="p-2.5 bg-indigo-600 rounded-xl text-white shrink-0">
+              <Sparkles class="w-5 h-5 animate-pulse" />
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="px-2 py-0.5 bg-indigo-950 border border-indigo-900/60 text-indigo-300 text-[9px] font-black uppercase tracking-wider rounded-md">
+                  {{ t('tutor.focusWriting') }}
+                </span>
+                <span class="text-[11px] font-bold text-slate-400 font-mono">
+                  {{ t('tutor.statsCount', { words: wordCount, chars: charCount, time: readTime }) }}
+                </span>
+              </div>
+              <h3 class="text-sm font-black text-white leading-tight mt-1 truncate max-w-sm sm:max-w-md">
+                {{ activeLessonObject.title || (locale === 'pt' ? 'Sem título' : 'Untitled') }}
+              </h3>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2.5">
+            <div class="flex items-center bg-slate-900 border border-slate-800 rounded-xl p-1 shrink-0">
+              <span class="text-xs text-slate-400 px-2 font-bold select-none">{{ t('tutor.lessonTitleLabel') }}</span>
+              <input 
+                type="text" 
+                v-model="activeLessonObject.title"
+                class="bg-slate-950 border-none outline-none text-xs font-bold text-white px-2.5 py-1 rounded-lg w-40 sm:w-60 focus:ring-1 focus:ring-indigo-500"
+              />
+            </div>
+            
+            <button
+              type="button"
+              @click="isFullscreen = false"
+              class="px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl transition-all shadow-xs shrink-0 flex items-center justify-center gap-1.5 cursor-pointer border border-slate-800 active:scale-95"
+            >
+              <Minimize2 class="w-4 h-4 text-amber-500" />
+              {{ t('tutor.exitFullscreen') }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Fullscreen Body (Split-screen Grid) -->
+        <div class="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-6 overflow-hidden min-h-0 mt-5">
+          
+          <!-- Left side: The Advanced Editor -->
+          <div class="flex flex-col overflow-hidden bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3">
+            <div class="flex justify-between items-center border-b border-slate-850 pb-2">
+              <span class="text-[10.5px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+                {{ t('tutor.proMdEditor') }}
+              </span>
+              <span class="text-[9.5px] font-mono text-slate-500">{{ t('tutor.realtimeFormatting') }}</span>
+            </div>
+
+            <!-- Toolbar in Fullscreen -->
+            <div class="flex flex-wrap items-center gap-1.5 bg-slate-950/60 p-2 rounded-xl border border-slate-805">
+              <button
+                type="button"
+                @click="handleInsertMarkdownSyntax('bold')"
+                class="p-1 px-2.5 bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white text-[10px] font-bold border border-slate-800 rounded-md cursor-pointer transition-colors flex items-center gap-1"
+                :title="t('tutor.eslBold')"
+              >
+                <Bold class="w-3.5 h-3.5 text-blue-400" /> {{ t('tutor.eslBold') }}
+              </button>
+              <button
+                type="button"
+                @click="handleInsertMarkdownSyntax('italic')"
+                class="p-1 px-2.5 bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white text-[10px] font-bold border border-slate-800 rounded-md cursor-pointer transition-colors flex items-center gap-1"
+                :title="t('tutor.eslItalic')"
+              >
+                <Italic class="w-3.5 h-3.5 text-pink-400" /> {{ t('tutor.eslItalic') }}
+              </button>
+              <button
+                type="button"
+                @click="handleInsertMarkdownSyntax('heading')"
+                class="p-1 px-2.5 bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white text-[10px] font-bold border border-slate-800 rounded-md cursor-pointer transition-colors flex items-center gap-1"
+                :title="t('tutor.eslH3')"
+              >
+                <Heading3 class="w-3.5 h-3.5 text-indigo-400" /> {{ t('tutor.eslH3') }}
+              </button>
+              <button
+                type="button"
+                @click="handleInsertMarkdownSyntax('list')"
+                class="p-1 px-2.5 bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white text-[10px] font-bold border border-slate-800 rounded-md cursor-pointer transition-colors flex items-center gap-1"
+                :title="t('tutor.eslList')"
+              >
+                <List class="w-3.5 h-3.5 text-emerald-400" /> {{ t('tutor.eslList') }}
+              </button>
+              <button
+                type="button"
+                @click="handleInsertMarkdownSyntax('task')"
+                class="p-1 px-2.5 bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white text-[10px] font-bold border border-slate-800 rounded-md cursor-pointer transition-colors flex items-center gap-1"
+                :title="t('tutor.eslChecklist')"
+              >
+                <CheckSquare class="w-3.5 h-3.5 text-teal-400" /> {{ t('tutor.eslChecklist') }}
+              </button>
+              <button
+                type="button"
+                @click="handleInsertMarkdownSyntax('dialogue')"
+                class="p-1 px-2.5 bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white text-[10px] font-bold border border-slate-800 rounded-md cursor-pointer transition-colors flex items-center gap-1"
+                :title="t('tutor.eslDialogue')"
+              >
+                <MessageSquare class="w-3.5 h-3.5 text-amber-400" /> {{ t('tutor.eslDialogue') }}
+              </button>
+              <button
+                type="button"
+                @click="handleInsertMarkdownSyntax('table')"
+                class="p-1 px-2.5 bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white text-[10px] font-bold border border-slate-800 rounded-md cursor-pointer transition-colors flex items-center gap-1"
+                :title="t('tutor.eslGlossary')"
+              >
+                <Table class="w-3.5 h-3.5 text-purple-400" /> {{ t('tutor.eslGlossary') }}
+              </button>
+              <button
+                type="button"
+                @click="handleInsertMarkdownSyntax('alert')"
+                class="p-1 px-2.5 bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white text-[10px] font-bold border border-slate-800 rounded-md cursor-pointer transition-colors flex items-center gap-1"
+                :title="t('tutor.eslTipBox')"
+              >
+                <Lightbulb class="w-3.5 h-3.5 text-amber-500 animate-bounce" /> {{ t('tutor.eslTipBox') }}
+              </button>
+              <button
+                type="button"
+                @click="handleInsertMarkdownSyntax('quote')"
+                class="p-1 px-2.5 bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white text-[10px] font-bold border border-slate-800 rounded-md cursor-pointer transition-colors flex items-center gap-1"
+                :title="t('tutor.eslQuote')"
+              >
+                <Quote class="w-3.5 h-3.5 text-yellow-500" /> {{ t('tutor.eslQuote') }}
+              </button>
+              <button
+                type="button"
+                @click="handleInsertMarkdownSyntax('code')"
+                class="p-1 px-2.5 bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white text-[10px] font-bold border border-slate-800 rounded-md cursor-pointer transition-colors flex items-center gap-1"
+                :title="t('tutor.eslCode')"
+              >
+                <FileText class="w-3.5 h-3.5 text-rose-400" /> {{ t('tutor.eslCode') }}
+              </button>
+              <button
+                type="button"
+                @click="handleInsertMarkdownSyntax('link')"
+                class="p-1 px-2.5 bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white text-[10px] font-bold border border-slate-800 rounded-md cursor-pointer transition-colors flex items-center gap-1"
+                :title="t('tutor.eslLink')"
+              >
+                <LinkIcon class="w-3.5 h-3.5 text-sky-400" /> {{ t('tutor.eslLink') }}
+              </button>
+              <button
+                type="button"
+                @click="handleInsertMarkdownSyntax('rule')"
+                class="p-1 px-2.5 bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white text-[10px] font-bold border border-slate-800 rounded-md cursor-pointer transition-colors flex items-center gap-1"
+                :title="t('tutor.eslDivider')"
+              >
+                {{ t('tutor.eslDivider') }}
+              </button>
+            </div>
+
+            <!-- Editor Textarea Area in Fullscreen -->
+            <div class="flex-1 flex flex-col min-h-0 relative">
+              <textarea
+                :id="`textarea-markdown-editor-fs-${activeLessonObject.tempId}`"
+                v-model="activeLessonObject.content"
+                :placeholder="locale === 'pt' ? 'Escreva seu material usando markdown...' : 'Write your material using markdown...'"
+                class="w-full flex-1 bg-slate-950 border border-slate-800 rounded-xl p-4.5 font-mono text-xs sm:text-sm leading-relaxed text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500 resize-none overflow-y-auto"
+              />
+              <!-- Bottom Status Indicators inside Fullscreen -->
+              <div class="bg-slate-950 border-t border-slate-800 p-2 px-3 rounded-b-xl flex justify-between items-center text-[10.5px] font-mono text-slate-550">
+                <span class="flex items-center gap-2">
+                  <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                  {{ t('tutor.synchronized') }}
+                </span>
+                <span class="font-bold">
+                  {{ t('tutor.statsCount', { words: wordCount, chars: charCount, time: readTime }) }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right side: Real-time Live Preview -->
+          <div class="flex flex-col overflow-hidden bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3">
+            <div class="flex justify-between items-center border-b border-slate-850 pb-2">
+              <span class="text-[10.5px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+                {{ t('tutor.studentPreviewLive') }}
+              </span>
+              <span class="px-2 py-0.5 bg-emerald-950 text-emerald-400 border border-emerald-900 text-[8.5px] font-black uppercase tracking-wider rounded-md">
+                {{ t('tutor.exactRendering') }}
+              </span>
+            </div>
+
+            <!-- Content preview viewport -->
+            <div class="flex-1 bg-slate-950 border border-slate-800 rounded-xl p-5 overflow-y-auto text-slate-300">
+              <MarkdownRenderer :content="activeLessonObject.content" />
+            </div>
+          </div>
+        </div>
       </div>
     </Teleport>
   </div>

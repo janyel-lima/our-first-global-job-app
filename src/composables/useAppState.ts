@@ -14,7 +14,7 @@ import {
 } from "firebase/firestore";
 import { signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
 import { db, auth, loginWithGoogle, logoutUser, handleFirestoreError, OperationType, activeEnvMode } from "../firebase";
-import { UserProfile, Course, Lesson, ClassTurma, Progress, ChatRoom, ChatMessage } from "../types";
+import { UserProfile, Course, Lesson, ClassTurma, Progress, ChatRoom, ChatMessage, CourseReview } from "../types";
 import { getAlmostWhiteVariant, hexToHsl, hslToHex, generateShades } from "../utils/theme";
 import { 
   sendClassMeetingNotificationEmail 
@@ -110,6 +110,7 @@ const courses = ref<Course[]>(getCachedVal<Course[]>("all_courses_cache", []));
 const lessons = ref<Lesson[]>(getCachedVal<Lesson[]>("all_lessons_cache", []));
 const classes = ref<ClassTurma[]>(getCachedVal<ClassTurma[]>("all_classes_cache", []));
 const progressList = ref<Progress[]>(getCachedVal<Progress[]>("all_progress_snapshots", []));
+const reviews = ref<CourseReview[]>(getCachedVal<CourseReview[]>("all_reviews_cache", []));
 const chatRooms = ref<ChatRoom[]>([]);
 const allUsers = ref<UserProfile[]>([]);
 
@@ -1141,6 +1142,39 @@ export function useAppState() {
     activeTab.value = "chats";
   };
 
+  const handleAddCourseReview = async (courseId: string, rating: number, comment: string) => {
+    const uid = currentUser.value?.uid || "demo-student-uid";
+    const name = userProfile.value?.displayName || currentUser.value?.displayName || "Estudante";
+    const photo = userProfile.value?.photoURL || currentUser.value?.photoURL || "";
+    const reviewId = `review_${uid}_${courseId}`;
+
+    const newReview: CourseReview = {
+      id: reviewId,
+      courseId,
+      userId: uid,
+      userName: name,
+      userPhoto: photo,
+      rating,
+      comment,
+      createdAt: new Date().toLocaleDateString("pt-BR")
+    };
+
+    const reviewCopy = [...reviews.value.filter(r => r.id !== reviewId), newReview];
+    reviews.value = reviewCopy;
+    localStorage.setItem("all_reviews_cache", JSON.stringify(reviewCopy));
+
+    if (isOnline.value && !isDemoUser.value) {
+      try {
+        await setDoc(doc(db, "reviews", reviewId), newReview);
+        showToast("Avaliação enviada com sucesso!", "success");
+      } catch (err) {
+        handleFirestoreError(err, OperationType.WRITE, `reviews/${reviewId}`);
+      }
+    } else {
+      showToast("Avaliação salva localmente (offline)!", "success");
+    }
+  };
+
   return {
     currentUser,
     userProfile,
@@ -1167,6 +1201,7 @@ export function useAppState() {
     lessons,
     classes,
     progressList,
+    reviews,
     chatRooms,
     unreadChatsCount,
     allUsers,
@@ -1202,6 +1237,7 @@ export function useAppState() {
     handleUpdateUserRole,
     handleDeleteUserPhoto,
     handleSelectRoomAndTab,
+    handleAddCourseReview,
     syncOfflineProgress,
     syncOfflineClassActions,
     appNotifications,

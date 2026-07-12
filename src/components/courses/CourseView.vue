@@ -3,11 +3,12 @@ import { ref, watch, computed, onMounted, onUnmounted, nextTick } from 'vue';
 import { BookOpen, CheckCircle, Video, ArrowRight, Award, ChevronLeft, AlertCircle, ShieldCheck, Download, X } from 'lucide-vue-next';
 import MarkdownRenderer from '../common/MarkdownRenderer.vue';
 import { Course, Lesson, Progress } from '../../types';
-import { showToast } from '../../composables/useAppState';
+import { showToast, useAppState } from '../../composables/useAppState';
 import { generateInteractiveHTML } from '../../utils/interactiveHtmlExporter';
 import { useI18n } from '../../composables/useI18n';
 
-const { locale } = useI18n();
+const { locale, t } = useI18n();
+const { reviews, handleAddCourseReview } = useAppState();
 
 const props = defineProps<{
   course: Course;
@@ -30,6 +31,30 @@ const isQuizSubmitted = ref(false);
 const quizScore = ref<number | null>(null);
 const isSubmitting = ref(false);
 const showQuizModal = ref(false);
+
+const studentRating = ref(5);
+const studentComment = ref('');
+const isReviewSubmitting = ref(false);
+
+const myReview = computed(() => {
+  return reviews.value.find(r => r.courseId === props.course.id && r.userId === props.currentUserId);
+});
+
+const submitCourseReview = async () => {
+  if (studentRating.value < 1 || studentRating.value > 5) {
+    showToast(t('courses.reviewWarningStar'), "warning");
+    return;
+  }
+  isReviewSubmitting.value = true;
+  try {
+    await handleAddCourseReview(props.course.id, studentRating.value, studentComment.value);
+    studentComment.value = "";
+  } catch (err) {
+    console.error("Erro ao enviar avaliação:", err);
+  } finally {
+    isReviewSubmitting.value = false;
+  }
+};
 
 const currentLesson = computed(() => props.lessons[activeLessonIndex.value]);
 
@@ -957,6 +982,92 @@ onUnmounted(() => {
           </div>
         </div>
       </Teleport>
+
+      <!-- Course Review Card for Student (após conclusão) -->
+      <div v-if="isCourseFullyCompleted" class="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm text-left space-y-5 animate-fadeIn mt-6">
+        <div class="border-b border-slate-100 dark:border-slate-800 pb-3">
+          <h3 class="text-lg font-black text-slate-900 dark:text-white flex items-center gap-2">
+            <Award class="w-5.5 h-5.5 text-amber-500 shrink-0" />
+            {{ t('courses.reviewTitle') }}
+          </h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400 font-semibold leading-relaxed mt-1">
+            {{ t('courses.reviewDesc') }}
+          </p>
+        </div>
+
+        <!-- Render previous review if already submitted -->
+        <div v-if="myReview" class="p-4 bg-emerald-500/10 dark:bg-emerald-950/20 border border-emerald-500/20 dark:border-emerald-900/30 rounded-xl space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-emerald-800 dark:text-emerald-450 uppercase tracking-wide flex items-center gap-1.5">
+              ✓ {{ t('courses.reviewSuccess') }}
+            </span>
+            <div class="flex text-amber-500 text-sm">
+              <span v-for="i in 5" :key="i">
+                {{ i <= myReview.rating ? '★' : '☆' }}
+              </span>
+            </div>
+          </div>
+          <p v-if="myReview.comment" class="text-xs text-slate-700 dark:text-slate-300 italic font-semibold leading-relaxed pl-1">
+            "{{ myReview.comment }}"
+          </p>
+          <p class="text-[10px] text-slate-400 text-right pr-0.5 select-none">{{ myReview.createdAt }}</p>
+        </div>
+
+        <!-- Render form if not reviewed yet -->
+        <div v-else class="space-y-4">
+          <!-- Star selection -->
+          <div class="space-y-1.5">
+            <label class="text-xs font-black text-slate-705 dark:text-slate-300 uppercase tracking-wider block">
+              {{ t('courses.reviewRatingLabel') }}
+            </label>
+            <div class="flex items-center gap-2">
+              <button
+                v-for="star in 5"
+                :key="star"
+                type="button"
+                @click="studentRating = star"
+                class="text-2xl hover:scale-110 active:scale-95 transition-transform cursor-pointer bg-transparent border-none outline-none p-0 shrink-0"
+              >
+                <span :class="star <= studentRating ? 'text-amber-500' : 'text-slate-300 dark:text-slate-700'">
+                  {{ star <= studentRating ? '★' : '☆' }}
+                </span>
+              </button>
+              <span class="text-xs font-bold text-slate-550 ml-2 select-none dark:text-slate-450">
+                {{ t('courses.reviewStars', { count: studentRating }) }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Comment textarea -->
+          <div class="space-y-1.5">
+            <label class="text-xs font-black text-slate-705 dark:text-slate-300 uppercase tracking-wider block">
+              {{ t('courses.reviewCommentLabel') }}
+            </label>
+            <textarea
+              v-model="studentComment"
+              rows="3"
+              :placeholder="t('courses.reviewPlaceholder')"
+              class="w-full text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 focus:bg-white dark:focus:bg-slate-900 rounded-xl p-3 focus:outline-none focus:ring-1 focus:ring-amber-500 text-slate-800 dark:text-white font-medium"
+            ></textarea>
+          </div>
+
+          <!-- Submit action -->
+          <div class="flex justify-end pt-1">
+            <button
+              type="button"
+              @click="submitCourseReview"
+              :disabled="isReviewSubmitting"
+              class="px-5 py-2.5 text-xs font-black uppercase tracking-wider bg-amber-500 hover:bg-amber-600 active:scale-95 text-white rounded-xl transition-all shadow-xs flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <svg v-if="isReviewSubmitting" class="animate-spin h-3 w-3 text-white" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <span>{{ isReviewSubmitting ? t('courses.reviewSubmitting') : t('courses.submitReview') }}</span>
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
