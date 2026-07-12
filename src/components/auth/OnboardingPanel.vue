@@ -49,12 +49,10 @@ const handleNextOrSubmit = () => {
 
       <div class="text-center space-y-2">
         <h2 class="text-xl font-extrabold text-gray-950 dark:text-white leading-tight">
-          {{ currentStep === 1 ? t('onboarding.title') : (locale === 'pt' ? 'Comunidade de Voluntários' : 'Volunteer
-          Community') }}
+          {{ currentStep === 1 ? t('onboarding.title') : t('onboarding.step2Title') }}
         </h2>
         <p class="text-xs text-gray-500 dark:text-slate-400">
-          {{ currentStep === 1 ? t('onboarding.subtitle') : (locale === 'pt' ? 'Junte-se aos nossos canais oficiais de
-          comunicação e apoio!' : 'Join our official communication and support channels!') }}
+          {{ currentStep === 1 ? t('onboarding.subtitle') : t('onboarding.step2Subtitle') }}
         </p>
       </div>
 
@@ -94,16 +92,16 @@ const handleNextOrSubmit = () => {
               @change="$emit('update:onboardLevel', ($event.target as HTMLSelectElement).value as UserProfile['level'])"
               class="w-full bg-slate-50 dark:bg-slate-800 text-xs sm:text-sm border border-gray-250 dark:border-slate-700 rounded-xl p-3 cursor-pointer text-gray-700 dark:text-slate-200 font-bold">
               <option value="Beginner" class="dark:bg-slate-900">
-                {{ locale === 'pt' ? 'Beginner (Básico)' : 'Beginner (Basic)' }}
+                {{ t('onboarding.beginner') }}
               </option>
               <option value="Intermediate" class="dark:bg-slate-900">
-                {{ locale === 'pt' ? 'Intermediate (Intermediário)' : 'Intermediate' }}
+                {{ t('onboarding.intermediate') }}
               </option>
               <option value="Advanced" class="dark:bg-slate-900">
-                {{ locale === 'pt' ? 'Advanced (Avançado)' : 'Advanced' }}
+                {{ t('onboarding.advanced') }}
               </option>
               <option value="All" class="dark:bg-slate-900">
-                All
+                {{ t('onboarding.all') }}
               </option>
             </select>
           </div>
@@ -117,12 +115,7 @@ const handleNextOrSubmit = () => {
             class="w-full bg-slate-50 dark:bg-slate-800 focus:bg-white dark:focus:bg-slate-755 text-xs sm:text-sm border border-gray-200 dark:border-slate-700 rounded-xl p-3 uppercase font-extrabold text-blue-600"
             :value="onboardCode" @input="$emit('update:onboardCode', ($event.target as HTMLInputElement).value)" />
           <p class="text-[10px] text-gray-400 dark:text-slate-400 font-medium leading-relaxed">
-            {{ locale === 'pt'
-              ? 'Professores e voluntários precisam desse token fornecido pelo administrador voluntário para evitar spam
-            ou intrusões na grade de aulas cadastrada.'
-            : 'Teachers and volunteers need this token provided by the volunteer administrator to prevent spam or
-            intrusions into the registered class schedule.'
-            }}
+            {{ t('onboarding.teacherCodeNote') }}
           </p>
         </div>
 
@@ -135,12 +128,7 @@ const handleNextOrSubmit = () => {
               <span class="font-extrabold text-slate-900 dark:text-slate-100 block text-xs">
                 {{ t('onboarding.termsTitle') }}
               </span>
-              {{ locale === 'pt'
-                ? 'Para prosseguir com o seu cadastro (incluindo via Google), é obrigatório ler e dar consentimento
-              expresso de processamento para fins pedagógicos.'
-              : 'To proceed with your registration (including via Google), it is mandatory to read and give express
-              consent for processing for pedagogical purposes.'
-              }}
+              {{ t('onboarding.consentText') }}
             </div>
           </div>
           <div class="flex justify-between items-center pt-2 border-t border-slate-200 dark:border-slate-800">
@@ -165,7 +153,7 @@ const handleNextOrSubmit = () => {
         <button id="btn-submit-onboarding-next" type="submit" :disabled="!lgpdAccepted"
           class="w-full py-3.5 text-white font-extrabold text-xs sm:text-sm rounded-2xl transition-all cursor-pointer shadow hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed text-center"
           style="background-color: var(--primary-color) !important; color: #ffffff !important;">
-          {{ locale === 'pt' ? 'Avançar para Canais →' : 'Continue to Channels →' }}
+          {{ t('onboarding.continueButton') }}
         </button>
       </div>
 
@@ -186,18 +174,15 @@ const handleNextOrSubmit = () => {
               <div class="flex-1">
                 <h4
                   class="font-extrabold text-xs sm:text-sm text-emerald-950 dark:text-emerald-400 group-hover:underline">
-                  {{ locale === 'pt' ? 'Grupo do WhatsApp' : 'WhatsApp Group' }}
+                  {{ t('onboarding.whatsappTitle') }}
                 </h4>
                 <p class="text-[10px] text-emerald-700/80 dark:text-emerald-500 font-semibold mt-0.5 leading-snug">
-                  {{ locale === 'pt'
-                    ? 'Interação direta de alunos e professores, avisos de aulas e links rápidos.'
-                    : 'Direct interaction for students and teachers, class announcements, and quick links.'
-                  }}
+                  {{ t('onboarding.whatsappDesc') }}
                 </p>
               </div>
               <div
                 class="text-emerald-600 dark:text-emerald-400 font-extrabold text-[10px] uppercase tracking-wider shrink-0 bg-emerald-100 dark:bg-emerald-950 px-2 py-1 rounded-lg">
-                {{ locale === 'pt' ? 'Entrar' : 'Join' }}
+                {{ t('onboarding.joinLabel') }}
               </div>
             </div>
           </a>
@@ -215,18 +200,15 @@ const handleNextOrSubmit = () => {
               </div>
               <div class="flex-1">
                 <h4 class="font-extrabold text-xs sm:text-sm text-sky-950 dark:text-sky-400 group-hover:underline">
-                  {{ locale === 'pt' ? 'Canal do Telegram' : 'Telegram Channel' }}
+                  {{ t('onboarding.telegramTitle') }}
                 </h4>
                 <p class="text-[10px] text-sky-700/80 dark:text-sky-500 font-semibold mt-0.5 leading-snug">
-                  {{ locale === 'pt'
-                    ? 'Materiais adicionais, dicas diárias, áudios e enquetes de vocabulário.'
-                    : 'Additional materials, daily tips, audios, and vocabulary polls.'
-                  }}
+                  {{ t('onboarding.telegramDesc') }}
                 </p>
               </div>
               <div
                 class="text-sky-600 dark:text-sky-400 font-extrabold text-[10px] uppercase tracking-wider shrink-0 bg-sky-100 dark:bg-sky-950 px-2 py-1 rounded-lg">
-                {{ locale === 'pt' ? 'Entrar' : 'Join' }}
+                {{ t('onboarding.joinLabel') }}
               </div>
             </div>
           </a>
@@ -235,7 +217,7 @@ const handleNextOrSubmit = () => {
         <div class="flex gap-3 pt-2">
           <button type="button" @click="currentStep = 1"
             class="flex-1 py-3 text-slate-700 dark:text-slate-300 font-extrabold text-xs sm:text-sm rounded-2xl transition-all border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-850 cursor-pointer text-center">
-            {{ locale === 'pt' ? '← Voltar' : '← Back' }}
+            {{ t('onboarding.backButton') }}
           </button>
           <button id="btn-submit-onboarding" type="submit"
             class="flex-[2] py-3 text-white font-extrabold text-xs sm:text-sm rounded-2xl transition-all cursor-pointer shadow hover:brightness-110 text-center"
