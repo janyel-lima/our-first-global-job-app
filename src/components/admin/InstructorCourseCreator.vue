@@ -958,23 +958,23 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
           <span class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Passo 2: Lições do
             Programa</span>
           <button type="button" @click="handleAddEmptyLesson"
-            class="text-xs font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 hover:bg-blue-100 dark:hover:bg-blue-900/40 px-2.5 py-1 rounded-lg transition-colors flex items-center gap-1 cursor-pointer">
+            class="text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-600 dark:hover:bg-indigo-700 px-3 py-1.5 rounded-lg transition-all flex items-center gap-1 cursor-pointer shadow-sm active:scale-95">
             <Plus class="w-3.5 h-3.5" /> Adicionar Lição
           </button>
         </div>
 
         <!-- Multiple file upload connector -->
         <div
-          class="p-3.5 bg-blue-50/50 dark:bg-slate-50/40 border border-dashed border-blue-200 dark:border-slate-150 rounded-xl text-center space-y-2">
+          class="p-3.5 bg-blue-50/50 dark:bg-indigo-950/30 border border-dashed border-blue-200 dark:border-indigo-800/60 rounded-xl text-center space-y-2">
           <div class="text-center">
-            <UploadCloud class="w-6 h-6 text-blue-500 dark:text-blue-400 mx-auto" />
-            <p class="text-[10.5px] font-bold text-blue-900 dark:text-slate-900 mt-1">Carregar Múltiplos Arquivos .MD
+            <UploadCloud class="w-6 h-6 text-blue-500 dark:text-indigo-450 mx-auto" />
+            <p class="text-[10.5px] font-bold text-blue-900 dark:text-indigo-200 mt-1">Carregar Múltiplos Arquivos .MD
             </p>
-            <p class="text-[9.5px] text-blue-600 dark:text-slate-850">Importe textos prontos com tabelas e diálogos para
+            <p class="text-[9.5px] text-blue-600 dark:text-slate-300">Importe textos prontos com tabelas e diálogos para
               acelerar.</p>
           </div>
           <button type="button" @click="triggerMultiMdUpload"
-            class="px-2.5 py-1 bg-white hover:bg-gray-50 dark:bg-slate-100 dark:hover:bg-slate-150 text-blue-700 dark:text-slate-900 text-[10px] font-bold border border-blue-200 dark:border-slate-200 rounded-lg cursor-pointer transition-colors">
+            class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-600 dark:hover:bg-indigo-700 text-white text-[10px] font-extrabold rounded-lg cursor-pointer transition-all shadow-sm active:scale-95">
             Procurar Arquivos
           </button>
           <input ref="multiFileInputRef" type="file" multiple accept=".md" @change="handleMultiMdUpload"
@@ -995,7 +995,7 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
               <span :class="[
                 'w-5 h-5 rounded text-[10px] font-bold flex items-center justify-center shrink-0 transition-colors',
                 selectedLessonId === less.tempId
-                  ? 'bg-blue-600 text-white dark:bg-indigo-600 dark:text-white'
+                  ? 'bg-indigo-600 text-white dark:bg-indigo-600 dark:text-white'
                   : 'bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300'
               ]">
                 {{ idx + 1 }}
@@ -1003,7 +1003,7 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
               <p :class="[
                 'text-xs font-bold truncate transition-colors',
                 selectedLessonId === less.tempId
-                  ? 'text-blue-900 dark:text-indigo-200 font-black'
+                  ? 'text-indigo-750 dark:text-indigo-200 font-black'
                   : 'text-slate-700 dark:text-slate-300'
               ]">{{ less.title }}</p>
             </div>
@@ -1191,9 +1191,9 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
 
                   <!-- Integrated Fullscreen Button inside the toolbar -->
                   <button type="button" @click="isFullscreen = true"
-                    class="px-2.5 py-1.5 text-[10px] font-black uppercase tracking-wider bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/40 dark:hover:bg-indigo-900/50 border border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 rounded-md transition-all flex items-center gap-1.5 cursor-pointer shadow-3xs shrink-0 self-end sm:self-auto"
+                    class="px-3 py-1.5 text-[10px] font-black uppercase tracking-wider bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-600 dark:hover:bg-indigo-700 text-white rounded-md transition-all flex items-center gap-1.5 cursor-pointer shadow-sm shrink-0 self-end sm:self-auto active:scale-95"
                     title="Abrir editor lado a lado em tela cheia para foco total">
-                    <Maximize2 class="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+                    <Maximize2 class="w-3.5 h-3.5 text-white" />
                     <span>Lado a Lado / Tela Cheia</span>
                   </button>
                 </div>
@@ -1225,7 +1225,7 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
               material em seus respectivos celulares ou computadores. Revise o layout!
             </div>
 
-            <div class="border border-slate-150 dark:border-slate-150 rounded-2xl p-5 bg-white dark:bg-slate-50">
+            <div class="border border-slate-150 dark:border-slate-800 rounded-2xl p-5 bg-white dark:bg-slate-950">
               <MarkdownRenderer :content="activeLessonObject.content" />
             </div>
           </div>
@@ -1233,52 +1233,52 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
           <!-- TAB 3: Quiz Builder -->
           <div v-if="activeLessonTab === 'quiz'" class="space-y-6">
             <div
-              class="bg-slate-50 dark:bg-slate-50 p-4 sm:p-5 rounded-xl border border-slate-200 dark:border-slate-150 space-y-4">
-              <p class="text-xs font-extrabold text-slate-700 dark:text-slate-800 uppercase tracking-wider text-left">
+              class="bg-slate-50 dark:bg-slate-900/60 p-4 sm:p-5 rounded-xl border border-slate-200 dark:border-slate-800 space-y-4">
+              <p class="text-xs font-extrabold text-slate-700 dark:text-slate-200 uppercase tracking-wider text-left">
                 Adicionar Questão de Múltipla Escolha</p>
 
               <div class="space-y-3 text-left">
                 <div>
-                  <label class="block text-xs font-bold text-slate-650 dark:text-slate-805 mb-1">Enunciado da Pergunta
+                  <label class="block text-xs font-bold text-slate-650 dark:text-slate-300 mb-1">Enunciado da Pergunta
                     *</label>
                   <input type="text" v-model="newQuestionText"
                     placeholder="Ex: Qual a tradução mais aceitável de 'How are you doing?' no cotidiano?"
-                    class="w-full text-xs sm:text-sm bg-white dark:bg-slate-100 border border-slate-205 dark:border-slate-150 rounded-lg p-2.5 focus:ring-1 focus:ring-blue-500 text-slate-900 dark:text-white" />
+                    class="w-full text-xs sm:text-sm bg-white dark:bg-slate-950 border border-slate-205 dark:border-slate-800 rounded-lg p-2.5 focus:ring-1 focus:ring-blue-500 text-slate-900 dark:text-white" />
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-650 mb-0.5">Alternativa
+                    <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-0.5">Alternativa
                       A (Opção 1) *</label>
                     <input type="text" v-model="newOption1" placeholder="Ex: Como vai você?"
-                      class="w-full text-xs bg-white dark:bg-slate-100 border border-slate-205 dark:border-slate-150 rounded-lg p-2 focus:ring-1 focus:ring-blue-500 text-slate-900 dark:text-white" />
+                      class="w-full text-xs bg-white dark:bg-slate-950 border border-slate-205 dark:border-slate-800 rounded-lg p-2 focus:ring-1 focus:ring-blue-500 text-slate-900 dark:text-white" />
                   </div>
                   <div>
-                    <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-650 mb-0.5">Alternativa
+                    <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-0.5">Alternativa
                       B (Opção 2) *</label>
                     <input type="text" v-model="newOption2" placeholder="Ex: O que você faz diariamente?"
-                      class="w-full text-xs bg-white dark:bg-slate-100 border border-slate-205 dark:border-slate-150 rounded-lg p-2 focus:ring-1 focus:ring-blue-500 text-slate-900 dark:text-white" />
+                      class="w-full text-xs bg-white dark:bg-slate-950 border border-slate-205 dark:border-slate-800 rounded-lg p-2 focus:ring-1 focus:ring-blue-500 text-slate-900 dark:text-white" />
                   </div>
                   <div>
-                    <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-650 mb-0.5">Alternativa
+                    <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-0.5">Alternativa
                       C (Opção 3)</label>
                     <input type="text" v-model="newOption3" placeholder="Ex: O que você está vestindo?"
-                      class="w-full text-xs bg-white dark:bg-slate-100 border border-slate-205 dark:border-slate-150 rounded-lg p-2 focus:ring-1 focus:ring-blue-500 text-slate-900 dark:text-white" />
+                      class="w-full text-xs bg-white dark:bg-slate-950 border border-slate-205 dark:border-slate-800 rounded-lg p-2 focus:ring-1 focus:ring-blue-500 text-slate-900 dark:text-white" />
                   </div>
                   <div>
-                    <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-650 mb-0.5">Alternativa
+                    <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-0.5">Alternativa
                       D (Opção 4)</label>
                     <input type="text" v-model="newOption4" placeholder="Ex: Onde fica seu trabalho?"
-                      class="w-full text-xs bg-white dark:bg-slate-100 border border-slate-205 dark:border-slate-150 rounded-lg p-2 focus:ring-1 focus:ring-blue-500 text-slate-900 dark:text-white" />
+                      class="w-full text-xs bg-white dark:bg-slate-950 border border-slate-205 dark:border-slate-800 rounded-lg p-2 focus:ring-1 focus:ring-blue-500 text-slate-900 dark:text-white" />
                   </div>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
                   <div class="sm:col-span-1">
-                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-805 mb-1">Qual a opção
+                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Qual a opção
                       correta? *</label>
                     <select v-model="newCorrectIndex"
-                      class="w-full text-xs bg-white dark:bg-slate-100 border border-slate-205 dark:border-slate-150 rounded-lg p-2 focus:ring-1 focus:ring-blue-500 cursor-pointer font-bold text-slate-800 dark:text-slate-800">
+                      class="w-full text-xs bg-white dark:bg-slate-950 border border-slate-205 dark:border-slate-800 rounded-lg p-2 focus:ring-1 focus:ring-blue-500 cursor-pointer font-bold text-slate-800 dark:text-slate-200">
                       <option :value="0">Alternativa A (Opção 1)</option>
                       <option :value="1">Alternativa B (Opção 2)</option>
                       <option :value="2">Alternativa C (Opção 3)</option>
@@ -1287,11 +1287,11 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
                   </div>
 
                   <div class="sm:col-span-2">
-                    <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-650 mb-1">Explicação
+                    <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">Explicação
                       Curta (Feedback Didático)</label>
                     <input type="text" v-model="newExplanation"
                       placeholder="Ex: A expressão 'How are you doing?' é equivalente a 'como vai você?' ou 'tudo bem?'..."
-                      class="w-full text-xs bg-white dark:bg-slate-100 border border-slate-205 dark:border-slate-150 rounded-lg p-2 focus:ring-1 focus:ring-blue-500 text-slate-900 dark:text-white" />
+                      class="w-full text-xs bg-white dark:bg-slate-950 border border-slate-205 dark:border-slate-800 rounded-lg p-2 focus:ring-1 focus:ring-blue-500 text-slate-900 dark:text-white" />
                   </div>
                 </div>
 
@@ -1314,14 +1314,14 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
               </div>
               <div v-else class="space-y-3">
                 <div v-for="(q, qIdx) in activeLessonObject.quiz" :key="qIdx"
-                  class="p-4 bg-white dark:bg-slate-50 border border-slate-200 dark:border-slate-150 rounded-xl space-y-2 relative">
+                  class="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl space-y-2 relative">
                   <button type="button" @click="handleRemoveQuizQuestion(activeLessonObject.tempId, qIdx)"
                     class="absolute top-3 right-3 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 p-1.5 rounded transition-all cursor-pointer"
                     title="Apagar Pergunta">
                     <Trash2 class="w-3.5 h-3.5" />
                   </button>
 
-                  <p class="font-extrabold text-xs text-slate-800 dark:text-slate-800 pr-8">
+                  <p class="font-extrabold text-xs text-slate-800 dark:text-slate-200 pr-8">
                     Q{{ qIdx + 1 }}: {{ q.question }}
                   </p>
 
@@ -1329,8 +1329,8 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
                     <div v-for="(opt, optIdx) in q.options" :key="optIdx" :class="[
                       'p-2 rounded text-[11px] font-medium text-left',
                       q.correctAnswer === optIdx
-                        ? 'bg-emerald-50 dark:bg-emerald-950/35 text-emerald-800 dark:text-emerald-405 font-bold border border-emerald-100 dark:border-emerald-900/50'
-                        : 'bg-slate-50 dark:bg-slate-100 text-slate-500 dark:text-slate-700'
+                        ? 'bg-emerald-50 dark:bg-emerald-950/35 text-emerald-800 dark:text-emerald-400 font-bold border border-emerald-100 dark:border-emerald-900/50'
+                        : 'bg-slate-50 dark:bg-slate-950 text-slate-550 dark:text-slate-300'
                     ]">
                       {{ String.fromCharCode(65 + optIdx) }}) {{ opt }}
                       <span v-if="q.correctAnswer === optIdx"
@@ -1354,7 +1354,7 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
 
     <!-- Submit manual course block -->
     <div
-      class="bg-slate-50 dark:bg-slate-50 p-5 rounded-2xl border border-slate-200 dark:border-slate-150 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-left shadow-2xs">
+      class="bg-slate-50 dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-left shadow-2xs">
       <div>
         <h4 class="font-extrabold text-sm text-slate-900 dark:text-white">Passo 3: Publicação dos Dados</h4>
         <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Certifique-se de que a estrutura esteja impecável
