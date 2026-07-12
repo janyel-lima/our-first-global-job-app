@@ -288,7 +288,7 @@ const handleColorSelect = (e: Event) => {
                 </span>
                 <div class="grid grid-cols-2 gap-2">
                   <!-- WhatsApp -->
-                  <a href="https://chat.whatsapp.com/B5OAkftoHjlAxYb12NRWRA" target="_blank" rel="noopener noreferrer"
+                  <a href="https://chat.whatsapp.com/LiZZEd9O4ko7hYQhXIQq44" target="_blank" rel="noopener noreferrer"
                     class="flex items-center gap-2 p-2 bg-emerald-50/40 hover:bg-emerald-50 dark:bg-emerald-950/10 dark:hover:bg-emerald-950/20 border border-emerald-200/50 dark:border-emerald-800/40 rounded-xl transition-all active:scale-95 group text-left">
                     <div class="p-1.5 bg-emerald-500 rounded-lg text-white shrink-0 shadow-sm shadow-emerald-500/20">
                       <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
