@@ -460,7 +460,8 @@ export function useAppState() {
 
   const completedCountGlobal = computed(() => {
     const uid = currentUser.value?.uid || "demo-student-uid";
-    return progressList.value.filter(p => p.userId === uid && p.certified).length;
+    const activeCourseIds = new Set(courses.value.map(c => c.id));
+    return progressList.value.filter(p => p.userId === uid && p.certified && activeCourseIds.has(p.courseId)).length;
   });
 
   const completedCoursesWithCertificates = computed(() => {
