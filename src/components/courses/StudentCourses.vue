@@ -70,11 +70,11 @@ const filteredCourses = computed(() => {
 });
 
 const filterOptions = computed(() => {
-  const options = [{ value: "All", label: "All" }];
+  const options = [{ value: "All", label: t('courses.filterAll') }];
 
   options.push({
     value: "Beginner",
-    label: locale.value === 'pt' ? 'Beginner (Básico)' : 'Beginner (Basic)'
+    label: t('courses.filterBeginner')
   });
 
   const levelRank: Record<string, number> = { Beginner: 1, Intermediate: 2, Advanced: 3, All: 4 };
@@ -85,13 +85,13 @@ const filterOptions = computed(() => {
   if (userPower >= 2) {
     options.push({
       value: "Intermediate",
-      label: locale.value === 'pt' ? 'Intermediate (Intermediário)' : 'Intermediate'
+      label: t('courses.filterIntermediate')
     });
   }
   if (userPower >= 3) {
     options.push({
       value: "Advanced",
-      label: locale.value === 'pt' ? 'Advanced (Avançado)' : 'Advanced'
+      label: t('courses.filterAdvanced')
     });
   }
   return options;
@@ -142,9 +142,9 @@ const paginatedCourses = computed(() => {
           <div
             class="bg-white/10 dark:bg-white/5 backdrop-blur-xs px-4 py-2 rounded-2xl border border-white/10 dark:border-white/5 shadow-xs">
             <p class="text-xs text-blue-100 dark:text-blue-200 uppercase tracking-wide font-black">
-              {{ locale === 'pt' ? 'Metodologia' : 'Methodology' }}
+              {{ t('courses.methodology') }}
             </p>
-            <p class="text-base font-black text-white">Bilingual / Bilingue</p>
+            <p class="text-base font-black text-white">{{ t('courses.methodologyValue') }}</p>
           </div>
         </div>
       </div>
@@ -187,11 +187,10 @@ const paginatedCourses = computed(() => {
       <div>
         <h3
           class="text-xs sm:text-sm font-black text-slate-900 dark:text-white flex items-center gap-1.5 uppercase tracking-wide">
-          📢 {{ locale === 'pt' ? 'Canais e Comunidades do Projeto' : 'Project Channels & Communities' }}
+          📢 {{ t('community.title') }}
         </h3>
         <p class="text-[10px] text-gray-400 dark:text-gray-500 font-bold mt-0.5">
-          {{ locale === 'pt' ? 'Mantenha-se atualizado com avisos de aulas, materiais extras e links importantes' :
-          'Keep up to date with class schedules, extra materials and important links' }}
+          {{ t('community.subtitle') }}
         </p>
       </div>
 
@@ -207,17 +206,16 @@ const paginatedCourses = computed(() => {
           </div>
           <div class="flex-1 min-w-0">
             <h4 class="font-extrabold text-xs text-emerald-950 dark:text-emerald-400 truncate">
-              {{ locale === 'pt' ? 'Grupo Geral do WhatsApp' : 'General WhatsApp Group' }}
+              {{ t('community.whatsappTitle') }}
             </h4>
             <p
               class="text-[10px] text-emerald-700/80 dark:text-emerald-500 font-semibold mt-0.5 leading-tight line-clamp-2">
-              {{ locale === 'pt' ? 'Fale com professores, marque aulas e tire suas dúvidas na hora.' : 'Talk with
-              teachers, book classes, and ask questions instantly.' }}
+              {{ t('community.whatsappDesc') }}
             </p>
           </div>
           <span
             class="text-emerald-600 dark:text-emerald-400 font-black text-[9px] uppercase tracking-wider shrink-0 bg-emerald-100 dark:bg-emerald-950/85 px-2 py-1 rounded-lg">
-            {{ locale === 'pt' ? 'Acessar' : 'Access' }}
+            {{ t('community.accessLabel') }}
           </span>
         </a>
 
@@ -232,16 +230,15 @@ const paginatedCourses = computed(() => {
           </div>
           <div class="flex-1 min-w-0">
             <h4 class="font-extrabold text-xs text-sky-950 dark:text-sky-400 truncate">
-              {{ locale === 'pt' ? 'Canal Oficial do Telegram' : 'Official Telegram Channel' }}
+              {{ t('community.telegramTitle') }}
             </h4>
             <p class="text-[10px] text-sky-700/80 dark:text-sky-500 font-semibold mt-0.5 leading-tight line-clamp-2">
-              {{ locale === 'pt' ? 'Receba materiais de estudo diários, arquivos em PDF e agendas.' : 'Get daily study
-              materials, PDF files, and schedules.' }}
+              {{ t('community.telegramDesc') }}
             </p>
           </div>
           <span
             class="text-sky-600 dark:text-sky-400 font-black text-[9px] uppercase tracking-wider shrink-0 bg-sky-100 dark:bg-sky-950/85 px-2 py-1 rounded-lg">
-            {{ locale === 'pt' ? 'Acessar' : 'Access' }}
+            {{ t('community.accessLabel') }}
           </span>
         </a>
       </div>
@@ -300,7 +297,8 @@ const paginatedCourses = computed(() => {
 
           <div class="pt-4 border-t border-gray-150 dark:border-slate-700/80 flex items-center justify-between gap-4">
             <p class="text-[10px] text-gray-400 dark:text-gray-500 font-bold">
-              Tutor: <strong class="text-gray-700 dark:text-gray-300">{{ course.creatorName || t('courses.comunitario')
+              {{ t('courses.tutorLabel') }} <strong class="text-gray-700 dark:text-gray-300">{{ course.creatorName ||
+                t('courses.comunitario')
                 }}</strong>
             </p>
 
