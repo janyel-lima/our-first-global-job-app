@@ -965,13 +965,13 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
 
         <!-- Multiple file upload connector -->
         <div
-          class="p-3.5 bg-blue-50/50 dark:bg-indigo-950/30 border border-dashed border-blue-200 dark:border-indigo-800/60 rounded-xl text-center space-y-2">
+          class="p-3.5 bg-slate-50 dark:bg-indigo-950/50 border border-dashed border-slate-300 dark:border-indigo-500/50 rounded-xl text-center space-y-2 transition-colors">
           <div class="text-center">
-            <UploadCloud class="w-6 h-6 text-blue-500 dark:text-indigo-450 mx-auto" />
-            <p class="text-[10.5px] font-bold text-blue-900 dark:text-indigo-200 mt-1">Carregar Múltiplos Arquivos .MD
-            </p>
-            <p class="text-[9.5px] text-blue-600 dark:text-slate-300">Importe textos prontos com tabelas e diálogos para
-              acelerar.</p>
+            <UploadCloud class="w-6 h-6 text-indigo-600 dark:text-indigo-400 mx-auto" />
+            <p class="text-[11px] font-extrabold text-slate-800 dark:text-slate-100 mt-1">Carregar Múltiplos Arquivos
+              .MD</p>
+            <p class="text-[10px] font-medium text-slate-500 dark:text-slate-300">Importe textos prontos com tabelas e
+              diálogos para acelerar.</p>
           </div>
           <button type="button" @click="triggerMultiMdUpload"
             class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-600 dark:hover:bg-indigo-700 text-white text-[10px] font-extrabold rounded-lg cursor-pointer transition-all shadow-sm active:scale-95">
@@ -1010,11 +1010,11 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
 
             <div class="flex items-center gap-1 shrink-0" @click.stop>
               <button type="button" :disabled="idx === 0" @click="handleMoveLesson(idx, 'up')"
-                class="p-0.5 text-slate-400 dark:text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 disabled:opacity-30 cursor-pointer">
+                class="p-1 text-slate-550 dark:text-white hover:text-slate-800 dark:hover:text-indigo-200 disabled:opacity-25 hover:bg-slate-200/50 dark:hover:bg-slate-800 rounded transition-all cursor-pointer">
                 <ArrowUp class="w-3.5 h-3.5" />
               </button>
               <button type="button" :disabled="idx === lessonsList.length - 1" @click="handleMoveLesson(idx, 'down')"
-                class="p-0.5 text-slate-400 dark:text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 disabled:opacity-30 cursor-pointer">
+                class="p-1 text-slate-550 dark:text-white hover:text-slate-800 dark:hover:text-indigo-200 disabled:opacity-25 hover:bg-slate-200/50 dark:hover:bg-slate-800 rounded transition-all cursor-pointer">
                 <ArrowDown class="w-3.5 h-3.5" />
               </button>
               <button type="button" @click="handleRemoveLesson(less.tempId)"
@@ -1062,7 +1062,7 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
 
             <div class="flex items-center gap-2">
               <span
-                class="text-[10px] text-indigo-600 dark:text-indigo-400 font-bold bg-indigo-50 dark:bg-indigo-950/45 px-2.5 py-0.5 rounded-full uppercase tracking-wider border border-transparent dark:border-indigo-900/50">
+                class="text-[10px] text-white font-extrabold bg-indigo-600 dark:bg-indigo-650 px-2.5 py-1 rounded-full uppercase tracking-wider shadow-sm animate-pulse">
                 Rascunho Ativo
               </span>
             </div>
