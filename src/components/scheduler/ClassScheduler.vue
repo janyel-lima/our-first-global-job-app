@@ -737,7 +737,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
     </form>
 
     <!-- Search & Filter Controls for Classes -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 bg-slate-50/70 dark:bg-slate-900/40 p-4 sm:p-5 rounded-2xl border border-gray-150 dark:border-slate-800/80 shadow-3xs">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 bg-slate-500/25 dark:bg-slate-800/50 p-3 sm:p-4 rounded-[24px] border border-gray-300/40 dark:border-slate-700/40 shadow-xs items-center">
       <!-- Search input query -->
       <div class="relative lg:col-span-6 w-full">
         <Search class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-gray-400 dark:text-slate-500" />
@@ -746,25 +746,25 @@ const handleStudentEnter = (cl: ClassTurma) => {
           v-model="classSearchQuery"
           type="text"
           :placeholder="t('scheduler.searchPlaceholder')"
-          class="w-full text-xs sm:text-sm bg-white dark:bg-slate-900 dark:text-white border border-gray-250 dark:border-slate-700 pl-11 pr-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all font-semibold placeholder-gray-400 dark:placeholder-slate-500"
+          class="w-full text-xs sm:text-sm bg-slate-900/95 dark:bg-slate-950/90 text-white border border-slate-800 dark:border-slate-850 pl-11 pr-4 py-3 rounded-[16px] focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all font-semibold placeholder-gray-450 dark:placeholder-slate-500"
         />
       </div>
 
       <!-- Filters & Toggles Wrapper -->
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:col-span-6 items-center w-full">
         <!-- Filter select status -->
-        <div class="relative flex items-center bg-white dark:bg-slate-900 border border-gray-250 dark:border-slate-700 rounded-xl px-3 focus-within:ring-2 focus-within:ring-blue-500/20 transition-all h-[46px]">
+        <div class="relative flex items-center bg-slate-900/95 dark:bg-slate-950/90 border border-slate-800 dark:border-slate-850 rounded-[16px] px-3.5 focus-within:ring-2 focus-within:ring-emerald-500/20 transition-all h-[48px]">
           <Filter class="w-4 h-4 text-gray-400 dark:text-slate-500 shrink-0 mr-2" />
           <select
             id="select-class-status-filter"
             v-model="classStatusFilter"
-            class="flex-1 text-xs sm:text-sm bg-transparent dark:text-white border-0 p-0 pr-6 font-bold cursor-pointer focus:ring-0 focus:outline-none focus:border-0 h-full w-full appearance-none"
+            class="flex-1 text-xs sm:text-sm bg-transparent text-white border-0 p-0 pr-6 font-bold cursor-pointer focus:ring-0 focus:outline-none focus:border-0 h-full w-full appearance-none"
           >
-            <option value="All" class="dark:bg-slate-900">{{ t('scheduler.allClassesFilter') }}</option>
-            <option value="MyClasses" class="dark:bg-slate-900">{{ t('scheduler.myClassesFilter') }}</option>
-            <option value="scheduled" class="dark:bg-slate-900">{{ t('scheduler.statusScheduled') }}</option>
-            <option value="completed" class="dark:bg-slate-900">{{ t('scheduler.statusCompleted') }}</option>
-            <option value="cancelled" class="dark:bg-slate-900">{{ t('scheduler.statusCancelled') }}</option>
+            <option value="All" class="bg-slate-900 text-white">{{ t('scheduler.allClassesFilter') }}</option>
+            <option value="MyClasses" class="bg-slate-900 text-white">{{ t('scheduler.myClassesFilter') }}</option>
+            <option value="scheduled" class="bg-slate-900 text-white">{{ t('scheduler.statusScheduled') }}</option>
+            <option value="completed" class="bg-slate-900 text-white">{{ t('scheduler.statusCompleted') }}</option>
+            <option value="cancelled" class="bg-slate-900 text-white">{{ t('scheduler.statusCancelled') }}</option>
           </select>
           <!-- Custom Chevron Down for Custom Select styling -->
           <div class="pointer-events-none absolute inset-y-0 right-3 flex items-center">
@@ -775,16 +775,16 @@ const handleStudentEnter = (cl: ClassTurma) => {
         </div>
 
         <!-- View mode toggle: List vs Calendar -->
-        <div class="flex items-center gap-1 bg-slate-100 dark:bg-slate-950 p-1 rounded-xl border border-slate-200 dark:border-slate-850 h-[46px] w-full">
+        <div class="flex items-center gap-1 bg-slate-900/95 dark:bg-slate-950/90 p-1 rounded-[16px] border border-slate-800 dark:border-slate-850 h-[48px] w-full">
           <button
             id="btn-view-list"
             type="button"
             @click="viewType = 'list'"
             :class="[
-              'flex-1 flex items-center justify-center gap-1.5 h-full px-3 text-xs font-black rounded-lg transition-all cursor-pointer',
+              'flex-1 flex items-center justify-center gap-1.5 h-full px-3 text-xs font-black rounded-xl transition-all cursor-pointer',
               viewType === 'list'
-                ? 'bg-blue-600 text-white shadow-xs'
-                : 'text-gray-500 dark:text-slate-400 hover:text-gray-950 dark:hover:text-white'
+                ? 'bg-[#0f766e] text-white shadow-xs'
+                : 'text-gray-400 dark:text-slate-500 hover:text-white'
             ]"
           >
             <List class="w-3.5 h-3.5" />
@@ -795,10 +795,10 @@ const handleStudentEnter = (cl: ClassTurma) => {
             type="button"
             @click="viewType = 'calendar'"
             :class="[
-              'flex-1 flex items-center justify-center gap-1.5 h-full px-3 text-xs font-black rounded-lg transition-all cursor-pointer',
+              'flex-1 flex items-center justify-center gap-1.5 h-full px-3 text-xs font-black rounded-xl transition-all cursor-pointer',
               viewType === 'calendar'
-                ? 'bg-blue-600 text-white shadow-xs'
-                : 'text-gray-500 dark:text-slate-400 hover:text-gray-950 dark:hover:text-white'
+                ? 'bg-[#0f766e] text-white shadow-xs'
+                : 'text-gray-400 dark:text-slate-500 hover:text-white'
             ]"
           >
             <CalendarDays class="w-3.5 h-3.5" />
@@ -1025,7 +1025,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
 
             <!-- CALL LINK & PLATFORM VALIDATION SECTION (Only for confirmed students & teachers) -->
             <div class="mt-4 pt-4 border-t border-gray-100 dark:border-slate-700/80">
-              <template v-if="cl.studentIds.includes(currentUserId) || isInstructor">
+              <template v-if="cl.studentIds.includes(currentUserId) || cl.instructorId === currentUserId || isAdmin">
                 <p class="text-[10px] text-gray-400 dark:text-gray-555 uppercase tracking-widest font-black mb-1.5">
                   {{ t('scheduler.broadcastRoom') }}
                 </p>
@@ -1039,7 +1039,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
                       </p>
                       
                       <!-- Presença checkmark for the student -->
-                      <span v-if="!isInstructor && cl.presentStudentIds?.includes(currentUserId)" class="text-[9px] bg-emerald-200 dark:bg-emerald-900/60 font-black text-emerald-800 dark:text-emerald-300 px-1.5 py-0.5 rounded-md">
+                      <span v-if="cl.studentIds.includes(currentUserId) && cl.presentStudentIds?.includes(currentUserId)" class="text-[9px] bg-emerald-200 dark:bg-emerald-900/60 font-black text-emerald-800 dark:text-emerald-300 px-1.5 py-0.5 rounded-md">
                         {{ t('scheduler.attendanceRecorded') }}
                       </span>
                     </div>
@@ -1096,7 +1096,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
             <div class="flex items-center gap-1">
               <!-- Edit capabilities for Instructor or Admin -->
               <button
-                v-if="isInstructor"
+                v-if="isInstructor || isAdmin"
                 :id="`btn-edit-class-${cl.id}`"
                 @click.stop="startEditing(cl)"
                 class="p-2 text-blue-500 hover:bg-blue-55 dark:hover:bg-slate-700/50 rounded-lg transition-colors border border-transparent hover:border-blue-100 dark:hover:border-slate-700 cursor-pointer"
@@ -1107,7 +1107,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
 
               <!-- Tutor delete capability -->
               <button
-                v-if="isInstructor && (isAdmin || cl.instructorId === currentUserId || cl.instructorId === 'system-volunteer')"
+                v-if="(isInstructor || isAdmin) && (isAdmin || cl.instructorId === currentUserId || cl.instructorId === 'system-volunteer')"
                 :id="`btn-delete-class-${cl.id}`"
                 @click.stop="emit('delete-class', cl.id)"
                 :title="t('scheduler.deleteClass')"
@@ -1116,8 +1116,8 @@ const handleStudentEnter = (cl: ClassTurma) => {
                 <Trash2 class="w-4.5 h-4.5" />
               </button>
 
-              <!-- Join / Leave button for standard students -->
-              <template v-if="!isInstructor">
+              <!-- Join / Leave button for standard students or other tutors/admins -->
+              <template v-if="cl.instructorId !== currentUserId">
                 <button
                   v-if="cl.studentIds.includes(currentUserId)"
                   :id="`btn-leave-class-${cl.id}`"
@@ -1144,9 +1144,9 @@ const handleStudentEnter = (cl: ClassTurma) => {
                 </button>
               </template>
 
-              <!-- If instructor, shows joined count or check symbol -->
+              <!-- If the user is the instructor/creator of this class, show my class badge -->
               <span 
-                v-if="isInstructor"
+                v-if="cl.instructorId === currentUserId"
                 class="text-[10px] text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 px-2.5 py-1 rounded-md font-bold flex items-center gap-1"
               >
                 <CheckCircle class="w-3 h-3" /> {{ t('scheduler.myClassLabel') }}
@@ -1155,9 +1155,9 @@ const handleStudentEnter = (cl: ClassTurma) => {
           </div>
         </div>
 
-          <!-- Show confirmed details below if student belongs -->
+          <!-- Show confirmed details below if student/user is enrolled -->
           <div 
-            v-if="!isInstructor && cl.studentIds.includes(currentUserId)"
+            v-if="cl.studentIds.includes(currentUserId)"
             class="mt-3 bg-blue-50/40 dark:bg-slate-850 border border-blue-100/50 dark:border-slate-700/60 rounded-lg p-2.5 text-[11px] text-blue-700 dark:text-blue-300 text-center font-semibold"
           >
             {{ t('scheduler.confirmedAlert') }}
@@ -1931,7 +1931,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
             <h4 class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest leading-none">
               {{ t('scheduler.broadcastRoomLabel') }}
             </h4>
-            <template v-if="activeSelectedClass.studentIds.includes(currentUserId) || isInstructor">
+            <template v-if="activeSelectedClass.studentIds.includes(currentUserId) || activeSelectedClass.instructorId === currentUserId || isAdmin">
               <!-- Case 1: Call URL exists -->
               <div v-if="activeSelectedClass.callUrl" class="p-3 bg-emerald-500/5 dark:bg-emerald-950/10 border border-emerald-500/20 rounded-xl flex items-center justify-between gap-2.5">
                 <div class="text-left">
@@ -1939,7 +1939,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
                     <p class="text-xs font-extrabold text-emerald-800 dark:text-emerald-400 leading-none">
                       {{ t('scheduler.linkAvailableLabel') }}
                     </p>
-                    <span v-if="!isInstructor && activeSelectedClass.presentStudentIds?.includes(currentUserId)" class="text-[9px] bg-emerald-200/50 dark:bg-emerald-900/60 font-black text-emerald-800 dark:text-emerald-300 px-1.5 py-0.5 rounded-md">
+                    <span v-if="activeSelectedClass.studentIds.includes(currentUserId) && activeSelectedClass.presentStudentIds?.includes(currentUserId)" class="text-[9px] bg-emerald-200/50 dark:bg-emerald-900/60 font-black text-emerald-800 dark:text-emerald-300 px-1.5 py-0.5 rounded-md">
                       ✓ {{ t('scheduler.attendanceRecordedLabel') }}
                     </span>
                   </div>
@@ -1995,7 +1995,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
             <div class="flex items-center gap-1.5">
               <!-- Edit capabilities for Instructor or Admin inside details modal -->
               <button
-                v-if="isInstructor"
+                v-if="isInstructor || isAdmin"
                 @click="isEditingInModal = true; startEditing(activeSelectedClass);"
                 class="p-2 text-blue-500 hover:bg-blue-55 dark:hover:bg-slate-800 rounded-lg transition-colors border border-transparent hover:border-blue-100 dark:hover:border-slate-700 cursor-pointer"
                 :title="t('scheduler.editPropertiesTitle')"
@@ -2005,7 +2005,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
 
               <!-- Tutor delete capability inside details modal -->
               <button
-                v-if="isInstructor && (isAdmin || activeSelectedClass.instructorId === currentUserId || activeSelectedClass.instructorId === 'system-volunteer')"
+                v-if="(isInstructor || isAdmin) && (isAdmin || activeSelectedClass.instructorId === currentUserId || activeSelectedClass.instructorId === 'system-volunteer')"
                 @click="emit('delete-class', activeSelectedClass.id); selectedClass = null;"
                 :title="t('scheduler.removeTimeslotTitle')"
                 class="p-2 text-rose-500 hover:bg-rose-55 dark:hover:bg-slate-800 rounded-lg transition-colors border border-transparent hover:border-rose-100 dark:hover:border-slate-700 cursor-pointer"
@@ -2013,8 +2013,8 @@ const handleStudentEnter = (cl: ClassTurma) => {
                 <Trash2 class="w-4.5 h-4.5" />
               </button>
 
-              <!-- Join / Leave button for standard students -->
-              <template v-if="!isInstructor">
+              <!-- Join / Leave button for standard students or other tutors/admins -->
+              <template v-if="activeSelectedClass.instructorId !== currentUserId">
                 <button
                   v-if="activeSelectedClass.studentIds.includes(currentUserId)"
                   @click="emit('leave-class', activeSelectedClass.id); selectedClass = null;"
@@ -2039,7 +2039,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
                 </button>
               </template>
               <span 
-                v-else
+                v-if="activeSelectedClass.instructorId === currentUserId"
                 class="text-[10px] text-emerald-650 dark:text-emerald-400 bg-emerald-500/5 dark:bg-emerald-950/30 px-2.5 py-1.5 rounded-lg border border-emerald-500/15 font-black flex items-center gap-1"
               >
                 <CheckCircle class="w-3.5 h-3.5" /> {{ t('scheduler.myClassLabel') }}
@@ -2049,7 +2049,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
 
           <!-- Bottom Alert Banner -->
           <div 
-            v-if="!isInstructor && activeSelectedClass.studentIds.includes(currentUserId)"
+            v-if="activeSelectedClass.studentIds.includes(currentUserId)"
             class="bg-blue-500/5 dark:bg-slate-950/20 border border-blue-500/20 rounded-xl p-3 text-xs text-blue-600 dark:text-blue-300 text-center font-bold"
           >
             {{ t('scheduler.confirmedAlert') }}
