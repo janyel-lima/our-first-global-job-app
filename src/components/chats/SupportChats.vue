@@ -205,6 +205,90 @@ const formatMessageTime = (dateStr: string) => {
   }
 };
 
+// Only hours and minutes for message bubbles
+const formatMessageOnlyTime = (dateStr: string) => {
+  if (!dateStr) return '';
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) {
+      if (dateStr.includes(', ')) {
+        return dateStr.split(', ')[1];
+      }
+      return dateStr;
+    }
+    return d.toLocaleTimeString(locale.value === 'pt' ? 'pt-BR' : 'en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    });
+  } catch (e) {
+    return dateStr;
+  }
+};
+
+// Message grouping helpers
+const getMessageDateKey = (dateStr: string): string => {
+  if (!dateStr) return 'unknown';
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return 'unknown';
+    return d.toISOString().split('T')[0]; // "YYYY-MM-DD"
+  } catch (e) {
+    return 'unknown';
+  }
+};
+
+const getFriendlyDateLabel = (dateKey: string) => {
+  if (dateKey === 'unknown') return '';
+  try {
+    const today = new Date();
+    const todayStr = today.toISOString().split('T')[0];
+
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = yesterday.toISOString().split('T')[0];
+
+    if (dateKey === todayStr) {
+      return locale.value === 'pt' ? 'Hoje' : 'Today';
+    }
+    if (dateKey === yesterdayStr) {
+      return locale.value === 'pt' ? 'Ontem' : 'Yesterday';
+    }
+
+    const parts = dateKey.split('-');
+    const year = parseInt(parts[0]);
+    const month = parseInt(parts[1]) - 1;
+    const day = parseInt(parts[2]);
+    const date = new Date(year, month, day);
+
+    return date.toLocaleDateString(locale.value === 'pt' ? 'pt-BR' : 'en-US', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    });
+  } catch (e) {
+    return dateKey;
+  }
+};
+
+const groupedMessages = computed(() => {
+  const groups: { dateLabel: string; messages: ChatMessage[] }[] = [];
+
+  props.activeMessages.forEach(msg => {
+    const dateKey = getMessageDateKey(msg.createdAt);
+    const dateLabel = getFriendlyDateLabel(dateKey) || msg.createdAt || 'Info';
+
+    let group = groups.find(g => g.dateLabel === dateLabel);
+    if (!group) {
+      group = { dateLabel, messages: [] };
+      groups.push(group);
+    }
+    group.messages.push(msg);
+  });
+
+  return groups;
+});
+
 const getRoomUnreadCount = (room: ChatRoom): number => {
   if (room.status !== 'open') return 0;
   if (room.id === props.selectedRoomId) return 0;
@@ -464,27 +548,40 @@ const isRoomUnread = (room: ChatRoom) => {
             {{ t('chat.emptyChannel') }}
           </div>
 
-          <div v-else v-for="msg in activeMessages" :key="msg.id"
-            :class="['flex flex-col', msg.senderId === currentUserId ? 'items-end' : 'items-start', 'w-full']">
-            <div :class="[
-              'max-w-[85%] sm:max-w-[75%] rounded-2xl px-3.5 pb-5 pt-2 text-xs shadow-3xs relative transition-all duration-200',
-              msg.senderId === currentUserId
-                ? 'bg-blue-600 text-white rounded-tr-none'
-                : 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-tl-none border border-slate-100 dark:border-slate-700/50'
-            ]">
-              <span v-if="msg.senderId !== currentUserId"
-                class="text-[10px] font-black tracking-tight block mb-1 text-blue-600 dark:text-blue-400">
-                {{ msg.senderName }}
-              </span>
-              <p class="leading-relaxed whitespace-pre-wrap select-text selection:bg-blue-200">{{ msg.text }}</p>
+          <template v-else>
+            <div v-for="group in groupedMessages" :key="group.dateLabel" class="space-y-4">
+              <!-- Sticky WhatsApp/Telegram Style Date Divider -->
+              <div class="flex justify-center my-4 sticky top-1 z-10">
+                <span
+                  class="bg-gray-100/90 dark:bg-slate-800/95 backdrop-blur-xs text-gray-500 dark:text-slate-400 text-[10px] font-extrabold px-3.5 py-1 rounded-full border border-gray-200/50 dark:border-slate-700/60 shadow-3xs uppercase tracking-wider select-none">
+                  {{ group.dateLabel }}
+                </span>
+              </div>
 
-              <!-- Micro timestamp inside the bubble -->
-              <span :class="[
-                'text-[8px] font-mono font-bold absolute bottom-1 right-2.5 select-none opacity-80',
-                msg.senderId === currentUserId ? 'text-blue-100' : 'text-slate-400 dark:text-slate-500'
-              ]">{{ formatMessageTime(msg.createdAt) }}</span>
+              <!-- Messages for this day -->
+              <div v-for="msg in group.messages" :key="msg.id"
+                :class="['flex flex-col', msg.senderId === currentUserId ? 'items-end' : 'items-start', 'w-full mb-3']">
+                <div :class="[
+                  'max-w-[85%] sm:max-w-[75%] rounded-2xl px-3.5 pb-5 pt-2 text-xs shadow-3xs relative transition-all duration-200',
+                  msg.senderId === currentUserId
+                    ? 'bg-blue-600 text-white rounded-tr-none'
+                    : 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-tl-none border border-slate-100 dark:border-slate-700/50'
+                ]">
+                  <span v-if="msg.senderId !== currentUserId"
+                    class="text-[10px] font-black tracking-tight block mb-1 text-blue-600 dark:text-blue-400">
+                    {{ msg.senderName }}
+                  </span>
+                  <p class="leading-relaxed whitespace-pre-wrap select-text selection:bg-blue-200">{{ msg.text }}</p>
+
+                  <!-- Micro timestamp inside the bubble (Hours and minutes only) -->
+                  <span :class="[
+                    'text-[8px] font-mono font-bold absolute bottom-1 right-2.5 select-none opacity-80',
+                    msg.senderId === currentUserId ? 'text-blue-100' : 'text-slate-400 dark:text-slate-500'
+                  ]">{{ formatMessageOnlyTime(msg.createdAt) }}</span>
+                </div>
+              </div>
             </div>
-          </div>
+          </template>
         </div>
 
         <!-- Send messaging panel with Portuguese Emoji Picker and Image Security warning -->
