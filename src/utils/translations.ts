@@ -259,6 +259,9 @@ export const translations: Record<Locale, Record<string, any>> = {
       typeMessagePlaceholder: "Digite sua dúvida ou resposta pedagógica aqui...",
       archivedChannel: "✔️ Este canal foi concluído e arquivado. Ótimo trabalho!",
       supportHeader: "Suporte Integrado Professor & Estudante",
+      defaultProfessor: "Professor Voluntário",
+      connectionAlertDesc: "Pergunte qualquer dúvida sobre o conteúdo e receba uma resposta inteligente automática do seu professor voluntário em tempo real!",
+      emptyStateDesc: "Selecione uma sala de conversa na lateral para ler as mensagens e responder, ou relate sua dúvida acadêmica sobre os cursos.",
     },
     progress: {
       title: "Meu Painel de Progresso",
@@ -840,6 +843,9 @@ export const translations: Record<Locale, Record<string, any>> = {
       typeMessagePlaceholder: "Type your question or educational response here...",
       archivedChannel: "✔️ This channel has been closed and archived. Great job!",
       supportHeader: "Integrated Instructor & Student Support",
+      defaultProfessor: "Volunteer Instructor",
+      connectionAlertDesc: "Ask any questions about the content and receive an automatic smart reply from your volunteer instructor in real-time!",
+      emptyStateDesc: "Select a conversation room on the side to read messages and reply, or report your academic question about courses.",
     },
     progress: {
       title: "My Progress Dashboard",

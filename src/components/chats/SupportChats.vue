@@ -95,7 +95,7 @@ const activeRoom = computed(() => {
 
 const getProfessorNameForRoom = (room: ChatRoom) => {
   const course = props.courses.find(c => c.id === room.courseId);
-  return course ? course.creatorName : "Professor Voluntário";
+  return course ? course.creatorName : t('chat.defaultProfessor');
 };
 
 // Computed list applying search and dropdown filters
@@ -436,12 +436,7 @@ const isRoomUnread = (room: ChatRoom) => {
           <Smile class="w-4 h-4 text-blue-500 dark:text-blue-400 shrink-0 mt-0.5" />
           <span>
             <strong>{{ t('chat.connectionAlert') }}</strong>
-            {{ locale === 'pt'
-              ? 'Pergunte qualquer dúvida sobre o conteúdo e receba uma resposta inteligente automática do seu professor
-            voluntário em tempo real!'
-            : 'Ask any questions about the content and receive an automatic smart reply from your volunteer instructor
-              in real -time!'
-            }}
+            {{ t('chat.connectionAlertDesc') }}
           </span>
         </div>
 
@@ -546,13 +541,7 @@ const isRoomUnread = (room: ChatRoom) => {
           {{ t('chat.supportHeader') }}
         </h4>
         <p class="text-xs max-w-sm text-gray-500 dark:text-slate-400 font-semibold leading-relaxed">
-          {{ locale === 'pt'
-            ? 'Selecione uma sala de conversa na lateral para ler as mensagens e responder, ou relate sua dúvida acadêmica
-          sobre
-          os cursos.'
-          : 'Select a conversation room on the side to read messages and reply, or report your academic question about
-          courses.'
-          }}
+          {{ t('chat.emptyStateDesc') }}
         </p>
       </div>
     </div>
