@@ -401,18 +401,23 @@ const isRoomUnread = (room: ChatRoom) => {
     ]">
       <template v-if="selectedRoomId && activeRoom">
         <!-- Active chat header -->
-        <div class="border-b border-slate-100 dark:border-slate-800 pb-3 flex items-center justify-between shrink-0">
-          <div class="flex items-center gap-3">
+        <div
+          class="border-b border-slate-100 dark:border-slate-800 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shrink-0">
+          <div class="flex items-start gap-2.5 min-w-0 flex-1">
+            <!-- Sleek back button (WhatsApp/Telegram style) -->
             <button id="btn-chat-mobile-back" type="button" @click="emit('select-room', null)"
-              class="md:hidden p-2 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-850 text-slate-700 dark:text-slate-300 transition-colors flex items-center gap-1 shrink-0 cursor-pointer">
-              <ChevronLeft class="w-4 h-4" />
-              <span class="text-xs font-bold">{{ t('chat.back') }}</span>
+              class="md:hidden p-1.5 rounded-full border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-850 text-slate-700 dark:text-slate-300 transition-colors flex items-center justify-center shrink-0 cursor-pointer mt-0.5"
+              :title="t('chat.back')">
+              <ChevronLeft class="w-5 h-5" />
             </button>
-            <div>
+            <div class="min-w-0 flex-1">
               <span
-                class="text-[9px] text-blue-600 dark:text-blue-300 font-extrabold uppercase tracking-widest bg-blue-50 dark:bg-blue-950/40 px-2 py-0.5 rounded">{{
-                  activeRoom.courseTitle }}</span>
-              <h4 class="font-black text-sm text-gray-950 dark:text-white mt-1.5">{{ activeRoom.topic }}</h4>
+                class="text-[9px] text-blue-600 dark:text-blue-300 font-extrabold uppercase tracking-widest bg-blue-50 dark:bg-blue-950/40 px-2 py-0.5 rounded block w-fit truncate max-w-full">
+                {{ activeRoom.courseTitle }}
+              </span>
+              <h4 class="font-black text-sm text-gray-950 dark:text-white mt-1 line-clamp-2" :title="activeRoom.topic">
+                {{ activeRoom.topic }}
+              </h4>
               <div class="flex items-center gap-1.5 text-[10px] text-slate-400 dark:text-slate-400 font-medium mt-0.5">
                 <User class="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 shrink-0" />
                 <span v-if="!isInstructor">{{ t('chat.professorLabel') }}{{ getProfessorNameForRoom(activeRoom)
@@ -424,7 +429,7 @@ const isRoomUnread = (room: ChatRoom) => {
 
           <button v-if="activeRoom.status === 'open' && (isInstructor || activeRoom.studentId === currentUserId)"
             id="btn-resolve-chat" @click="emit('resolve-room', activeRoom.id)"
-            class="flex items-center gap-1 px-3 py-2 border border-emerald-200 dark:border-emerald-900/40 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 text-[10px] font-black uppercase tracking-wider rounded-xl transition shadow-3xs cursor-pointer select-none">
+            class="flex items-center justify-center gap-1.5 px-3 py-1.5 border border-emerald-200 dark:border-emerald-900/40 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 text-[10px] font-black uppercase tracking-wider rounded-xl transition shadow-3xs cursor-pointer select-none shrink-0 self-end sm:self-center">
             <CheckCircle2 class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
             {{ t('chat.resolveBtn') }}
           </button>
@@ -441,7 +446,8 @@ const isRoomUnread = (room: ChatRoom) => {
         </div>
 
         <!-- Dynamic Message History with Lazy Load Trigger -->
-        <div ref="messagesContainerRef" class="flex-grow overflow-y-auto py-4 space-y-4 px-1 relative">
+        <div ref="messagesContainerRef"
+          class="flex-grow overflow-y-auto py-4 space-y-4 px-3 relative bg-[#efeae2]/10 dark:bg-slate-950/30 border border-slate-100/55 dark:border-slate-800/80 rounded-2xl my-2.5">
 
           <!-- History / Lazy loading action trigger indicator -->
           <div v-if="activeMessages.length >= messagesLimit"
@@ -459,21 +465,25 @@ const isRoomUnread = (room: ChatRoom) => {
           </div>
 
           <div v-else v-for="msg in activeMessages" :key="msg.id"
-            :class="['flex flex-col', msg.senderId === currentUserId ? 'items-end' : 'items-start']">
+            :class="['flex flex-col', msg.senderId === currentUserId ? 'items-end' : 'items-start', 'w-full']">
             <div :class="[
-              'max-w-[80%] rounded-2xl px-4 py-2.5 text-xs shadow-4xs',
+              'max-w-[85%] sm:max-w-[75%] rounded-2xl px-3.5 pb-5 pt-2 text-xs shadow-3xs relative transition-all duration-200',
               msg.senderId === currentUserId
-                ? 'bg-blue-600 border border-blue-500 text-white rounded-tr-none'
-                : 'bg-slate-100 border border-slate-200/55 text-slate-800 dark:bg-slate-800 dark:border-slate-705 dark:text-slate-100 rounded-bl-none'
+                ? 'bg-blue-600 text-white rounded-tr-none'
+                : 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-tl-none border border-slate-100 dark:border-slate-700/50'
             ]">
-              <span v-if="msg.senderId !== currentUserId" class="text-[10px] font-black tracking-tight block mb-1"
-                :style="{ color: isDarkMode ? '#38bdf8' : 'var(--primary-color, #1d4ed8)' }">
+              <span v-if="msg.senderId !== currentUserId"
+                class="text-[10px] font-black tracking-tight block mb-1 text-blue-600 dark:text-blue-400">
                 {{ msg.senderName }}
               </span>
               <p class="leading-relaxed whitespace-pre-wrap select-text selection:bg-blue-200">{{ msg.text }}</p>
+
+              <!-- Micro timestamp inside the bubble -->
+              <span :class="[
+                'text-[8px] font-mono font-bold absolute bottom-1 right-2.5 select-none opacity-80',
+                msg.senderId === currentUserId ? 'text-blue-100' : 'text-slate-400 dark:text-slate-500'
+              ]">{{ formatMessageTime(msg.createdAt) }}</span>
             </div>
-            <span class="text-[8px] text-slate-400 dark:text-slate-500 mt-1 mx-1.5 font-mono font-bold">{{
-              formatMessageTime(msg.createdAt) }}</span>
           </div>
         </div>
 
@@ -482,7 +492,7 @@ const isRoomUnread = (room: ChatRoom) => {
 
           <!-- Advanced Portuguese Emoji Picker Popover Modal -->
           <div v-if="showEmojiPicker"
-            class="absolute bottom-14 right-0 left-0 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-2xl rounded-2xl p-4 z-50 animate-fadeIn flex flex-col">
+            class="absolute bottom-16 right-0 left-0 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-2xl rounded-2xl p-4 z-50 animate-fadeIn flex flex-col">
             <div
               class="flex justify-between items-center pb-2 border-b border-slate-100 dark:border-slate-800 mb-2 shrink-0">
               <span
@@ -509,21 +519,25 @@ const isRoomUnread = (room: ChatRoom) => {
           </p>
 
           <form v-if="activeRoom.status === 'open'" id="form-chat-send-message" @submit.prevent="handleSend"
-            class="flex gap-2 items-center">
-            <!-- Toggle Emoji Picker Button -->
-            <button id="btn-toggle-emoji-picker" type="button" @click="showEmojiPicker = !showEmojiPicker"
-              class="p-2.5 border border-gray-250 border-gray-200 hover:border-gray-300 dark:border-slate-705 text-gray-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 rounded-xl transition hover:bg-slate-50 dark:hover:bg-slate-850 cursor-pointer shrink-0"
-              :title="t('chat.insertEmoji')">
-              <Smile class="w-4.5 h-4.5" />
-            </button>
+            class="flex gap-2 items-center w-full">
+            <!-- Integrated Input Field with Emoji Button inside -->
+            <div
+              class="flex-1 flex items-center bg-slate-50 hover:bg-slate-100/30 dark:bg-slate-850 dark:hover:bg-slate-800 border border-gray-200 dark:border-slate-755 rounded-2xl px-2.5 py-1.5 focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:bg-white dark:focus-within:bg-slate-900 transition-all">
+              <!-- Integrated Emoji Picker Button inside -->
+              <button id="btn-toggle-emoji-picker" type="button" @click="showEmojiPicker = !showEmojiPicker"
+                class="p-1.5 text-gray-400 hover:text-gray-600 dark:text-slate-400 dark:hover:text-slate-200 rounded-xl transition cursor-pointer shrink-0"
+                :title="t('chat.insertEmoji')">
+                <Smile class="w-5 h-5" />
+              </button>
 
-            <input id="input-chat-message-text" type="text" :placeholder="t('chat.typeMessagePlaceholder')"
-              v-model="messageInput" autocomplete="off"
-              class="flex-1 text-xs sm:text-xs bg-slate-50 hover:bg-slate-100/30 dark:bg-slate-850 dark:hover:bg-slate-800 dark:focus:bg-slate-900 focus:bg-white border border-gray-200 dark:border-slate-755 text-gray-900 dark:text-white font-medium placeholder-gray-400 dark:placeholder-slate-500 rounded-xl py-2.5 px-3.5 focus:outline-none focus:ring-2 focus:ring-blue-500/20" />
+              <input id="input-chat-message-text" type="text" :placeholder="t('chat.typeMessagePlaceholder')"
+                v-model="messageInput" autocomplete="off"
+                class="flex-1 text-xs sm:text-xs bg-transparent border-0 focus:ring-0 focus:outline-hidden py-1 px-1.5 text-gray-900 dark:text-white font-medium placeholder-gray-400 dark:placeholder-slate-500" />
+            </div>
 
             <button id="btn-chat-send-message" type="submit"
-              class="px-5 py-2.5 bg-blue-600 hover:bg-blue-750 text-white rounded-xl transition-all shadow-sm flex items-center justify-center shrink-0 cursor-pointer active:scale-95">
-              <Send class="w-4 h-4" />
+              class="p-3 bg-blue-600 hover:bg-blue-750 text-white rounded-2xl transition-all shadow-sm flex items-center justify-center shrink-0 cursor-pointer active:scale-95">
+              <Send class="w-4.5 h-4.5" />
             </button>
           </form>
 
