@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
 import { Users, Calendar, Plus, Trash2, Clock, Check, LogOut, CheckCircle, Edit, ExternalLink, Search, Filter, ChevronLeft, ChevronRight, List, X, Info, CalendarDays } from 'lucide-vue-next';
-import { ClassTurma, Course } from '../../types';
+import { ClassTurma, Course, UserProfile } from '../../types';
 import { useI18n } from '../../composables/useI18n';
 
 const { t, locale } = useI18n();
@@ -10,6 +10,7 @@ const { t, locale } = useI18n();
 const props = defineProps<{
   classes: ClassTurma[];
   courses: Course[];
+  users?: UserProfile[];
   currentUserId: string;
   userDisplayName: string;
   isInstructor: boolean;
@@ -25,6 +26,7 @@ const emit = defineEmits<{
   (e: 'delete-class', classId: string): void;
   (e: 'update-class', updatedClass: ClassTurma): void;
   (e: 'mark-presence', classId: string): void;
+  (e: 'start-chat-room', courseId: string, topic: string, classId?: string): void;
 }>();
 
 const showAddForm = ref(false);
@@ -53,6 +55,7 @@ const editScheduledTime = ref('');
 // Advanced search, level filtering and pagination states
 const classSearchQuery = ref('');
 const classStatusFilter = ref('All');
+const classEventTypeFilter = ref('All');
 const classCurrentPage = ref(1);
 const classItemsPerPage = ref(6);
 
@@ -87,7 +90,13 @@ const filteredClasses = computed(() => {
       matchesFilter = cl.status === classStatusFilter.value;
     }
 
-    return matchesQuery && matchesFilter;
+    let matchesEventType = true;
+    if (classEventTypeFilter.value !== "All") {
+      const et = cl.eventType || "aula";
+      matchesEventType = et === classEventTypeFilter.value;
+    }
+
+    return matchesQuery && matchesFilter && matchesEventType;
   });
 });
 
@@ -108,8 +117,8 @@ const allowedCourses = computed(() => {
   return props.courses.filter(c => c.creatorId === props.currentUserId);
 });
 
-// Reset page when search or status filter changes
-watch([classSearchQuery, classStatusFilter], () => {
+// Reset page when search, status, or event type filter changes
+watch([classSearchQuery, classStatusFilter, classEventTypeFilter], () => {
   classCurrentPage.value = 1;
 });
 
@@ -357,6 +366,46 @@ watch(selectedClass, (val) => {
     isEditingInModal.value = false;
   }
 });
+
+const studentPage = ref(1);
+const studentPageSize = ref(3);
+
+watch(() => activeSelectedClass.value?.id, () => {
+  studentPage.value = 1;
+});
+
+const enrolledStudentsOfClass = computed(() => {
+  if (!activeSelectedClass.value) return [];
+  const sIds = activeSelectedClass.value.studentIds || [];
+  const allU = props.users || [];
+  return sIds.map(uid => {
+    const u = allU.find(user => user.uid === uid);
+    return u || {
+      uid,
+      displayName: "Estudante",
+      email: "estudante@email.com",
+      level: "Beginner" as const,
+      isInstructor: false
+    };
+  });
+});
+
+const paginatedStudents = computed(() => {
+  const start = (studentPage.value - 1) * studentPageSize.value;
+  const end = start + studentPageSize.value;
+  return enrolledStudentsOfClass.value.slice(start, end);
+});
+
+const totalStudentPages = computed(() => {
+  return Math.ceil(enrolledStudentsOfClass.value.length / studentPageSize.value) || 1;
+});
+
+const handleStartDoubtChat = (student: any) => {
+  if (!activeSelectedClass.value) return;
+  const courseId = activeSelectedClass.value.courseId || 'custom-class';
+  const topic = `Dúvida One on One: ${activeSelectedClass.value.courseTitle}`;
+  emit('start-chat-room', courseId, topic, activeSelectedClass.value.id);
+};
 
 const handleCreate = async () => {
   if (!scheduledAt.value || !scheduledHour.value) return;
@@ -737,54 +786,81 @@ const handleStudentEnter = (cl: ClassTurma) => {
     </form>
 
     <!-- Search & Filter Controls for Classes -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 bg-slate-500/25 dark:bg-slate-800/50 p-3 sm:p-4 rounded-[24px] border border-gray-300/40 dark:border-slate-700/40 shadow-xs items-center">
+    <div class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 bg-slate-50 dark:bg-slate-850 p-4 rounded-[24px] border border-gray-150 dark:border-slate-800 shadow-3xs">
       <!-- Search input query -->
-      <div class="relative lg:col-span-6 w-full">
-        <Search class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-gray-400 dark:text-slate-500" />
+      <div class="relative flex-1 min-w-0">
+        <Search class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-slate-500" />
         <input
           id="input-class-search"
           v-model="classSearchQuery"
           type="text"
           :placeholder="t('scheduler.searchPlaceholder')"
-          class="w-full text-xs sm:text-sm bg-slate-900/95 dark:bg-slate-950/90 text-white border border-slate-800 dark:border-slate-850 pl-11 pr-4 py-3 rounded-[16px] focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all font-semibold placeholder-gray-450 dark:placeholder-slate-500"
+          class="w-full text-xs sm:text-sm bg-white dark:bg-slate-900 text-gray-900 dark:text-white border border-gray-250 dark:border-slate-700 pl-10 pr-4 py-2.5 rounded-xl focus:ring-2 focus:ring-blue-500 font-semibold placeholder-gray-400 dark:placeholder-gray-500"
         />
       </div>
 
       <!-- Filters & Toggles Wrapper -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:col-span-6 items-center w-full">
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0">
         <!-- Filter select status -->
-        <div class="relative flex items-center bg-slate-900/95 dark:bg-slate-950/90 border border-slate-800 dark:border-slate-850 rounded-[16px] px-3.5 focus-within:ring-2 focus-within:ring-emerald-500/20 transition-all h-[48px]">
-          <Filter class="w-4 h-4 text-gray-400 dark:text-slate-500 shrink-0 mr-2" />
+        <div class="relative flex items-center bg-white dark:bg-slate-900 border border-gray-250 dark:border-slate-700 rounded-xl px-3 py-2.5 focus-within:ring-2 focus-within:ring-blue-500 min-w-[140px] h-[40px]">
+          <Filter class="w-3.5 h-3.5 text-gray-400 dark:text-slate-500 mr-1.5 shrink-0" />
           <select
             id="select-class-status-filter"
             v-model="classStatusFilter"
-            class="flex-1 text-xs sm:text-sm bg-transparent text-white border-0 p-0 pr-6 font-bold cursor-pointer focus:ring-0 focus:outline-none focus:border-0 h-full w-full appearance-none"
+            class="text-xs font-bold text-gray-800 dark:text-white bg-transparent border-0 p-0 pr-6 cursor-pointer focus:ring-0 focus:outline-hidden h-full w-full appearance-none"
           >
-            <option value="All" class="bg-slate-900 text-white">{{ t('scheduler.allClassesFilter') }}</option>
-            <option value="MyClasses" class="bg-slate-900 text-white">{{ t('scheduler.myClassesFilter') }}</option>
-            <option value="scheduled" class="bg-slate-900 text-white">{{ t('scheduler.statusScheduled') }}</option>
-            <option value="completed" class="bg-slate-900 text-white">{{ t('scheduler.statusCompleted') }}</option>
-            <option value="cancelled" class="bg-slate-900 text-white">{{ t('scheduler.statusCancelled') }}</option>
+            <option value="All" class="bg-white dark:bg-slate-900 text-gray-800 dark:text-white">{{ t('scheduler.allClassesFilter') }}</option>
+            <option value="MyClasses" class="bg-white dark:bg-slate-900 text-gray-800 dark:text-white">{{ t('scheduler.myClassesFilter') }}</option>
+            <option value="scheduled" class="bg-white dark:bg-slate-900 text-gray-800 dark:text-white">{{ t('scheduler.statusScheduled') }}</option>
+            <option value="completed" class="bg-white dark:bg-slate-900 text-gray-800 dark:text-white">{{ t('scheduler.statusCompleted') }}</option>
+            <option value="cancelled" class="bg-white dark:bg-slate-900 text-gray-800 dark:text-white">{{ t('scheduler.statusCancelled') }}</option>
           </select>
-          <!-- Custom Chevron Down for Custom Select styling -->
-          <div class="pointer-events-none absolute inset-y-0 right-3 flex items-center">
-            <svg class="h-4 w-4 text-gray-400" viewBox="0 0 20 20" fill="none" stroke="currentColor">
+          <div class="pointer-events-none absolute right-2.5 flex items-center">
+            <svg class="h-3.5 w-3.5 text-gray-400 dark:text-slate-500" viewBox="0 0 20 20" fill="none" stroke="currentColor">
+              <path d="M7 8l3 3 3-3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Filter Event Type -->
+        <div class="relative flex items-center bg-white dark:bg-slate-900 border border-gray-250 dark:border-slate-700 rounded-xl px-3 py-2.5 focus-within:ring-2 focus-within:ring-blue-500 min-w-[140px] h-[40px]">
+          <Filter class="w-3.5 h-3.5 text-gray-400 dark:text-slate-500 mr-1.5 shrink-0" />
+          <select
+            id="select-class-event-type-filter"
+            v-model="classEventTypeFilter"
+            class="text-xs font-bold text-gray-800 dark:text-white bg-transparent border-0 p-0 pr-6 cursor-pointer focus:ring-0 focus:outline-hidden h-full w-full appearance-none"
+          >
+            <option value="All" class="bg-white dark:bg-slate-900 text-gray-800 dark:text-white">
+              {{ locale === 'pt' ? 'Todos os tipos' : 'All event types' }}
+            </option>
+            <option value="aula" class="bg-white dark:bg-slate-900 text-gray-800 dark:text-white">
+              {{ t('scheduler.eventTypeClass') }}
+            </option>
+            <option value="encontro" class="bg-white dark:bg-slate-900 text-gray-800 dark:text-white">
+              {{ t('scheduler.eventTypeOneOnOne') }}
+            </option>
+            <option value="conversacao" class="bg-white dark:bg-slate-900 text-gray-800 dark:text-white">
+              {{ t('scheduler.eventTypeConversationGroup') }}
+            </option>
+          </select>
+          <div class="pointer-events-none absolute right-2.5 flex items-center">
+            <svg class="h-3.5 w-3.5 text-gray-400 dark:text-slate-500" viewBox="0 0 20 20" fill="none" stroke="currentColor">
               <path d="M7 8l3 3 3-3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </div>
         </div>
 
         <!-- View mode toggle: List vs Calendar -->
-        <div class="flex items-center gap-1 bg-slate-900/95 dark:bg-slate-950/90 p-1 rounded-[16px] border border-slate-800 dark:border-slate-850 h-[48px] w-full">
+        <div class="flex items-center gap-1 bg-white dark:bg-slate-900 p-1 rounded-xl border border-gray-250 dark:border-slate-700 h-[40px] min-w-[150px]">
           <button
             id="btn-view-list"
             type="button"
             @click="viewType = 'list'"
             :class="[
-              'flex-1 flex items-center justify-center gap-1.5 h-full px-3 text-xs font-black rounded-xl transition-all cursor-pointer',
+              'flex-1 flex items-center justify-center gap-1.5 h-full px-3 text-xs font-black rounded-lg transition-all cursor-pointer',
               viewType === 'list'
-                ? 'bg-[#0f766e] text-white shadow-xs'
-                : 'text-gray-400 dark:text-slate-500 hover:text-white'
+                ? 'bg-[#0f766e] text-white shadow-3xs'
+                : 'text-gray-550 dark:text-gray-400 hover:text-gray-850 dark:hover:text-white'
             ]"
           >
             <List class="w-3.5 h-3.5" />
@@ -795,10 +871,10 @@ const handleStudentEnter = (cl: ClassTurma) => {
             type="button"
             @click="viewType = 'calendar'"
             :class="[
-              'flex-1 flex items-center justify-center gap-1.5 h-full px-3 text-xs font-black rounded-xl transition-all cursor-pointer',
+              'flex-1 flex items-center justify-center gap-1.5 h-full px-3 text-xs font-black rounded-lg transition-all cursor-pointer',
               viewType === 'calendar'
-                ? 'bg-[#0f766e] text-white shadow-xs'
-                : 'text-gray-400 dark:text-slate-500 hover:text-white'
+                ? 'bg-[#0f766e] text-white shadow-3xs'
+                : 'text-gray-550 dark:text-gray-400 hover:text-gray-850 dark:hover:text-white'
             ]"
           >
             <CalendarDays class="w-3.5 h-3.5" />
@@ -2053,6 +2129,188 @@ const handleStudentEnter = (cl: ClassTurma) => {
             class="bg-blue-500/5 dark:bg-slate-950/20 border border-blue-500/20 rounded-xl p-3 text-xs text-blue-600 dark:text-blue-300 text-center font-bold"
           >
             {{ t('scheduler.confirmedAlert') }}
+          </div>
+
+          <!-- ENROLLED STUDENTS LIST (Unique per Event Type with Pagination) -->
+          <div class="border-t border-gray-150 dark:border-slate-800/60 pt-4 space-y-3">
+            <div class="flex items-center justify-between">
+              <h4 class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest leading-none">
+                {{ locale === 'pt' ? 'Alunos Inscritos' : 'Enrolled Students' }} 
+                ({{ enrolledStudentsOfClass.length }})
+              </h4>
+              <span v-if="activeSelectedClass.eventType === 'encontro'" class="text-[9px] font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/40 px-2 py-0.5 rounded">
+                Individual (1-on-1)
+              </span>
+              <span v-else-if="activeSelectedClass.eventType === 'conversacao'" class="text-[9px] font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 px-2 py-0.5 rounded">
+                Conversação (Círculo)
+              </span>
+              <span v-else class="text-[9px] font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 px-2 py-0.5 rounded">
+                Aula de Grupo
+              </span>
+            </div>
+
+            <!-- Empty State -->
+            <div v-if="enrolledStudentsOfClass.length === 0" class="text-center py-4 bg-slate-50/50 dark:bg-slate-950/20 border border-dashed border-gray-200 dark:border-slate-800 rounded-xl text-xs text-gray-400 dark:text-slate-500 italic font-semibold">
+              {{ locale === 'pt' ? 'Nenhum aluno inscrito ainda.' : 'No students enrolled yet.' }}
+            </div>
+
+            <div v-else class="space-y-3">
+              <!-- UNIQUE VIEW 1: ENCONTRO (1-ON-1) PREMIUM PROFILE LAYOUT -->
+              <template v-if="activeSelectedClass.eventType === 'encontro'">
+                <div v-for="student in enrolledStudentsOfClass" :key="student.uid" class="p-3.5 bg-indigo-50/20 dark:bg-indigo-950/10 border border-indigo-100/50 dark:border-indigo-950/35 rounded-xl flex items-center justify-between gap-3">
+                  <div class="flex items-center gap-3 text-left">
+                    <!-- Custom Avatar with levels -->
+                    <div class="w-10 h-10 rounded-full border-2 border-indigo-200 dark:border-indigo-800 flex items-center justify-center bg-indigo-100 dark:bg-indigo-950/60 font-black text-sm text-indigo-700 dark:text-indigo-300 uppercase shrink-0">
+                      {{ student.displayName ? student.displayName.slice(0, 2) : 'ST' }}
+                    </div>
+                    <div class="text-left min-w-0">
+                      <p class="text-xs font-black text-gray-900 dark:text-white truncate">
+                        {{ student.displayName }}
+                      </p>
+                      <p class="text-[10px] text-gray-500 dark:text-slate-400 truncate font-semibold mt-0.5">
+                        {{ student.email || 'estudante@email.com' }}
+                      </p>
+                      <div class="flex items-center gap-1.5 mt-1">
+                        <span class="text-[8px] font-black px-1.5 py-0.5 bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 rounded uppercase">
+                          {{ student.level }}
+                        </span>
+                        <span class="text-[8px] text-gray-400 dark:text-slate-500 font-bold">
+                          1-on-1 Student
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Tutor action: open doubt chat -->
+                  <button
+                    v-if="isInstructor || isAdmin || currentUserId === student.uid"
+                    type="button"
+                    @click="handleStartDoubtChat(student)"
+                    class="px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-1 shrink-0 shadow-3xs"
+                  >
+                    <MessageSquare class="w-3 h-3" />
+                    <span>{{ locale === 'pt' ? 'Dúvida' : 'Doubt' }}</span>
+                  </button>
+                </div>
+              </template>
+
+              <!-- UNIQUE VIEW 2: CONVERSACAO (CONVERSATION CIRCLE BUBBLE LAYOUT) -->
+              <template v-else-if="activeSelectedClass.eventType === 'conversacao'">
+                <!-- Visual Circle Bubble Container -->
+                <div class="flex flex-wrap gap-1.5 pb-2 border-b border-gray-150/50 dark:border-slate-800/50">
+                  <span 
+                    v-for="student in enrolledStudentsOfClass" 
+                    :key="'bubble-' + student.uid" 
+                    class="inline-flex items-center gap-1 text-[10px] font-bold bg-amber-50 dark:bg-amber-950/20 text-amber-800 dark:text-amber-300 border border-amber-100 dark:border-amber-900/30 px-2 py-1 rounded-full"
+                  >
+                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                    {{ student.displayName }}
+                  </span>
+                </div>
+
+                <!-- Paginated grid list of circular cards -->
+                <div class="grid grid-cols-1 gap-2">
+                  <div 
+                    v-for="student in paginatedStudents" 
+                    :key="student.uid" 
+                    class="p-2.5 bg-amber-50/10 dark:bg-amber-950/5 border border-amber-100/30 dark:border-amber-950/20 rounded-xl flex items-center justify-between"
+                  >
+                    <div class="flex items-center gap-2">
+                      <div class="w-7 h-7 rounded-full bg-amber-100/60 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 font-extrabold text-xs flex items-center justify-center uppercase shrink-0">
+                        {{ student.displayName.slice(0, 1) }}
+                      </div>
+                      <div class="text-left">
+                        <p class="text-xs font-bold text-gray-800 dark:text-gray-200 leading-none">
+                          {{ student.displayName }}
+                        </p>
+                        <p class="text-[9px] text-gray-500 dark:text-slate-400 mt-0.5 font-medium">
+                          Nível: <strong class="text-amber-600 dark:text-amber-400 uppercase">{{ student.level }}</strong>
+                        </p>
+                      </div>
+                    </div>
+
+                    <!-- Open doubt chat button -->
+                    <button
+                      v-if="isInstructor || isAdmin || currentUserId === student.uid"
+                      type="button"
+                      @click="handleStartDoubtChat(student)"
+                      class="px-2 py-1 border border-amber-200 dark:border-amber-900 text-amber-700 dark:text-amber-300 text-[9px] font-bold rounded-lg hover:bg-amber-100 dark:hover:bg-amber-950/30 transition-colors cursor-pointer animate-pulse"
+                    >
+                      Dúvida
+                    </button>
+                  </div>
+                </div>
+              </template>
+
+              <!-- UNIQUE VIEW 3: AULA (ROLL CALL LIST GRID WITH LEVEL & ATTENDANCE SNAPSHOT) -->
+              <template v-else>
+                <div class="space-y-2">
+                  <div 
+                    v-for="student in paginatedStudents" 
+                    :key="student.uid" 
+                    class="p-2.5 bg-blue-50/10 dark:bg-slate-850/40 border border-blue-100/10 dark:border-slate-800 rounded-xl flex items-center justify-between gap-3 text-left"
+                  >
+                    <div class="flex items-center gap-2.5 min-w-0">
+                      <div class="w-8 h-8 rounded-lg bg-blue-50 dark:bg-slate-800 text-blue-600 dark:text-blue-400 flex items-center justify-center font-black text-xs uppercase shrink-0">
+                        {{ student.displayName ? student.displayName.slice(0, 2) : 'ST' }}
+                      </div>
+                      <div class="min-w-0">
+                        <p class="text-xs font-bold text-gray-900 dark:text-white truncate leading-tight">
+                          {{ student.displayName }}
+                        </p>
+                        <p class="text-[9.5px] text-gray-500 dark:text-slate-400 mt-0.5 font-semibold">
+                          {{ student.level }} • {{ student.email || 'estudante@email.com' }}
+                        </p>
+                      </div>
+                    </div>
+
+                    <!-- Attendance record & Doubt button -->
+                    <div class="flex items-center gap-1 shrink-0">
+                      <button
+                        v-if="isInstructor || isAdmin || currentUserId === student.uid"
+                        type="button"
+                        @click="handleStartDoubtChat(student)"
+                        class="p-1 px-2 border border-blue-200 dark:border-slate-700 hover:bg-blue-50 dark:hover:bg-slate-800 text-blue-600 dark:text-blue-400 text-[9px] font-bold rounded-md transition-colors cursor-pointer"
+                        title="Abrir Canal de Dúvida"
+                      >
+                        Dúvida
+                      </button>
+                      <span v-if="activeSelectedClass.presentStudentIds?.includes(student.uid)" class="text-[9px] bg-emerald-100 dark:bg-emerald-950/60 font-black text-emerald-800 dark:text-emerald-300 px-1.5 py-1 rounded">
+                        ✓ Presença
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </template>
+
+              <!-- STUDENT LIST PAGINATOR (If count > PageSize) -->
+              <div v-if="totalStudentPages > 1" class="flex items-center justify-between gap-2 pt-2 border-t border-gray-100 dark:border-slate-800 shrink-0">
+                <p class="text-[9.5px] font-bold text-gray-400 dark:text-slate-500">
+                  Pág. {{ studentPage }} de {{ totalStudentPages }}
+                </p>
+                <div class="flex items-center gap-1.5">
+                  <button
+                    id="btn-student-prev"
+                    type="button"
+                    :disabled="studentPage === 1"
+                    @click="studentPage--"
+                    class="p-1 px-1.5 border border-gray-200 dark:border-slate-800 rounded-lg bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 transition-colors cursor-pointer text-[9px] font-bold text-gray-600 dark:text-slate-300 flex items-center justify-center gap-0.5"
+                  >
+                    <ChevronLeft class="w-3.5 h-3.5 text-gray-600 dark:text-gray-300" />
+                  </button>
+                  <button
+                    id="btn-student-next"
+                    type="button"
+                    :disabled="studentPage === totalStudentPages"
+                    @click="studentPage++"
+                    class="p-1 px-1.5 border border-gray-200 dark:border-slate-800 rounded-lg bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 transition-colors cursor-pointer text-[9px] font-bold text-gray-600 dark:text-slate-300 flex items-center justify-center gap-0.5"
+                  >
+                    <ChevronRight class="w-3.5 h-3.5 text-gray-600 dark:text-gray-300" />
+                  </button>
+                </div>
+              </div>
+
+            </div>
           </div>
         </div>
 

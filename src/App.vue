@@ -156,6 +156,11 @@ const isUserInstructor = computed(() => {
   return !!(userProfile.value?.isInstructor || isUserAdmin.value);
 });
 
+const handleStartChatRoomFromScheduler = async (courseId: string, topic: string, classId?: string) => {
+  await handleStartChatRoom(courseId, topic, classId);
+  activeTab.value = 'chats';
+};
+
 const activeProgressList = computed(() => {
   const activeCourseIds = new Set(courses.value.map(c => c.id));
   return progressList.value.filter(p => activeCourseIds.has(p.courseId));
@@ -1764,6 +1769,7 @@ const toggleLoginDarkMode = () => {
           <ClassScheduler
             :classes="classes"
             :courses="courses"
+            :users="allUsers"
             :currentUserId="currentUser?.uid || 'demo-student-uid'"
             :isInstructor="isUserInstructor"
             :isAdmin="isUserAdmin"
@@ -1780,6 +1786,7 @@ const toggleLoginDarkMode = () => {
             @delete-class="handleDeleteClass"
             @update-class="handleUpdateClass"
             @mark-presence="handleMarkPresence"
+            @start-chat-room="handleStartChatRoomFromScheduler"
           />
         </div>
 
@@ -1789,6 +1796,8 @@ const toggleLoginDarkMode = () => {
             :chatRooms="chatRooms"
             :activeMessages="activeMessages"
             :courses="courses"
+            :classes="classes"
+            :progressList="progressList"
             :currentUserId="currentUser?.uid || 'demo-student-uid'"
             :userDisplayName="userProfile?.displayName || currentUser?.displayName || 'Estudante'"
             :isInstructor="isUserInstructor"

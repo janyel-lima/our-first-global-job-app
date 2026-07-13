@@ -100,6 +100,7 @@ export interface ChatRoom {
   createdAt: string;
   updatedAt: string;
   totalMessages?: number;
+  classId?: string;
 }
 
 export interface ChatMessage {

@@ -3,7 +3,7 @@ import { ref, computed, watch, nextTick } from 'vue';
 import { MessageSquare, Send, CheckCircle2, User, UserCheck, Smile, Search, Filter, History, ChevronLeft, ChevronRight } from 'lucide-vue-next';
 import EmojiPicker from 'vue3-emoji-picker';
 import 'vue3-emoji-picker/css';
-import { ChatRoom, ChatMessage, Course } from '../../types';
+import { ChatRoom, ChatMessage, Course, ClassTurma, Progress } from '../../types';
 import { useAppState } from '../../composables/useAppState';
 import { useI18n } from '../../composables/useI18n';
 
@@ -13,6 +13,8 @@ const props = defineProps<{
   chatRooms: ChatRoom[];
   activeMessages: ChatMessage[];
   courses: Course[];
+  classes?: ClassTurma[];
+  progressList?: Progress[];
   currentUserId: string;
   userDisplayName: string;
   isInstructor: boolean;
@@ -26,7 +28,7 @@ const { getRoomLastSeen, getRoomLastSeenCount, parseToTimestamp } = useAppState(
 
 const emit = defineEmits<{
   (e: 'select-room', roomId: string | null): void;
-  (e: 'start-room', courseId: string, topic: string): void;
+  (e: 'start-room', courseId: string, topic: string, classId?: string): void;
   (e: 'send-message', text: string): void;
   (e: 'resolve-room', roomId: string): void;
   (e: 'load-more-messages'): void;
@@ -34,6 +36,8 @@ const emit = defineEmits<{
 
 const newTopic = ref('');
 const selectedCourseId = ref('');
+const selectedClassId = ref('');
+const chatTargetType = ref<'course' | 'class'>('course');
 const messageInput = ref('');
 const isSubmitting = ref(false);
 
@@ -140,14 +144,38 @@ watch([searchQuery, statusFilter, courseFilter], () => {
   chatCurrentPage.value = 1;
 });
 
+const enrolledCourses = computed(() => {
+  const uid = props.currentUserId;
+  const enrolledIds = new Set(
+    (props.progressList || [])
+      .filter(p => p.userId === uid)
+      .map(p => p.courseId)
+  );
+  return props.courses.filter(c => enrolledIds.has(c.id));
+});
+
+const enrolledClasses = computed(() => {
+  const uid = props.currentUserId;
+  return (props.classes || []).filter(cl => cl.studentIds.includes(uid));
+});
+
 const handleStartChat = async () => {
-  if (!selectedCourseId.value || !newTopic.value) return;
+  if (!newTopic.value.trim()) return;
+
+  if (chatTargetType.value === 'course' && !selectedCourseId.value) return;
+  if (chatTargetType.value === 'class' && !selectedClassId.value) return;
 
   isSubmitting.value = true;
   try {
-    emit('start-room', selectedCourseId.value, newTopic.value);
+    if (chatTargetType.value === 'course') {
+      emit('start-room', selectedCourseId.value, newTopic.value);
+      selectedCourseId.value = '';
+    } else {
+      const cls = (props.classes || []).find(c => c.id === selectedClassId.value);
+      emit('start-room', cls?.courseId || 'custom-class', newTopic.value, selectedClassId.value);
+      selectedClassId.value = '';
+    }
     newTopic.value = '';
-    selectedCourseId.value = '';
   } catch (error) {
     console.error("Erro iniciando chat:", error);
   } finally {
@@ -478,20 +506,75 @@ const isRoomUnread = (room: ChatRoom) => {
         class="pt-3 border-t border-slate-100 dark:border-slate-800 mt-3 space-y-3 shrink-0"
       >
         <p class="text-[10px] font-black text-gray-500 dark:text-slate-400 uppercase tracking-wider">
-          {{ t('chat.newQuestion') }}
+          {{ locale === 'pt' ? 'Nova Dúvida' : 'New Question' }}
         </p>
-        <div class="grid grid-cols-1 gap-2">
-          <select
-            id="select-chat-course"
-            required
-            v-model="selectedCourseId"
-            class="w-full text-xs bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-705 rounded-xl p-2.5 focus:outline-hidden focus:ring-1 focus:ring-blue-500 cursor-pointer text-gray-800 dark:text-slate-200"
+
+        <!-- Toggle Target Type: Course vs Class/Event -->
+        <div class="grid grid-cols-2 gap-1.5 bg-slate-50 dark:bg-slate-850 p-1 rounded-xl border border-gray-150 dark:border-slate-800">
+          <button
+            type="button"
+            id="btn-toggle-doubt-course"
+            @click="chatTargetType = 'course'"
+            :class="[
+              'py-1.5 text-[10px] font-bold rounded-lg transition-all cursor-pointer',
+              chatTargetType === 'course'
+                ? 'bg-blue-600 text-white shadow-3xs'
+                : 'text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white'
+            ]"
           >
-            <option value="">{{ t('chat.selectCourse') }}</option>
-            <option v-for="c in courses" :key="c.id" :value="c.id">
-              {{ c.title }}
-            </option>
-          </select>
+            {{ locale === 'pt' ? 'Curso Inscrito' : 'Curso Inscrito' }}
+          </button>
+          <button
+            type="button"
+            id="btn-toggle-doubt-class"
+            @click="chatTargetType = 'class'"
+            :class="[
+              'py-1.5 text-[10px] font-bold rounded-lg transition-all cursor-pointer',
+              chatTargetType === 'class'
+                ? 'bg-blue-600 text-white shadow-3xs'
+                : 'text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white'
+            ]"
+          >
+            {{ locale === 'pt' ? 'Aula / Evento' : 'Class / Event' }}
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 gap-2">
+          <!-- Dropdown for Courses -->
+          <template v-if="chatTargetType === 'course'">
+            <select
+              id="select-chat-course"
+              required
+              v-model="selectedCourseId"
+              class="w-full text-xs bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-705 rounded-xl p-2.5 focus:outline-hidden focus:ring-1 focus:ring-blue-500 cursor-pointer text-gray-800 dark:text-slate-200"
+            >
+              <option value="">{{ locale === 'pt' ? 'Selecionar curso que estou inscrito...' : 'Select enrolled course...' }}</option>
+              <option v-for="c in enrolledCourses" :key="c.id" :value="c.id">
+                {{ c.title }}
+              </option>
+            </select>
+            <p v-if="enrolledCourses.length === 0" class="text-[9.5px] text-amber-600 dark:text-amber-400 font-bold px-1.5">
+              ⚠️ {{ locale === 'pt' ? 'Você não está matriculado em nenhum curso ainda.' : 'You are not enrolled in any courses yet.' }}
+            </p>
+          </template>
+
+          <!-- Dropdown for Classes -->
+          <template v-else>
+            <select
+              id="select-chat-class"
+              required
+              v-model="selectedClassId"
+              class="w-full text-xs bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-705 rounded-xl p-2.5 focus:outline-hidden focus:ring-1 focus:ring-blue-500 cursor-pointer text-gray-800 dark:text-slate-200"
+            >
+              <option value="">{{ locale === 'pt' ? 'Selecionar aula/evento inscrito...' : 'Select enrolled class/event...' }}</option>
+              <option v-for="cl in enrolledClasses" :key="cl.id" :value="cl.id">
+                [{{ cl.eventType === 'encontro' ? '1-on-1' : cl.eventType === 'conversacao' ? 'Conversação' : 'Aula' }}] {{ cl.courseTitle }} - {{ cl.scheduledAt }}
+              </option>
+            </select>
+            <p v-if="enrolledClasses.length === 0" class="text-[9.5px] text-amber-600 dark:text-amber-400 font-bold px-1.5">
+              ⚠️ {{ locale === 'pt' ? 'Você não está agendado em nenhuma aula/evento ainda.' : 'You are not scheduled in any classes/events yet.' }}
+            </p>
+          </template>
           
           <input
             id="input-chat-topic"
@@ -502,11 +585,12 @@ const isRoomUnread = (room: ChatRoom) => {
             class="w-full text-xs bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-705 rounded-xl p-2.5 focus:outline-hidden focus:ring-1 focus:ring-blue-500 text-gray-800 dark:text-slate-200 dark:placeholder-slate-500 font-medium"
           />
         </div>
+
         <button
           id="btn-confirm-start-chat"
           type="submit"
-          :disabled="isSubmitting"
-          class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-sm active:scale-98"
+          :disabled="isSubmitting || (chatTargetType === 'course' && enrolledCourses.length === 0) || (chatTargetType === 'class' && enrolledClasses.length === 0)"
+          class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-sm active:scale-98"
         >
           <Send class="w-3.5 h-3.5 animate-pulse" />
           {{ isSubmitting ? t('chat.sending') : t('chat.openChannel') }}

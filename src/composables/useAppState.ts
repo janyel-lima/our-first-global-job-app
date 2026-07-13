@@ -906,23 +906,27 @@ export function useAppState() {
     }
   };
 
-  const handleStartChatRoom = async (courseId: string, topic: string) => {
+  const handleStartChatRoom = async (courseId: string, topic: string, classId?: string) => {
     const uid = currentUser.value?.uid || "demo-student-uid";
     const roomId = `chat-${Math.random().toString(36).substring(2, 9)}`;
     const chosenCourse = courses.value.find(c => c.id === courseId);
+    const chosenClass = classId ? classes.value.find(cl => cl.id === classId) : undefined;
 
     const newRoom: ChatRoom = {
       id: roomId,
       studentId: uid,
       studentName: userProfile.value?.displayName || currentUser.value?.displayName || "Estudante",
-      courseId,
-      courseTitle: chosenCourse?.title || "Dúvida Geral",
+      courseId: classId ? "class-doubt" : courseId,
+      courseTitle: chosenClass 
+        ? `${chosenClass.courseTitle} (${chosenClass.eventType === 'encontro' ? '1-on-1' : chosenClass.eventType === 'conversacao' ? 'Conversação' : 'Aula'})` 
+        : (chosenCourse?.title || "Dúvida Geral"),
       topic,
       status: "open",
-      instructorId: chosenCourse?.creatorId || "demo-instructor-uid",
+      instructorId: chosenClass?.instructorId || chosenCourse?.creatorId || "demo-instructor-uid",
       createdAt: new Date().toLocaleTimeString("pt-BR", { hour: '2-digit', minute: '2-digit' }),
       updatedAt: new Date().toISOString(),
-      totalMessages: 0
+      totalMessages: 0,
+      classId
     };
 
     if (!isDemoUser.value) {
