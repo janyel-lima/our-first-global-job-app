@@ -1,6 +1,6 @@
 <script setup lang="ts">
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { marked } from 'marked';
-import { computed, onMounted, onUnmounted } from 'vue';
 
 const props = defineProps<{
   content: string;
@@ -8,17 +8,17 @@ const props = defineProps<{
 
 const htmlContent = computed(() => {
   const raw = props.content || '';
-
+  
   // Custom marked renderer to inject custom classes and buttons
   const renderer = new marked.Renderer();
-
+  
   // Custom code blocks with copy action
-  renderer.code = function (token) {
+  renderer.code = function(token) {
     const codeText = token.text || '';
     return `
       <div class="relative group my-4">
         <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
-          <button
+          <button 
             type="button"
             data-code="${encodeURIComponent(codeText)}"
             class="copy-btn text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1 rounded border border-slate-700 font-bold font-sans cursor-pointer transition-colors"
@@ -32,11 +32,11 @@ const htmlContent = computed(() => {
   };
 
   // Custom blockquotes based on warning / tip detection
-  renderer.blockquote = function (token) {
+  renderer.blockquote = function(token) {
     const rawText = token.text || '';
     const isWarning = rawText.includes("⚠️") || rawText.toLowerCase().includes("atenc") || rawText.toLowerCase().includes("warning");
     const isIdea = rawText.includes("💡") || rawText.toLowerCase().includes("tip") || rawText.toLowerCase().includes("dica") || rawText.toLowerCase().includes("pro");
-
+    
     let quoteClass = "border-slate-400 bg-slate-50/60 text-slate-800 dark:bg-slate-900/40 dark:text-slate-200 dark:border-slate-600";
     if (isWarning) {
       quoteClass = "border-amber-500 bg-amber-50/30 text-amber-950 dark:bg-amber-950/20 dark:text-amber-200 dark:border-amber-600";

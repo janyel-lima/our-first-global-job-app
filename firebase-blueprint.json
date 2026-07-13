@@ -73,7 +73,9 @@
         "studentIds": { "type": "array" },
         "status": { "type": "string", "enum": ["scheduled", "completed", "cancelled"] },
         "callUrl": { "type": "string", "description": "Optional online meeting link like Google Meet" },
-        "presentStudentIds": { "type": "array", "description": "Optional list of student UIDs marking presence" }
+        "presentStudentIds": { "type": "array", "description": "Optional list of student UIDs marking presence" },
+        "eventType": { "type": "string", "enum": ["aula", "encontro", "conversacao"] },
+        "aulaType": { "type": "string", "enum": ["curso", "avulsa"] }
       },
       "required": ["id", "courseId", "instructorId", "scheduledAt", "status"]
     },

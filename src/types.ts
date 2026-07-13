@@ -70,6 +70,8 @@ export interface ClassTurma {
   status: "scheduled" | "completed" | "cancelled";
   callUrl?: string;
   presentStudentIds?: string[];
+  eventType?: "aula" | "encontro" | "conversacao";
+  aulaType?: "curso" | "avulsa";
 }
 
 export interface Progress {
