@@ -1719,9 +1719,6 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
                   <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                   {{ t('tutor.synchronized') }}
                 </span>
-                <span class="font-bold">
-                  {{ t('tutor.statsCount', { words: wordCount, chars: charCount, time: readTime }) }}
-                </span>
               </div>
             </div>
           </div>
