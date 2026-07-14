@@ -221,12 +221,12 @@ const isPassValid = computed(() => {
 });
 
 const passStrengthLabel = computed(() => {
-  if (!profileEditPassword.value) return { text: 'Não alterada', color: 'text-slate-400 dark:text-slate-500', barBg: 'bg-slate-200 dark:bg-slate-800', width: 'w-0' };
+  if (!profileEditPassword.value) return { text: t('profileModal.passStrengthNotChanged'), color: 'text-slate-400 dark:text-slate-500', barBg: 'bg-slate-200 dark:bg-slate-800', width: 'w-0' };
   const score = passScore.value;
-  if (score <= 2) return { text: 'Fraca ⚠️', color: 'text-rose-500', barBg: 'bg-rose-500', width: 'w-1/4' };
-  if (score === 3) return { text: 'Média ⚡', color: 'text-amber-500', barBg: 'bg-amber-500', width: 'w-2/4' };
-  if (score === 4) return { text: 'Forte 💪', color: 'text-blue-500', barBg: 'bg-blue-500', width: 'w-3/4' };
-  return { text: 'Excelente ✨', color: 'text-emerald-500 dark:text-emerald-400', barBg: 'bg-emerald-500', width: 'w-full' };
+  if (score <= 2) return { text: t('profileModal.passStrengthWeak'), color: 'text-rose-500', barBg: 'bg-rose-500', width: 'w-1/4' };
+  if (score === 3) return { text: t('profileModal.passStrengthMedium'), color: 'text-amber-500', barBg: 'bg-amber-500', width: 'w-2/4' };
+  if (score === 4) return { text: t('profileModal.passStrengthStrong'), color: 'text-blue-500', barBg: 'bg-blue-500', width: 'w-3/4' };
+  return { text: t('profileModal.passStrengthExcellent'), color: 'text-emerald-500 dark:text-emerald-400', barBg: 'bg-emerald-500', width: 'w-full' };
 });
 
 const submit = () => {
@@ -237,21 +237,21 @@ const submit = () => {
   const updatedPass = profileEditPassword.value;
 
   if (!updatedName) {
-    showToast(locale.value === 'pt' ? "Por favor, preencha o seu nome." : "Please enter your name.", "warning");
+    showToast(t('profileModal.errNameRequired'), "warning");
     return;
   }
 
   if (updatedPass) {
     if (!isPassValid.value) {
-      showToast(locale.value === 'pt' ? "A nova senha não atende a todos os critérios de segurança obrigatórios." : "The new password does not meet all required security criteria.", "error");
+      showToast(t('profileModal.errPassCriteria'), "error");
       return;
     }
     if (!profileConfirmPassword.value) {
-      showToast(locale.value === 'pt' ? "Por favor, confirme a nova senha no campo de confirmação." : "Please confirm your new password.", "warning");
+      showToast(t('profileModal.errConfirmPassRequired'), "warning");
       return;
     }
     if (updatedPass !== profileConfirmPassword.value) {
-      showToast(locale.value === 'pt' ? "As novas senhas informadas não coincidem." : "The new passwords do not match.", "error");
+      showToast(t('profileModal.errPassMismatch'), "error");
       return;
     }
   }
@@ -276,10 +276,8 @@ const submit = () => {
       class="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full border border-slate-200 dark:border-slate-800 p-6 sm:p-8 space-y-6 animate-scaleUp">
       <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3 select-none">
         <div>
-          <h3 class="text-base sm:text-lg font-black text-slate-900 dark:text-white">{{ locale === 'pt' ? '✏️ Editar Meu
-            Perfil' : '✏️ Edit My Profile' }}</h3>
-          <p class="text-xs text-slate-400 font-bold">{{ locale === 'pt' ? 'Mantenha seus dados e credenciais
-            atualizados.' : 'Keep your data and credentials up to date.' }}</p>
+          <h3 class="text-base sm:text-lg font-black text-slate-900 dark:text-white">{{ t('profileModal.title') }}</h3>
+          <p class="text-xs text-slate-400 font-bold">{{ t('profileModal.keepUpdated') }}</p>
         </div>
         <button type="button" @click="$emit('close')"
           class="text-slate-400 hover:text-slate-900 dark:hover:text-white text-lg font-black leading-none p-1.5 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg cursor-pointer">
@@ -294,9 +292,8 @@ const submit = () => {
         <div class="space-y-1.5">
           <label
             class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider block font-bold">{{
-              locale === 'pt' ? 'Nome do Usuário' : 'Username / Display Name' }}</label>
-          <input v-model="profileEditName" type="text" required
-            :placeholder="locale === 'pt' ? 'Digite seu nome completo' : 'Enter your full name'"
+              t('profileModal.nameLabel') }}</label>
+          <input v-model="profileEditName" type="text" required :placeholder="t('profileModal.placeholderName')"
             class="w-full text-xs font-bold px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-inset focus:ring-blue-500 focus:border-blue-500" />
         </div>
 
@@ -307,16 +304,13 @@ const submit = () => {
               t('header.englishLevel') }}</label>
           <select v-model="profileEditLevel"
             class="w-full text-xs font-bold px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-inset focus:ring-blue-500 focus:border-blue-500 cursor-pointer">
-            <option value="Beginner">{{ locale === 'pt' ? 'Beginner (Básico)' : 'Beginner (Basic)' }}</option>
-            <option value="Intermediate">{{ locale === 'pt' ? 'Intermediate (Intermediário)' : 'Intermediate' }}
-            </option>
-            <option value="Advanced">{{ locale === 'pt' ? 'Advanced (Avançado)' : 'Advanced' }}</option>
-            <option value="All">All</option>
+            <option value="Beginner">{{ t('profileModal.levelBeginner') }}</option>
+            <option value="Intermediate">{{ t('profileModal.levelIntermediate') }}</option>
+            <option value="Advanced">{{ t('profileModal.levelAdvanced') }}</option>
+            <option value="All">{{ t('profileModal.levelAll') }}</option>
           </select>
           <p class="text-[9.5px] text-slate-400 dark:text-slate-500 leading-normal font-semibold">
-            {{ locale === 'pt' ? 'Ao escolher um nível mais avançado, você verá cumulativamente todos os mini-cursos de
-            dificuldades anteriores correspondentes!' : 'By choosing a more advanced level, you will cumulatively see
-            all corresponding mini - courses from previous difficulties!' }}
+            {{ t('profileModal.levelDesc') }}
           </p>
         </div>
 
@@ -324,9 +318,8 @@ const submit = () => {
         <div class="space-y-1.5">
           <label
             class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider block font-bold">{{
-              locale === 'pt' ? 'Biografia / Sobre Você (Opcional)' : 'Biography / About You (Optional)' }}</label>
-          <textarea v-model="profileEditBio" rows="2"
-            :placeholder="locale === 'pt' ? 'Conte brevemente sobre seus objetivos com o inglês...' : 'Tell us briefly about your goals with English...'"
+              t('profileModal.bioLabel') }}</label>
+          <textarea v-model="profileEditBio" rows="2" :placeholder="t('profileModal.bioPlaceholder')"
             class="w-full text-xs font-bold px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-inset focus:ring-blue-500 focus:border-blue-500 resize-none"></textarea>
         </div>
 
@@ -334,13 +327,10 @@ const submit = () => {
         <div v-if="isInstructor" class="pt-3.5 border-t border-slate-100 dark:border-slate-800 space-y-3.5 select-none">
           <div class="flex items-center gap-1.5 text-blue-600 dark:text-blue-400">
             <Edit3 class="w-4 h-4" />
-            <h4 class="text-xs font-black uppercase tracking-wider">{{ locale === 'pt' ? '✍️ Assinatura do Certificado'
-              : '✍️ Certificate Signature' }}</h4>
+            <h4 class="text-xs font-black uppercase tracking-wider">{{ t('profileModal.certSignatureTitle') }}</h4>
           </div>
           <p class="text-[10px] text-slate-400 dark:text-slate-500 font-bold leading-normal">
-            {{ locale === 'pt' ? 'Escolha como sua assinatura voluntária será gravada nos certificados dos alunos que
-            concluírem seus cursos: ' : 'Choose how your volunteer signature will be recorded on certificates of students
-            who complete your courses:' }}
+            {{ t('profileModal.certSignatureDesc') }}
           </p>
 
           <!-- Type Selector Options -->
@@ -352,7 +342,7 @@ const submit = () => {
                 : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 hover:bg-slate-100 dark:hover:bg-slate-900 text-slate-600 dark:text-slate-400'
             ]">
               <Check v-if="signatureType === 'text'" class="w-3.5 h-3.5 text-white" />
-              {{ locale === 'pt' ? 'Texto Digitalizado' : 'Digital Text' }}
+              {{ t('profileModal.digitalText') }}
             </button>
             <button type="button" @click="signatureType = 'drawn'" :class="[
               'py-2 px-3 text-xs font-black rounded-xl border transition-all text-center cursor-pointer flex items-center justify-center gap-1.5',
@@ -361,27 +351,26 @@ const submit = () => {
                 : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 hover:bg-slate-100 dark:hover:bg-slate-900 text-slate-600 dark:text-slate-400'
             ]">
               <Check v-if="signatureType === 'drawn'" class="w-3.5 h-3.5 text-white" />
-              {{ locale === 'pt' ? 'Desenhar Manual' : 'Draw Manually' }}
+              {{ t('profileModal.drawManually') }}
             </button>
           </div>
 
           <!-- OPTION 1: TEXT SIGNATURE -->
           <div v-if="signatureType === 'text'" class="space-y-2 animate-fadeIn">
             <label class="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider block">{{
-              locale === 'pt' ? 'Nome para a Assinatura' : 'Signature Name' }}</label>
-            <input v-model="signatureText" type="text"
-              :placeholder="locale === 'pt' ? 'Ex: Prof. Silva' : 'E.g., Prof. Silva'"
+              t('profileModal.signatureTextLabel') }}</label>
+            <input v-model="signatureText" type="text" :placeholder="t('profileModal.signatureTextPlaceholder')"
               class="w-full text-xs font-bold px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-inset focus:ring-blue-500 focus:border-blue-500" />
 
             <!-- Real-time design cursive font preview -->
             <div
               class="p-3 bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-200/60 dark:border-slate-800/60 text-center space-y-1">
-              <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block">{{ locale === 'pt' ?
-                'Prévia nos Certificados' : 'Certificate Preview' }}</span>
+              <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block">{{
+                t('profileModal.certPreview') }}</span>
               <!-- Cursive signature preview with google-like handwriting style -->
               <p class="text-xl py-2 select-none text-slate-950 dark:text-white font-semibold italic"
                 style="font-family: 'Dancing Script', 'Brush Script MT', 'Georgia', cursive, serif;">
-                {{ signatureText || profileEditName || (locale === 'pt' ? 'Sua Assinatura' : 'Your Signature') }}
+                {{ signatureText || profileEditName || t('profileModal.yourSignature') }}
               </p>
             </div>
           </div>
@@ -390,10 +379,10 @@ const submit = () => {
           <div v-if="signatureType === 'drawn'" class="space-y-2.5 animate-fadeIn">
             <div class="flex items-center justify-between">
               <label class="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider block">{{
-                locale === 'pt' ? 'Desenhe sua Assinatura' : 'Draw your Signature' }}</label>
+                t('profileModal.drawSignatureLabel') }}</label>
               <button type="button" @click="clearSignature"
                 class="text-[10px] font-black text-rose-500 hover:text-rose-600 dark:text-rose-400 hover:underline cursor-pointer flex items-center gap-1">
-                <Trash2 class="w-3 h-3" /> {{ locale === 'pt' ? 'Limpar Tela' : 'Clear Screen' }}
+                <Trash2 class="w-3 h-3" /> {{ t('profileModal.clearScreen') }}
               </button>
             </div>
 
@@ -404,8 +393,7 @@ const submit = () => {
               <div v-if="!signatureImage"
                 class="absolute inset-0 flex items-center justify-center pointer-events-none text-center p-4">
                 <span class="text-[10.5px] font-bold text-slate-400">
-                  {{ locale === 'pt' ? '🖱️ Use o mouse ou tela touch para desenhar aqui' : '🖱️ Use mouse or touch
-                  screen to draw here' }}
+                  {{ t('profileModal.drawInstruction') }}
                 </span>
               </div>
               <canvas ref="signatureCanvas" width="400" height="150"
@@ -415,9 +403,7 @@ const submit = () => {
             </div>
 
             <p class="text-[9px] text-slate-400 dark:text-slate-500 font-semibold leading-snug">
-              {{ locale === 'pt' ? 'ℹ️ Toque e segure para desenhar com o dedo ou caneta touch. A imagem será salva
-              automaticamente de forma segura no seu perfil.' : 'ℹ️ Touch and hold to draw with your finger or stylus.
-              The image will be saved automatically in your profile.' }}
+              {{ t('profileModal.canvasTip') }}
             </p>
           </div>
         </div>
@@ -426,19 +412,16 @@ const submit = () => {
         <div class="pt-3 border-t border-slate-100 dark:border-slate-800 space-y-3">
           <div class="flex items-center gap-1.5 text-blue-600 dark:text-blue-400">
             <Lock class="w-4 h-4" />
-            <h4 class="text-xs font-bold uppercase tracking-wider">{{ locale === 'pt' ? 'Alterar Credenciais de Acesso'
-              : 'Change Access Credentials' }}</h4>
+            <h4 class="text-xs font-bold uppercase tracking-wider">{{ t('profileModal.changeCredentialsTitle') }}</h4>
           </div>
           <p class="text-[10px] text-slate-400 dark:text-slate-500 font-semibold leading-relaxed">
-            {{ locale === 'pt' ? 'Deixe os campos abaixo em branco caso não queira modificar seus dados de login atuais
-              (E - mail ou Senha).' : 'Leave fields below blank if you do not want to modify current login details(Email or
-            Password).' }}
+            {{ t('profileModal.changeCredentialsDesc') }}
           </p>
 
           <!-- NEW EMAIL INPUT -->
           <div class="space-y-1">
-            <label class="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase block font-bold">{{ locale
-              === 'pt' ? 'Alterar Login E-mail' : 'Change Login Email' }}</label>
+            <label class="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase block font-bold">{{
+              t('profileModal.changeEmailLabel') }}</label>
             <div class="relative">
               <Mail class="absolute left-3.5 top-2.5 w-3.5 h-3.5 text-slate-450" />
               <input v-model="profileEditEmail" type="email" placeholder="novoemail@exemplo.com"
@@ -450,20 +433,20 @@ const submit = () => {
           <div class="space-y-1">
             <div class="flex justify-between items-center mb-0.5 select-none">
               <label class="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase block font-bold">{{
-                locale === 'pt' ? 'Alterar Senha de Acesso' : 'Change Access Password' }}</label>
+                t('profileModal.changePasswordLabel') }}</label>
               <div v-if="profileEditPassword" class="text-[9px] font-bold flex items-center gap-1">
-                <span>{{ locale === 'pt' ? 'Força:' : 'Strength:' }}</span>
+                <span>{{ t('profileModal.strengthLabel') }}</span>
                 <span :class="passStrengthLabel.color" class="font-extrabold">{{ passStrengthLabel.text }}</span>
               </div>
             </div>
             <div class="relative mb-2">
               <Lock class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-450" />
               <input v-model="profileEditPassword" :type="showEditPassword ? 'text' : 'password'"
-                :placeholder="locale === 'pt' ? 'Preencha apenas se quiser mudar' : 'Fill only if you want to change'"
+                :placeholder="t('profileModal.passwordPlaceholder')"
                 class="w-full text-xs font-bold pl-9 pr-10 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 dark:text-white focus:outline-hidden focus:border-blue-500" />
               <button type="button" @click="showEditPassword = !showEditPassword"
                 class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 focus:outline-hidden cursor-pointer flex items-center justify-center"
-                :title="locale === 'pt' ? 'Mostrar/Ocultar Senha' : 'Show/Hide Password'">
+                :title="t('profileModal.showHidePassword')">
                 <EyeOff v-if="showEditPassword" class="w-3.5 h-3.5" />
                 <Eye v-else class="w-3.5 h-3.5" />
               </button>
@@ -482,42 +465,42 @@ const submit = () => {
                 class="p-3 bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-155 dark:border-slate-850/60 space-y-2 select-none text-[10px]">
                 <span
                   class="text-[9px] font-black text-slate-450 dark:text-slate-500 uppercase tracking-wider block mb-1">{{
-                    locale === 'pt' ? 'Critérios de Segurança Obrigatórios:' : 'Required Security Criteria:' }}</span>
+                    t('profileModal.requiredCriteria') }}</span>
                 <div class="grid grid-cols-2 gap-x-2 gap-y-1 text-slate-600 dark:text-slate-400 font-semibold">
                   <div class="flex items-center gap-1.5">
                     <Check v-if="realMinLength" class="w-3.5 h-3.5 text-emerald-500 shrink-0" />
                     <span v-else
                       class="w-3.5 h-3.5 text-rose-500 font-extrabold shrink-0 text-center leading-none">✕</span>
-                    <span :class="{ 'text-emerald-600 dark:text-emerald-400 font-bold': realMinLength }">{{ locale ===
-                      'pt' ? 'Mínimo 8 caracteres' : 'Min 8 characters' }}</span>
+                    <span :class="{ 'text-emerald-600 dark:text-emerald-400 font-bold': realMinLength }">{{
+                      t('profileModal.minChars') }}</span>
                   </div>
                   <div class="flex items-center gap-1.5">
                     <Check v-if="realSpecial" class="w-3.5 h-3.5 text-emerald-500 shrink-0" />
                     <span v-else
                       class="w-3.5 h-3.5 text-rose-500 font-extrabold shrink-0 text-center leading-none">✕</span>
-                    <span :class="{ 'text-emerald-600 dark:text-emerald-400 font-bold': realSpecial }">{{ locale ===
-                      'pt' ? '1 Caractere Especial' : '1 Special Character' }}</span>
+                    <span :class="{ 'text-emerald-600 dark:text-emerald-400 font-bold': realSpecial }">{{
+                      t('profileModal.oneSpecial') }}</span>
                   </div>
                   <div class="flex items-center gap-1.5">
                     <Check v-if="realUpper" class="w-3.5 h-3.5 text-emerald-500 shrink-0" />
                     <span v-else
                       class="w-3.5 h-3.5 text-rose-500 font-extrabold shrink-0 text-center leading-none">✕</span>
-                    <span :class="{ 'text-emerald-600 dark:text-emerald-400 font-bold': realUpper }">{{ locale === 'pt'
-                      ? '1 Letra Maiúscula' : '1 Uppercase Letter' }}</span>
+                    <span :class="{ 'text-emerald-600 dark:text-emerald-400 font-bold': realUpper }">{{
+                      t('profileModal.oneUpper') }}</span>
                   </div>
                   <div class="flex items-center gap-1.5">
                     <Check v-if="realLower" class="w-3.5 h-3.5 text-emerald-500 shrink-0" />
                     <span v-else
                       class="w-3.5 h-3.5 text-rose-500 font-extrabold shrink-0 text-center leading-none">✕</span>
-                    <span :class="{ 'text-emerald-600 dark:text-emerald-400 font-bold': realLower }">{{ locale === 'pt'
-                      ? '1 Letra Minúscula' : '1 Lowercase Letter' }}</span>
+                    <span :class="{ 'text-emerald-600 dark:text-emerald-400 font-bold': realLower }">{{
+                      t('profileModal.oneLower') }}</span>
                   </div>
                   <div class="flex items-center gap-1.5 col-span-2">
                     <Check v-if="realNumber" class="w-3.5 h-3.5 text-emerald-500 shrink-0" />
                     <span v-else
                       class="w-3.5 h-3.5 text-rose-500 font-extrabold shrink-0 text-center leading-none">✕</span>
-                    <span :class="{ 'text-emerald-600 dark:text-emerald-400 font-bold': realNumber }">{{ locale === 'pt'
-                      ? 'Ao menos 1 Número (0-9)' : 'At least 1 Number (0-9)' }}</span>
+                    <span :class="{ 'text-emerald-600 dark:text-emerald-400 font-bold': realNumber }">{{
+                      t('profileModal.oneNumber') }}</span>
                   </div>
                 </div>
               </div>
@@ -525,15 +508,15 @@ const submit = () => {
               <!-- Confirmar Nova Senha de Acesso -->
               <div class="space-y-1 pt-1">
                 <label class="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase block font-bold">{{
-                  locale === 'pt' ? 'Confirmar Nova Senha' : 'Confirm New Password' }}</label>
+                  t('profileModal.confirmPasswordLabel') }}</label>
                 <div class="relative">
                   <Lock class="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-450" />
                   <input :type="showConfirmPassword ? 'text' : 'password'" v-model="profileConfirmPassword"
-                    :placeholder="locale === 'pt' ? 'Repita a nova senha' : 'Repeat new password'"
+                    :placeholder="t('profileModal.confirmPasswordPlaceholder')"
                     class="w-full text-xs font-bold pl-9 pr-10 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 dark:text-white focus:outline-hidden focus:border-blue-500" />
                   <button type="button" @click="showConfirmPassword = !showConfirmPassword"
                     class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 focus:outline-hidden cursor-pointer"
-                    :title="locale === 'pt' ? 'Mostrar/Ocultar Senha' : 'Show/Hide Password'">
+                    :title="t('profileModal.showHidePassword')">
                     <EyeOff v-if="showConfirmPassword" class="w-3.5 h-3.5" />
                     <Eye v-else class="w-3.5 h-3.5" />
                   </button>
@@ -543,11 +526,11 @@ const submit = () => {
                   <span v-if="profileEditPassword === profileConfirmPassword"
                     class="text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
                     <span class="inline-block bg-emerald-100 dark:bg-emerald-950/50 p-0.5 rounded-full">✓</span> {{
-                      locale === 'pt' ? 'As senhas coincidem!' : 'Passwords match!' }}
+                      t('profileModal.passwordsMatch') }}
                   </span>
                   <span v-else class="text-rose-500 flex items-center gap-1">
-                    <span class="inline-block bg-rose-100 dark:bg-rose-950/50 px-1 rounded-full">✕</span> {{ locale ===
-                      'pt' ? 'As senhas não coincidem.' : 'Passwords do not match.' }}
+                    <span class="inline-block bg-rose-100 dark:bg-rose-950/50 px-1 rounded-full">✕</span> {{
+                      t('profileModal.passwordsMismatch') }}
                   </span>
                 </div>
               </div>
@@ -559,11 +542,7 @@ const submit = () => {
             class="p-2.5 bg-amber-50 dark:bg-amber-950/20 rounded-xl border border-amber-100/40 dark:border-amber-900/40 flex items-start gap-2">
             <AlertCircle class="w-3.5 h-3.5 shrink-0 mt-0.5 text-amber-600 dark:text-amber-400" />
             <p class="text-[9.5px] text-amber-800 dark:text-amber-300 font-bold leading-relaxed">
-              {{ locale === 'pt' ? 'Nota: Por segurança do Firebase Auth, alterações recentes de Email e Senha podem
-              requerer que você tenha feito login muito recentemente.Se falhar, por favor saia e entre novamente no
-              aplicativo antes de tentar salvar.' : 'Note: For Firebase Auth security, recent Email and Password changes
-              may require you to have logged in very recently.If it fails, please log out and log back in before
-              attempting to save.' }}
+              {{ t('profileModal.securityNote') }}
             </p>
           </div>
         </div>
@@ -574,38 +553,22 @@ const submit = () => {
           <div v-if="showConfirmDelete"
             class="p-4 bg-red-50 dark:bg-rose-950/30 border border-red-200 dark:border-red-900/40 rounded-2xl space-y-3 animate-fadeIn">
             <p class="text-xs font-bold text-red-700 dark:text-red-300 leading-relaxed">
-              {{ locale === 'pt'
-                ? '⚠️ ATENÇÃO (LGPD): Você tem certeza de que deseja excluir permanentemente todos os seus dados do
-              English Volunteer ? Esta ação apagará do sistema seu perfil pessoal, histórico de progresso, quizzes
-              respondidos, salas de chat suporte e certificados gerados.Esta ação é totalmente irreversível.'
-              : '⚠️ ATTENTION (GDPR/LGPD): Are you sure you want to permanently delete all your data from English
-              Volunteer ? This action will delete your personal profile, progress history, completed quizzes, support
-              chat rooms, and generated certificates.This action is completely irreversible.'
-              }}
+              {{ t('profileModal.lgpdWarning') }}
               <br /><br />
               <span
                 class="inline-block p-2 bg-red-100/50 dark:bg-rose-950/40 rounded-lg text-[11px] font-black uppercase text-red-800 dark:text-red-400 border border-red-200/40 mt-1">
-                🛡️ {{ locale === 'pt' ? 'Salvaguarda de Conteúdo Didático Acadêmico (LGPD):' : 'Educational & Academic
-                Content Safeguard(GDPR/LGPD):' }}
+                🛡️ {{ t('profileModal.academicSafeguardTitle') }}
               </span>
-              {{ locale === 'pt'
-                ? 'Conforme os Termos de Consentimento, para garantir a continuidade pedagógica dos alunos que estão
-              realizando os cursos ou se preparando para avaliações, os minicursos e lições autorais que você produziu
-              continuarão na base ativa da plataforma, sendo apenas desassociados do seu nome e transferidos para a
-              propriedade anônima de Administração / Sistema.'
-              : 'As per the Terms of Consent, to guarantee pedagogical continuity for students taking courses or
-              preparing for assessments, the courses and lessons you created will remain active on the platform,
-                anonymized and transferred to Administration/System ownership.'
-              }}
+              {{ t('profileModal.academicSafeguardDesc') }}
             </p>
             <div class="flex flex-wrap gap-2.5">
               <button type="button" @click="$emit('delete-account')"
                 class="px-4 py-2 bg-red-600 hover:bg-red-700 active:scale-95 text-white text-xs font-black rounded-xl transition cursor-pointer">
-                {{ locale === 'pt' ? 'Sim, excluir meus dados permanentemente' : 'Yes, delete my data permanently' }}
+                {{ t('profileModal.btnDeletePermanently') }}
               </button>
               <button type="button" @click="showConfirmDelete = false"
                 class="px-4 py-2 bg-white hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 text-xs font-black rounded-xl shadow-xs transition-all active:scale-95 cursor-pointer">
-                {{ locale === 'pt' ? 'Cancelar' : 'Cancel' }}
+                {{ t('profileModal.btnCancel') }}
               </button>
             </div>
           </div>
@@ -613,22 +576,22 @@ const submit = () => {
           <div class="flex flex-wrap items-center justify-between gap-3">
             <button v-if="!showConfirmDelete" type="button" @click="showConfirmDelete = true"
               class="px-3.5 py-2 text-xs font-bold text-red-600 hover:text-white hover:bg-red-600 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/40 rounded-xl transition-all cursor-pointer inline-flex items-center gap-1">
-              🗑️ {{ locale === 'pt' ? 'Excluir Conta (LGPD)' : 'Delete Account (GDPR)' }}
+              🗑️ {{ t('profileModal.btnDeleteAccount') }}
             </button>
             <div v-else
               class="text-[10px] text-red-650 dark:text-red-400 font-extrabold uppercase tracking-widest animate-pulse">
-              ⚠️ {{ locale === 'pt' ? 'Ação Crítica Ativa' : 'Critical Action Active' }}
+              ⚠️ {{ t('profileModal.criticalActionActive') }}
             </div>
 
             <div class="flex items-center gap-3">
               <button type="button" @click="$emit('close')"
                 class="px-4 py-2 text-xs font-black text-slate-500 hover:text-slate-850 dark:hover:text-white bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-800 rounded-xl transition-colors cursor-pointer">
-                {{ locale === 'pt' ? 'Cancelar' : 'Cancel' }}
+                {{ t('profileModal.btnCancel') }}
               </button>
               <button type="submit"
                 class="px-5 py-2 text-xs font-black text-white rounded-xl shadow-md cursor-pointer transition-all active:scale-95 text-center flex items-center gap-1.5"
                 :style="{ backgroundColor: primaryColor }">
-                {{ locale === 'pt' ? 'Salvar Alterações' : 'Save Changes' }}
+                {{ t('profileModal.btnSaveChanges') }}
               </button>
             </div>
           </div>
