@@ -218,7 +218,7 @@ const cancelReassignment = () => {
         }"
         class="border rounded-3xl p-4 text-xs text-slate-650 dark:text-slate-350 leading-relaxed w-full"
       >
-        De acordo com as regras de continuidade e termos descritos de acordo com a <strong>Lei Geral de Proteção de Dados (LGPD)</strong>, quando um instrutor decide excluir permanentemente seu cadastro e e-mail no English Volunteer, os materiais e minicursos autorais fornecidos continuam sob propriedade da administração do ecossistema. Isso previne o rompimento do progresso pedagógico de centenas de alunos matriculados e em processo de certificação.
+        De acordo com as regras de continuidade e termos descritos de acordo com a <strong>Lei Geral de Proteção de Dados (LGPD)</strong>, quando um instrutor decide excluir permanentemente seu cadastro e e-mail no Our First Global Job, os materiais e minicursos autorais fornecidos continuam sob propriedade da administração do ecossistema. Isso previne o rompimento do progresso pedagógico de centenas de alunos matriculados e em processo de certificação.
       </div>
 
       <!-- Search inside course succession -->

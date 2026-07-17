@@ -525,7 +525,7 @@ export async function generateInteractiveHTML(course: Course, lessons: Lesson[])
   <!-- Footer -->
   <footer class="bg-indigo-950 text-indigo-300 py-6 px-6 border-t border-indigo-900 mt-12 text-center text-xs">
     <div class="max-w-6xl mx-auto flex flex-col sm:flex-row sm:justify-between items-center gap-3">
-      <p class="font-medium">English Volunteer • Conexão, Ensino e Solidariedade</p>
+      <p class="font-medium">Our First Global Job • Conexão, Ensino e Solidariedade</p>
       <p class="text-[10px] text-indigo-400 font-bold uppercase tracking-wider">
         Keep the knowledge and material, it is free and yours forever!
       </p>

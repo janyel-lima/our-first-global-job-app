@@ -166,7 +166,7 @@ const wrapInElegantEmailFrame = (
             </div>
             
             <!-- Branding Header -->
-            <h2 style="margin: 0 0 8px 0; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: ${themeColor};">ENGLISH VOLUNTEER</h2>
+            <h2 style="margin: 0 0 8px 0; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: ${themeColor};">OUR FIRST GLOBAL JOB</h2>
             
             <!-- Main Title -->
             <h1 style="margin: 0 0 24px 0; font-size: 20px; font-weight: 800; color: #0f172a; line-height: 1.3; letter-spacing: -0.02em;">${title}</h1>
@@ -181,7 +181,7 @@ const wrapInElegantEmailFrame = (
         <!-- Footer -->
         <tr>
           <td style="padding: 24px 32px; background-color: #f8fafc; border-top: 1px solid #f1f5f9; text-align: center;">
-            <p style="margin: 0 0 6px 0; font-size: 12px; font-weight: 600; color: #64748b;">English Volunteer Group • REDE DE EDUCAÇÃO VOLUNTÁRIA</p>
+            <p style="margin: 0 0 6px 0; font-size: 12px; font-weight: 600; color: #64748b;">Our First Global Job Group • REDE DE EDUCAÇÃO VOLUNTÁRIA</p>
             <p style="margin: 0; font-size: 11px; color: #94a3b8; line-height: 1.4;">Este é um e-mail transacional de notificação do sistema enviado em estrita conformidade com os termos da LGPD (Artigo 18). Por favor, não responda a este endereço automático.</p>
           </td>
         </tr>
@@ -218,7 +218,7 @@ export async function sendDeletionConfirmationEmail(
   const title = `Confirmação de Exclusão Definitiva de Dados (Direito de Eliminação - Artigo 18 LGPD)`;
   const formattedContent = `
     <p style="margin: 0 0 16px; font-weight: bold; font-size: 16px; color: #0f172a;">Prezado(a) ${displayName},</p>
-    <p style="margin: 0 0 16px; line-height: 1.6;">Em conformidade estrita com o <strong>Artigo 18 da Lei Geral de Proteção de Dados (LGPD)</strong>, confirmamos que sua solicitação de auto-exclusão e esquecimento definitivo do English Volunteer foi totalmente processada.</p>
+    <p style="margin: 0 0 16px; line-height: 1.6;">Em conformidade estrita com o <strong>Artigo 18 da Lei Geral de Proteção de Dados (LGPD)</strong>, confirmamos que sua solicitação de auto-exclusão e esquecimento definitivo do Our First Global Job foi totalmente processada.</p>
     
     <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #fef2f2; border: 1px solid #fee2e2; border-radius: 12px; padding: 20px; margin: 24px 0;">
       <tr>
@@ -242,7 +242,7 @@ export async function sendDeletionConfirmationEmail(
   return await dispatchEmail("sys", {
     recipient_email: recipientEmail,
     recipient_name: displayName,
-    subject: `English Volunteer - Confirmação de Exclusão de Dados (LGPD)`,
+    subject: `Our First Global Job - Confirmação de Exclusão de Dados (LGPD)`,
     type_label: "EXCLUSÃO DE DADOS",
     content_html: finalHtml,
     primary_color: themeColor,

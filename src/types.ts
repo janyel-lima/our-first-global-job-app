@@ -69,6 +69,7 @@ export interface ClassTurma {
   studentIds: string[];
   status: "scheduled" | "completed" | "cancelled";
   callUrl?: string;
+  linkSharedAt?: string;
   presentStudentIds?: string[];
   eventType?: "aula" | "encontro" | "conversacao";
   aulaType?: "curso" | "avulsa";

@@ -888,32 +888,9 @@ onMounted(() => {
           // com dados velhos antes da resposta final limpa ser obtida do servidor.
           if (snap.metadata.fromCache) return;
 
-          // Se o perfil foi de fato apagado do servidor, apenas autogeramos se houver claims reais (não simulados na máquina local)
-          const deservesRealAdmin = hasAdminClaim || isMaster;
-          const deservesRealInstructor = deservesRealAdmin || hasInstructorClaim || isMaster;
-          
           onboardName.value = user.displayName || onboardName.value || "";
-          
-          if (deservesRealAdmin || deservesRealInstructor) {
-            const autoProfile: UserProfile = {
-              uid: user.uid,
-              displayName: user.displayName || "Conta Administradora",
-              isInstructor: deservesRealInstructor,
-              level: "Advanced",
-              bio: deservesRealAdmin ? "Administrador Master do English Volunteer" : "Instrutor Voluntário",
-              isAdmin: deservesRealAdmin,
-              email: user.email || "",
-              photoURL: user.photoURL || undefined
-            };
-            setDoc(profileRef, autoProfile).catch(e => {
-              console.error("Erro salvando perfil auto-gerado:", e);
-            });
-            userProfile.value = autoProfile;
-            isOnboarding.value = false;
-          } else {
-            // Caso contrário, enviamos para onboarding/boas-vindas para registrar as informações limpas
-            isOnboarding.value = true;
-          }
+          // Sempre enviamos para onboarding/boas-vindas para registrar as informações limpas e aceitar termos de consentimento (LGPD)
+          isOnboarding.value = true;
         }
       }, (error) => {
         console.warn("[AUTH] Erro ao escutar perfil no Firestore:", error);
@@ -931,7 +908,7 @@ onMounted(() => {
           displayName: user.displayName || (deservesAdmin ? "Administrador Master" : "Estudante Voluntário"),
           isInstructor: deservesInstructor,
           level: deservesAdmin ? "All" : "Beginner",
-          bio: deservesAdmin ? "Administrador Master do English Volunteer" : "Estudando inglês com a comunidade!",
+          bio: deservesAdmin ? "Administrador Master do Our First Global Job" : "Estudando inglês com a comunidade!",
           isAdmin: deservesAdmin,
           email: user.email || "",
           photoURL: user.photoURL || undefined
@@ -1239,8 +1216,39 @@ onMounted(() => {
       verifyTokenSecurely(true);
     }, 30 * 60 * 1000);
 
+    // Auto-expire classes after 2 hours from link sharing
+    const checkAndAutoExpireClasses = async () => {
+      if (!classes.value || classes.value.length === 0) return;
+      const now = Date.now();
+      for (const cl of classes.value) {
+        if (cl.status === "scheduled" && cl.linkSharedAt) {
+          try {
+            const elapsedMs = now - new Date(cl.linkSharedAt).getTime();
+            const twoHoursMs = 2 * 60 * 60 * 1000;
+            if (elapsedMs >= twoHoursMs) {
+              console.log(`[AUTO-EXPIRE] Class ${cl.id} expired. Setting status to completed.`);
+              const updated = { ...cl, status: "completed" as const };
+              await handleUpdateClass(updated);
+            }
+          } catch (e) {
+            console.error("Error auto-expiring class:", cl.id, e);
+          }
+        }
+      }
+    };
+
+    // Run the check 1 second after mount, and every 30 seconds thereafter
+    setTimeout(() => {
+      checkAndAutoExpireClasses();
+    }, 1000);
+
+    const classExpireInterval = setInterval(() => {
+      checkAndAutoExpireClasses();
+    }, 30000);
+
     onUnmounted(() => {
       clearInterval(tokenInterval);
+      clearInterval(classExpireInterval);
     });
 
     window.addEventListener("online", () => {
@@ -1327,7 +1335,7 @@ const handleDemoLogin = (role: "student" | "instructor" | "admin") => {
     displayName: dName,
     isInstructor: !isStudent,
     level: "Beginner",
-    bio: isStudent ? "Estudante e praticante de inglês em busca de proficiência para o trabalho!" : "Dedico meu tempo livre no English Volunteer para partilhar conhecimento.",
+    bio: isStudent ? "Estudante e praticante de inglês em busca de proficiência para o trabalho!" : "Dedico meu tempo livre no Our First Global Job para partilhar conhecimento.",
     isAdmin
   };
 };
@@ -1368,13 +1376,41 @@ const handleOnboardingComplete = async () => {
     }
   }
 
+  // Verificar privilégios especiais do sistema (Master Admin, claims simulados ou reais no Firebase Auth)
+  const isMaster = currentUser.value?.email === "kibedasppk@gmail.com" || currentUser.value?.email === "admin@englishvolunteer.org" || currentUser.value?.email === "janyel.lima2809@outlook.com";
+  const isSimulatedAdmin = localStorage.getItem(`dev_claim_admin_${currentUser.value.uid}`) === "true";
+  const isSimulatedInstructor = localStorage.getItem(`dev_claim_instructor_${currentUser.value.uid}`) === "true";
+
+  let hasRealAdminClaim = false;
+  let hasRealInstructorClaim = false;
+  try {
+    if (!isDemoUser.value) {
+      const idTokenResult = await currentUser.value.getIdTokenResult(true);
+      hasRealAdminClaim = !!idTokenResult?.claims?.admin || idTokenResult?.claims?.role === "admin";
+      hasRealInstructorClaim = !!idTokenResult?.claims?.instructor || idTokenResult?.claims?.role === "instructor";
+    }
+  } catch (err) {
+    console.warn("[ONBOARDING] Erro ao obter custom claims:", err);
+  }
+
+  if (isMaster || isSimulatedAdmin || hasRealAdminClaim) {
+    isAdmin = true;
+    isInstructor = true;
+  } else if (isSimulatedInstructor || hasRealInstructorClaim) {
+    isInstructor = true;
+  }
+
+  const defaultBio = isAdmin 
+    ? "Administrador do Our First Global Job" 
+    : (isInstructor ? "Sou voluntário ensinando inglês!" : "Quero aprender inglês!");
+
   const newProfile: UserProfile = {
     uid: currentUser.value.uid,
     displayName: (onboardName.value || currentUser.value.displayName || "Estudante").trim(),
     email: currentUser.value?.email || "",
     isInstructor,
     level: onboardLevel.value,
-    bio: isInstructor ? "Sou voluntário ensinando inglês!" : "Quero aprender inglês!",
+    bio: defaultBio,
     isAdmin,
     photoURL: currentUser.value?.photoURL || ""
   };
@@ -1482,16 +1518,9 @@ const handleEmailSignupClick = async ({ name, email, pass }: { name: string, ema
   if (currentEnvMode.value === "offline") {
     isDemoUser.value = true;
     currentUser.value = { uid: "demo-new-user-uid", displayName: name, email } as any;
-    userProfile.value = {
-      uid: "demo-new-user-uid",
-      displayName: name,
-      email,
-      isInstructor: false,
-      level: "Beginner",
-      bio: "Estudante voluntário!",
-      isAdmin: false
-    };
-    isOnboarding.value = false;
+    userProfile.value = null;
+    onboardName.value = name;
+    isOnboarding.value = true;
     return;
   }
   adminLoading.value = true;
@@ -1677,7 +1706,7 @@ const toggleLoginDarkMode = () => {
     >
       <div class="flex items-center gap-2">
         <Sparkles class="w-4 h-4 text-amber-300 shrink-0 select-none animate-pulse" />
-        <span>Instale o aplicativo English Volunteer para estudar 100% offline e sincronizar seu progresso automaticamente ao reconectar!</span>
+        <span>Instale o aplicativo Our First Global Job para estudar 100% offline e sincronizar seu progresso automaticamente ao reconectar!</span>
       </div>
       <div class="flex items-center gap-2 shrink-0">
         <button 
@@ -1905,10 +1934,10 @@ const toggleLoginDarkMode = () => {
 
 
 
-    <!-- Footer of the English Volunteer network -->
+    <!-- Footer of the Our First Global Job network -->
     <footer class="bg-white border-t border-gray-150 py-6 text-center select-none mt-10 shrink-0">
       <div class="max-w-7xl mx-auto px-4 text-xs text-gray-400 font-medium font-semibold">
-        <p>© {{ new Date().getFullYear() }} English Volunteer Network. Desenvolvido de forma comunitária e gratuita.</p>
+        <p>© {{ new Date().getFullYear() }} Our First Global Job Network. Desenvolvido de forma comunitária e gratuita.</p>
         <p class="mt-1">Hospedado no plano livre Google de alta velocidade.</p>
       </div>
     </footer>
