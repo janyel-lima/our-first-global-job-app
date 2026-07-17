@@ -2206,14 +2206,14 @@ const handleStudentEnter = (cl: ClassTurma) => {
                       <p class="text-xs font-black text-gray-900 dark:text-white truncate">
                         {{ student.displayName }}
                       </p>
-                      <p class="text-[10px] text-gray-500 dark:text-slate-400 truncate font-semibold mt-0.5">
+                      <p v-if="isInstructor || isAdmin || currentUserId === student.uid" class="text-[10px] text-gray-500 dark:text-slate-400 truncate font-semibold mt-0.5">
                         {{ student.email || 'estudante@email.com' }}
                       </p>
                       <div class="flex items-center gap-1.5 mt-1">
                         <span class="text-[8px] font-black px-1.5 py-0.5 bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 rounded uppercase">
                           {{ student.level }}
                         </span>
-                        <span class="text-[8px] text-gray-400 dark:text-slate-500 font-bold">
+                        <span v-if="isInstructor || isAdmin" class="text-[8px] text-gray-400 dark:text-slate-500 font-bold">
                           1-on-1 Student
                         </span>
                       </div>
@@ -2225,7 +2225,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
                     v-if="isInstructor || isAdmin || currentUserId === student.uid"
                     type="button"
                     @click="handleStartDoubtChat(student)"
-                    class="px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-1 shrink-0 shadow-3xs"
+                    class="px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white text-[10px] font-black rounded-lg transition-colors cursor-pointer flex items-center gap-1 shrink-0 shadow-sm"
                   >
                     <MessageSquare class="w-3 h-3" />
                     <span>{{ locale === 'pt' ? 'Dúvida' : 'Doubt' }}</span>
@@ -2273,9 +2273,10 @@ const handleStudentEnter = (cl: ClassTurma) => {
                       v-if="isInstructor || isAdmin || currentUserId === student.uid"
                       type="button"
                       @click="handleStartDoubtChat(student)"
-                      class="px-2 py-1 border border-amber-200 dark:border-amber-900 text-amber-700 dark:text-amber-300 text-[9px] font-bold rounded-lg hover:bg-amber-100 dark:hover:bg-amber-950/30 transition-colors cursor-pointer animate-pulse"
+                      class="px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white text-[10px] font-black rounded-lg transition-colors cursor-pointer flex items-center gap-1 shrink-0 shadow-sm"
                     >
-                      Dúvida
+                      <MessageSquare class="w-3 h-3" />
+                      <span>{{ locale === 'pt' ? 'Dúvida' : 'Doubt' }}</span>
                     </button>
                   </div>
                 </div>
@@ -2298,21 +2299,22 @@ const handleStudentEnter = (cl: ClassTurma) => {
                           {{ student.displayName }}
                         </p>
                         <p class="text-[9.5px] text-gray-500 dark:text-slate-400 mt-0.5 font-semibold">
-                          {{ student.level }} • {{ student.email || 'estudante@email.com' }}
+                          {{ student.level }}<span v-if="isInstructor || isAdmin || currentUserId === student.uid"> • {{ student.email || 'estudante@email.com' }}</span>
                         </p>
                       </div>
                     </div>
 
                     <!-- Attendance record & Doubt button -->
-                    <div class="flex items-center gap-1 shrink-0">
+                    <div class="flex items-center gap-1.5 shrink-0">
                       <button
                         v-if="isInstructor || isAdmin || currentUserId === student.uid"
                         type="button"
                         @click="handleStartDoubtChat(student)"
-                        class="p-1 px-2 border border-blue-200 dark:border-slate-700 hover:bg-blue-50 dark:hover:bg-slate-800 text-blue-600 dark:text-blue-400 text-[9px] font-bold rounded-md transition-colors cursor-pointer"
+                        class="px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white text-[10px] font-black rounded-lg transition-colors cursor-pointer flex items-center gap-1 shrink-0 shadow-sm"
                         title="Abrir Canal de Dúvida"
                       >
-                        Dúvida
+                        <MessageSquare class="w-3 h-3" />
+                        <span>{{ locale === 'pt' ? 'Dúvida' : 'Doubt' }}</span>
                       </button>
                       <span v-if="activeSelectedClass.presentStudentIds?.includes(student.uid)" class="text-[9px] bg-emerald-100 dark:bg-emerald-950/60 font-black text-emerald-800 dark:text-emerald-300 px-1.5 py-1 rounded">
                         ✓ Presença
