@@ -1761,7 +1761,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
 
     <!-- CLASS DETAILS MODAL (Interactive from List and Calendar view) -->
     <div v-if="activeSelectedClass" id="modal-class-details" class="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-xs bg-slate-950/60" @click="selectedClass = null">
-      <div class="bg-white dark:bg-slate-900 border-2 border-blue-600 dark:border-blue-500 w-full max-w-2xl rounded-2xl shadow-2xl flex flex-col text-left relative overflow-hidden" @click.stop>
+      <div class="bg-white dark:bg-slate-900 border-2 border-blue-600 dark:border-blue-500 w-full max-w-2xl max-h-[95vh] sm:max-h-[90vh] rounded-2xl shadow-2xl flex flex-col text-left relative overflow-hidden" @click.stop>
 
         <!-- Subtle Close Button inside Modal -->
         <button v-if="!isEditingInModal" @click="selectedClass = null" class="absolute top-4 right-4 p-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-gray-500 dark:text-gray-400 rounded-full transition-colors cursor-pointer z-10" :title="t('scheduler.closeLabel')">
@@ -1769,13 +1769,13 @@ const handleStudentEnter = (cl: ClassTurma) => {
         </button>
 
         <!-- EDIT MODE INSIDE MODAL -->
-        <div v-if="isEditingInModal" class="p-6 space-y-4">
-          <p class="text-xs font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest flex items-center gap-1.5 border-b border-gray-150 dark:border-slate-800 pb-2.5">
+        <div v-if="isEditingInModal" class="p-6 space-y-4 flex flex-col overflow-hidden max-h-[95vh] sm:max-h-[90vh]">
+          <p class="text-xs font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest flex items-center gap-1.5 border-b border-gray-150 dark:border-slate-800 pb-2.5 shrink-0">
             <Edit class="w-4 h-4" />
             <span>{{ t('scheduler.editClass') }}</span>
           </p>
 
-          <div class="space-y-3.5">
+          <div class="space-y-3.5 overflow-y-auto pr-2 scrollbar-thin flex-1 min-h-0">
             <!-- Event Type Segmented Control -->
             <div>
               <label class="block text-[10px] font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-2">
@@ -1977,7 +1977,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
         </div>
 
         <!-- READ-ONLY MODE INSIDE MODAL -->
-        <div v-else class="p-6 space-y-4.5">
+        <div v-else class="p-6 space-y-4.5 overflow-y-auto max-h-[95vh] sm:max-h-[90vh] scrollbar-thin">
           <!-- Status & Time Header -->
           <div class="flex justify-between items-center pr-8">
             <span :class="[
