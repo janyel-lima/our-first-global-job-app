@@ -3,7 +3,7 @@ export type Locale = "pt" | "en";
 export const translations: Record<Locale, Record<string, any>> = {
   pt: {
     nav: {
-      grade: "Grade",
+      grade: "Cursos",
       turmas: "Turmas",
       duvidas: "Dúvidas",
       progresso: "Progresso",
@@ -716,7 +716,7 @@ export const translations: Record<Locale, Record<string, any>> = {
   },
   en: {
     nav: {
-      grade: "Classes",
+      grade: "Courses",
       turmas: "Schedule",
       duvidas: "Support",
       progresso: "Progress",

@@ -1603,7 +1603,21 @@ const toggleLoginDarkMode = () => {
 
 <template>
   <!-- Main template wrapper -->
-  <div v-if="!currentUser && !isDemoUser" class="min-h-screen bg-slate-50 flex items-center justify-center p-4 selection:bg-blue-100 relative">
+  <div v-if="!currentUser && !isDemoUser" class="min-h-screen bg-slate-900 flex items-center justify-center p-4 selection:bg-blue-100 relative overflow-hidden">
+    <!-- Background Desktop -->
+    <img 
+      src="/bg-login-desktop.svg" 
+      alt="" 
+      class="hidden md:block absolute inset-0 w-full h-full object-cover -z-10 pointer-events-none" 
+    />
+
+    <!-- Background Mobile -->
+    <img 
+      src="/bg-login-mobile.svg" 
+      alt="" 
+      class="block md:hidden absolute inset-0 w-full h-full object-cover -z-10 pointer-events-none" 
+    />
+
     <LoginPanel
       :loading="adminLoading"
       @google-login="handleGoogleLoginClick"
