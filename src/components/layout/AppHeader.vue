@@ -475,86 +475,88 @@ const handleColorSelect = (e: Event) => {
       </div>
     </div>
 
-    <!-- Navigation Bar for Mobile (Inside header so it stays sticky and visible together with centered tabs) -->
+    <!-- Navigation Bar for Mobile (Inside sticky header, centered & compact without clipping overflow) -->
     <div
-      class="md:hidden flex items-center justify-center gap-1 sm:gap-2 px-2 py-1.5 overflow-x-auto whitespace-nowrap scrollbar-none w-full max-w-7xl mx-auto select-none"
+      class="md:hidden w-full overflow-x-auto whitespace-nowrap scrollbar-none py-1 select-none border-t border-slate-100/80 dark:border-slate-800/60"
       style="-ms-overflow-style: none; scrollbar-width: none;"
     >
-      <button
-        @click="handleTabClick('courses', true)"
-        :class="[
-          'flex flex-col items-center justify-center gap-0.5 p-1 px-2.5 sm:px-3 text-[10px] font-bold rounded-lg transition-colors cursor-pointer shrink-0',
-          activeTab === 'courses' ? 'text-blue-600 dark:text-slate-900 bg-blue-50/70 dark:bg-slate-150/70 font-black' : 'text-slate-600 hover:text-slate-900'
-        ]"
-      >
-        <BookOpen class="w-4 h-4 shrink-0" />
-        <span class="shrink-0">{{ t('nav.grade') }}</span>
-      </button>
+      <div class="flex items-center justify-center min-w-max mx-auto px-2 gap-0.5 xs:gap-1">
+        <button
+          @click="handleTabClick('courses', true)"
+          :class="[
+            'flex flex-col items-center justify-center gap-0.5 p-1 px-1.5 xs:px-2.5 text-[10px] font-bold rounded-lg transition-colors cursor-pointer shrink-0',
+            activeTab === 'courses' ? 'text-blue-600 dark:text-slate-900 bg-blue-50/70 dark:bg-slate-150/70 font-black' : 'text-slate-600 hover:text-slate-900'
+          ]"
+        >
+          <BookOpen class="w-3.5 h-3.5 xs:w-4 xs:h-4 shrink-0" />
+          <span class="shrink-0">{{ t('nav.grade') }}</span>
+        </button>
 
-      <button
-        @click="handleTabClick('scheduler')"
-        :class="[
-          'flex flex-col items-center justify-center gap-0.5 p-1 px-2.5 sm:px-3 text-[10px] font-bold rounded-lg transition-colors cursor-pointer shrink-0',
-          activeTab === 'scheduler' ? 'text-blue-600 dark:text-slate-900 bg-blue-50/70 dark:bg-slate-150/70 font-black' : 'text-slate-600 hover:text-slate-900'
-        ]"
-      >
-        <Calendar class="w-4 h-4 shrink-0" />
-        <span class="shrink-0">{{ t('nav.turmas') }}</span>
-      </button>
+        <button
+          @click="handleTabClick('scheduler')"
+          :class="[
+            'flex flex-col items-center justify-center gap-0.5 p-1 px-1.5 xs:px-2.5 text-[10px] font-bold rounded-lg transition-colors cursor-pointer shrink-0',
+            activeTab === 'scheduler' ? 'text-blue-600 dark:text-slate-900 bg-blue-50/70 dark:bg-slate-150/70 font-black' : 'text-slate-600 hover:text-slate-900'
+          ]"
+        >
+          <Calendar class="w-3.5 h-3.5 xs:w-4 xs:h-4 shrink-0" />
+          <span class="shrink-0">{{ t('nav.turmas') }}</span>
+        </button>
 
-      <button
-        @click="handleTabClick('chats')"
-        :class="[
-          'flex flex-col items-center justify-center gap-0.5 p-1 px-2.5 sm:px-3 text-[10px] font-bold rounded-lg transition-colors cursor-pointer relative shrink-0',
-          activeTab === 'chats' ? 'text-blue-600 dark:text-slate-900 bg-blue-50/70 dark:bg-slate-150/70 font-black' : 'text-slate-600 hover:text-slate-900'
-        ]"
-      >
-        <div class="relative shrink-0 flex items-center justify-center">
-          <MessageSquare class="w-4 h-4 shrink-0" />
-          <span
-            v-if="unreadChatsCount"
-            class="absolute -top-1.5 -right-2 bg-red-500 text-white text-[7.5px] font-black w-3.5 h-3.5 rounded-full flex items-center justify-center border border-white dark:border-slate-50 select-none animate-pulse shrink-0"
-          >
-            {{ unreadChatsCount }}
-          </span>
-        </div>
-        <span class="shrink-0">{{ t('nav.duvidas') }}</span>
-      </button>
+        <button
+          @click="handleTabClick('chats')"
+          :class="[
+            'flex flex-col items-center justify-center gap-0.5 p-1 px-1.5 xs:px-2.5 text-[10px] font-bold rounded-lg transition-colors cursor-pointer relative shrink-0',
+            activeTab === 'chats' ? 'text-blue-600 dark:text-slate-900 bg-blue-50/70 dark:bg-slate-150/70 font-black' : 'text-slate-600 hover:text-slate-900'
+          ]"
+        >
+          <div class="relative shrink-0 flex items-center justify-center">
+            <MessageSquare class="w-3.5 h-3.5 xs:w-4 xs:h-4 shrink-0" />
+            <span
+              v-if="unreadChatsCount"
+              class="absolute -top-1.5 -right-2 bg-red-500 text-white text-[7.5px] font-black w-3.5 h-3.5 rounded-full flex items-center justify-center border border-white dark:border-slate-50 select-none animate-pulse shrink-0"
+            >
+              {{ unreadChatsCount }}
+            </span>
+          </div>
+          <span class="shrink-0">{{ t('nav.duvidas') }}</span>
+        </button>
 
-      <button
-        @click="handleTabClick('tracking')"
-        :class="[
-          'flex flex-col items-center justify-center gap-0.5 p-1 px-2.5 sm:px-3 text-[10px] font-bold rounded-lg transition-colors cursor-pointer shrink-0',
-          activeTab === 'tracking' ? 'text-blue-600 dark:text-slate-900 bg-blue-50/70 dark:bg-slate-150/70 font-black' : 'text-slate-600 hover:text-slate-900'
-        ]"
-      >
-        <Award class="w-4 h-4 shrink-0" />
-        <span class="shrink-0">{{ t('nav.progresso') }}</span>
-      </button>
+        <button
+          @click="handleTabClick('tracking')"
+          :class="[
+            'flex flex-col items-center justify-center gap-0.5 p-1 px-1.5 xs:px-2.5 text-[10px] font-bold rounded-lg transition-colors cursor-pointer shrink-0',
+            activeTab === 'tracking' ? 'text-blue-600 dark:text-slate-900 bg-blue-50/70 dark:bg-slate-150/70 font-black' : 'text-slate-600 hover:text-slate-900'
+          ]"
+        >
+          <Award class="w-3.5 h-3.5 xs:w-4 xs:h-4 shrink-0" />
+          <span class="shrink-0">{{ t('nav.progresso') }}</span>
+        </button>
 
-      <button
-        v-if="userProfile?.isInstructor || userProfile?.isAdmin || isMasterEnabled"
-        @click="handleTabClick('instructor')"
-        :class="[
-          'flex flex-col items-center justify-center gap-0.5 p-1 px-2.5 sm:px-3 text-[10px] font-bold rounded-lg transition-colors cursor-pointer active:scale-95 shrink-0',
-          activeTab === 'instructor' ? 'text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/45 border-amber-200 dark:border-amber-900/40 font-black' : 'text-slate-600 hover:text-slate-900'
-        ]"
-      >
-        <User class="w-4 h-4 shrink-0" />
-        <span class="shrink-0">{{ t('nav.tutor') }}</span>
-      </button>
+        <button
+          v-if="userProfile?.isInstructor || userProfile?.isAdmin || isMasterEnabled"
+          @click="handleTabClick('instructor')"
+          :class="[
+            'flex flex-col items-center justify-center gap-0.5 p-1 px-1.5 xs:px-2.5 text-[10px] font-bold rounded-lg transition-colors cursor-pointer active:scale-95 shrink-0',
+            activeTab === 'instructor' ? 'text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/45 border-amber-200 dark:border-amber-900/40 font-black' : 'text-slate-600 hover:text-slate-900'
+          ]"
+        >
+          <User class="w-3.5 h-3.5 xs:w-4 xs:h-4 shrink-0" />
+          <span class="shrink-0">{{ t('nav.tutor') }}</span>
+        </button>
 
-      <button
-        v-if="isMasterEnabled"
-        @click="handleTabClick('master')"
-        :class="[
-          'flex flex-col items-center justify-center gap-0.5 p-1 px-2.5 sm:px-3 text-[10px] font-bold rounded-lg transition-colors cursor-pointer active:scale-95 shrink-0',
-          activeTab === 'master' ? 'text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/45 border-indigo-200 dark:border-indigo-900/40 font-black' : 'text-slate-600 hover:text-slate-900'
-        ]"
-      >
-        <ShieldAlert class="w-4 h-4 shrink-0" />
-        <span class="shrink-0">{{ t('nav.master') }}</span>
-      </button>
+        <button
+          v-if="isMasterEnabled"
+          @click="handleTabClick('master')"
+          :class="[
+            'flex flex-col items-center justify-center gap-0.5 p-1 px-1.5 xs:px-2.5 text-[10px] font-bold rounded-lg transition-colors cursor-pointer active:scale-95 shrink-0',
+            activeTab === 'master' ? 'text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/45 border-indigo-200 dark:border-indigo-900/40 font-black' : 'text-slate-600 hover:text-slate-900'
+          ]"
+        >
+          <ShieldAlert class="w-3.5 h-3.5 xs:w-4 xs:h-4 shrink-0" />
+          <span class="shrink-0">{{ t('nav.master') }}</span>
+        </button>
+      </div>
     </div>
   </header>
 </template>
