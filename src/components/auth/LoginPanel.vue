@@ -130,14 +130,14 @@ const handleGoogleLogin = () => {
 
 <template>
   <div id="login-panel" class="max-w-md w-full bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 sm:p-8 shadow-xl space-y-6 text-center animate-fadeIn">
-    
+
     <!-- Top Header -->
     <div class="space-y-3">
-      <div class="inline-flex p-2.5 bg-blue-50/80 dark:bg-blue-950/50 rounded-2xl mx-auto border border-blue-100 dark:border-blue-900/40 shadow-xs">
-        <img 
-          src="/icon-login.svg" 
-          alt="Our First Global Job Logo" 
-          class="w-12 h-12 object-contain rounded-xl hover:scale-105 transition-transform duration-300" 
+      <div class="inline-flex p-2 bg-blue-50/50 dark:bg-slate-800/40 rounded-2xl mx-auto">
+        <img
+          src="/icon-login.svg"
+          alt="Our First Global Job Logo"
+          class="w-14 h-14 object-contain hover:scale-105 transition-transform duration-300"
         />
       </div>
       <div class="space-y-1">
@@ -150,7 +150,7 @@ const handleGoogleLogin = () => {
 
     <!-- Regular Student/Mentor Login/Register Flows -->
     <div class="space-y-4">
-      
+
       <!-- Selection Tabs: Entrar vs Criar Conta -->
       <div class="bg-slate-100 dark:bg-slate-950 p-1 rounded-xl grid grid-cols-2 gap-1 border border-transparent dark:border-slate-800">
         <button
@@ -158,8 +158,8 @@ const handleGoogleLogin = () => {
           @click="activeSubTab = 'login'; localError = ''"
           :class="[
             'py-2 text-xs font-black rounded-lg transition-all cursor-pointer',
-            activeSubTab === 'login' 
-              ? 'bg-white dark:bg-slate-800 text-blue-600 dark:text-white shadow-xs' 
+            activeSubTab === 'login'
+              ? 'bg-white dark:bg-slate-800 text-blue-600 dark:text-white shadow-xs'
               : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'
           ]"
         >
@@ -170,8 +170,8 @@ const handleGoogleLogin = () => {
           @click="activeSubTab = 'register'; localError = ''"
           :class="[
             'py-2 text-xs font-black rounded-lg transition-all cursor-pointer',
-            activeSubTab === 'register' 
-              ? 'bg-white dark:bg-slate-800 text-blue-600 dark:text-white shadow-xs' 
+            activeSubTab === 'register'
+              ? 'bg-white dark:bg-slate-800 text-blue-600 dark:text-white shadow-xs'
               : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'
           ]"
         >
@@ -186,7 +186,7 @@ const handleGoogleLogin = () => {
             <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Seu E-mail</label>
             <div class="relative">
               <Mail class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <input 
+              <input
                 type="email"
                 required
                 v-model="userEmail"
@@ -200,7 +200,7 @@ const handleGoogleLogin = () => {
             <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Sua Senha</label>
             <div class="relative">
               <Lock class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <input 
+              <input
                 :type="showPassword ? 'text' : 'password'"
                 required
                 v-model="userPassword"
@@ -263,7 +263,7 @@ const handleGoogleLogin = () => {
             <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Nome Completo</label>
             <div class="relative">
               <User class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <input 
+              <input
                 type="text"
                 required
                 v-model="userName"
@@ -277,7 +277,7 @@ const handleGoogleLogin = () => {
             <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">E-mail para Acesso</label>
             <div class="relative">
               <Mail class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <input 
+              <input
                 type="email"
                 required
                 v-model="userEmail"
@@ -297,7 +297,7 @@ const handleGoogleLogin = () => {
             </div>
             <div class="relative mb-2">
               <Lock class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <input 
+              <input
                 :type="showRegisterPassword ? 'text' : 'password'"
                 required
                 v-model="userPassword"
@@ -317,7 +317,7 @@ const handleGoogleLogin = () => {
 
             <!-- Password strength progress bar -->
             <div class="w-full bg-slate-100 dark:bg-slate-850 h-1.5 rounded-full overflow-hidden mb-3">
-              <div 
+              <div
                 class="h-full transition-all duration-300"
                 :class="passStrengthLabel.barBg"
                 :style="{ width: userPassword ? (passScore === 1 ? '20%' : passScore === 2 ? '40%' : passScore === 3 ? '60%' : passScore === 4 ? '80%' : '100%') : '0%' }"
@@ -361,7 +361,7 @@ const handleGoogleLogin = () => {
               <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Confirmar Senha de Acesso</label>
               <div class="relative">
                 <Lock class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                <input 
+                <input
                   :type="showRegisterConfirmPassword ? 'text' : 'password'"
                   required
                   v-model="userConfirmPassword"
@@ -399,9 +399,9 @@ const handleGoogleLogin = () => {
               </div>
             </div>
             <div class="flex justify-between items-center pt-2 border-t border-slate-200">
-              <button 
-                type="button" 
-                @click="openLgpdModal" 
+              <button
+                type="button"
+                @click="openLgpdModal"
                 class="text-[10px] font-black hover:underline cursor-pointer flex items-center gap-1.5"
                 style="color: var(--primary-color) !important;"
               >
@@ -413,7 +413,7 @@ const handleGoogleLogin = () => {
 
           <!-- Consent Checkbox -->
           <div class="flex items-start gap-2.5 select-none bg-slate-100 rounded-xl border border-slate-200 p-3 shadow-xs">
-            <input 
+            <input
               id="chk-lgpd-accept"
               type="checkbox"
               v-model="userLgpdAccepted"
@@ -449,8 +449,8 @@ const handleGoogleLogin = () => {
 
     <!-- LGPD Full Policy Modal Dialog -->
     <Teleport to="body">
-      <div 
-        v-if="showLgpdModal" 
+      <div
+        v-if="showLgpdModal"
         class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 z-50 text-left"
       >
         <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-2xl w-full border border-slate-200 dark:border-slate-800 p-6 sm:p-8 space-y-6 animate-scaleUp shadow-2xl">
@@ -462,7 +462,7 @@ const handleGoogleLogin = () => {
               </h3>
               <p class="text-xs text-slate-400 dark:text-slate-500 font-bold mt-1.5 uppercase tracking-wider">Regulamento Geral de Voluntariado Educativo</p>
             </div>
-            <button 
+            <button
               type="button"
               @click="showLgpdModal = false"
               class="text-slate-400 hover:text-slate-900 dark:hover:text-white text-xl font-black leading-none p-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl cursor-pointer transition"
@@ -475,7 +475,7 @@ const handleGoogleLogin = () => {
             <p class="font-bold text-slate-900 dark:text-white text-sm sm:text-base border-l-4 pl-3 py-1" :style="{ borderColor: 'var(--primary-color)' }">
               Este regulamento dita as diretrizes de tratamento de dados pessoais no Our First Global Job, em conformidade com o marco civil da internet e a Lei Geral de Proteção de Dados (LGPD - LEI Nº 13.709/2018):
             </p>
-            
+
             <div class="p-4 bg-slate-50 dark:bg-slate-950/40 rounded-2xl border border-slate-100 dark:border-slate-850/60 space-y-2.5">
               <div class="space-y-1.5">
                 <h4 class="font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
