@@ -1607,18 +1607,19 @@ const toggleLoginDarkMode = () => {
     <!-- Background Desktop -->
     <img 
       src="/bg-login-desktop.svg" 
-      alt="" 
-      class="hidden md:block absolute inset-0 w-full h-full object-cover -z-10 pointer-events-none" 
+      alt="Background Desktop" 
+      class="hidden md:block absolute inset-0 w-full h-full object-cover pointer-events-none z-0" 
     />
 
     <!-- Background Mobile -->
     <img 
       src="/bg-login-mobile.svg" 
-      alt="" 
-      class="block md:hidden absolute inset-0 w-full h-full object-cover -z-10 pointer-events-none" 
+      alt="Background Mobile" 
+      class="block md:hidden absolute inset-0 w-full h-full object-cover pointer-events-none z-0" 
     />
 
     <LoginPanel
+      class="relative z-10"
       :loading="adminLoading"
       @google-login="handleGoogleLoginClick"
       @email-login="handleEmailLoginClick"

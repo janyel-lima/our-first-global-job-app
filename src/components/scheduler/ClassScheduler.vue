@@ -1181,27 +1181,27 @@ const handleStudentEnter = (cl: ClassTurma) => {
           </div>
 
           <!-- Seats & interactive controls -->
-          <div class="mt-4 pt-4 border-t border-gray-100 dark:border-slate-700/80 flex items-center justify-between">
+          <div class="mt-4 pt-4 border-t border-gray-100 dark:border-slate-700/80 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2.5">
             <div>
               <span class="text-[10px] font-black text-gray-400 dark:text-gray-505 block">
                 {{ t('scheduler.occupation') }}
               </span>
               <div class="flex items-center gap-1.5 text-xs font-bold text-gray-700 dark:text-gray-300 mt-0.5 flex-wrap">
-                <Users class="w-4 h-4 text-gray-400" />
-                <span>{{ t('scheduler.studentsCount', { count: cl.studentIds.length, max: cl.maxStudents }) }}</span>
+                <Users class="w-4 h-4 text-gray-400 shrink-0" />
+                <span class="whitespace-nowrap">{{ t('scheduler.studentsCount', { count: cl.studentIds.length, max: cl.maxStudents }) }}</span>
                 <span v-if="isInscriptionsClosed(cl)" class="whitespace-nowrap text-[9px] bg-rose-500/15 text-rose-600 dark:text-rose-400 font-bold px-2 py-0.5 rounded-md border border-rose-500/20 uppercase tracking-wide shrink-0">
                   {{ t('scheduler.inscriptionsClosed') }}
                 </span>
               </div>
             </div>
 
-            <div class="flex items-center gap-1">
+            <div class="flex items-center gap-1 flex-wrap shrink-0">
               <!-- Edit capabilities for Instructor or Admin -->
               <button
                 v-if="isInstructor || isAdmin"
                 :id="`btn-edit-class-${cl.id}`"
                 @click.stop="startEditing(cl)"
-                class="p-2 text-blue-500 hover:bg-blue-55 dark:hover:bg-slate-700/50 rounded-lg transition-colors border border-transparent hover:border-blue-100 dark:hover:border-slate-700 cursor-pointer"
+                class="p-2 text-blue-500 hover:bg-blue-55 dark:hover:bg-slate-700/50 rounded-lg transition-colors border border-transparent hover:border-blue-100 dark:hover:border-slate-700 cursor-pointer shrink-0"
                 :title="t('scheduler.editClass')"
               >
                 <Edit class="w-4 h-4" />
@@ -1213,7 +1213,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
                 :id="`btn-delete-class-${cl.id}`"
                 @click.stop="emit('delete-class', cl.id)"
                 :title="t('scheduler.deleteClass')"
-                class="p-2 text-rose-500 hover:bg-rose-55 dark:hover:bg-slate-700/50 rounded-lg transition-colors border border-transparent hover:border-rose-100 dark:hover:border-slate-700 cursor-pointer"
+                class="p-2 text-rose-500 hover:bg-rose-55 dark:hover:bg-slate-700/50 rounded-lg transition-colors border border-transparent hover:border-rose-100 dark:hover:border-slate-700 cursor-pointer shrink-0"
               >
                 <Trash2 class="w-4.5 h-4.5" />
               </button>
@@ -1224,7 +1224,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
                   v-if="cl.studentIds.includes(currentUserId)"
                   :id="`btn-leave-class-${cl.id}`"
                   @click.stop="emit('leave-class', cl.id)"
-                  class="flex items-center gap-1 bg-rose-500/5 hover:bg-rose-500/10 text-rose-600 dark:text-rose-450 border border-rose-500/25 py-1.5 px-3.5 text-xs font-bold rounded-lg transition-colors cursor-pointer"
+                  class="flex items-center gap-1 bg-rose-500/5 hover:bg-rose-500/10 text-rose-600 dark:text-rose-450 border border-rose-500/25 py-1.5 px-3 text-xs font-bold rounded-lg transition-colors cursor-pointer shrink-0"
                 >
                   <LogOut class="w-3.5 h-3.5" />
                   {{ t('scheduler.leaveLabel') }}
@@ -1235,21 +1235,21 @@ const handleStudentEnter = (cl: ClassTurma) => {
                   @click.stop="emit('join-class', cl.id)"
                   :disabled="cl.studentIds.length >= cl.maxStudents || isInscriptionsClosed(cl)"
                   :class="[
-                    'flex items-center gap-1 py-1.5 px-3.5 text-xs font-bold rounded-lg transition-all border cursor-pointer',
+                    'flex items-center gap-1 py-1.5 px-2.5 text-[11px] font-bold rounded-lg transition-all border cursor-pointer shrink-0 max-w-[140px] truncate',
                     (cl.studentIds.length >= cl.maxStudents || isInscriptionsClosed(cl))
                       ? 'bg-gray-100 text-gray-400 border-gray-200 dark:bg-slate-750 dark:text-gray-500 dark:border-slate-700 cursor-not-allowed' 
                       : 'bg-blue-600 hover:bg-blue-700 text-white border-transparent shadow-xs'
                   ]"
                 >
-                  <Check class="w-3.5 h-3.5" />
-                  {{ cl.studentIds.length >= cl.maxStudents ? t('scheduler.fullLabel') : (isInscriptionsClosed(cl) ? t('scheduler.inscriptionsClosed') : t('scheduler.joinLabel')) }}
+                  <Check class="w-3.5 h-3.5 shrink-0" />
+                  <span class="truncate">{{ cl.studentIds.length >= cl.maxStudents ? t('scheduler.fullLabel') : (isInscriptionsClosed(cl) ? (isPt ? 'Encerradas' : 'Closed') : t('scheduler.joinLabel')) }}</span>
                 </button>
               </template>
 
               <!-- If the user is the instructor/creator of this class, show my class badge -->
               <span 
                 v-if="cl.instructorId === currentUserId"
-                class="text-[10px] text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 px-2.5 py-1 rounded-md font-bold flex items-center gap-1"
+                class="text-[10px] text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 px-2.5 py-1 rounded-md font-bold flex items-center gap-1 shrink-0"
               >
                 <CheckCircle class="w-3 h-3" /> {{ t('scheduler.myClassLabel') }}
               </span>
@@ -2095,26 +2095,26 @@ const handleStudentEnter = (cl: ClassTurma) => {
           <div class="border-t border-gray-150 dark:border-slate-800/60 my-1"></div>
 
           <!-- Occupancy & Buttons -->
-          <div class="flex items-center justify-between">
+          <div class="flex flex-wrap sm:flex-nowrap items-center justify-between gap-2.5">
             <div>
               <span class="text-[10px] font-black text-gray-400 dark:text-gray-505 uppercase tracking-widest block leading-none">
                 {{ t('scheduler.occupationLabel') }}
               </span>
               <div class="flex items-center gap-1.5 text-xs font-bold text-gray-700 dark:text-gray-300 mt-1.5 flex-wrap">
-                <Users class="w-4 h-4 text-gray-400" />
-                <span>{{ activeSelectedClass.studentIds.length }} / {{ activeSelectedClass.maxStudents }} {{ t('scheduler.studentsLabel') }}</span>
+                <Users class="w-4 h-4 text-gray-400 shrink-0" />
+                <span class="whitespace-nowrap">{{ activeSelectedClass.studentIds.length }} / {{ activeSelectedClass.maxStudents }} {{ t('scheduler.studentsLabel') }}</span>
                 <span v-if="isInscriptionsClosed(activeSelectedClass)" class="whitespace-nowrap text-[9px] bg-rose-500/15 text-rose-600 dark:text-rose-400 font-bold px-2 py-0.5 rounded-md border border-rose-500/20 uppercase tracking-wide shrink-0">
                   {{ t('scheduler.inscriptionsClosed') }}
                 </span>
               </div>
             </div>
 
-            <div class="flex items-center gap-1.5">
+            <div class="flex items-center gap-1.5 flex-wrap shrink-0">
               <!-- Edit capabilities for Instructor or Admin inside details modal -->
               <button
                 v-if="isInstructor || isAdmin"
                 @click="isEditingInModal = true; startEditing(activeSelectedClass);"
-                class="p-2 text-blue-500 hover:bg-blue-55 dark:hover:bg-slate-800 rounded-lg transition-colors border border-transparent hover:border-blue-100 dark:hover:border-slate-700 cursor-pointer"
+                class="p-2 text-blue-500 hover:bg-blue-55 dark:hover:bg-slate-800 rounded-lg transition-colors border border-transparent hover:border-blue-100 dark:hover:border-slate-700 cursor-pointer shrink-0"
                 :title="t('scheduler.editPropertiesTitle')"
               >
                 <Edit class="w-4 h-4" />
@@ -2125,7 +2125,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
                 v-if="(isInstructor || isAdmin) && (isAdmin || activeSelectedClass.instructorId === currentUserId || activeSelectedClass.instructorId === 'system-volunteer')"
                 @click="emit('delete-class', activeSelectedClass.id); selectedClass = null;"
                 :title="t('scheduler.removeTimeslotTitle')"
-                class="p-2 text-rose-500 hover:bg-rose-55 dark:hover:bg-slate-800 rounded-lg transition-colors border border-transparent hover:border-rose-100 dark:hover:border-slate-700 cursor-pointer"
+                class="p-2 text-rose-500 hover:bg-rose-55 dark:hover:bg-slate-800 rounded-lg transition-colors border border-transparent hover:border-rose-100 dark:hover:border-slate-700 cursor-pointer shrink-0"
               >
                 <Trash2 class="w-4.5 h-4.5" />
               </button>
@@ -2135,9 +2135,9 @@ const handleStudentEnter = (cl: ClassTurma) => {
                 <button
                   v-if="activeSelectedClass.studentIds.includes(currentUserId)"
                   @click="emit('leave-class', activeSelectedClass.id); selectedClass = null;"
-                  class="flex items-center gap-1 bg-rose-500/5 hover:bg-rose-500/10 text-rose-600 dark:text-rose-450 border border-rose-500/25 py-1.5 px-3 text-xs font-black rounded-lg transition-colors cursor-pointer"
+                  class="flex items-center gap-1 bg-rose-500/5 hover:bg-rose-500/10 text-rose-600 dark:text-rose-450 border border-rose-500/25 py-1.5 px-3 text-xs font-black rounded-lg transition-colors cursor-pointer shrink-0"
                 >
-                  <LogOut class="w-3.5 h-3.5 mr-0.5" />
+                  <LogOut class="w-3.5 h-3.5 mr-0.5 shrink-0" />
                   {{ t('scheduler.leaveLabel') }}
                 </button>
                 <button
@@ -2145,19 +2145,19 @@ const handleStudentEnter = (cl: ClassTurma) => {
                   @click="emit('join-class', activeSelectedClass.id)"
                   :disabled="activeSelectedClass.studentIds.length >= activeSelectedClass.maxStudents || isInscriptionsClosed(activeSelectedClass)"
                   :class="[
-                    'flex items-center gap-1 py-1.5 px-3.5 text-xs font-black rounded-lg transition-all border cursor-pointer',
+                    'flex items-center gap-1 py-1.5 px-2.5 text-[11px] font-black rounded-lg transition-all border cursor-pointer shrink-0 max-w-[140px] truncate',
                     (activeSelectedClass.studentIds.length >= activeSelectedClass.maxStudents || isInscriptionsClosed(activeSelectedClass))
                       ? 'bg-gray-100 text-gray-400 border-gray-200 dark:bg-slate-800 dark:text-gray-600 dark:border-slate-750 cursor-not-allowed' 
                       : 'bg-blue-600 hover:bg-blue-700 text-white border-transparent shadow-xs'
                   ]"
                 >
-                  <Check class="w-3.5 h-3.5 mr-0.5" />
-                  {{ activeSelectedClass.studentIds.length >= activeSelectedClass.maxStudents ? t('scheduler.fullLabel') : (isInscriptionsClosed(activeSelectedClass) ? t('scheduler.inscriptionsClosed') : t('scheduler.joinLabel')) }}
+                  <Check class="w-3.5 h-3.5 mr-0.5 shrink-0" />
+                  <span class="truncate">{{ activeSelectedClass.studentIds.length >= activeSelectedClass.maxStudents ? t('scheduler.fullLabel') : (isInscriptionsClosed(activeSelectedClass) ? (isPt ? 'Encerradas' : 'Closed') : t('scheduler.joinLabel')) }}</span>
                 </button>
               </template>
               <span 
                 v-if="activeSelectedClass.instructorId === currentUserId"
-                class="text-[10px] text-emerald-650 dark:text-emerald-400 bg-emerald-500/5 dark:bg-emerald-950/30 px-2.5 py-1.5 rounded-lg border border-emerald-500/15 font-black flex items-center gap-1"
+                class="text-[10px] text-emerald-650 dark:text-emerald-400 bg-emerald-500/5 dark:bg-emerald-950/30 px-2.5 py-1.5 rounded-lg border border-emerald-500/15 font-black flex items-center gap-1 shrink-0"
               >
                 <CheckCircle class="w-3.5 h-3.5" /> {{ t('scheduler.myClassLabel') }}
               </span>

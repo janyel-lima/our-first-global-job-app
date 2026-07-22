@@ -133,9 +133,13 @@ const handleGoogleLogin = () => {
     
     <!-- Top Header -->
     <div class="space-y-3">
-      <span class="inline-flex p-3 bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-300 rounded-2xl mx-auto border border-transparent dark:border-blue-900/20">
-        <Compass id="decor-compass" class="w-7 h-7 animate-pulse text-blue-600 dark:text-blue-300" />
-      </span>
+      <div class="inline-flex p-2.5 bg-blue-50/80 dark:bg-blue-950/50 rounded-2xl mx-auto border border-blue-100 dark:border-blue-900/40 shadow-xs">
+        <img 
+          src="/icon-login.svg" 
+          alt="Our First Global Job Logo" 
+          class="w-12 h-12 object-contain rounded-xl hover:scale-105 transition-transform duration-300" 
+        />
+      </div>
       <div class="space-y-1">
         <h1 class="text-2xl sm:text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight leading-none">{{ t('auth.title') }}</h1>
         <p class="text-slate-500 dark:text-slate-400 text-xs max-w-sm mx-auto leading-relaxed font-semibold">

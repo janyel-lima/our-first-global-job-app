@@ -88,10 +88,10 @@ const handleColorSelect = (e: Event) => {
     <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2 sm:py-3 flex items-center justify-between">
       <!-- Brand & Logo -->
       <div class="flex items-center gap-1.5 sm:gap-2.5 cursor-pointer shrink-0 animate-fadeIn" @click="handleTabClick('courses', true)">
-        <div class="p-1.5 rounded-xl bg-blue-600 shadow-sm flex items-center justify-center text-white shrink-0 relative">
-          <BookMarked id="main-brand-logo" class="w-4 h-4" />
+        <div class="p-1 rounded-xl bg-blue-600/10 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800/40 shadow-xs flex items-center justify-center shrink-0 relative">
+          <img id="main-brand-logo" src="/icon.svg" alt="OFGJ" class="w-6 h-6 object-contain rounded-lg" />
           <!-- Small dot indicator on mobile, hidden on sm where the full badge is shown -->
-          <span class="sm:hidden absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full border border-blue-600 shrink-0" :class="isOnline ? 'bg-emerald-500' : 'bg-red-500'"></span>
+          <span class="sm:hidden absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full border border-white dark:border-slate-900 shrink-0" :class="isOnline ? 'bg-emerald-500' : 'bg-red-500'"></span>
         </div>
         <div class="flex flex-col text-left">
           <span class="font-black text-[11px] min-[400px]:text-xs sm:text-sm tracking-tight text-slate-900 leading-tight">
