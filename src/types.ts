@@ -73,6 +73,9 @@ export interface ClassTurma {
   presentStudentIds?: string[];
   eventType?: "aula" | "encontro" | "conversacao";
   aulaType?: "curso" | "avulsa";
+  targetLevel?: "Beginner" | "Intermediate" | "Advanced" | "All";
+  isRecurring?: boolean;
+  recurrenceFrequency?: "weekly" | "biweekly" | "monthly";
 }
 
 export interface Progress {

@@ -1,16 +1,16 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import {
-  BookMarked,
-  User,
-  Paintbrush,
-  Sun,
-  Moon,
-  LogOut,
-  ShieldAlert,
-  BookOpen,
-  Calendar,
-  MessageSquare,
+import { 
+  BookMarked, 
+  User, 
+  Paintbrush, 
+  Sun, 
+  Moon, 
+  LogOut, 
+  ShieldAlert, 
+  BookOpen, 
+  Calendar, 
+  MessageSquare, 
   Award,
   Pencil,
   Users,
@@ -100,9 +100,9 @@ const handleColorSelect = (e: Event) => {
           </span>
           <span class="text-[8px] sm:text-[9px] font-bold text-slate-400 dark:text-slate-600 uppercase tracking-widest leading-none mt-0.5 hidden sm:block">Learning App</span>
         </div>
-
+        
         <!-- CONNECTION STATUS BADGE -->
-        <span
+        <span 
           class="hidden sm:flex text-[8px] font-black uppercase tracking-wider px-2 py-1 rounded-full items-center gap-1.5 shrink-0 ml-3 sm:ml-5 mr-4 md:mr-8 border border-slate-150 bg-slate-50"
           :title="isOnline ? t('header.connected') : t('header.offlineMode')"
         >
@@ -119,8 +119,8 @@ const handleColorSelect = (e: Event) => {
             @click="handleTabClick('courses', true)"
             :class="[
               'px-4 py-1.5 text-xs font-bold rounded-lg transition-all duration-150 cursor-pointer select-none',
-              activeTab === 'courses'
-                ? 'text-blue-600 dark:text-slate-900 bg-white dark:bg-slate-200 shadow-sm border border-slate-200 dark:border-slate-250'
+              activeTab === 'courses' 
+                ? 'text-blue-600 dark:text-slate-900 bg-white dark:bg-slate-200 shadow-sm border border-slate-200 dark:border-slate-250' 
                 : 'text-slate-600 hover:text-slate-900'
             ]"
           >
@@ -131,8 +131,8 @@ const handleColorSelect = (e: Event) => {
             @click="handleTabClick('scheduler')"
             :class="[
               'px-4 py-1.5 text-xs font-bold rounded-lg transition-all duration-150 cursor-pointer select-none',
-              activeTab === 'scheduler'
-                ? 'text-blue-600 dark:text-slate-900 bg-white dark:bg-slate-200 shadow-sm border border-slate-200 dark:border-slate-250'
+              activeTab === 'scheduler' 
+                ? 'text-blue-600 dark:text-slate-900 bg-white dark:bg-slate-200 shadow-sm border border-slate-200 dark:border-slate-250' 
                 : 'text-slate-600 hover:text-slate-900'
             ]"
           >
@@ -143,14 +143,14 @@ const handleColorSelect = (e: Event) => {
             @click="handleTabClick('chats')"
             :class="[
               'px-4 py-1.5 text-xs font-bold rounded-lg transition-all duration-150 cursor-pointer select-none flex items-center justify-center gap-1.5',
-              activeTab === 'chats'
-                ? 'text-blue-600 dark:text-slate-900 bg-white dark:bg-slate-200 shadow-sm border border-slate-200 dark:border-slate-250'
+              activeTab === 'chats' 
+                ? 'text-blue-600 dark:text-slate-900 bg-white dark:bg-slate-200 shadow-sm border border-slate-200 dark:border-slate-250' 
                 : 'text-slate-600 hover:text-slate-900'
             ]"
           >
             <span>{{ t('nav.duvidas') }}</span>
-            <span
-              v-if="unreadChatsCount"
+            <span 
+              v-if="unreadChatsCount" 
               class="bg-red-500 text-white text-[8.5px] font-black leading-none px-1.5 py-0.5 rounded-full select-none"
             >
               {{ unreadChatsCount }}
@@ -161,8 +161,8 @@ const handleColorSelect = (e: Event) => {
             @click="handleTabClick('tracking')"
             :class="[
               'px-4 py-1.5 text-xs font-bold rounded-lg transition-all duration-150 cursor-pointer select-none',
-              activeTab === 'tracking'
-                ? 'text-blue-600 dark:text-slate-900 bg-white dark:bg-slate-200 shadow-sm border border-slate-200 dark:border-slate-250'
+              activeTab === 'tracking' 
+                ? 'text-blue-600 dark:text-slate-900 bg-white dark:bg-slate-200 shadow-sm border border-slate-200 dark:border-slate-250' 
                 : 'text-slate-600 hover:text-slate-900'
             ]"
           >
@@ -174,8 +174,8 @@ const handleColorSelect = (e: Event) => {
             @click="handleTabClick('instructor')"
             :class="[
               'px-3.5 py-1.5 text-xs font-black rounded-lg border transition-all duration-150 cursor-pointer select-none flex items-center gap-1 active:scale-95',
-              activeTab === 'instructor'
-                ? 'text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/45 border-amber-300 dark:border-amber-700/60 shadow-md ring-2 ring-amber-500/15'
+              activeTab === 'instructor' 
+                ? 'text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/45 border-amber-300 dark:border-amber-700/60 shadow-md ring-2 ring-amber-500/15' 
                 : 'text-slate-600 dark:text-slate-400 border-transparent hover:text-slate-900 dark:hover:text-slate-100'
             ]"
           >
@@ -201,7 +201,7 @@ const handleColorSelect = (e: Event) => {
         <div class="flex items-center gap-1.5 sm:gap-3 pl-1.5 sm:pl-4 shrink-0">
           <!-- Unified Profile Dropdown Button -->
           <div v-if="userProfile" class="relative shrink-0">
-            <button
+            <button 
               type="button"
               @click="toggleProfileDropdown"
               class="flex items-center gap-2 bg-slate-50 hover:bg-slate-100 dark:bg-slate-900/40 dark:hover:bg-slate-900/80 p-1 rounded-xl border border-slate-150 dark:border-slate-800 cursor-pointer transition-all duration-200 shrink-0 group active:scale-95 animate-fadeIn select-none"
@@ -210,14 +210,14 @@ const handleColorSelect = (e: Event) => {
               :title="t('header.editProfile')"
             >
               <!-- Avatar circle -->
-              <div
+              <div 
                 class="w-7 h-7 sm:w-8 sm:h-8 text-white rounded-lg flex items-center justify-center font-mono font-black text-xs sm:text-sm shadow-xs uppercase shrink-0 relative overflow-hidden"
                 :style="{ backgroundColor: primaryColor }"
               >
-                <img
-                  v-if="userProfile?.photoURL"
-                  :src="userProfile.photoURL"
-                  alt="Profile"
+                <img 
+                  v-if="userProfile?.photoURL" 
+                  :src="userProfile.photoURL" 
+                  alt="Profile" 
                   referrerpolicy="no-referrer"
                   class="w-full h-full object-cover"
                 />
@@ -236,21 +236,21 @@ const handleColorSelect = (e: Event) => {
             </button>
 
             <!-- Consolidated Dropdown Panel -->
-            <div
-              v-if="showProfileDropdown"
+            <div 
+              v-if="showProfileDropdown" 
               class="absolute right-0 mt-2.5 w-76 sm:w-80 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl p-4 sm:p-5 z-50 text-left space-y-4 animate-fadeIn"
             >
               <!-- User profile Quick Card -->
               <div class="bg-slate-50 dark:bg-slate-950/25 p-3.5 rounded-xl border border-slate-150 dark:border-slate-800/80 space-y-3">
                 <div class="flex items-center gap-3">
-                  <div
+                  <div 
                     class="w-9 h-9 text-white rounded-lg flex items-center justify-center font-mono font-black text-xs shadow-xs uppercase shrink-0 relative overflow-hidden"
                     :style="{ backgroundColor: primaryColor }"
                   >
-                    <img
-                      v-if="userProfile?.photoURL"
-                      :src="userProfile.photoURL"
-                      alt="Profile"
+                    <img 
+                      v-if="userProfile?.photoURL" 
+                      :src="userProfile.photoURL" 
+                      alt="Profile" 
                       referrerpolicy="no-referrer"
                       class="w-full h-full object-cover"
                     />
@@ -267,9 +267,9 @@ const handleColorSelect = (e: Event) => {
                     </p>
                   </div>
                 </div>
-
+                
                 <div class="flex items-center justify-between pt-2.5 border-t border-slate-200/60 dark:border-slate-800/50">
-                  <span
+                  <span 
                     class="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-white dark:bg-slate-850 border border-slate-150 dark:border-slate-750 leading-none flex items-center gap-1 shrink-0"
                     :style="{ color: primaryColor }"
                   >
@@ -304,8 +304,8 @@ const handleColorSelect = (e: Event) => {
                     @click="setLocale('pt')"
                     :class="[
                       'py-1.5 px-2.5 rounded-lg border font-black text-[10px] uppercase tracking-wider flex items-center justify-center gap-1.5 cursor-pointer transition-all active:scale-95',
-                      locale === 'pt'
-                        ? 'bg-slate-50 dark:bg-slate-850 text-slate-900 dark:text-white font-extrabold'
+                      locale === 'pt' 
+                        ? 'bg-slate-50 dark:bg-slate-850 text-slate-900 dark:text-white font-extrabold' 
                         : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'
                     ]"
                     :style="locale === 'pt' ? { borderColor: primaryColor, borderWidth: '1.5px' } : {}"
@@ -318,8 +318,8 @@ const handleColorSelect = (e: Event) => {
                     @click="setLocale('en')"
                     :class="[
                       'py-1.5 px-2.5 rounded-lg border font-black text-[10px] uppercase tracking-wider flex items-center justify-center gap-1.5 cursor-pointer transition-all active:scale-95',
-                      locale === 'en'
-                        ? 'bg-slate-50 dark:bg-slate-850 text-slate-900 dark:text-white font-extrabold'
+                      locale === 'en' 
+                        ? 'bg-slate-50 dark:bg-slate-850 text-slate-900 dark:text-white font-extrabold' 
                         : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'
                     ]"
                     :style="locale === 'en' ? { borderColor: primaryColor, borderWidth: '1.5px' } : {}"
@@ -337,9 +337,9 @@ const handleColorSelect = (e: Event) => {
                 </span>
                 <div class="grid grid-cols-2 gap-2">
                   <!-- WhatsApp -->
-                  <a
-                    href="https://chat.whatsapp.com/LiZZEd9O4ko7hYQhXIQq44"
-                    target="_blank"
+                  <a 
+                    href="https://chat.whatsapp.com/LiZZEd9O4ko7hYQhXIQq44" 
+                    target="_blank" 
                     rel="noopener noreferrer"
                     class="flex items-center gap-2 p-2 bg-emerald-50/40 hover:bg-emerald-50 dark:bg-emerald-950/10 dark:hover:bg-emerald-950/20 border border-emerald-200/50 dark:border-emerald-800/40 rounded-xl transition-all active:scale-95 group text-left"
                   >
@@ -355,9 +355,9 @@ const handleColorSelect = (e: Event) => {
                   </a>
 
                   <!-- Telegram -->
-                  <a
-                    href="https://t.me/+mwC7pnv770A4MDQx"
-                    target="_blank"
+                  <a 
+                    href="https://t.me/+mwC7pnv770A4MDQx" 
+                    target="_blank" 
                     rel="noopener noreferrer"
                     class="flex items-center gap-2 p-2 bg-sky-50/40 hover:bg-sky-50 dark:bg-sky-950/10 dark:hover:bg-sky-950/20 border border-sky-200/50 dark:border-sky-800/40 rounded-xl transition-all active:scale-95 group text-left"
                   >
@@ -424,12 +424,12 @@ const handleColorSelect = (e: Event) => {
                       <span v-if="primaryColor === color" class="absolute inset-0 flex items-center justify-center text-white text-[10px] font-black">✓</span>
                     </button>
 
-                    <label
+                    <label 
                       class="w-7.5 h-7.5 rounded-full border hover:scale-110 active:scale-95 cursor-pointer relative block overflow-hidden shadow-2xs transition-transform shrink-0"
-                      :style="{
-                        background: !['#2563EB', '#4F46E5', '#0891B2', '#059669', '#DC2626'].includes(primaryColor)
-                          ? primaryColor
-                          : 'conic-gradient(from 0deg, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000)'
+                      :style="{ 
+                        background: !['#2563EB', '#4F46E5', '#0891B2', '#059669', '#DC2626'].includes(primaryColor) 
+                          ? primaryColor 
+                          : 'conic-gradient(from 0deg, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000)' 
                       }"
                       :class="[
                         !['#2563EB', '#4F46E5', '#0891B2', '#059669', '#DC2626'].includes(primaryColor)
@@ -437,20 +437,20 @@ const handleColorSelect = (e: Event) => {
                           : 'border-slate-100 dark:border-slate-800'
                       ]"
                     >
-                      <input
-                        type="color"
+                      <input 
+                        type="color" 
                         :value="primaryColor"
                         @input="handleColorSelect"
                         class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                       />
-                      <span
-                        v-if="!['#2563EB', '#4F46E5', '#0891B2', '#059669', '#DC2626'].includes(primaryColor)"
+                      <span 
+                        v-if="!['#2563EB', '#4F46E5', '#0891B2', '#059669', '#DC2626'].includes(primaryColor)" 
                         class="absolute inset-0 flex items-center justify-center text-white text-[10px] font-black mix-blend-difference"
                       >
                         ✓
                       </span>
-                      <span
-                        v-else
+                      <span 
+                        v-else 
                         class="absolute inset-0 flex items-center justify-center text-white text-[11px] font-black drop-shadow-sm select-none"
                       >
                         +
@@ -476,7 +476,7 @@ const handleColorSelect = (e: Event) => {
     </div>
 
     <!-- Navigation Bar for Mobile (Inside sticky header, centered & compact without clipping overflow) -->
-    <div
+    <div 
       class="md:hidden w-full overflow-x-auto whitespace-nowrap scrollbar-none py-1 select-none border-t border-slate-100/80 dark:border-slate-800/60"
       style="-ms-overflow-style: none; scrollbar-width: none;"
     >
@@ -512,8 +512,8 @@ const handleColorSelect = (e: Event) => {
         >
           <div class="relative shrink-0 flex items-center justify-center">
             <MessageSquare class="w-3.5 h-3.5 xs:w-4 xs:h-4 shrink-0" />
-            <span
-              v-if="unreadChatsCount"
+            <span 
+              v-if="unreadChatsCount" 
               class="absolute -top-1.5 -right-2 bg-red-500 text-white text-[7.5px] font-black w-3.5 h-3.5 rounded-full flex items-center justify-center border border-white dark:border-slate-50 select-none animate-pulse shrink-0"
             >
               {{ unreadChatsCount }}

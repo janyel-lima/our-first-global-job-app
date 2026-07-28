@@ -272,10 +272,10 @@ const submit = () => {
 <template>
   <div 
     v-if="isOpen" 
-    class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 text-left shadow-2xl"
+    class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 z-50 text-left shadow-2xl"
   >
-    <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full border border-slate-200 dark:border-slate-800 p-6 sm:p-8 space-y-6 animate-scaleUp">
-      <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3 select-none">
+    <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full border border-slate-200 dark:border-slate-800 p-4 sm:p-7 space-y-4 sm:space-y-6 animate-scaleUp max-h-[95vh] flex flex-col">
+      <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3 select-none shrink-0">
         <div>
           <h3 class="text-base sm:text-lg font-black text-slate-900 dark:text-white">{{ t('profileModal.title') }}</h3>
           <p class="text-xs text-slate-400 font-bold">{{ t('profileModal.keepUpdated') }}</p>
@@ -289,7 +289,7 @@ const submit = () => {
         </button>
       </div>
 
-      <form @submit.prevent="submit" class="space-y-4 overflow-y-auto max-h-[480px] px-3.5 py-1.5 pr-2.5 scrollbar-thin">
+      <form @submit.prevent="submit" class="space-y-4 overflow-y-auto max-h-[calc(85vh-120px)] px-2 sm:px-3.5 py-1.5 pr-2 scrollbar-thin flex-1">
         
         <!-- DISPLAY NAME -->
         <div class="space-y-1.5">

@@ -984,9 +984,77 @@ const handleExportJSON = () => {
       <p v-if="filteredStudentReports.length === 0" class="text-xs text-slate-400 dark:text-slate-500 italic py-4">
         {{ t('tutor.noMatchingStudent') }}
       </p>
-      <div v-else class="rounded-xl border border-gray-200/50 dark:border-slate-850 bg-white dark:bg-slate-900 overflow-hidden">
-        <div class="overflow-x-auto">
-          <table id="instructor-analytics-table" class="w-full text-left border-collapse text-xs min-w-[800px]">
+      <div v-else class="rounded-2xl border border-gray-200/60 dark:border-slate-850 bg-white dark:bg-slate-900 overflow-hidden">
+        <!-- Mobile Vertical Responsiveness View (Stacked Cards) -->
+        <div class="sm:hidden divide-y divide-gray-100 dark:divide-slate-800">
+          <div 
+            v-for="report in paginatedStudentReports" 
+            :key="'mob-' + report.id" 
+            class="p-4 space-y-3 bg-white dark:bg-slate-900"
+          >
+            <!-- Student Header -->
+            <div class="flex items-start justify-between gap-2">
+              <div>
+                <h4 class="font-bold text-sm text-slate-900 dark:text-white leading-tight">
+                  {{ getStudentName(report.userId) }}
+                </h4>
+                <p class="text-[9.5px] font-mono text-gray-400 dark:text-slate-500 leading-none mt-1">
+                  ID: {{ report.userId.substring(0, 12) }}...
+                </p>
+              </div>
+              <span v-if="report.certified" class="inline-flex items-center gap-1 text-[9.5px] font-bold bg-emerald-100 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 px-2 py-0.5 rounded-full shrink-0 select-none">
+                <Check class="w-2.5 h-2.5" /> {{ t('tutor.released') }}
+              </span>
+              <span v-else class="text-[9.5px] text-gray-400 dark:text-slate-500 italic font-medium shrink-0">
+                {{ t('tutor.inProgress') }}
+              </span>
+            </div>
+
+            <!-- Assigned Course -->
+            <div class="p-2.5 bg-slate-50 dark:bg-slate-950/60 rounded-xl border border-slate-100 dark:border-slate-800/80 space-y-1">
+              <span class="text-[9px] font-black uppercase text-slate-400 dark:text-slate-500 tracking-wider block leading-none">
+                {{ t('tutor.thAssignedCourse') }}
+              </span>
+              <p class="text-xs font-bold text-slate-800 dark:text-slate-200 leading-snug">
+                {{ courses.find(c => c.id === report.courseId)?.title || "Manual Course" }}
+              </p>
+            </div>
+
+            <!-- Metrics Row (Lessons & Grade) -->
+            <div class="grid grid-cols-2 gap-2 text-xs">
+              <div class="p-2 bg-slate-50/80 dark:bg-slate-950/40 rounded-lg border border-slate-100 dark:border-slate-800/50">
+                <span class="text-[8.5px] font-bold uppercase text-slate-400 dark:text-slate-500 block">
+                  {{ t('tutor.thLessonsCompleted') }}
+                </span>
+                <span class="font-extrabold text-blue-600 dark:text-blue-400 mt-0.5 block">
+                  {{ report.completedLessons.length }} check(s)
+                </span>
+              </div>
+              <div class="p-2 bg-slate-50/80 dark:bg-slate-950/40 rounded-lg border border-slate-100 dark:border-slate-800/50">
+                <span class="text-[8.5px] font-bold uppercase text-slate-400 dark:text-slate-500 block">
+                  {{ t('tutor.thAcademicAverage') }}
+                </span>
+                <template v-if="Object.values(report.quizScores).length > 0">
+                  <span :class="[
+                    'font-black text-xs inline-block mt-0.5',
+                    (Object.values(report.quizScores).reduce((a,b)=>a+b,0)/Object.values(report.quizScores).length) >= 70
+                      ? 'text-emerald-600 dark:text-emerald-400'
+                      : 'text-amber-600 dark:text-amber-400'
+                  ]">
+                    {{ Math.round(Object.values(report.quizScores).reduce((a,b)=>a+b,0)/Object.values(report.quizScores).length) }}%
+                  </span>
+                </template>
+                <span v-else class="text-gray-400 dark:text-slate-500 italic text-[10px] mt-0.5 block">
+                  {{ t('tutor.noGrades') }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Desktop Horizontal Table View -->
+        <div class="hidden sm:block overflow-x-auto">
+          <table id="instructor-analytics-table" class="w-full text-left border-collapse text-xs min-w-[700px]">
             <thead>
               <tr class="bg-slate-50 dark:bg-slate-950 border-b border-gray-100 dark:border-slate-850 text-slate-450 font-extrabold uppercase tracking-wider text-[10px]">
                 <th class="p-4 font-extrabold">{{ t('tutor.thStudent') }}</th>

@@ -38,6 +38,9 @@ const scheduledAt = ref('');
 const scheduledHour = ref('19:00');
 const maxStudents = ref(10);
 const isSubmitting = ref(false);
+const selectedTargetLevel = ref<'Beginner' | 'Intermediate' | 'Advanced' | 'All'>('All');
+const isRecurring = ref(false);
+const recurrenceFrequency = ref<'weekly' | 'biweekly' | 'monthly'>('weekly');
 
 // Edit states
 const editingClassId = ref<string | null>(null);
@@ -51,11 +54,15 @@ const editCallUrl = ref('');
 const editStatus = ref<'scheduled' | 'completed' | 'cancelled'>('scheduled');
 const editScheduledDate = ref('');
 const editScheduledTime = ref('');
+const editTargetLevel = ref<'Beginner' | 'Intermediate' | 'Advanced' | 'All'>('All');
+const editIsRecurring = ref(false);
+const editRecurrenceFrequency = ref<'weekly' | 'biweekly' | 'monthly'>('weekly');
 
 // Advanced search, level filtering and pagination states
 const classSearchQuery = ref('');
 const classStatusFilter = ref('All');
 const classEventTypeFilter = ref('All');
+const classTargetLevelFilter = ref('All');
 const classCurrentPage = ref(1);
 const classItemsPerPage = ref(6);
 
@@ -64,14 +71,24 @@ const filteredClasses = computed(() => {
     // 1. Level check: Hide classes requiring a level above the student's current profile level (unless admin/instructor)
     if (!props.isInstructor && !props.isAdmin) {
       const associatedCourse = props.courses.find(c => c.id === cl.courseId);
-      if (associatedCourse) {
+      const effectiveLevel = cl.targetLevel || (associatedCourse ? associatedCourse.level : "All");
+      if (effectiveLevel !== "All") {
         const levelRank: Record<string, number> = { Beginner: 1, Intermediate: 2, Advanced: 3, All: 4 };
         const uLevel = props.userLevel || "Beginner";
         const userPower = levelRank[uLevel] || 1;
-        const coursePower = levelRank[associatedCourse.level] || 1;
-        if (coursePower > userPower) {
+        const targetPower = levelRank[effectiveLevel] || 1;
+        if (targetPower > userPower) {
           return false;
         }
+      }
+    }
+
+    // 2. Explicit Level filter selection
+    if (classTargetLevelFilter.value !== 'All') {
+      const associatedCourse = props.courses.find(c => c.id === cl.courseId);
+      const effectiveLevel = cl.targetLevel || (associatedCourse ? associatedCourse.level : "All");
+      if (effectiveLevel !== classTargetLevelFilter.value && effectiveLevel !== 'All') {
+        return false;
       }
     }
 
@@ -117,8 +134,8 @@ const allowedCourses = computed(() => {
   return props.courses.filter(c => c.creatorId === props.currentUserId);
 });
 
-// Reset page when search, status, or event type filter changes
-watch([classSearchQuery, classStatusFilter, classEventTypeFilter], () => {
+// Reset page when search, status, event type, or target level filter changes
+watch([classSearchQuery, classStatusFilter, classEventTypeFilter, classTargetLevelFilter], () => {
   classCurrentPage.value = 1;
 });
 
@@ -436,6 +453,10 @@ const handleCreate = async () => {
   isSubmitting.value = true;
   try {
     const fullDateTime = `${scheduledAt.value} ${scheduledHour.value}`;
+    const targetLvl = selectedTargetLevel.value;
+    const rec = isRecurring.value;
+    const freq = recurrenceFrequency.value;
+
     emit('create-class', {
       courseId,
       courseTitle,
@@ -447,14 +468,55 @@ const handleCreate = async () => {
       callUrl: '',
       presentStudentIds: [],
       eventType: selectedEventType.value,
-      aulaType: selectedEventType.value === 'aula' ? selectedAulaType.value : undefined
+      aulaType: selectedEventType.value === 'aula' ? selectedAulaType.value : undefined,
+      targetLevel: targetLvl,
+      isRecurring: rec,
+      recurrenceFrequency: rec ? freq : undefined
     });
+
+    // Automatically generate 3 future instances if it's a recurring event
+    if (rec && scheduledAt.value) {
+      const parts = scheduledAt.value.split('-');
+      const y = parseInt(parts[0], 10);
+      const m = parseInt(parts[1], 10) - 1;
+      const d = parseInt(parts[2], 10);
+      const [h, min] = scheduledHour.value.split(':');
+      const baseDate = new Date(y, m, d, parseInt(h, 10), parseInt(min, 10));
+      const stepDays = freq === 'weekly' ? 7 : freq === 'biweekly' ? 14 : 30;
+
+      for (let i = 1; i <= 3; i++) {
+        const nextDate = new Date(baseDate);
+        nextDate.setDate(nextDate.getDate() + (stepDays * i));
+        const nextYMD = formatDateToYMD(nextDate);
+        const nextScheduledAt = `${nextYMD} ${scheduledHour.value}`;
+
+        emit('create-class', {
+          courseId,
+          courseTitle,
+          instructorId: props.currentUserId,
+          instructorName: props.userDisplayName,
+          scheduledAt: nextScheduledAt,
+          maxStudents: selectedEventType.value === 'encontro' ? 1 : maxStudents.value,
+          status: 'scheduled',
+          callUrl: '',
+          presentStudentIds: [],
+          eventType: selectedEventType.value,
+          aulaType: selectedEventType.value === 'aula' ? selectedAulaType.value : undefined,
+          targetLevel: targetLvl,
+          isRecurring: true,
+          recurrenceFrequency: freq
+        });
+      }
+    }
+
     showAddForm.value = false;
     selectedCourseId.value = '';
     customClassTitle.value = '';
     scheduledAt.value = '';
     selectedEventType.value = 'aula';
     selectedAulaType.value = 'curso';
+    selectedTargetLevel.value = 'All';
+    isRecurring.value = false;
   } catch (error) {
     console.error("Erro criando evento:", error);
   } finally {
@@ -471,6 +533,9 @@ const startEditing = (cl: ClassTurma) => {
   editMaxStudents.value = cl.maxStudents;
   editCallUrl.value = cl.callUrl || '';
   editStatus.value = cl.status;
+  editTargetLevel.value = cl.targetLevel || 'All';
+  editIsRecurring.value = !!cl.isRecurring;
+  editRecurrenceFrequency.value = cl.recurrenceFrequency || 'weekly';
 
   const parts = cl.scheduledAt.split(' ');
   editScheduledDate.value = parts[0] || '';
@@ -521,7 +586,10 @@ const saveEdit = (cl: ClassTurma) => {
     status: editStatus.value,
     scheduledAt: finalScheduledAt,
     eventType: editEventType.value,
-    aulaType: editEventType.value === 'aula' ? editAulaType.value : undefined
+    aulaType: editEventType.value === 'aula' ? editAulaType.value : undefined,
+    targetLevel: editTargetLevel.value,
+    isRecurring: editIsRecurring.value,
+    recurrenceFrequency: editIsRecurring.value ? editRecurrenceFrequency.value : undefined
   };
 
   emit('update-class', updated);
@@ -743,6 +811,23 @@ const handleStudentEnter = (cl: ClassTurma) => {
           </div>
         </template>
 
+        <!-- Target English Level & Recurrence -->
+        <div>
+          <label class="block text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 tracking-wider mb-1.5">
+            {{ locale === 'pt' ? 'Nível de Inglês Alvo' : 'Class Target Level' }}
+          </label>
+          <select
+            id="select-class-target-level"
+            v-model="selectedTargetLevel"
+            class="w-full text-xs font-medium bg-white dark:bg-slate-950 dark:text-white border border-gray-200 dark:border-slate-800 rounded-xl p-3 focus:outline-hidden focus:ring-2 focus:ring-inset focus:ring-blue-500 cursor-pointer transition-all"
+          >
+            <option value="All">{{ locale === 'pt' ? 'Todos os Níveis' : 'All Levels' }}</option>
+            <option value="Beginner">{{ locale === 'pt' ? 'Iniciante (Beginner)' : 'Beginner' }}</option>
+            <option value="Intermediate">{{ locale === 'pt' ? 'Intermediário (Intermediate)' : 'Intermediate' }}</option>
+            <option value="Advanced">{{ locale === 'pt' ? 'Avançado (Advanced)' : 'Advanced' }}</option>
+          </select>
+        </div>
+
         <!-- SHARED DATE/TIME & CAPACITY FIELDS -->
         <div v-if="selectedEventType !== 'encontro'">
           <label class="block text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 tracking-wider mb-1.5">
@@ -783,6 +868,41 @@ const handleStudentEnter = (cl: ClassTurma) => {
             v-model="scheduledHour"
             class="w-full text-xs font-medium bg-white dark:bg-slate-950 dark:text-white border border-gray-200 dark:border-slate-800 rounded-xl p-3 focus:outline-hidden focus:ring-2 focus:ring-inset focus:ring-blue-500 focus:border-blue-500 cursor-pointer transition-all"
           />
+        </div>
+
+        <!-- Recurring Event Option -->
+        <div class="col-span-1 md:col-span-2 bg-blue-50/50 dark:bg-slate-950/60 p-3.5 rounded-2xl border border-blue-100 dark:border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div class="flex items-center gap-2.5">
+            <input
+              id="checkbox-is-recurring"
+              type="checkbox"
+              v-model="isRecurring"
+              class="w-4 h-4 text-blue-600 rounded border-gray-300 dark:border-slate-700 focus:ring-blue-500 cursor-pointer"
+            />
+            <div>
+              <label for="checkbox-is-recurring" class="text-xs font-bold text-slate-800 dark:text-slate-200 cursor-pointer block leading-tight">
+                🔁 {{ locale === 'pt' ? 'Evento Recorrente (Agendar Fixo)' : 'Recurring Event (Fixed Schedule)' }}
+              </label>
+              <span class="text-[10px] text-slate-500 dark:text-slate-400">
+                {{ locale === 'pt' ? 'Gera sessões automáticas no calendário' : 'Automatically creates recurring sessions in calendar' }}
+              </span>
+            </div>
+          </div>
+
+          <div v-if="isRecurring" class="flex items-center gap-2 w-full sm:w-auto shrink-0">
+            <label class="text-[10px] font-bold uppercase text-slate-500 dark:text-slate-400 whitespace-nowrap">
+              {{ locale === 'pt' ? 'Frequência:' : 'Frequency:' }}
+            </label>
+            <select
+              id="select-recurrence-frequency"
+              v-model="recurrenceFrequency"
+              class="text-xs font-bold bg-white dark:bg-slate-900 dark:text-white border border-gray-200 dark:border-slate-700 rounded-xl p-2 cursor-pointer focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="weekly">{{ locale === 'pt' ? 'Semanal' : 'Weekly' }}</option>
+              <option value="biweekly">{{ locale === 'pt' ? 'Quinzenal' : 'Bi-weekly' }}</option>
+              <option value="monthly">{{ locale === 'pt' ? 'Mensal' : 'Monthly' }}</option>
+            </select>
+          </div>
         </div>
       </div>
 
@@ -835,6 +955,28 @@ const handleStudentEnter = (cl: ClassTurma) => {
             <option value="scheduled" class="bg-white dark:bg-slate-900 text-gray-800 dark:text-white">{{ t('scheduler.statusScheduled') }}</option>
             <option value="completed" class="bg-white dark:bg-slate-900 text-gray-800 dark:text-white">{{ t('scheduler.statusCompleted') }}</option>
             <option value="cancelled" class="bg-white dark:bg-slate-900 text-gray-800 dark:text-white">{{ t('scheduler.statusCancelled') }}</option>
+          </select>
+          <div class="pointer-events-none absolute right-2.5 flex items-center">
+            <svg class="h-3.5 w-3.5 text-gray-400 dark:text-slate-500" viewBox="0 0 20 20" fill="none" stroke="currentColor">
+              <path d="M7 8l3 3 3-3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Filter Level -->
+        <div class="relative flex items-center bg-white dark:bg-slate-900 border border-gray-250 dark:border-slate-700 rounded-xl px-3 py-2.5 focus-within:ring-2 focus-within:ring-blue-500 min-w-[140px] h-[40px]">
+          <Filter class="w-3.5 h-3.5 text-gray-400 dark:text-slate-500 mr-1.5 shrink-0" />
+          <select
+            id="select-class-level-filter"
+            v-model="classTargetLevelFilter"
+            class="text-xs font-bold text-gray-800 dark:text-white bg-transparent border-0 p-0 pr-6 cursor-pointer focus:ring-0 focus:outline-hidden h-full w-full appearance-none"
+          >
+            <option value="All" class="bg-white dark:bg-slate-900 text-gray-800 dark:text-white">
+              {{ locale === 'pt' ? 'Todos os Níveis' : 'All Levels' }}
+            </option>
+            <option value="Beginner" class="bg-white dark:bg-slate-900 text-gray-800 dark:text-white">Beginner</option>
+            <option value="Intermediate" class="bg-white dark:bg-slate-900 text-gray-800 dark:text-white">Intermediate</option>
+            <option value="Advanced" class="bg-white dark:bg-slate-900 text-gray-800 dark:text-white">Advanced</option>
           </select>
           <div class="pointer-events-none absolute right-2.5 flex items-center">
             <svg class="h-3.5 w-3.5 text-gray-400 dark:text-slate-500" viewBox="0 0 20 20" fill="none" stroke="currentColor">
@@ -2227,10 +2369,11 @@ const handleStudentEnter = (cl: ClassTurma) => {
                     v-if="isInstructor || isAdmin || currentUserId === student.uid"
                     type="button"
                     @click="handleStartDoubtChat(student)"
-                    class="px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white text-[10px] font-black rounded-lg transition-colors cursor-pointer flex items-center gap-1 shrink-0 shadow-sm"
+                    class="p-1.5 sm:px-2.5 sm:py-1.5 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white text-[10px] font-black rounded-lg transition-colors cursor-pointer flex items-center gap-1 shrink-0 shadow-xs"
+                    :title="locale === 'pt' ? 'Abrir Canal de Dúvida' : 'Open Doubt Chat'"
                   >
-                    <MessageSquare class="w-3 h-3" />
-                    <span>{{ locale === 'pt' ? 'Dúvida' : 'Doubt' }}</span>
+                    <MessageSquare class="w-3.5 h-3.5 shrink-0" />
+                    <span class="hidden sm:inline">{{ locale === 'pt' ? 'Dúvida' : 'Doubt' }}</span>
                   </button>
                 </div>
               </template>
@@ -2254,14 +2397,14 @@ const handleStudentEnter = (cl: ClassTurma) => {
                   <div 
                     v-for="student in paginatedStudents" 
                     :key="student.uid" 
-                    class="p-2.5 bg-amber-50/10 dark:bg-amber-950/5 border border-amber-100/30 dark:border-amber-950/20 rounded-xl flex items-center justify-between"
+                    class="p-2.5 bg-amber-50/10 dark:bg-amber-950/5 border border-amber-100/30 dark:border-amber-950/20 rounded-xl flex items-center justify-between gap-2 min-w-0"
                   >
-                    <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-2 min-w-0">
                       <div class="w-7 h-7 rounded-full bg-amber-100/60 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 font-extrabold text-xs flex items-center justify-center uppercase shrink-0">
                         {{ student.displayName.slice(0, 1) }}
                       </div>
-                      <div class="text-left">
-                        <p class="text-xs font-bold text-gray-800 dark:text-gray-200 leading-none">
+                      <div class="text-left min-w-0">
+                        <p class="text-xs font-bold text-gray-800 dark:text-gray-200 leading-none truncate">
                           {{ student.displayName }}
                         </p>
                         <p class="text-[9px] text-gray-500 dark:text-slate-400 mt-0.5 font-medium">
@@ -2275,10 +2418,11 @@ const handleStudentEnter = (cl: ClassTurma) => {
                       v-if="isInstructor || isAdmin || currentUserId === student.uid"
                       type="button"
                       @click="handleStartDoubtChat(student)"
-                      class="px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white text-[10px] font-black rounded-lg transition-colors cursor-pointer flex items-center gap-1 shrink-0 shadow-sm"
+                      class="p-1.5 sm:px-2.5 sm:py-1.5 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white text-[10px] font-black rounded-lg transition-colors cursor-pointer flex items-center gap-1 shrink-0 shadow-xs"
+                      :title="locale === 'pt' ? 'Abrir Canal de Dúvida' : 'Open Doubt Chat'"
                     >
-                      <MessageSquare class="w-3 h-3" />
-                      <span>{{ locale === 'pt' ? 'Dúvida' : 'Doubt' }}</span>
+                      <MessageSquare class="w-3.5 h-3.5 shrink-0" />
+                      <span class="hidden sm:inline">{{ locale === 'pt' ? 'Dúvida' : 'Doubt' }}</span>
                     </button>
                   </div>
                 </div>
@@ -2290,7 +2434,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
                   <div 
                     v-for="student in paginatedStudents" 
                     :key="student.uid" 
-                    class="p-2.5 bg-blue-50/10 dark:bg-slate-850/40 border border-blue-100/10 dark:border-slate-800 rounded-xl flex items-center justify-between gap-3 text-left"
+                    class="p-2.5 bg-blue-50/10 dark:bg-slate-850/40 border border-blue-100/10 dark:border-slate-800 rounded-xl flex items-center justify-between gap-2 text-left min-w-0"
                   >
                     <div class="flex items-center gap-2.5 min-w-0">
                       <div class="w-8 h-8 rounded-lg bg-blue-50 dark:bg-slate-800 text-blue-600 dark:text-blue-400 flex items-center justify-center font-black text-xs uppercase shrink-0">
@@ -2300,7 +2444,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
                         <p class="text-xs font-bold text-gray-900 dark:text-white truncate leading-tight">
                           {{ student.displayName }}
                         </p>
-                        <p class="text-[9.5px] text-gray-500 dark:text-slate-400 mt-0.5 font-semibold">
+                        <p class="text-[9.5px] text-gray-500 dark:text-slate-400 mt-0.5 font-semibold truncate">
                           {{ student.level }}<span v-if="isInstructor || isAdmin || currentUserId === student.uid"> • {{ student.email || 'estudante@email.com' }}</span>
                         </p>
                       </div>
@@ -2312,14 +2456,20 @@ const handleStudentEnter = (cl: ClassTurma) => {
                         v-if="isInstructor || isAdmin || currentUserId === student.uid"
                         type="button"
                         @click="handleStartDoubtChat(student)"
-                        class="px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white text-[10px] font-black rounded-lg transition-colors cursor-pointer flex items-center gap-1 shrink-0 shadow-sm"
-                        title="Abrir Canal de Dúvida"
+                        class="p-1.5 sm:px-2.5 sm:py-1.5 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white text-[10px] font-black rounded-lg transition-colors cursor-pointer flex items-center gap-1 shrink-0 shadow-xs"
+                        :title="locale === 'pt' ? 'Abrir Canal de Dúvida' : 'Open Doubt Chat'"
                       >
-                        <MessageSquare class="w-3 h-3" />
-                        <span>{{ locale === 'pt' ? 'Dúvida' : 'Doubt' }}</span>
+                        <MessageSquare class="w-3.5 h-3.5 shrink-0" />
+                        <span class="hidden sm:inline">{{ locale === 'pt' ? 'Dúvida' : 'Doubt' }}</span>
                       </button>
-                      <span v-if="activeSelectedClass.presentStudentIds?.includes(student.uid)" class="text-[9px] bg-emerald-100 dark:bg-emerald-950/60 font-black text-emerald-800 dark:text-emerald-300 px-1.5 py-1 rounded">
-                        ✓ Presença
+                      <span 
+                        v-if="activeSelectedClass.presentStudentIds?.includes(student.uid)" 
+                        class="p-1 sm:px-2 sm:py-1 bg-emerald-100 dark:bg-emerald-950/60 font-black text-emerald-800 dark:text-emerald-300 rounded text-[9.5px] flex items-center gap-1 shrink-0"
+                        :title="locale === 'pt' ? 'Presença Confirmada' : 'Presence Confirmed'"
+                      >
+                        <CheckCircle class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                        <span class="hidden sm:inline">Presença</span>
+                        <span class="sm:hidden font-extrabold text-[10px]">✓</span>
                       </span>
                     </div>
                   </div>
