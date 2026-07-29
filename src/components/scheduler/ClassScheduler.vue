@@ -1013,13 +1013,13 @@ const handleStudentEnter = (cl: ClassTurma) => {
         </div>
 
         <!-- Recurring Event Option -->
-        <div class="col-span-1 md:col-span-2 bg-blue-50/50 dark:bg-slate-950/60 p-3.5 rounded-2xl border border-blue-100 dark:border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div class="col-span-1 md:col-span-2 bg-slate-50 dark:bg-slate-900 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <div class="flex items-center gap-2.5">
             <input
               id="checkbox-is-recurring"
               type="checkbox"
               v-model="isRecurring"
-              class="w-4 h-4 text-blue-600 rounded border-gray-300 dark:border-slate-700 focus:ring-blue-500 cursor-pointer"
+              class="w-4 h-4 text-blue-600 rounded border-gray-300 dark:border-slate-700 focus:ring-blue-500 cursor-pointer accent-blue-600"
             />
             <div>
               <label for="checkbox-is-recurring" class="text-xs font-bold text-slate-800 dark:text-slate-200 cursor-pointer block leading-tight">
@@ -1038,7 +1038,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
             <select
               id="select-recurrence-frequency"
               v-model="recurrenceFrequency"
-              class="text-xs font-bold bg-white dark:bg-slate-900 dark:text-white border border-gray-200 dark:border-slate-700 rounded-xl p-2 cursor-pointer focus:ring-2 focus:ring-blue-500"
+              class="text-xs font-bold bg-white dark:bg-slate-950 text-slate-800 dark:text-white border border-gray-200 dark:border-slate-800 rounded-xl p-2 cursor-pointer focus:ring-2 focus:ring-blue-500"
             >
               <option value="weekly">{{ locale === 'pt' ? 'Semanal' : 'Weekly' }}</option>
               <option value="biweekly">{{ locale === 'pt' ? 'Quinzenal' : 'Bi-weekly' }}</option>
@@ -2107,34 +2107,34 @@ const handleStudentEnter = (cl: ClassTurma) => {
             </div>
 
             <!-- DATE & TIME EDITING FOR INSTRUCTORS & ADMINS IN MODAL -->
-            <div v-if="isAdmin || isInstructor || activeSelectedClass?.instructorId === currentUserId" class="grid grid-cols-2 gap-2.5 bg-blue-50/40 dark:bg-slate-850 p-2.5 rounded-xl border border-blue-100 dark:border-slate-750">
+            <div v-if="isAdmin || isInstructor || activeSelectedClass?.instructorId === currentUserId" class="grid grid-cols-2 gap-2.5 bg-slate-50 dark:bg-slate-900 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
               <div>
-                <label class="block text-[10px] font-bold text-blue-700 dark:text-blue-400 uppercase tracking-wider mb-1.5">
+                <label class="block text-[10px] font-black text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                   {{ t('scheduler.day') }}
                 </label>
                 <input
                   type="date"
                   v-model="editScheduledDate"
-                  class="w-full text-xs sm:text-sm bg-white dark:bg-slate-900 border border-blue-200 dark:border-slate-700 dark:text-white rounded-xl py-2 px-3 font-semibold cursor-pointer focus:outline-hidden"
+                  class="w-full text-xs sm:text-sm bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white rounded-xl py-2 px-3 font-semibold cursor-pointer focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
               <div>
-                <label class="block text-[10px] font-bold text-blue-700 dark:text-blue-400 uppercase tracking-wider mb-1.5">
+                <label class="block text-[10px] font-black text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                   {{ t('scheduler.hour') }}
                 </label>
                 <input
                   type="time"
                   v-model="editScheduledTime"
-                  class="w-full text-xs sm:text-sm bg-white dark:bg-slate-900 border border-blue-200 dark:border-slate-700 dark:text-white rounded-xl py-2 px-3 font-semibold cursor-pointer focus:outline-hidden"
+                  class="w-full text-xs sm:text-sm bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white rounded-xl py-2 px-3 font-semibold cursor-pointer focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                 />
               </div>
             </div>
 
             <!-- RECURRENCE TOGGLE & FREQUENCY IN MODAL -->
-            <div class="p-3 bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-750 rounded-xl space-y-2.5 text-left">
+            <div class="p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl space-y-2.5 text-left">
               <label class="flex items-center gap-2 cursor-pointer text-xs font-extrabold text-gray-800 dark:text-gray-200">
-                <input type="checkbox" v-model="editIsRecurring" class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 cursor-pointer" />
+                <input type="checkbox" v-model="editIsRecurring" class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 cursor-pointer accent-blue-600" />
                 <span>🔁 {{ locale === 'pt' ? 'Evento Recorrente (Agendar Fixo)' : 'Recurring Event (Scheduled Fixed)' }}</span>
               </label>
 
@@ -2143,7 +2143,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
                   <label class="block text-[10px] font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider mb-1">
                     {{ locale === 'pt' ? 'Frequência' : 'Frequency' }}
                   </label>
-                  <select v-model="editRecurrenceFrequency" class="w-full text-xs bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-750 dark:text-white rounded-lg p-2 font-semibold cursor-pointer">
+                  <select v-model="editRecurrenceFrequency" class="w-full text-xs bg-white dark:bg-slate-950 border border-gray-300 dark:border-slate-800 dark:text-white rounded-lg p-2 font-semibold cursor-pointer">
                     <option value="weekly">{{ locale === 'pt' ? 'Semanal (Toda semana)' : 'Weekly' }}</option>
                     <option value="biweekly">{{ locale === 'pt' ? 'Quinzenal (A cada 2 semanas)' : 'Biweekly' }}</option>
                     <option value="monthly">{{ locale === 'pt' ? 'Mensal (Uma vez ao mês)' : 'Monthly' }}</option>
@@ -2160,7 +2160,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
             </div>
 
             <!-- SCOPE SELECTOR / SINGLE WEEK OVERRIDE IN MODAL -->
-            <div v-if="activeSelectedClass?.isRecurring || activeSelectedClass?.recurringGroupId || editIsRecurring" class="p-3 bg-blue-50/60 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900/40 rounded-xl space-y-2 text-left">
+            <div v-if="activeSelectedClass?.isRecurring || activeSelectedClass?.recurringGroupId || editIsRecurring" class="p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl space-y-2 text-left">
               <label class="block text-[10px] font-extrabold text-blue-800 dark:text-blue-300 uppercase tracking-wider">
                 {{ locale === 'pt' ? 'Âmbito das Alterações nesta Aula' : 'Scope of Changes for this Event' }}
               </label>
@@ -2220,7 +2220,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
               'text-[10px] uppercase font-black tracking-wider px-2.5 py-1 rounded-md',
               activeSelectedClass.status === 'completed' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' :
               activeSelectedClass.status === 'cancelled' ? 'bg-rose-500/10 text-rose-500 dark:text-rose-450' :
-              'bg-slate-100 dark:bg-slate-850 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-750'
+              'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700'
             ]">
               {{ activeSelectedClass.status === 'completed' ? t('scheduler.statusCompletedLabel') : activeSelectedClass.status === 'cancelled' ? t('scheduler.statusCancelledLabel') : t('scheduler.statusActiveLabel') }}
             </span>
@@ -2228,6 +2228,39 @@ const handleStudentEnter = (cl: ClassTurma) => {
               <Clock class="w-4 h-4 text-blue-500 dark:text-blue-400" />
               {{ activeSelectedClass.scheduledAt }}
             </span>
+          </div>
+
+          <!-- Tutor / Admin Management Toolbar (Top Header Section) -->
+          <div
+            v-if="canEditClass(activeSelectedClass) || ((isInstructor || isAdmin) && (isAdmin || activeSelectedClass.instructorId === currentUserId || activeSelectedClass.instructorId === 'system-volunteer'))"
+            class="flex items-center justify-between gap-2 p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl"
+          >
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+              <span class="text-[10px] font-black uppercase text-slate-600 dark:text-slate-300 tracking-wider">
+                {{ locale === 'pt' ? 'Gerenciar Evento' : 'Manage Event' }}
+              </span>
+            </div>
+            <div class="flex items-center gap-2">
+              <button
+                v-if="canEditClass(activeSelectedClass)"
+                @click="isEditingInModal = true; startEditing(activeSelectedClass);"
+                class="flex items-center gap-1.5 px-3 py-1.5 text-white rounded-xl text-xs font-black transition-all cursor-pointer shadow-xs hover:opacity-90 active:scale-95"
+                :style="{ backgroundColor: props.primaryColor || '#2563eb' }"
+              >
+                <Edit class="w-3.5 h-3.5" />
+                <span>{{ locale === 'pt' ? 'Editar Evento' : 'Edit Event' }}</span>
+              </button>
+              <button
+                v-if="(isInstructor || isAdmin) && (isAdmin || activeSelectedClass.instructorId === currentUserId || activeSelectedClass.instructorId === 'system-volunteer')"
+                @click="emit('delete-class', activeSelectedClass.id); selectedClass = null;"
+                class="flex items-center gap-1.5 px-3 py-1.5 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/60 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-800/60 rounded-xl text-xs font-black transition-all cursor-pointer shadow-xs"
+                :title="t('scheduler.removeTimeslotTitle')"
+              >
+                <Trash2 class="w-3.5 h-3.5" />
+                <span>{{ locale === 'pt' ? 'Excluir' : 'Delete' }}</span>
+              </button>
+            </div>
           </div>
 
           <!-- Associated Course Info & Event Type Badge -->
@@ -2328,7 +2361,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
 
           <div class="border-t border-gray-150 dark:border-slate-800/60 my-1"></div>
 
-          <!-- Occupancy & Buttons -->
+          <!-- Occupancy & Participation Buttons -->
           <div class="flex flex-wrap sm:flex-nowrap items-center justify-between gap-2.5">
             <div>
               <span class="text-[10px] font-black text-gray-400 dark:text-gray-505 uppercase tracking-widest block leading-none">
@@ -2344,27 +2377,6 @@ const handleStudentEnter = (cl: ClassTurma) => {
             </div>
 
             <div class="flex items-center gap-1.5 flex-wrap shrink-0">
-              <!-- Edit capabilities for Instructor or Admin inside details modal -->
-              <button
-                v-if="canEditClass(activeSelectedClass)"
-                @click="isEditingInModal = true; startEditing(activeSelectedClass);"
-                class="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 dark:bg-slate-800 hover:bg-blue-100 dark:hover:bg-slate-700 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-slate-700 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0 shadow-2xs"
-                :title="t('scheduler.editPropertiesTitle')"
-              >
-                <Edit class="w-3.5 h-3.5" />
-                <span>{{ t('scheduler.editClass') }}</span>
-              </button>
-
-              <!-- Tutor delete capability inside details modal -->
-              <button
-                v-if="(isInstructor || isAdmin) && (isAdmin || activeSelectedClass.instructorId === currentUserId || activeSelectedClass.instructorId === 'system-volunteer')"
-                @click="emit('delete-class', activeSelectedClass.id); selectedClass = null;"
-                :title="t('scheduler.removeTimeslotTitle')"
-                class="p-2 text-rose-500 hover:bg-rose-55 dark:hover:bg-slate-800 rounded-lg transition-colors border border-transparent hover:border-rose-100 dark:hover:border-slate-700 cursor-pointer shrink-0"
-              >
-                <Trash2 class="w-4.5 h-4.5" />
-              </button>
-
               <!-- Join / Leave button for standard students or other tutors/admins -->
               <template v-if="activeSelectedClass.instructorId !== currentUserId">
                 <button
