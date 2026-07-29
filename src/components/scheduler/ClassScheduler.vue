@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
-import { Users, Calendar, Plus, Trash2, Clock, Check, LogOut, CheckCircle, Edit, ExternalLink, Search, Filter, ChevronLeft, ChevronRight, List, X, Info, CalendarDays } from 'lucide-vue-next';
+import { Users, Calendar, Plus, Trash2, Clock, Check, LogOut, CheckCircle, Edit, ExternalLink, Search, Filter, ChevronLeft, ChevronRight, List, X, Info, CalendarDays, MessageSquare } from 'lucide-vue-next';
 import { ClassTurma, Course, UserProfile } from '../../types';
 import { useI18n } from '../../composables/useI18n';
 
@@ -2474,29 +2474,17 @@ const handleStudentEnter = (cl: ClassTurma) => {
                     v-if="isInstructor || isAdmin || currentUserId === student.uid"
                     type="button"
                     @click="handleStartDoubtChat(student)"
-                    class="p-1.5 sm:px-2.5 sm:py-1.5 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white text-[10px] font-black rounded-lg transition-colors cursor-pointer flex items-center gap-1 shrink-0 shadow-xs"
+                    class="px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white text-[10px] font-black rounded-lg transition-colors cursor-pointer flex items-center justify-center gap-1.5 shrink-0 shadow-xs"
                     :title="locale === 'pt' ? 'Abrir Canal de Dúvida' : 'Open Doubt Chat'"
                   >
                     <MessageSquare class="w-3.5 h-3.5 shrink-0" />
-                    <span class="hidden sm:inline">{{ locale === 'pt' ? 'Dúvida' : 'Doubt' }}</span>
+                    <span>{{ locale === 'pt' ? 'Dúvida' : 'Doubt' }}</span>
                   </button>
                 </div>
               </template>
 
-              <!-- UNIQUE VIEW 2: CONVERSACAO (CONVERSATION CIRCLE BUBBLE LAYOUT) -->
+              <!-- UNIQUE VIEW 2: CONVERSACAO -->
               <template v-else-if="activeSelectedClass.eventType === 'conversacao'">
-                <!-- Visual Circle Bubble Container -->
-                <div class="flex flex-wrap gap-1.5 pb-2 border-b border-gray-150/50 dark:border-slate-800/50">
-                  <span
-                    v-for="student in enrolledStudentsOfClass"
-                    :key="'bubble-' + student.uid"
-                    class="inline-flex items-center gap-1.5 text-[10px] font-bold bg-amber-500/15 dark:bg-amber-500/20 text-amber-800 dark:text-amber-200 border border-amber-500/25 px-2.5 py-1 rounded-full"
-                  >
-                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                    {{ student.displayName }}
-                  </span>
-                </div>
-
                 <!-- Paginated grid list of circular cards -->
                 <div class="grid grid-cols-1 gap-2">
                   <div
@@ -2523,11 +2511,11 @@ const handleStudentEnter = (cl: ClassTurma) => {
                       v-if="isInstructor || isAdmin || currentUserId === student.uid"
                       type="button"
                       @click="handleStartDoubtChat(student)"
-                      class="p-1.5 sm:px-2.5 sm:py-1.5 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white text-[10px] font-black rounded-lg transition-colors cursor-pointer flex items-center gap-1 shrink-0 shadow-xs"
+                      class="px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white text-[10px] font-black rounded-lg transition-colors cursor-pointer flex items-center justify-center gap-1.5 shrink-0 shadow-xs"
                       :title="locale === 'pt' ? 'Abrir Canal de Dúvida' : 'Open Doubt Chat'"
                     >
                       <MessageSquare class="w-3.5 h-3.5 shrink-0" />
-                      <span class="hidden sm:inline">{{ locale === 'pt' ? 'Dúvida' : 'Doubt' }}</span>
+                      <span>{{ locale === 'pt' ? 'Dúvida' : 'Doubt' }}</span>
                     </button>
                   </div>
                 </div>
@@ -2561,11 +2549,11 @@ const handleStudentEnter = (cl: ClassTurma) => {
                         v-if="isInstructor || isAdmin || currentUserId === student.uid"
                         type="button"
                         @click="handleStartDoubtChat(student)"
-                        class="p-1.5 sm:px-2.5 sm:py-1.5 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white text-[10px] font-black rounded-lg transition-colors cursor-pointer flex items-center gap-1 shrink-0 shadow-xs"
+                        class="px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white text-[10px] font-black rounded-lg transition-colors cursor-pointer flex items-center justify-center gap-1.5 shrink-0 shadow-xs"
                         :title="locale === 'pt' ? 'Abrir Canal de Dúvida' : 'Open Doubt Chat'"
                       >
                         <MessageSquare class="w-3.5 h-3.5 shrink-0" />
-                        <span class="hidden sm:inline">{{ locale === 'pt' ? 'Dúvida' : 'Doubt' }}</span>
+                        <span>{{ locale === 'pt' ? 'Dúvida' : 'Doubt' }}</span>
                       </button>
                       <span
                         v-if="activeSelectedClass.presentStudentIds?.includes(student.uid)"
