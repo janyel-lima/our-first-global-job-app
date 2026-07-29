@@ -1023,26 +1023,26 @@ const handleStudentEnter = (cl: ClassTurma) => {
             />
             <div>
               <label for="checkbox-is-recurring" class="text-xs font-bold text-slate-800 dark:text-slate-200 cursor-pointer block leading-tight">
-                🔁 {{ locale === 'pt' ? 'Evento Recorrente (Agendar Fixo)' : 'Recurring Event (Fixed Schedule)' }}
+                🔁 {{ t('scheduler.recurringEventLabel') }}
               </label>
               <span class="text-[10px] text-slate-500 dark:text-slate-400">
-                {{ locale === 'pt' ? 'Gera sessões automáticas no calendário' : 'Automatically creates recurring sessions in calendar' }}
+                {{ t('scheduler.recurringEventSub') }}
               </span>
             </div>
           </div>
 
           <div v-if="isRecurring" class="flex items-center gap-2 w-full sm:w-auto shrink-0">
             <label class="text-[10px] font-bold uppercase text-slate-500 dark:text-slate-400 whitespace-nowrap">
-              {{ locale === 'pt' ? 'Frequência:' : 'Frequency:' }}
+              {{ t('scheduler.frequencyLabel') }}
             </label>
             <select
               id="select-recurrence-frequency"
               v-model="recurrenceFrequency"
               class="text-xs font-bold bg-white dark:bg-slate-950 text-slate-800 dark:text-white border border-gray-200 dark:border-slate-800 rounded-xl p-2 cursor-pointer focus:ring-2 focus:ring-blue-500"
             >
-              <option value="weekly">{{ locale === 'pt' ? 'Semanal' : 'Weekly' }}</option>
-              <option value="biweekly">{{ locale === 'pt' ? 'Quinzenal' : 'Bi-weekly' }}</option>
-              <option value="monthly">{{ locale === 'pt' ? 'Mensal' : 'Monthly' }}</option>
+              <option value="weekly">{{ t('scheduler.weekly') }}</option>
+              <option value="biweekly">{{ t('scheduler.biweekly') }}</option>
+              <option value="monthly">{{ t('scheduler.monthly') }}</option>
             </select>
           </div>
         </div>
@@ -1114,7 +1114,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
             class="text-xs font-bold text-gray-800 dark:text-white bg-transparent border-0 p-0 pr-6 cursor-pointer focus:ring-0 focus:outline-hidden h-full w-full appearance-none"
           >
             <option value="All" class="bg-white dark:bg-slate-900 text-gray-800 dark:text-white">
-              {{ locale === 'pt' ? 'Todos os Níveis' : 'All Levels' }}
+              {{ t('scheduler.allLevelsFilter') }}
             </option>
             <option value="Beginner" class="bg-white dark:bg-slate-900 text-gray-800 dark:text-white">Beginner</option>
             <option value="Intermediate" class="bg-white dark:bg-slate-900 text-gray-800 dark:text-white">Intermediate</option>
@@ -1136,7 +1136,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
             class="text-xs font-bold text-gray-800 dark:text-white bg-transparent border-0 p-0 pr-6 cursor-pointer focus:ring-0 focus:outline-hidden h-full w-full appearance-none"
           >
             <option value="All" class="bg-white dark:bg-slate-900 text-gray-800 dark:text-white">
-              {{ locale === 'pt' ? 'Todos os tipos' : 'All event types' }}
+              {{ t('scheduler.allEventTypesFilter') }}
             </option>
             <option value="aula" class="bg-white dark:bg-slate-900 text-gray-800 dark:text-white">
               {{ t('scheduler.eventTypeClass') }}
@@ -1249,34 +1249,34 @@ const handleStudentEnter = (cl: ClassTurma) => {
 
             <!-- Associated Course Info & Event Type Badge -->
             <div class="flex flex-wrap gap-1 mb-2">
-              <span v-if="cl.eventType === 'encontro'" class="inline-flex items-center gap-1 text-[9px] font-black px-2 py-0.5 rounded-md bg-indigo-100 text-indigo-800 dark:bg-indigo-950/40 dark:text-indigo-300">
+              <span v-if="cl.eventType === 'encontro'" class="inline-flex items-center gap-1 text-[9px] font-extrabold px-2 py-0.5 rounded-md bg-indigo-100 dark:bg-indigo-950/80 text-indigo-900 dark:text-indigo-200 border border-indigo-200 dark:border-indigo-700/80 shadow-2xs">
                 👤 {{ t('scheduler.eventTypeOneOnOne') }}
               </span>
-              <span v-else-if="cl.eventType === 'conversacao'" class="inline-flex items-center gap-1 text-[9px] font-black px-2 py-0.5 rounded-md bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300">
+              <span v-else-if="cl.eventType === 'conversacao'" class="inline-flex items-center gap-1 text-[9px] font-extrabold px-2 py-0.5 rounded-md bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-200 border border-amber-200 dark:border-amber-700/80 shadow-2xs">
                 💬 {{ t('scheduler.eventTypeConversationGroup') }}
               </span>
-              <span v-else class="inline-flex items-center gap-1 text-[9px] font-black px-2 py-0.5 rounded-md bg-blue-100 text-blue-800 dark:bg-blue-950/40 dark:text-blue-300">
+              <span v-else class="inline-flex items-center gap-1 text-[9px] font-extrabold px-2 py-0.5 rounded-md bg-blue-100 dark:bg-blue-950/80 text-blue-900 dark:text-blue-200 border border-blue-200 dark:border-blue-700/80 shadow-2xs">
                 🎓 {{ cl.aulaType === 'avulsa' ? t('scheduler.aulaTypeSolo') : t('scheduler.aulaTypeCourse') }}
               </span>
 
               <!-- Recurrence Badge -->
-              <span v-if="cl.isRecurring" class="inline-flex items-center gap-1 text-[9px] font-black px-2 py-0.5 rounded-md bg-purple-100 text-purple-800 dark:bg-purple-950/40 dark:text-purple-300 border border-purple-200 dark:border-purple-800/40">
-                🔁 {{ cl.recurrenceFrequency === 'biweekly' ? (locale === 'pt' ? 'Recorrente (Quinzenal)' : 'Recurring (Biweekly)') : cl.recurrenceFrequency === 'monthly' ? (locale === 'pt' ? 'Recorrente (Mensal)' : 'Recurring (Monthly)') : (locale === 'pt' ? 'Recorrente (Semanal)' : 'Recurring (Weekly)') }}
+              <span v-if="cl.isRecurring" class="inline-flex items-center gap-1 text-[9px] font-extrabold px-2 py-0.5 rounded-md bg-purple-100 dark:bg-purple-950/80 text-purple-900 dark:text-purple-200 border border-purple-200 dark:border-purple-700/80 shadow-2xs">
+                🔁 {{ cl.recurrenceFrequency === 'biweekly' ? t('scheduler.recurringBiweeklyBadge') : cl.recurrenceFrequency === 'monthly' ? t('scheduler.recurringMonthlyBadge') : t('scheduler.recurringWeeklyBadge') }}
               </span>
 
               <!-- Override Single Week Badge -->
-              <span v-if="cl.isOverride" class="inline-flex items-center gap-1 text-[9px] font-black px-2 py-0.5 rounded-md bg-amber-100 text-amber-900 dark:bg-amber-950/50 dark:text-amber-300 border border-amber-300 dark:border-amber-800/50">
-                ⚡ {{ locale === 'pt' ? 'Exceção da Série (Data Alterada)' : 'Series Exception (Shifted)' }}
+              <span v-if="cl.isOverride" class="inline-flex items-center gap-1 text-[9px] font-extrabold px-2 py-0.5 rounded-md bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700/80 shadow-2xs">
+                ⚡ {{ t('scheduler.seriesExceptionBadge') }}
               </span>
 
               <!-- Target Level Badge -->
-              <span v-if="cl.targetLevel && cl.targetLevel !== 'All'" class="inline-flex items-center gap-1 text-[9px] font-black px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/40">
+              <span v-if="cl.targetLevel && cl.targetLevel !== 'All'" class="inline-flex items-center gap-1 text-[9px] font-extrabold px-2 py-0.5 rounded-md bg-emerald-100 dark:bg-emerald-950/80 text-emerald-900 dark:text-emerald-200 border border-emerald-200 dark:border-emerald-700/80 shadow-2xs">
                 🎯 {{ cl.targetLevel }}
               </span>
             </div>
 
             <p class="text-[10px] text-gray-400 dark:text-gray-550 uppercase tracking-widest font-black mb-1">
-              {{ cl.eventType === 'encontro' ? (locale === 'pt' ? 'Detalhes do Encontro' : 'Meeting Details') : cl.eventType === 'conversacao' ? (locale === 'pt' ? 'Detalhes do Grupo' : 'Group Details') : t('scheduler.association') }}
+              {{ cl.eventType === 'encontro' ? t('scheduler.meetingDetails') : cl.eventType === 'conversacao' ? t('scheduler.groupDetails') : t('scheduler.association') }}
             </p>
             <div class="p-3 bg-slate-50 dark:bg-slate-900 border border-slate-150 dark:border-slate-750 rounded-xl mb-3">
               <h3 class="font-extrabold text-sm text-gray-900 dark:text-white line-clamp-1">
@@ -1410,7 +1410,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
                   ]"
                 >
                   <Check class="w-3.5 h-3.5 shrink-0" />
-                  <span class="truncate">{{ cl.studentIds.length >= cl.maxStudents ? t('scheduler.fullLabel') : (isInscriptionsClosed(cl) ? (isPt ? 'Encerradas' : 'Closed') : t('scheduler.joinLabel')) }}</span>
+                  <span class="truncate">{{ cl.studentIds.length >= cl.maxStudents ? t('scheduler.fullLabel') : (isInscriptionsClosed(cl) ? t('scheduler.inscriptionsClosedBadge') : t('scheduler.joinLabel')) }}</span>
                 </button>
               </template>
 
@@ -2036,12 +2036,12 @@ const handleStudentEnter = (cl: ClassTurma) => {
             <template v-else-if="editEventType === 'encontro'">
               <div>
                 <label class="block text-[10px] font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1.5">
-                  {{ locale === 'pt' ? 'Foco / Assunto do Encontro (Opcional)' : 'Focus / Topic of the Meeting (Optional)' }}
+                  {{ t('scheduler.meetingTopicLabel') }}
                 </label>
                 <input
                   type="text"
                   v-model="editCustomClassTitle"
-                  :placeholder="locale === 'pt' ? 'Ex: Tirar dúvidas, Conversação livre, etc.' : 'E.g., Doubts clearing, Free talk, etc.'"
+                  :placeholder="t('scheduler.meetingTopicPlaceholder')"
                   class="w-full text-xs sm:text-sm bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-755 dark:text-white rounded-xl py-2.5 px-3.5 font-semibold focus:outline-hidden"
                 />
               </div>
@@ -2050,12 +2050,12 @@ const handleStudentEnter = (cl: ClassTurma) => {
             <template v-else-if="editEventType === 'conversacao'">
               <div>
                 <label class="block text-[10px] font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1.5">
-                  {{ locale === 'pt' ? 'Tema da Conversação (Opcional)' : 'Conversation Topic (Optional)' }}
+                  {{ t('scheduler.conversationTopicLabel') }}
                 </label>
                 <input
                   type="text"
                   v-model="editCustomClassTitle"
-                  :placeholder="locale === 'pt' ? 'Ex: Viagens, Tecnologia, Cinema, etc.' : 'E.g., Travel, Technology, Cinema, etc.'"
+                  :placeholder="t('scheduler.conversationTopicPlaceholder')"
                   class="w-full text-xs sm:text-sm bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-755 dark:text-white rounded-xl py-2.5 px-3.5 font-semibold focus:outline-hidden"
                 />
               </div>
@@ -2093,13 +2093,13 @@ const handleStudentEnter = (cl: ClassTurma) => {
             <!-- TARGET LEVEL EDITING IN MODAL -->
             <div>
               <label class="block text-[10px] font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1.5">
-                {{ locale === 'pt' ? 'Nível de Inglês Alvo' : 'Target English Level' }}
+                {{ t('scheduler.targetLevelLabel') }}
               </label>
               <select
                 v-model="editTargetLevel"
                 class="w-full text-xs sm:text-sm bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-750 dark:text-white rounded-xl py-2.5 px-3.5 font-semibold cursor-pointer focus:outline-hidden"
               >
-                <option value="All">{{ locale === 'pt' ? 'Todos os Níveis (Aberto)' : 'All Levels (Open)' }}</option>
+                <option value="All">{{ t('scheduler.allLevelsOpen') }}</option>
                 <option value="Beginner">Beginner (Iniciante)</option>
                 <option value="Intermediate">Intermediate (Intermediário)</option>
                 <option value="Advanced">Advanced (Avançado)</option>
@@ -2135,25 +2135,25 @@ const handleStudentEnter = (cl: ClassTurma) => {
             <div class="p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl space-y-2.5 text-left">
               <label class="flex items-center gap-2 cursor-pointer text-xs font-extrabold text-gray-800 dark:text-gray-200">
                 <input type="checkbox" v-model="editIsRecurring" class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 cursor-pointer accent-blue-600" />
-                <span>🔁 {{ locale === 'pt' ? 'Evento Recorrente (Agendar Fixo)' : 'Recurring Event (Scheduled Fixed)' }}</span>
+                <span>{{ t('scheduler.recurringEventLabel') }}</span>
               </label>
 
               <div v-if="editIsRecurring" class="grid grid-cols-1 gap-2 pt-2 border-t border-gray-200/60 dark:border-slate-700/60">
                 <div>
                   <label class="block text-[10px] font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider mb-1">
-                    {{ locale === 'pt' ? 'Frequência' : 'Frequency' }}
+                    {{ t('scheduler.frequencyLabel') }}
                   </label>
                   <select v-model="editRecurrenceFrequency" class="w-full text-xs bg-white dark:bg-slate-950 border border-gray-300 dark:border-slate-800 dark:text-white rounded-lg p-2 font-semibold cursor-pointer">
-                    <option value="weekly">{{ locale === 'pt' ? 'Semanal (Toda semana)' : 'Weekly' }}</option>
-                    <option value="biweekly">{{ locale === 'pt' ? 'Quinzenal (A cada 2 semanas)' : 'Biweekly' }}</option>
-                    <option value="monthly">{{ locale === 'pt' ? 'Mensal (Uma vez ao mês)' : 'Monthly' }}</option>
+                    <option value="weekly">{{ t('scheduler.weeklyFull') }}</option>
+                    <option value="biweekly">{{ t('scheduler.biweeklyFull') }}</option>
+                    <option value="monthly">{{ t('scheduler.monthlyFull') }}</option>
                   </select>
                 </div>
 
                 <div v-if="!activeSelectedClass?.isRecurring" class="pt-1">
                   <label class="flex items-center gap-1.5 cursor-pointer text-xs font-bold text-blue-600 dark:text-blue-400">
                     <input type="checkbox" v-model="editGenerateUpcoming" class="w-3.5 h-3.5 text-blue-600 rounded focus:ring-blue-500" />
-                    <span>{{ locale === 'pt' ? 'Gerar 3 ocorrências futuras' : 'Generate 3 future occurrences' }}</span>
+                    <span>{{ t('scheduler.generateUpcoming') }}</span>
                   </label>
                 </div>
               </div>
@@ -2162,20 +2162,20 @@ const handleStudentEnter = (cl: ClassTurma) => {
             <!-- SCOPE SELECTOR / SINGLE WEEK OVERRIDE IN MODAL -->
             <div v-if="activeSelectedClass?.isRecurring || activeSelectedClass?.recurringGroupId || editIsRecurring" class="p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl space-y-2 text-left">
               <label class="block text-[10px] font-extrabold text-blue-800 dark:text-blue-300 uppercase tracking-wider">
-                {{ locale === 'pt' ? 'Âmbito das Alterações nesta Aula' : 'Scope of Changes for this Event' }}
+                {{ t('scheduler.scopeLabel') }}
               </label>
               <div class="space-y-1.5 text-xs">
                 <label class="flex items-center gap-2 cursor-pointer font-bold text-gray-800 dark:text-gray-200">
                   <input type="radio" value="this_only" v-model="editApplyScope" class="text-blue-600 focus:ring-blue-500" />
-                  <span>⚡ {{ locale === 'pt' ? 'Apenas esta ocorrência / semana (Exceção pontual)' : 'Only this occurrence / week (Single exception)' }}</span>
+                  <span>{{ t('scheduler.scopeThisOnly') }}</span>
                 </label>
                 <label class="flex items-center gap-2 cursor-pointer font-bold text-gray-800 dark:text-gray-200">
                   <input type="radio" value="this_and_future" v-model="editApplyScope" class="text-blue-600 focus:ring-blue-500" />
-                  <span>📅 {{ locale === 'pt' ? 'Esta e todas as próximas ocorrências' : 'This and all future occurrences' }}</span>
+                  <span>{{ t('scheduler.scopeThisAndFuture') }}</span>
                 </label>
                 <label class="flex items-center gap-2 cursor-pointer font-bold text-gray-800 dark:text-gray-200">
                   <input type="radio" value="entire_series" v-model="editApplyScope" class="text-blue-600 focus:ring-blue-500" />
-                  <span>🌐 {{ locale === 'pt' ? 'Toda a série recorrente' : 'Entire recurring series' }}</span>
+                  <span>{{ t('scheduler.scopeEntireSeries') }}</span>
                 </label>
               </div>
             </div>
@@ -2238,7 +2238,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
             <div class="flex items-center gap-2">
               <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
               <span class="text-[10px] font-black uppercase text-slate-600 dark:text-slate-300 tracking-wider">
-                {{ locale === 'pt' ? 'Gerenciar Evento' : 'Manage Event' }}
+                {{ t('scheduler.manageEvent') }}
               </span>
             </div>
             <div class="flex items-center gap-2">
@@ -2249,7 +2249,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
                 :style="{ backgroundColor: props.primaryColor || '#2563eb' }"
               >
                 <Edit class="w-3.5 h-3.5" />
-                <span>{{ locale === 'pt' ? 'Editar Evento' : 'Edit Event' }}</span>
+                <span>{{ t('scheduler.editEvent') }}</span>
               </button>
               <button
                 v-if="(isInstructor || isAdmin) && (isAdmin || activeSelectedClass.instructorId === currentUserId || activeSelectedClass.instructorId === 'system-volunteer')"
@@ -2258,7 +2258,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
                 :title="t('scheduler.removeTimeslotTitle')"
               >
                 <Trash2 class="w-3.5 h-3.5" />
-                <span>{{ locale === 'pt' ? 'Excluir' : 'Delete' }}</span>
+                <span>{{ t('scheduler.deleteShort') }}</span>
               </button>
             </div>
           </div>
@@ -2266,19 +2266,19 @@ const handleStudentEnter = (cl: ClassTurma) => {
           <!-- Associated Course Info & Event Type Badge -->
           <div class="space-y-1.5">
             <div class="flex flex-wrap gap-1 mb-1">
-              <span v-if="activeSelectedClass.eventType === 'encontro'" class="inline-flex items-center gap-1 text-[9px] font-black px-2 py-0.5 rounded-md bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 border border-indigo-500/20">
+              <span v-if="activeSelectedClass.eventType === 'encontro'" class="inline-flex items-center gap-1 text-[9px] font-extrabold px-2.5 py-1 rounded-md bg-indigo-100 dark:bg-indigo-950/80 text-indigo-900 dark:text-indigo-200 border border-indigo-300 dark:border-indigo-700/80 shadow-2xs">
                 👤 {{ t('scheduler.eventTypeOneOnOne') }}
               </span>
-              <span v-else-if="activeSelectedClass.eventType === 'conversacao'" class="inline-flex items-center gap-1 text-[9px] font-black px-2 py-0.5 rounded-md bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/20">
+              <span v-else-if="activeSelectedClass.eventType === 'conversacao'" class="inline-flex items-center gap-1 text-[9px] font-extrabold px-2.5 py-1 rounded-md bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700/80 shadow-2xs">
                 💬 {{ t('scheduler.eventTypeConversationGroup') }}
               </span>
-              <span v-else class="inline-flex items-center gap-1 text-[9px] font-black px-2 py-0.5 rounded-md bg-blue-500/15 text-blue-700 dark:text-blue-300 border border-blue-500/20">
+              <span v-else class="inline-flex items-center gap-1 text-[9px] font-extrabold px-2.5 py-1 rounded-md bg-blue-100 dark:bg-blue-950/80 text-blue-900 dark:text-blue-200 border border-blue-300 dark:border-blue-700/80 shadow-2xs">
                 🎓 {{ activeSelectedClass.aulaType === 'avulsa' ? t('scheduler.aulaTypeSolo') : t('scheduler.aulaTypeCourse') }}
               </span>
             </div>
 
             <h4 class="text-[10px] font-black text-gray-400 dark:text-gray-555 uppercase tracking-widest leading-none">
-              {{ activeSelectedClass.eventType === 'encontro' ? (locale === 'pt' ? 'Detalhes do Encontro' : 'Meeting Details') : activeSelectedClass.eventType === 'conversacao' ? (locale === 'pt' ? 'Detalhes do Grupo' : 'Group Details') : t('scheduler.courseTopicAssociation') }}
+              {{ activeSelectedClass.eventType === 'encontro' ? t('scheduler.meetingDetails') : activeSelectedClass.eventType === 'conversacao' ? t('scheduler.groupDetails') : t('scheduler.courseTopicAssociation') }}
             </h4>
             <div class="p-3.5 bg-slate-50 dark:bg-slate-950 border border-gray-200 dark:border-slate-800 rounded-xl">
               <h3 class="font-extrabold text-sm text-gray-900 dark:text-white leading-snug">
@@ -2423,23 +2423,23 @@ const handleStudentEnter = (cl: ClassTurma) => {
           <div class="border-t border-gray-150 dark:border-slate-800/60 pt-4 space-y-3">
             <div class="flex items-center justify-between">
               <h4 class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest leading-none">
-                {{ locale === 'pt' ? 'Alunos Inscritos' : 'Enrolled Students' }}
+                {{ t('scheduler.enrolledStudentsTitle') }}
                 ({{ enrolledStudentsOfClass.length }})
               </h4>
-              <span v-if="activeSelectedClass.eventType === 'encontro'" class="text-[9px] font-bold text-indigo-700 dark:text-indigo-300 bg-indigo-500/15 border border-indigo-500/20 px-2 py-0.5 rounded-md">
-                Individual (1-on-1)
+              <span v-if="activeSelectedClass.eventType === 'encontro'" class="text-[9px] font-extrabold text-indigo-900 dark:text-indigo-200 bg-indigo-100 dark:bg-indigo-950/80 border border-indigo-300 dark:border-indigo-700/80 px-2.5 py-0.5 rounded-md shadow-2xs">
+                {{ t('scheduler.individualBadge') }}
               </span>
-              <span v-else-if="activeSelectedClass.eventType === 'conversacao'" class="text-[9px] font-bold text-amber-700 dark:text-amber-300 bg-amber-500/15 border border-amber-500/20 px-2 py-0.5 rounded-md">
-                Conversação (Círculo)
+              <span v-else-if="activeSelectedClass.eventType === 'conversacao'" class="text-[9px] font-extrabold text-amber-900 dark:text-amber-200 bg-amber-100 dark:bg-amber-950/80 border border-amber-300 dark:border-amber-700/80 px-2.5 py-0.5 rounded-md shadow-2xs">
+                {{ t('scheduler.conversationCircleBadge') }}
               </span>
-              <span v-else class="text-[9px] font-bold text-blue-700 dark:text-blue-300 bg-blue-500/15 border border-blue-500/20 px-2 py-0.5 rounded-md">
-                Aula de Grupo
+              <span v-else class="text-[9px] font-extrabold text-blue-900 dark:text-blue-200 bg-blue-100 dark:bg-blue-950/80 border border-blue-300 dark:border-blue-700/80 px-2.5 py-0.5 rounded-md shadow-2xs">
+                {{ t('scheduler.groupLessonBadge') }}
               </span>
             </div>
 
             <!-- Empty State -->
             <div v-if="enrolledStudentsOfClass.length === 0" class="text-center py-4 bg-slate-50/50 dark:bg-slate-950/20 border border-dashed border-gray-200 dark:border-slate-800 rounded-xl text-xs text-gray-400 dark:text-slate-500 italic font-semibold">
-              {{ locale === 'pt' ? 'Nenhum aluno inscrito ainda.' : 'No students enrolled yet.' }}
+              {{ t('scheduler.noStudentsEnrolled') }}
             </div>
 
             <div v-else class="space-y-3">
@@ -2475,10 +2475,10 @@ const handleStudentEnter = (cl: ClassTurma) => {
                     type="button"
                     @click="handleStartDoubtChat(student)"
                     class="px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white text-[10px] font-black rounded-lg transition-colors cursor-pointer flex items-center justify-center gap-1.5 shrink-0 shadow-xs"
-                    :title="locale === 'pt' ? 'Abrir Canal de Dúvida' : 'Open Doubt Chat'"
+                    :title="t('scheduler.openDoubtChat')"
                   >
                     <MessageSquare class="w-3.5 h-3.5 shrink-0" />
-                    <span>{{ locale === 'pt' ? 'Dúvida' : 'Doubt' }}</span>
+                    <span>{{ t('scheduler.doubtLabel') }}</span>
                   </button>
                 </div>
               </template>
@@ -2512,10 +2512,10 @@ const handleStudentEnter = (cl: ClassTurma) => {
                       type="button"
                       @click="handleStartDoubtChat(student)"
                       class="px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white text-[10px] font-black rounded-lg transition-colors cursor-pointer flex items-center justify-center gap-1.5 shrink-0 shadow-xs"
-                      :title="locale === 'pt' ? 'Abrir Canal de Dúvida' : 'Open Doubt Chat'"
+                      :title="t('scheduler.openDoubtChat')"
                     >
                       <MessageSquare class="w-3.5 h-3.5 shrink-0" />
-                      <span>{{ locale === 'pt' ? 'Dúvida' : 'Doubt' }}</span>
+                      <span>{{ t('scheduler.doubtLabel') }}</span>
                     </button>
                   </div>
                 </div>
@@ -2550,18 +2550,18 @@ const handleStudentEnter = (cl: ClassTurma) => {
                         type="button"
                         @click="handleStartDoubtChat(student)"
                         class="px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white text-[10px] font-black rounded-lg transition-colors cursor-pointer flex items-center justify-center gap-1.5 shrink-0 shadow-xs"
-                        :title="locale === 'pt' ? 'Abrir Canal de Dúvida' : 'Open Doubt Chat'"
+                        :title="t('scheduler.openDoubtChat')"
                       >
                         <MessageSquare class="w-3.5 h-3.5 shrink-0" />
-                        <span>{{ locale === 'pt' ? 'Dúvida' : 'Doubt' }}</span>
+                        <span>{{ t('scheduler.doubtLabel') }}</span>
                       </button>
                       <span
                         v-if="activeSelectedClass.presentStudentIds?.includes(student.uid)"
-                        class="p-1 sm:px-2 sm:py-1 bg-emerald-100 dark:bg-emerald-950/60 font-black text-emerald-800 dark:text-emerald-300 rounded text-[9.5px] flex items-center gap-1 shrink-0"
-                        :title="locale === 'pt' ? 'Presença Confirmada' : 'Presence Confirmed'"
+                        class="p-1 sm:px-2 sm:py-1 bg-emerald-100 dark:bg-emerald-950/80 font-black text-emerald-900 dark:text-emerald-200 border border-emerald-300 dark:border-emerald-700/80 rounded text-[9.5px] flex items-center gap-1 shrink-0"
+                        :title="t('scheduler.presenceConfirmed')"
                       >
                         <CheckCircle class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                        <span class="hidden sm:inline">Presença</span>
+                        <span class="hidden sm:inline">{{ t('scheduler.presenceConfirmed') }}</span>
                         <span class="sm:hidden font-extrabold text-[10px]">✓</span>
                       </span>
                     </div>
