@@ -57,6 +57,8 @@ const editScheduledTime = ref('');
 const editTargetLevel = ref<'Beginner' | 'Intermediate' | 'Advanced' | 'All'>('All');
 const editIsRecurring = ref(false);
 const editRecurrenceFrequency = ref<'weekly' | 'biweekly' | 'monthly'>('weekly');
+const editApplyScope = ref<'this_only' | 'this_and_future' | 'entire_series'>('this_only');
+const editGenerateUpcoming = ref(true);
 
 // Advanced search, level filtering and pagination states
 const classSearchQuery = ref('');
@@ -224,8 +226,20 @@ const isSameDay = (d1: Date, d2: Date) => {
          d1.getDate() === d2.getDate();
 };
 
-const getClassesForDate = (dateStr: string) => {
-  return filteredClasses.value.filter(cl => parseClassDateStr(cl.scheduledAt) === dateStr);
+const classesByDateMap = computed(() => {
+  const map = new Map<string, ClassTurma[]>();
+  for (const cl of filteredClasses.value) {
+    const dateStr = parseClassDateStr(cl.scheduledAt);
+    if (!map.has(dateStr)) {
+      map.set(dateStr, []);
+    }
+    map.get(dateStr)!.push(cl);
+  }
+  return map;
+});
+
+const getClassesForDate = (dateStr: string): ClassTurma[] => {
+  return classesByDateMap.value.get(dateStr) || [];
 };
 
 const prevMonth = () => {
@@ -456,6 +470,7 @@ const handleCreate = async () => {
     const targetLvl = selectedTargetLevel.value;
     const rec = isRecurring.value;
     const freq = recurrenceFrequency.value;
+    const recurringGroupId = rec ? `series-${props.currentUserId}-${courseId}-${Date.now()}` : undefined;
 
     emit('create-class', {
       courseId,
@@ -471,7 +486,8 @@ const handleCreate = async () => {
       aulaType: selectedEventType.value === 'aula' ? selectedAulaType.value : undefined,
       targetLevel: targetLvl,
       isRecurring: rec,
-      recurrenceFrequency: rec ? freq : undefined
+      recurrenceFrequency: rec ? freq : undefined,
+      recurringGroupId: recurringGroupId
     });
 
     // Automatically generate 3 future instances if it's a recurring event
@@ -482,11 +498,15 @@ const handleCreate = async () => {
       const d = parseInt(parts[2], 10);
       const [h, min] = scheduledHour.value.split(':');
       const baseDate = new Date(y, m, d, parseInt(h, 10), parseInt(min, 10));
-      const stepDays = freq === 'weekly' ? 7 : freq === 'biweekly' ? 14 : 30;
 
       for (let i = 1; i <= 3; i++) {
         const nextDate = new Date(baseDate);
-        nextDate.setDate(nextDate.getDate() + (stepDays * i));
+        if (freq === 'monthly') {
+          nextDate.setMonth(baseDate.getMonth() + i);
+        } else {
+          const stepDays = freq === 'weekly' ? 7 : 14;
+          nextDate.setDate(nextDate.getDate() + (stepDays * i));
+        }
         const nextYMD = formatDateToYMD(nextDate);
         const nextScheduledAt = `${nextYMD} ${scheduledHour.value}`;
 
@@ -504,7 +524,8 @@ const handleCreate = async () => {
           aulaType: selectedEventType.value === 'aula' ? selectedAulaType.value : undefined,
           targetLevel: targetLvl,
           isRecurring: true,
-          recurrenceFrequency: freq
+          recurrenceFrequency: freq,
+          recurringGroupId: recurringGroupId
         });
       }
     }
@@ -525,6 +546,11 @@ const handleCreate = async () => {
 };
 
 const startEditing = (cl: ClassTurma) => {
+  // Permission guard
+  if (!props.isAdmin && !props.isInstructor && cl.instructorId !== props.currentUserId) {
+    return;
+  }
+
   editingClassId.value = cl.id;
   editEventType.value = cl.eventType || 'aula';
   editAulaType.value = cl.aulaType || (cl.courseId === 'custom-class' ? 'avulsa' : 'curso');
@@ -536,6 +562,8 @@ const startEditing = (cl: ClassTurma) => {
   editTargetLevel.value = cl.targetLevel || 'All';
   editIsRecurring.value = !!cl.isRecurring;
   editRecurrenceFrequency.value = cl.recurrenceFrequency || 'weekly';
+  editApplyScope.value = 'this_only';
+  editGenerateUpcoming.value = true;
 
   const parts = cl.scheduledAt.split(' ');
   editScheduledDate.value = parts[0] || '';
@@ -543,6 +571,11 @@ const startEditing = (cl: ClassTurma) => {
 };
 
 const saveEdit = (cl: ClassTurma) => {
+  // Permission guard
+  if (!props.isAdmin && !props.isInstructor && cl.instructorId !== props.currentUserId) {
+    return;
+  }
+
   let finalCourseId = editCourseId.value;
   let finalCourseTitle = "";
 
@@ -563,7 +596,7 @@ const saveEdit = (cl: ClassTurma) => {
     finalCourseTitle = editCustomClassTitle.value.trim() || `${locale.value === 'pt' ? 'Grupo de Conversação' : 'Conversation Group'}`;
   }
 
-  const finalScheduledAt = props.isAdmin || props.isInstructor
+  const finalScheduledAt = (props.isAdmin || props.isInstructor || cl.instructorId === props.currentUserId)
     ? `${editScheduledDate.value} ${editScheduledTime.value}`
     : cl.scheduledAt;
 
@@ -574,6 +607,25 @@ const saveEdit = (cl: ClassTurma) => {
     }
   } else {
     finalLinkSharedAt = undefined;
+  }
+
+  const isDateOrTimeChanged = finalScheduledAt !== cl.scheduledAt;
+  const isSingleWeekOverride = editApplyScope.value === 'this_only' && isDateOrTimeChanged;
+  const recurringGroupId = cl.recurringGroupId || (cl.isRecurring || editIsRecurring.value ? `series-${cl.instructorId}-${finalCourseId}-${Date.now()}` : undefined);
+
+  // Calculate day difference if date was modified
+  let dateShiftDays = 0;
+  if (editScheduledDate.value && cl.scheduledAt) {
+    const oldDatePart = cl.scheduledAt.split(' ')[0];
+    if (oldDatePart && oldDatePart !== editScheduledDate.value) {
+      const oldParts = oldDatePart.split('-');
+      const newParts = editScheduledDate.value.split('-');
+      if (oldParts.length === 3 && newParts.length === 3) {
+        const oldD = new Date(parseInt(oldParts[0], 10), parseInt(oldParts[1], 10) - 1, parseInt(oldParts[2], 10));
+        const newD = new Date(parseInt(newParts[0], 10), parseInt(newParts[1], 10) - 1, parseInt(newParts[2], 10));
+        dateShiftDays = Math.round((newD.getTime() - oldD.getTime()) / (1000 * 3600 * 24));
+      }
+    }
   }
 
   const updated: ClassTurma = {
@@ -588,12 +640,101 @@ const saveEdit = (cl: ClassTurma) => {
     eventType: editEventType.value,
     aulaType: editEventType.value === 'aula' ? editAulaType.value : undefined,
     targetLevel: editTargetLevel.value,
-    isRecurring: editIsRecurring.value,
-    recurrenceFrequency: editIsRecurring.value ? editRecurrenceFrequency.value : undefined
+    isRecurring: editApplyScope.value === 'this_only' && isSingleWeekOverride ? false : editIsRecurring.value,
+    recurrenceFrequency: editIsRecurring.value ? editRecurrenceFrequency.value : undefined,
+    recurringGroupId: recurringGroupId,
+    isOverride: isSingleWeekOverride ? true : (editIsRecurring.value ? false : cl.isOverride)
   };
 
   emit('update-class', updated);
+
+  // Apply to future or entire series if selected
+  if (editApplyScope.value === 'this_and_future' || editApplyScope.value === 'entire_series') {
+    const matching = props.classes.filter(c => 
+      c.id !== cl.id && 
+      ((recurringGroupId && c.recurringGroupId === recurringGroupId) || 
+       (c.isRecurring && c.instructorId === cl.instructorId && c.courseId === cl.courseId && c.eventType === cl.eventType))
+    );
+
+    matching.forEach(otherClass => {
+      if (editApplyScope.value === 'this_and_future' && otherClass.scheduledAt < cl.scheduledAt) {
+        return;
+      }
+
+      let newScheduledAt = otherClass.scheduledAt;
+      const otherParts = otherClass.scheduledAt.split(' ');
+      let otherDateStr = otherParts[0];
+      let otherTimeStr = editScheduledTime.value || otherParts[1] || '19:00';
+
+      if (dateShiftDays !== 0 && otherDateStr) {
+        const oParts = otherDateStr.split('-');
+        if (oParts.length === 3) {
+          const oD = new Date(parseInt(oParts[0], 10), parseInt(oParts[1], 10) - 1, parseInt(oParts[2], 10));
+          oD.setDate(oD.getDate() + dateShiftDays);
+          otherDateStr = formatDateToYMD(oD);
+        }
+      }
+
+      newScheduledAt = `${otherDateStr} ${otherTimeStr}`;
+
+      emit('update-class', {
+        ...otherClass,
+        courseId: finalCourseId,
+        courseTitle: finalCourseTitle,
+        maxStudents: editEventType.value === 'encontro' ? 1 : editMaxStudents.value,
+        eventType: editEventType.value,
+        aulaType: editEventType.value === 'aula' ? editAulaType.value : undefined,
+        targetLevel: editTargetLevel.value,
+        isRecurring: editIsRecurring.value,
+        recurrenceFrequency: editIsRecurring.value ? editRecurrenceFrequency.value : undefined,
+        recurringGroupId: recurringGroupId,
+        scheduledAt: newScheduledAt
+      });
+    });
+  }
+
+  // Generate 3 future occurrences if recurrence toggled ON
+  if (!cl.isRecurring && editIsRecurring.value && editGenerateUpcoming.value) {
+    const parts = editScheduledDate.value.split('-');
+    const y = parseInt(parts[0], 10);
+    const m = parseInt(parts[1], 10) - 1;
+    const d = parseInt(parts[2], 10);
+    const [h, min] = editScheduledTime.value.split(':');
+    const baseDate = new Date(y, m, d, parseInt(h, 10), parseInt(min, 10));
+
+    for (let i = 1; i <= 3; i++) {
+      const nextDate = new Date(baseDate);
+      if (editRecurrenceFrequency.value === 'monthly') {
+        nextDate.setMonth(baseDate.getMonth() + i);
+      } else {
+        const stepDays = editRecurrenceFrequency.value === 'weekly' ? 7 : 14;
+        nextDate.setDate(nextDate.getDate() + (stepDays * i));
+      }
+      const nextYMD = formatDateToYMD(nextDate);
+      const nextScheduledAt = `${nextYMD} ${editScheduledTime.value}`;
+
+      emit('create-class', {
+        courseId: finalCourseId,
+        courseTitle: finalCourseTitle,
+        instructorId: props.currentUserId,
+        instructorName: props.userDisplayName,
+        scheduledAt: nextScheduledAt,
+        maxStudents: editEventType.value === 'encontro' ? 1 : editMaxStudents.value,
+        status: 'scheduled',
+        callUrl: '',
+        presentStudentIds: [],
+        eventType: editEventType.value,
+        aulaType: editEventType.value === 'aula' ? editAulaType.value : undefined,
+        targetLevel: editTargetLevel.value,
+        isRecurring: true,
+        recurrenceFrequency: editRecurrenceFrequency.value,
+        recurringGroupId: recurringGroupId
+      });
+    }
+  }
+
   editingClassId.value = null;
+  isEditingInModal.value = false;
 };
 
 const handleCardClick = (e: Event, cl: ClassTurma) => {
@@ -1148,31 +1289,93 @@ const handleStudentEnter = (cl: ClassTurma) => {
             </div>
           </div>
 
-          <!-- ADMIN-ONLY DATE & TIME EDITING -->
-          <div v-if="isAdmin" class="grid grid-cols-2 gap-2 bg-rose-50/40 dark:bg-rose-950/10 p-2 rounded-xl border border-rose-100 dark:border-rose-900/30">
+          <!-- TARGET LEVEL EDITING -->
+          <div>
+            <label class="block text-[10px] font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1">
+              {{ locale === 'pt' ? 'Nível de Inglês Alvo' : 'Target English Level' }}
+            </label>
+            <select
+              v-model="editTargetLevel"
+              class="w-full text-xs bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-750 dark:text-white rounded-lg p-2 font-semibold cursor-pointer focus:outline-hidden"
+            >
+              <option value="All">{{ locale === 'pt' ? 'Todos os Níveis (Aberto)' : 'All Levels (Open)' }}</option>
+              <option value="Beginner">Beginner (Iniciante)</option>
+              <option value="Intermediate">Intermediate (Intermediário)</option>
+              <option value="Advanced">Advanced (Avançado)</option>
+            </select>
+          </div>
+
+          <!-- DATE & TIME EDITING FOR INSTRUCTORS & ADMINS -->
+          <div v-if="isAdmin || isInstructor || cl.instructorId === currentUserId" class="grid grid-cols-2 gap-2 bg-blue-50/40 dark:bg-slate-900 p-2 rounded-xl border border-blue-100 dark:border-slate-700">
             <div>
-              <label class="block text-[10px] font-bold text-rose-700 dark:text-rose-400 uppercase tracking-wider mb-1">
-                {{ t('scheduler.day') }} (Admin)
+              <label class="block text-[10px] font-bold text-blue-700 dark:text-blue-400 uppercase tracking-wider mb-1">
+                {{ t('scheduler.day') }}
               </label>
               <input
                 type="date"
                 v-model="editScheduledDate"
-                class="w-full text-xs bg-white dark:bg-slate-900 border border-rose-200 dark:border-rose-900/40 dark:text-white rounded-lg p-2 font-semibold cursor-pointer focus:outline-hidden focus:ring-2 focus:ring-inset focus:ring-blue-500 focus:border-blue-500"
+                class="w-full text-xs bg-white dark:bg-slate-800 border border-blue-200 dark:border-slate-700 dark:text-white rounded-lg p-2 font-semibold cursor-pointer focus:outline-hidden"
               />
             </div>
             <div>
-              <label class="block text-[10px] font-bold text-rose-700 dark:text-rose-400 uppercase tracking-wider mb-1">
-                {{ t('scheduler.hour') }} (Admin)
+              <label class="block text-[10px] font-bold text-blue-700 dark:text-blue-400 uppercase tracking-wider mb-1">
+                {{ t('scheduler.hour') }}
               </label>
               <input
                 type="time"
                 v-model="editScheduledTime"
-                class="w-full text-xs bg-white dark:bg-slate-900 border border-rose-200 dark:border-rose-900/40 dark:text-white rounded-lg p-2 font-semibold cursor-pointer focus:outline-hidden focus:ring-2 focus:ring-inset focus:ring-blue-500 focus:border-blue-500"
+                class="w-full text-xs bg-white dark:bg-slate-800 border border-blue-200 dark:border-slate-700 dark:text-white rounded-lg p-2 font-semibold cursor-pointer focus:outline-hidden"
               />
             </div>
           </div>
-          <div v-else class="bg-gray-50 dark:bg-slate-850 border border-gray-150 dark:border-slate-700/60 rounded-xl p-2.5 text-[10px] text-gray-500 dark:text-gray-400 font-semibold leading-normal">
-            {{ t('scheduler.adminRestriction', { time: cl.scheduledAt }) }}
+
+          <!-- RECURRENCE TOGGLE & FREQUENCY -->
+          <div class="p-2.5 bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-750 rounded-xl space-y-2 text-left">
+            <label class="flex items-center gap-2 cursor-pointer text-xs font-extrabold text-gray-800 dark:text-gray-200">
+              <input type="checkbox" v-model="editIsRecurring" class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 cursor-pointer" />
+              <span>🔁 {{ locale === 'pt' ? 'Evento Recorrente (Agendar Fixo)' : 'Recurring Event (Scheduled Fixed)' }}</span>
+            </label>
+
+            <div v-if="editIsRecurring" class="grid grid-cols-1 gap-2 pt-1.5 border-t border-gray-200/60 dark:border-slate-700/60">
+              <div>
+                <label class="block text-[10px] font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider mb-1">
+                  {{ locale === 'pt' ? 'Frequência' : 'Frequency' }}
+                </label>
+                <select v-model="editRecurrenceFrequency" class="w-full text-xs bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-750 dark:text-white rounded-lg p-1.5 font-semibold cursor-pointer">
+                  <option value="weekly">{{ locale === 'pt' ? 'Semanal (Toda semana)' : 'Weekly' }}</option>
+                  <option value="biweekly">{{ locale === 'pt' ? 'Quinzenal (A cada 2 semanas)' : 'Biweekly' }}</option>
+                  <option value="monthly">{{ locale === 'pt' ? 'Mensal (Uma vez ao mês)' : 'Monthly' }}</option>
+                </select>
+              </div>
+
+              <div v-if="!cl.isRecurring" class="pt-1">
+                <label class="flex items-center gap-1.5 cursor-pointer text-[11px] font-bold text-blue-600 dark:text-blue-400">
+                  <input type="checkbox" v-model="editGenerateUpcoming" class="w-3.5 h-3.5 text-blue-600 rounded focus:ring-blue-500" />
+                  <span>{{ locale === 'pt' ? 'Gerar 3 ocorrências futuras' : 'Generate 3 future occurrences' }}</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- SCOPE SELECTOR / SINGLE WEEK OVERRIDE -->
+          <div v-if="cl.isRecurring || cl.recurringGroupId || editIsRecurring" class="p-2.5 bg-blue-50/60 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900/40 rounded-xl space-y-1.5 text-left">
+            <label class="block text-[10px] font-extrabold text-blue-800 dark:text-blue-300 uppercase tracking-wider">
+              {{ locale === 'pt' ? 'Âmbito das Alterações' : 'Scope of Changes' }}
+            </label>
+            <div class="space-y-1 text-xs">
+              <label class="flex items-center gap-2 cursor-pointer font-bold text-gray-800 dark:text-gray-200">
+                <input type="radio" value="this_only" v-model="editApplyScope" class="text-blue-600 focus:ring-blue-500" />
+                <span>⚡ {{ locale === 'pt' ? 'Apenas esta ocorrência / semana (Exceção)' : 'Only this occurrence / week (Single exception)' }}</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer font-bold text-gray-800 dark:text-gray-200">
+                <input type="radio" value="this_and_future" v-model="editApplyScope" class="text-blue-600 focus:ring-blue-500" />
+                <span>📅 {{ locale === 'pt' ? 'Esta e todas as próximas ocorrências' : 'This and all future occurrences' }}</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer font-bold text-gray-800 dark:text-gray-200">
+                <input type="radio" value="entire_series" v-model="editApplyScope" class="text-blue-600 focus:ring-blue-500" />
+                <span>🌐 {{ locale === 'pt' ? 'Toda a série recorrente' : 'Entire recurring series' }}</span>
+              </label>
+            </div>
           </div>
 
           <div>
@@ -1235,6 +1438,21 @@ const handleStudentEnter = (cl: ClassTurma) => {
               </span>
               <span v-else class="inline-flex items-center gap-1 text-[9px] font-black px-2 py-0.5 rounded-md bg-blue-100 text-blue-800 dark:bg-blue-950/40 dark:text-blue-300">
                 🎓 {{ cl.aulaType === 'avulsa' ? t('scheduler.aulaTypeSolo') : t('scheduler.aulaTypeCourse') }}
+              </span>
+
+              <!-- Recurrence Badge -->
+              <span v-if="cl.isRecurring" class="inline-flex items-center gap-1 text-[9px] font-black px-2 py-0.5 rounded-md bg-purple-100 text-purple-800 dark:bg-purple-950/40 dark:text-purple-300 border border-purple-200 dark:border-purple-800/40">
+                🔁 {{ cl.recurrenceFrequency === 'biweekly' ? (locale === 'pt' ? 'Recorrente (Quinzenal)' : 'Recurring (Biweekly)') : cl.recurrenceFrequency === 'monthly' ? (locale === 'pt' ? 'Recorrente (Mensal)' : 'Recurring (Monthly)') : (locale === 'pt' ? 'Recorrente (Semanal)' : 'Recurring (Weekly)') }}
+              </span>
+
+              <!-- Override Single Week Badge -->
+              <span v-if="cl.isOverride" class="inline-flex items-center gap-1 text-[9px] font-black px-2 py-0.5 rounded-md bg-amber-100 text-amber-900 dark:bg-amber-950/50 dark:text-amber-300 border border-amber-300 dark:border-amber-800/50">
+                ⚡ {{ locale === 'pt' ? 'Exceção da Série (Data Alterada)' : 'Series Exception (Shifted)' }}
+              </span>
+
+              <!-- Target Level Badge -->
+              <span v-if="cl.targetLevel && cl.targetLevel !== 'All'" class="inline-flex items-center gap-1 text-[9px] font-black px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/40">
+                🎯 {{ cl.targetLevel }}
               </span>
             </div>
 
@@ -2064,27 +2282,93 @@ const handleStudentEnter = (cl: ClassTurma) => {
               </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-2.5">
+            <!-- TARGET LEVEL EDITING IN MODAL -->
+            <div>
+              <label class="block text-[10px] font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1.5">
+                {{ locale === 'pt' ? 'Nível de Inglês Alvo' : 'Target English Level' }}
+              </label>
+              <select
+                v-model="editTargetLevel"
+                class="w-full text-xs sm:text-sm bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-750 dark:text-white rounded-xl py-2.5 px-3.5 font-semibold cursor-pointer focus:outline-hidden"
+              >
+                <option value="All">{{ locale === 'pt' ? 'Todos os Níveis (Aberto)' : 'All Levels (Open)' }}</option>
+                <option value="Beginner">Beginner (Iniciante)</option>
+                <option value="Intermediate">Intermediate (Intermediário)</option>
+                <option value="Advanced">Advanced (Avançado)</option>
+              </select>
+            </div>
+
+            <!-- DATE & TIME EDITING FOR INSTRUCTORS & ADMINS IN MODAL -->
+            <div v-if="isAdmin || isInstructor || activeSelectedClass?.instructorId === currentUserId" class="grid grid-cols-2 gap-2.5 bg-blue-50/40 dark:bg-slate-850 p-2.5 rounded-xl border border-blue-100 dark:border-slate-750">
               <div>
-                <label class="block text-[10px] font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1.5">
-                  {{ t('scheduler.day') }} (Admin)
+                <label class="block text-[10px] font-bold text-blue-700 dark:text-blue-400 uppercase tracking-wider mb-1.5">
+                  {{ t('scheduler.day') }}
                 </label>
                 <input
                   type="date"
                   v-model="editScheduledDate"
-                  class="w-full text-xs sm:text-sm bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-750 dark:text-white rounded-xl py-2.5 px-3.5 font-semibold cursor-pointer focus:outline-hidden"
+                  class="w-full text-xs sm:text-sm bg-white dark:bg-slate-900 border border-blue-200 dark:border-slate-700 dark:text-white rounded-xl py-2 px-3 font-semibold cursor-pointer focus:outline-hidden"
                 />
               </div>
 
               <div>
-                <label class="block text-[10px] font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1.5">
-                  {{ t('scheduler.hour') }} (Admin)
+                <label class="block text-[10px] font-bold text-blue-700 dark:text-blue-400 uppercase tracking-wider mb-1.5">
+                  {{ t('scheduler.hour') }}
                 </label>
                 <input
                   type="time"
                   v-model="editScheduledTime"
-                  class="w-full text-xs sm:text-sm bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-750 dark:text-white rounded-xl py-2.5 px-3.5 font-semibold cursor-pointer focus:outline-hidden"
+                  class="w-full text-xs sm:text-sm bg-white dark:bg-slate-900 border border-blue-200 dark:border-slate-700 dark:text-white rounded-xl py-2 px-3 font-semibold cursor-pointer focus:outline-hidden"
                 />
+              </div>
+            </div>
+
+            <!-- RECURRENCE TOGGLE & FREQUENCY IN MODAL -->
+            <div class="p-3 bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-750 rounded-xl space-y-2.5 text-left">
+              <label class="flex items-center gap-2 cursor-pointer text-xs font-extrabold text-gray-800 dark:text-gray-200">
+                <input type="checkbox" v-model="editIsRecurring" class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 cursor-pointer" />
+                <span>🔁 {{ locale === 'pt' ? 'Evento Recorrente (Agendar Fixo)' : 'Recurring Event (Scheduled Fixed)' }}</span>
+              </label>
+
+              <div v-if="editIsRecurring" class="grid grid-cols-1 gap-2 pt-2 border-t border-gray-200/60 dark:border-slate-700/60">
+                <div>
+                  <label class="block text-[10px] font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider mb-1">
+                    {{ locale === 'pt' ? 'Frequência' : 'Frequency' }}
+                  </label>
+                  <select v-model="editRecurrenceFrequency" class="w-full text-xs bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-750 dark:text-white rounded-lg p-2 font-semibold cursor-pointer">
+                    <option value="weekly">{{ locale === 'pt' ? 'Semanal (Toda semana)' : 'Weekly' }}</option>
+                    <option value="biweekly">{{ locale === 'pt' ? 'Quinzenal (A cada 2 semanas)' : 'Biweekly' }}</option>
+                    <option value="monthly">{{ locale === 'pt' ? 'Mensal (Uma vez ao mês)' : 'Monthly' }}</option>
+                  </select>
+                </div>
+
+                <div v-if="!activeSelectedClass?.isRecurring" class="pt-1">
+                  <label class="flex items-center gap-1.5 cursor-pointer text-xs font-bold text-blue-600 dark:text-blue-400">
+                    <input type="checkbox" v-model="editGenerateUpcoming" class="w-3.5 h-3.5 text-blue-600 rounded focus:ring-blue-500" />
+                    <span>{{ locale === 'pt' ? 'Gerar 3 ocorrências futuras' : 'Generate 3 future occurrences' }}</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- SCOPE SELECTOR / SINGLE WEEK OVERRIDE IN MODAL -->
+            <div v-if="activeSelectedClass?.isRecurring || activeSelectedClass?.recurringGroupId || editIsRecurring" class="p-3 bg-blue-50/60 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900/40 rounded-xl space-y-2 text-left">
+              <label class="block text-[10px] font-extrabold text-blue-800 dark:text-blue-300 uppercase tracking-wider">
+                {{ locale === 'pt' ? 'Âmbito das Alterações nesta Aula' : 'Scope of Changes for this Event' }}
+              </label>
+              <div class="space-y-1.5 text-xs">
+                <label class="flex items-center gap-2 cursor-pointer font-bold text-gray-800 dark:text-gray-200">
+                  <input type="radio" value="this_only" v-model="editApplyScope" class="text-blue-600 focus:ring-blue-500" />
+                  <span>⚡ {{ locale === 'pt' ? 'Apenas esta ocorrência / semana (Exceção pontual)' : 'Only this occurrence / week (Single exception)' }}</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer font-bold text-gray-800 dark:text-gray-200">
+                  <input type="radio" value="this_and_future" v-model="editApplyScope" class="text-blue-600 focus:ring-blue-500" />
+                  <span>📅 {{ locale === 'pt' ? 'Esta e todas as próximas ocorrências' : 'This and all future occurrences' }}</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer font-bold text-gray-800 dark:text-gray-200">
+                  <input type="radio" value="entire_series" v-model="editApplyScope" class="text-blue-600 focus:ring-blue-500" />
+                  <span>🌐 {{ locale === 'pt' ? 'Toda a série recorrente' : 'Entire recurring series' }}</span>
+                </label>
               </div>
             </div>
 

@@ -76,6 +76,8 @@ export interface ClassTurma {
   targetLevel?: "Beginner" | "Intermediate" | "Advanced" | "All";
   isRecurring?: boolean;
   recurrenceFrequency?: "weekly" | "biweekly" | "monthly";
+  recurringGroupId?: string;
+  isOverride?: boolean;
 }
 
 export interface Progress {
