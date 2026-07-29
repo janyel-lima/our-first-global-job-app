@@ -179,14 +179,15 @@ const selectCalendarDay = (dateString: string) => {
 
 const handleCalendarDayClick = (day: any) => {
   selectedCalendarDayString.value = day.dateString;
-  if (day.classesOnDay && day.classesOnDay.length > 0) {
-    if (day.classesOnDay.length === 1) {
-      selectedClass.value = day.classesOnDay[0];
-    } else {
-      selectedDayForSelector.value = day.dateString;
-      showDayClassesSelector.value = day.classesOnDay;
-    }
+};
+
+const canEditClass = (cl: ClassTurma | null) => {
+  if (!cl) return false;
+  if (props.isAdmin) return true;
+  if ((props.isInstructor || cl.instructorId === props.currentUserId) && cl.status !== 'completed' && cl.status !== 'cancelled') {
+    return true;
   }
+  return false;
 };
 
 const selectedDayClasses = computed(() => {
@@ -270,7 +271,7 @@ const prevWeek = () => {
   const d = new Date(currentWeekStart.value);
   d.setDate(d.getDate() - 7);
   currentWeekStart.value = d;
-  
+
   // Sync month and year based on the middle of the week
   const mid = new Date(d);
   mid.setDate(mid.getDate() + 3);
@@ -282,7 +283,7 @@ const nextWeek = () => {
   const d = new Date(currentWeekStart.value);
   d.setDate(d.getDate() + 7);
   currentWeekStart.value = d;
-  
+
   // Sync month and year based on the middle of the week
   const mid = new Date(d);
   mid.setDate(mid.getDate() + 3);
@@ -312,15 +313,15 @@ const openAddFormWithDate = (dateStr: string) => {
 const daysInMonth = computed(() => {
   const year = currentYear.value;
   const month = currentMonth.value;
-  
+
   const firstDayInstance = new Date(year, month, 1);
-  const firstDayOfWeek = firstDayInstance.getDay(); 
-  
+  const firstDayOfWeek = firstDayInstance.getDay();
+
   const totalDays = new Date(year, month + 1, 0).getDate();
   const prevMonthTotalDays = new Date(year, month, 0).getDate();
-  
+
   const days: any[] = [];
-  
+
   // Previous month padding
   for (let i = firstDayOfWeek - 1; i >= 0; i--) {
     const dayNum = prevMonthTotalDays - i;
@@ -335,7 +336,7 @@ const daysInMonth = computed(() => {
       classesOnDay: getClassesForDate(dateString)
     });
   }
-  
+
   // Current month
   for (let dayNum = 1; dayNum <= totalDays; dayNum++) {
     const date = new Date(year, month, dayNum);
@@ -349,7 +350,7 @@ const daysInMonth = computed(() => {
       classesOnDay: getClassesForDate(dateString)
     });
   }
-  
+
   // Next month padding to fill exactly 42 cells
   const totalCellsNeeded = 42;
   const remainingCells = totalCellsNeeded - days.length;
@@ -365,7 +366,7 @@ const daysInMonth = computed(() => {
       classesOnDay: getClassesForDate(dateString)
     });
   }
-  
+
   return days;
 });
 
@@ -547,7 +548,7 @@ const handleCreate = async () => {
 
 const startEditing = (cl: ClassTurma) => {
   // Permission guard
-  if (!props.isAdmin && !props.isInstructor && cl.instructorId !== props.currentUserId) {
+  if (!canEditClass(cl)) {
     return;
   }
 
@@ -572,7 +573,7 @@ const startEditing = (cl: ClassTurma) => {
 
 const saveEdit = (cl: ClassTurma) => {
   // Permission guard
-  if (!props.isAdmin && !props.isInstructor && cl.instructorId !== props.currentUserId) {
+  if (!canEditClass(cl)) {
     return;
   }
 
@@ -650,9 +651,9 @@ const saveEdit = (cl: ClassTurma) => {
 
   // Apply to future or entire series if selected
   if (editApplyScope.value === 'this_and_future' || editApplyScope.value === 'entire_series') {
-    const matching = props.classes.filter(c => 
-      c.id !== cl.id && 
-      ((recurringGroupId && c.recurringGroupId === recurringGroupId) || 
+    const matching = props.classes.filter(c =>
+      c.id !== cl.id &&
+      ((recurringGroupId && c.recurringGroupId === recurringGroupId) ||
        (c.isRecurring && c.instructorId === cl.instructorId && c.courseId === cl.courseId && c.eventType === cl.eventType))
     );
 
@@ -772,10 +773,10 @@ const isInscriptionsClosed = (cl: ClassTurma) => {
 
 const handleStudentEnter = (cl: ClassTurma) => {
   if (!cl.callUrl) return;
-  
+
   // Register student's presence on the platform
   emit('mark-presence', cl.id);
-  
+
   // Open link in a new window/tab
   window.open(cl.callUrl, '_blank');
 };
@@ -783,7 +784,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
 
 <template>
   <div class="space-y-6">
-    
+
     <!-- Title Header -->
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
       <div class="text-left">
@@ -805,16 +806,16 @@ const handleStudentEnter = (cl: ClassTurma) => {
     </div>
 
     <!-- Instructor's Creation Drawer/Modal panel -->
-    <form 
+    <form
       v-if="showAddForm"
       id="form-add-class"
-      @submit.prevent="handleCreate" 
+      @submit.prevent="handleCreate"
       class="bg-slate-50 dark:bg-slate-900 p-6 rounded-2xl border border-gray-200 dark:border-slate-800/80 mt-2 space-y-4 max-w-2xl text-left shadow-md"
     >
       <p class="text-xs font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest">
         {{ locale === 'pt' ? 'Agendar Novo Evento' : 'Schedule New Event' }}
       </p>
-      
+
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <!-- Event Type Segmented Control -->
         <div class="col-span-1 md:col-span-2">
@@ -1204,7 +1205,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
       </div>
 
       <div v-else class="space-y-6">
-        
+
         <!-- Empty state when searching yields zero results -->
         <div v-if="filteredClasses.length === 0" class="p-12 text-center bg-gray-50 dark:bg-slate-850 rounded-3xl border border-gray-200/60 dark:border-slate-700 text-gray-500 max-w-sm mx-auto">
           <Search class="w-8 h-8 mx-auto mb-2 text-gray-400 animate-pulse" />
@@ -1217,9 +1218,9 @@ const handleStudentEnter = (cl: ClassTurma) => {
         </div>
 
       <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div 
+        <div
           v-for="cl in paginatedClasses"
-          :key="cl.id" 
+          :key="cl.id"
           :id="`class-card-${cl.id}`"
           @click="(e) => handleCardClick(e, cl)"
           :class="[
@@ -1227,190 +1228,8 @@ const handleStudentEnter = (cl: ClassTurma) => {
             cl.studentIds.includes(currentUserId) ? 'border-blue-500 ring-1 ring-blue-500/10 shadow-xs' : 'border-gray-150 dark:border-slate-700 shadow-xs hover:border-gray-200'
           ]"
         >
-        <!-- EDIT MODE -->
-        <div v-if="editingClassId === cl.id" class="space-y-3.5 p-1 w-full">
-          <p class="text-xs font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest flex items-center gap-1">
-            <Edit class="w-3.5 h-3.5" />
-            <span>{{ t('scheduler.editClass') }}</span>
-          </p>
-          
-          <div>
-            <label class="block text-[10px] font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1">
-              {{ t('scheduler.selectCourse') }}
-            </label>
-            <select
-              v-model="editCourseId"
-              class="w-full text-xs bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-750 dark:text-white rounded-lg p-2 font-semibold cursor-pointer focus:outline-hidden focus:ring-2 focus:ring-inset focus:ring-blue-500 focus:border-blue-500"
-            >
-              <option value="custom-class">⚡ {{ t('scheduler.customClassOption') }}</option>
-              <option v-for="c in allowedCourses" :key="c.id" :value="c.id">
-                {{ c.title }} - {{ t('scheduler.by') }} {{ c.creatorName || t('courses.comunitario') }}
-              </option>
-            </select>
-          </div>
-
-          <div v-if="editCourseId === 'custom-class'">
-            <label class="block text-[10px] font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1">
-              {{ t('scheduler.customClassTitleLabel') }}
-            </label>
-            <input
-              type="text"
-              v-model="editCustomClassTitle"
-              :placeholder="t('scheduler.customClassTitlePlaceholder')"
-              class="w-full text-xs bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-755 dark:text-white rounded-lg p-2 font-semibold focus:outline-hidden focus:ring-2 focus:ring-inset focus:ring-blue-500 focus:border-blue-500"
-            />
-          </div>
-
-          <div class="grid grid-cols-2 gap-2">
-            <div>
-              <label class="block text-[10px] font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1">
-                {{ t('scheduler.capacity') }}
-              </label>
-              <input
-                type="number"
-                min="2"
-                max="100"
-                v-model.number="editMaxStudents"
-                class="w-full text-xs bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-750 dark:text-white rounded-lg p-2 font-semibold focus:outline-hidden focus:ring-2 focus:ring-inset focus:ring-blue-500 focus:border-blue-500"
-              />
-            </div>
-            <div>
-              <label class="block text-[10px] font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1">
-                {{ t('scheduler.status') }}
-              </label>
-              <select
-                v-model="editStatus"
-                class="w-full text-xs bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-750 dark:text-white rounded-lg p-2 font-semibold cursor-pointer focus:outline-hidden focus:ring-2 focus:ring-inset focus:ring-blue-500 focus:border-blue-500"
-              >
-                <option value="scheduled">{{ t('scheduler.statusScheduled') }}</option>
-                <option value="completed">{{ t('scheduler.statusCompleted') }}</option>
-                <option value="cancelled">{{ t('scheduler.statusCancelled') }}</option>
-              </select>
-            </div>
-          </div>
-
-          <!-- TARGET LEVEL EDITING -->
-          <div>
-            <label class="block text-[10px] font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1">
-              {{ locale === 'pt' ? 'Nível de Inglês Alvo' : 'Target English Level' }}
-            </label>
-            <select
-              v-model="editTargetLevel"
-              class="w-full text-xs bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-750 dark:text-white rounded-lg p-2 font-semibold cursor-pointer focus:outline-hidden"
-            >
-              <option value="All">{{ locale === 'pt' ? 'Todos os Níveis (Aberto)' : 'All Levels (Open)' }}</option>
-              <option value="Beginner">Beginner (Iniciante)</option>
-              <option value="Intermediate">Intermediate (Intermediário)</option>
-              <option value="Advanced">Advanced (Avançado)</option>
-            </select>
-          </div>
-
-          <!-- DATE & TIME EDITING FOR INSTRUCTORS & ADMINS -->
-          <div v-if="isAdmin || isInstructor || cl.instructorId === currentUserId" class="grid grid-cols-2 gap-2 bg-blue-50/40 dark:bg-slate-900 p-2 rounded-xl border border-blue-100 dark:border-slate-700">
-            <div>
-              <label class="block text-[10px] font-bold text-blue-700 dark:text-blue-400 uppercase tracking-wider mb-1">
-                {{ t('scheduler.day') }}
-              </label>
-              <input
-                type="date"
-                v-model="editScheduledDate"
-                class="w-full text-xs bg-white dark:bg-slate-800 border border-blue-200 dark:border-slate-700 dark:text-white rounded-lg p-2 font-semibold cursor-pointer focus:outline-hidden"
-              />
-            </div>
-            <div>
-              <label class="block text-[10px] font-bold text-blue-700 dark:text-blue-400 uppercase tracking-wider mb-1">
-                {{ t('scheduler.hour') }}
-              </label>
-              <input
-                type="time"
-                v-model="editScheduledTime"
-                class="w-full text-xs bg-white dark:bg-slate-800 border border-blue-200 dark:border-slate-700 dark:text-white rounded-lg p-2 font-semibold cursor-pointer focus:outline-hidden"
-              />
-            </div>
-          </div>
-
-          <!-- RECURRENCE TOGGLE & FREQUENCY -->
-          <div class="p-2.5 bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-750 rounded-xl space-y-2 text-left">
-            <label class="flex items-center gap-2 cursor-pointer text-xs font-extrabold text-gray-800 dark:text-gray-200">
-              <input type="checkbox" v-model="editIsRecurring" class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 cursor-pointer" />
-              <span>🔁 {{ locale === 'pt' ? 'Evento Recorrente (Agendar Fixo)' : 'Recurring Event (Scheduled Fixed)' }}</span>
-            </label>
-
-            <div v-if="editIsRecurring" class="grid grid-cols-1 gap-2 pt-1.5 border-t border-gray-200/60 dark:border-slate-700/60">
-              <div>
-                <label class="block text-[10px] font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider mb-1">
-                  {{ locale === 'pt' ? 'Frequência' : 'Frequency' }}
-                </label>
-                <select v-model="editRecurrenceFrequency" class="w-full text-xs bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-750 dark:text-white rounded-lg p-1.5 font-semibold cursor-pointer">
-                  <option value="weekly">{{ locale === 'pt' ? 'Semanal (Toda semana)' : 'Weekly' }}</option>
-                  <option value="biweekly">{{ locale === 'pt' ? 'Quinzenal (A cada 2 semanas)' : 'Biweekly' }}</option>
-                  <option value="monthly">{{ locale === 'pt' ? 'Mensal (Uma vez ao mês)' : 'Monthly' }}</option>
-                </select>
-              </div>
-
-              <div v-if="!cl.isRecurring" class="pt-1">
-                <label class="flex items-center gap-1.5 cursor-pointer text-[11px] font-bold text-blue-600 dark:text-blue-400">
-                  <input type="checkbox" v-model="editGenerateUpcoming" class="w-3.5 h-3.5 text-blue-600 rounded focus:ring-blue-500" />
-                  <span>{{ locale === 'pt' ? 'Gerar 3 ocorrências futuras' : 'Generate 3 future occurrences' }}</span>
-                </label>
-              </div>
-            </div>
-          </div>
-
-          <!-- SCOPE SELECTOR / SINGLE WEEK OVERRIDE -->
-          <div v-if="cl.isRecurring || cl.recurringGroupId || editIsRecurring" class="p-2.5 bg-blue-50/60 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900/40 rounded-xl space-y-1.5 text-left">
-            <label class="block text-[10px] font-extrabold text-blue-800 dark:text-blue-300 uppercase tracking-wider">
-              {{ locale === 'pt' ? 'Âmbito das Alterações' : 'Scope of Changes' }}
-            </label>
-            <div class="space-y-1 text-xs">
-              <label class="flex items-center gap-2 cursor-pointer font-bold text-gray-800 dark:text-gray-200">
-                <input type="radio" value="this_only" v-model="editApplyScope" class="text-blue-600 focus:ring-blue-500" />
-                <span>⚡ {{ locale === 'pt' ? 'Apenas esta ocorrência / semana (Exceção)' : 'Only this occurrence / week (Single exception)' }}</span>
-              </label>
-              <label class="flex items-center gap-2 cursor-pointer font-bold text-gray-800 dark:text-gray-200">
-                <input type="radio" value="this_and_future" v-model="editApplyScope" class="text-blue-600 focus:ring-blue-500" />
-                <span>📅 {{ locale === 'pt' ? 'Esta e todas as próximas ocorrências' : 'This and all future occurrences' }}</span>
-              </label>
-              <label class="flex items-center gap-2 cursor-pointer font-bold text-gray-800 dark:text-gray-200">
-                <input type="radio" value="entire_series" v-model="editApplyScope" class="text-blue-600 focus:ring-blue-500" />
-                <span>🌐 {{ locale === 'pt' ? 'Toda a série recorrente' : 'Entire recurring series' }}</span>
-              </label>
-            </div>
-          </div>
-
-          <div>
-            <label class="block text-[10px] font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1">
-              {{ t('scheduler.linkLabel') }}
-            </label>
-            <input
-              type="url"
-              v-model="editCallUrl"
-              :placeholder="t('scheduler.linkPlaceholder')"
-              class="w-full text-xs bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-750 dark:text-white rounded-lg p-2 font-semibold focus:outline-hidden focus:ring-2 focus:ring-inset focus:ring-blue-500 focus:border-blue-500"
-            />
-          </div>
-
-          <div class="flex gap-2 justify-end pt-2">
-            <button 
-              type="button"
-              @click.stop="editingClassId = null"
-              class="px-3 py-1.5 border border-gray-300 dark:border-slate-700 rounded-lg text-xs font-semibold text-gray-650 dark:text-gray-300 hover:bg-gray-55 dark:hover:bg-slate-700 cursor-pointer"
-            >
-              {{ t('scheduler.cancel') }}
-            </button>
-            <button
-              type="button"
-              @click.stop="saveEdit(cl)"
-              class="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-black cursor-pointer shadow-xs"
-              :style="{ backgroundColor: props.primaryColor }"
-            >
-              {{ t('scheduler.editBtn') }}
-            </button>
-          </div>
-        </div>
-
         <!-- READ-ONLY CARD VIEWER -->
-        <div v-else class="h-full flex flex-col justify-between">
+        <div class="h-full flex flex-col justify-between">
           <div>
             <!-- Status header -->
             <div class="flex justify-between items-center mb-3">
@@ -1467,13 +1286,13 @@ const handleStudentEnter = (cl: ClassTurma) => {
                 {{ t('scheduler.autor', { name: (cl.eventType === 'encontro' || cl.eventType === 'conversacao' || cl.courseId === 'custom-class') ? cl.instructorName : (courses.find(c => c.id === cl.courseId)?.creatorName || t('scheduler.community')) }) }}
               </p>
               <p class="text-[11px] text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
-                {{ cl.eventType === 'encontro' 
-                  ? t('scheduler.oneOnOneDesc') 
-                  : cl.eventType === 'conversacao' 
-                  ? t('scheduler.conversationGroupDesc') 
-                  : cl.courseId === 'custom-class' 
-                  ? t('scheduler.customDesc') 
-                  : (courses.find(c => c.id === cl.courseId)?.description || t('scheduler.defaultCourseDesc')) 
+                {{ cl.eventType === 'encontro'
+                  ? t('scheduler.oneOnOneDesc')
+                  : cl.eventType === 'conversacao'
+                  ? t('scheduler.conversationGroupDesc')
+                  : cl.courseId === 'custom-class'
+                  ? t('scheduler.customDesc')
+                  : (courses.find(c => c.id === cl.courseId)?.description || t('scheduler.defaultCourseDesc'))
                 }}
               </p>
             </div>
@@ -1496,7 +1315,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
                       <p class="text-xs font-extrabold text-emerald-850 dark:text-emerald-300 leading-none">
                         {{ t('scheduler.linkAvailable') }}
                       </p>
-                      
+
                       <!-- Presença checkmark for the student -->
                       <span v-if="cl.studentIds.includes(currentUserId) && cl.presentStudentIds?.includes(currentUserId)" class="text-[9px] bg-emerald-200 dark:bg-emerald-900/60 font-black text-emerald-800 dark:text-emerald-300 px-1.5 py-0.5 rounded-md">
                         {{ t('scheduler.attendanceRecorded') }}
@@ -1556,17 +1375,6 @@ const handleStudentEnter = (cl: ClassTurma) => {
             </div>
 
             <div class="flex items-center gap-1 flex-wrap shrink-0">
-              <!-- Edit capabilities for Instructor or Admin -->
-              <button
-                v-if="isInstructor || isAdmin"
-                :id="`btn-edit-class-${cl.id}`"
-                @click.stop="startEditing(cl)"
-                class="p-2 text-blue-500 hover:bg-blue-55 dark:hover:bg-slate-700/50 rounded-lg transition-colors border border-transparent hover:border-blue-100 dark:hover:border-slate-700 cursor-pointer shrink-0"
-                :title="t('scheduler.editClass')"
-              >
-                <Edit class="w-4 h-4" />
-              </button>
-
               <!-- Tutor delete capability -->
               <button
                 v-if="(isInstructor || isAdmin) && (isAdmin || cl.instructorId === currentUserId || cl.instructorId === 'system-volunteer')"
@@ -1597,7 +1405,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
                   :class="[
                     'flex items-center gap-1 py-1.5 px-2.5 text-[11px] font-bold rounded-lg transition-all border cursor-pointer shrink-0 max-w-[140px] truncate',
                     (cl.studentIds.length >= cl.maxStudents || isInscriptionsClosed(cl))
-                      ? 'bg-gray-100 text-gray-400 border-gray-200 dark:bg-slate-750 dark:text-gray-500 dark:border-slate-700 cursor-not-allowed' 
+                      ? 'bg-gray-100 text-gray-400 border-gray-200 dark:bg-slate-750 dark:text-gray-500 dark:border-slate-700 cursor-not-allowed'
                       : 'bg-blue-600 hover:bg-blue-700 text-white border-transparent shadow-xs'
                   ]"
                 >
@@ -1607,7 +1415,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
               </template>
 
               <!-- If the user is the instructor/creator of this class, show my class badge -->
-              <span 
+              <span
                 v-if="cl.instructorId === currentUserId"
                 class="text-[10px] text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 px-2.5 py-1 rounded-md font-bold flex items-center gap-1 shrink-0"
               >
@@ -1618,7 +1426,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
         </div>
 
           <!-- Show confirmed details below if student/user is enrolled -->
-          <div 
+          <div
             v-if="cl.studentIds.includes(currentUserId)"
             class="mt-3 bg-blue-50/40 dark:bg-slate-850 border border-blue-100/50 dark:border-slate-700/60 rounded-lg p-2.5 text-[11px] text-blue-700 dark:text-blue-300 text-center font-semibold"
           >
@@ -1630,11 +1438,11 @@ const handleStudentEnter = (cl: ClassTurma) => {
     <!-- Pagination controls for classes -->
     <div v-if="totalClassPages > 1" class="flex items-center justify-between gap-4 mt-6 pt-4 border-t border-gray-100 dark:border-slate-750/50">
       <p class="text-xs font-bold text-gray-500 dark:text-gray-400">
-        {{ t('scheduler.showingLabel') }} <span class="text-gray-900 dark:text-white">{{ (classCurrentPage - 1) * classItemsPerPage + 1 }}</span> {{ t('scheduler.toLabel') }} 
-        <span class="text-gray-900 dark:text-white">{{ Math.min(classCurrentPage * classItemsPerPage, filteredClasses.length) }}</span> {{ t('scheduler.ofLabel') }} 
+        {{ t('scheduler.showingLabel') }} <span class="text-gray-900 dark:text-white">{{ (classCurrentPage - 1) * classItemsPerPage + 1 }}</span> {{ t('scheduler.toLabel') }}
+        <span class="text-gray-900 dark:text-white">{{ Math.min(classCurrentPage * classItemsPerPage, filteredClasses.length) }}</span> {{ t('scheduler.ofLabel') }}
         <span class="text-gray-900 dark:text-white font-extrabold">{{ filteredClasses.length }}</span> {{ t('scheduler.classesLabel') }}
       </p>
-      
+
       <div class="flex items-center gap-1.5 flex-wrap">
         <button
           id="btn-class-prev-page"
@@ -1653,8 +1461,8 @@ const handleStudentEnter = (cl: ClassTurma) => {
             @click="classCurrentPage = page"
             :class="[
               'w-8 h-8 rounded-xl text-xs font-black transition-all cursor-pointer',
-              classCurrentPage === page 
-                ? 'bg-blue-600 text-white shadow-xs' 
+              classCurrentPage === page
+                ? 'bg-blue-600 text-white shadow-xs'
                 : 'bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800'
             ]"
           >
@@ -1765,7 +1573,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
                 :key="idx"
                 @click="handleCalendarDayClick(day)"
                 :class="[
-                  'min-h-[55px] md:min-h-[90px] p-1 md:p-1.5 flex flex-col justify-between transition-all relative text-left group cursor-pointer border', 
+                  'min-h-[55px] md:min-h-[90px] p-1 md:p-1.5 flex flex-col justify-between transition-all relative text-left group cursor-pointer border',
                   day.isCurrentMonth ? 'bg-white dark:bg-slate-900' : 'bg-gray-50/20 dark:bg-slate-950/10',
                   selectedCalendarDayString === day.dateString ? 'ring-2 ring-blue-500 border-blue-500 bg-blue-500/5 dark:bg-blue-500/10 z-10' : 'border-transparent'
                 ]"
@@ -1796,7 +1604,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
                     <span class="truncate"><strong>{{ cl.scheduledAt.split(' ')[1] }}</strong> {{ cl.courseTitle }}</span>
                     <span v-if="cl.studentIds.includes(currentUserId)" class="w-1.5 h-1.5 bg-amber-500 rounded-full shrink-0"></span>
                   </div>
-                  
+
                   <!-- Indicator for more classes on Desktop -->
                   <div
                     v-if="day.classesOnDay.length > 3"
@@ -1809,9 +1617,9 @@ const handleStudentEnter = (cl: ClassTurma) => {
 
                 <!-- Mobile view: Show subtle, clean event dots to keep layout neat and usable -->
                 <div class="block md:hidden mt-0.5 flex flex-wrap justify-center gap-0.5 max-w-full">
-                  <span 
-                    v-for="cl in (day.classesOnDay.length > 3 ? day.classesOnDay.slice(0, 2) : day.classesOnDay)" 
-                    :key="cl.id" 
+                  <span
+                    v-for="cl in (day.classesOnDay.length > 3 ? day.classesOnDay.slice(0, 2) : day.classesOnDay)"
+                    :key="cl.id"
                     :class="['w-1 h-1 rounded-full shrink-0', cl.studentIds.includes(currentUserId) ? 'bg-amber-500' : cl.status === 'completed' ? 'bg-emerald-500' : cl.status === 'cancelled' ? 'bg-rose-500' : 'bg-blue-500']"
                   ></span>
                   <span v-if="day.classesOnDay.length > 3" class="text-[8px] font-black leading-none text-blue-600 dark:text-blue-400 -mt-0.5 ml-0.5">+{{ day.classesOnDay.length - 2 }}</span>
@@ -1835,10 +1643,10 @@ const handleStudentEnter = (cl: ClassTurma) => {
                 <p class="text-xs font-black text-gray-900 dark:text-white capitalize mt-0.5">{{ formatSelectedDayTitle }}</p>
               </div>
             </div>
-            
-            <button 
-              v-if="isInstructor" 
-              @click="openAddFormWithDate(selectedCalendarDayString)" 
+
+            <button
+              v-if="isInstructor"
+              @click="openAddFormWithDate(selectedCalendarDayString)"
               class="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-black cursor-pointer shadow-xs transition-colors"
             >
               <Plus class="w-3.5 h-3.5" />
@@ -1863,11 +1671,11 @@ const handleStudentEnter = (cl: ClassTurma) => {
             :key="cl.id"
             @click="selectedClass = cl"
             :class="[
-              'p-3 rounded-xl border border-l-4 text-left cursor-pointer transition-all hover:scale-[1.01] flex flex-col gap-1.5 shadow-3xs', 
-              cl.status === 'completed' 
-                ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-850 dark:text-emerald-300 border-emerald-200 dark:border-emerald-500/30' 
-                : cl.status === 'cancelled' 
-                  ? 'bg-rose-50 dark:bg-rose-500/10 text-rose-800 dark:text-rose-450 border-rose-200 dark:border-rose-500/25 line-through' 
+              'p-3 rounded-xl border border-l-4 text-left cursor-pointer transition-all hover:scale-[1.01] flex flex-col gap-1.5 shadow-3xs',
+              cl.status === 'completed'
+                ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-850 dark:text-emerald-300 border-emerald-200 dark:border-emerald-500/30'
+                : cl.status === 'cancelled'
+                  ? 'bg-rose-50 dark:bg-rose-500/10 text-rose-800 dark:text-rose-450 border-rose-200 dark:border-rose-500/25 line-through'
                   : 'bg-slate-50/50 dark:bg-slate-850 text-gray-900 dark:text-white border-slate-200 dark:border-slate-800'
             ]"
             :style="cl.status === 'scheduled' ? { borderLeftColor: props.primaryColor || '#2563eb' } : { borderLeftColor: 'transparent' }"
@@ -1877,11 +1685,11 @@ const handleStudentEnter = (cl: ClassTurma) => {
                 <Clock class="w-3 h-3" :style="cl.status === 'scheduled' ? { color: props.primaryColor || '#2563eb' } : {}" :class="cl.status !== 'scheduled' ? 'text-blue-500' : ''" />
                 {{ cl.scheduledAt.split(' ')[1] }}
               </span>
-              <span 
+              <span
                 :class="[
-                  'text-[8px] font-extrabold tracking-wider uppercase px-1.5 py-0.5 rounded-sm', 
-                  cl.status === 'completed' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300' : 
-                  cl.status === 'cancelled' ? 'bg-rose-100 text-rose-850 dark:bg-rose-950/45 dark:text-rose-355' : 
+                  'text-[8px] font-extrabold tracking-wider uppercase px-1.5 py-0.5 rounded-sm',
+                  cl.status === 'completed' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300' :
+                  cl.status === 'cancelled' ? 'bg-rose-100 text-rose-850 dark:bg-rose-950/45 dark:text-rose-355' :
                   'border'
                 ]"
                 :style="cl.status === 'scheduled' ? { backgroundColor: `${props.primaryColor || '#2563eb'}15`, color: props.primaryColor || '#2563eb', borderColor: `${props.primaryColor || '#2563eb'}30` } : {}"
@@ -1944,17 +1752,17 @@ const handleStudentEnter = (cl: ClassTurma) => {
                   :key="cl.id"
                   @click.stop="selectedClass = cl"
                   :class="[
-                    'p-2 rounded-xl border text-left cursor-pointer transition-all hover:scale-[1.01] flex flex-col gap-1 shadow-3xs w-full max-w-full overflow-hidden box-border', 
-                    cl.status === 'completed' 
-                      ? 'bg-emerald-50 text-emerald-850 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-300 dark:border-emerald-500/30' 
-                      : cl.status === 'cancelled' 
-                        ? 'bg-rose-50 text-rose-800 border-rose-200 dark:bg-rose-500/10 dark:text-rose-450 dark:border-rose-500/25 line-through' 
+                    'p-2 rounded-xl border text-left cursor-pointer transition-all hover:scale-[1.01] flex flex-col gap-1 shadow-3xs w-full max-w-full overflow-hidden box-border',
+                    cl.status === 'completed'
+                      ? 'bg-emerald-50 text-emerald-850 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-300 dark:border-emerald-500/30'
+                      : cl.status === 'cancelled'
+                        ? 'bg-rose-50 text-rose-800 border-rose-200 dark:bg-rose-500/10 dark:text-rose-450 dark:border-rose-500/25 line-through'
                         : 'text-white border-transparent'
                   ]"
                   :style="cl.status === 'scheduled' ? { backgroundColor: props.primaryColor || '#2563eb', color: '#ffffff', borderColor: 'transparent' } : {}"
                 >
                   <div class="flex items-center justify-between gap-1 w-full overflow-hidden">
-                    <span 
+                    <span
                       class="text-[10px] font-mono font-black flex items-center gap-0.5 shrink-0"
                       :class="cl.status === 'scheduled' ? 'text-white' : 'text-slate-700 dark:text-slate-300'"
                     >
@@ -1972,13 +1780,13 @@ const handleStudentEnter = (cl: ClassTurma) => {
                     </span>
                   </div>
                   <h5 class="text-[11px] font-extrabold line-clamp-1 leading-tight">{{ cl.courseTitle }}</h5>
-                  <p 
+                  <p
                     class="text-[9px] truncate"
                     :class="cl.status === 'scheduled' ? 'text-blue-100/95 font-bold' : 'text-gray-400'"
                   >
                     {{ t('scheduler.instructorLabel') }} {{ cl.instructorName }}
                   </p>
-                  <div 
+                  <div
                     class="mt-1 pt-1 border-t flex items-center justify-between text-[9px] font-semibold w-full overflow-hidden"
                     :class="cl.status === 'scheduled' ? 'border-white/20 text-blue-50' : 'border-gray-100 dark:border-slate-800 text-gray-450 dark:text-gray-400'"
                   >
@@ -2020,12 +1828,12 @@ const handleStudentEnter = (cl: ClassTurma) => {
               </span>
               <span class="text-base font-black leading-none">{{ day.dayNum }}</span>
               <span class="text-[8px] font-bold">{{ monthNames[day.date.getMonth()].slice(0, 3) }}</span>
-              
+
               <!-- Event dots indicator -->
               <div v-if="day.classesOnDay.length > 0" class="flex items-center gap-0.5 mt-1">
-                <span 
-                  v-for="cl in day.classesOnDay.slice(0, 3)" 
-                  :key="cl.id" 
+                <span
+                  v-for="cl in day.classesOnDay.slice(0, 3)"
+                  :key="cl.id"
                   :class="['w-1 h-1 rounded-full', selectedCalendarDayString === day.dateString ? 'bg-white' : cl.studentIds.includes(currentUserId) ? 'bg-amber-500' : cl.status === 'completed' ? 'bg-emerald-500' : cl.status === 'cancelled' ? 'bg-rose-500' : 'bg-blue-500']"
                 ></span>
                 <span v-if="day.classesOnDay.length > 3" :class="['text-[8px] font-black', selectedCalendarDayString === day.dateString ? 'text-blue-100' : 'text-blue-500']">+</span>
@@ -2048,10 +1856,10 @@ const handleStudentEnter = (cl: ClassTurma) => {
                 <p class="text-xs font-black text-gray-900 dark:text-white capitalize mt-0.5">{{ formatSelectedDayTitle }}</p>
               </div>
             </div>
-            
-            <button 
-              v-if="isInstructor" 
-              @click="openAddFormWithDate(selectedCalendarDayString)" 
+
+            <button
+              v-if="isInstructor"
+              @click="openAddFormWithDate(selectedCalendarDayString)"
               class="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-black cursor-pointer shadow-xs transition-colors"
             >
               <Plus class="w-3.5 h-3.5" />
@@ -2077,11 +1885,11 @@ const handleStudentEnter = (cl: ClassTurma) => {
               :key="cl.id"
               @click="selectedClass = cl"
               :class="[
-                'p-3.5 rounded-xl border border-l-4 text-left cursor-pointer transition-all hover:scale-[1.01] flex flex-col gap-1.5 shadow-3xs', 
-                cl.status === 'completed' 
-                  ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-850 dark:text-emerald-300 border-emerald-200 dark:border-emerald-500/30' 
-                  : cl.status === 'cancelled' 
-                    ? 'bg-rose-50 dark:bg-rose-500/10 text-rose-850 dark:text-rose-450 border-rose-200 dark:border-rose-500/25 line-through' 
+                'p-3.5 rounded-xl border border-l-4 text-left cursor-pointer transition-all hover:scale-[1.01] flex flex-col gap-1.5 shadow-3xs',
+                cl.status === 'completed'
+                  ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-850 dark:text-emerald-300 border-emerald-200 dark:border-emerald-500/30'
+                  : cl.status === 'cancelled'
+                    ? 'bg-rose-50 dark:bg-rose-500/10 text-rose-850 dark:text-rose-450 border-rose-200 dark:border-rose-500/25 line-through'
                     : 'bg-slate-50/50 dark:bg-slate-850 text-gray-900 dark:text-white border-slate-200 dark:border-slate-800'
               ]"
               :style="cl.status === 'scheduled' ? { borderLeftColor: props.primaryColor || '#2563eb' } : { borderLeftColor: 'transparent' }"
@@ -2091,11 +1899,11 @@ const handleStudentEnter = (cl: ClassTurma) => {
                   <Clock class="w-3.5 h-3.5" :style="cl.status === 'scheduled' ? { color: props.primaryColor || '#2563eb' } : {}" :class="cl.status !== 'scheduled' ? 'text-blue-500' : ''" />
                   {{ cl.scheduledAt.split(' ')[1] }}
                 </span>
-                <span 
+                <span
                   :class="[
-                    'text-[8px] font-extrabold tracking-wider uppercase px-1.5 py-0.5 rounded-sm', 
-                    cl.status === 'completed' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300' : 
-                    cl.status === 'cancelled' ? 'bg-rose-100 text-rose-850 dark:bg-rose-950/45 dark:text-rose-355' : 
+                    'text-[8px] font-extrabold tracking-wider uppercase px-1.5 py-0.5 rounded-sm',
+                    cl.status === 'completed' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300' :
+                    cl.status === 'cancelled' ? 'bg-rose-100 text-rose-850 dark:bg-rose-950/45 dark:text-rose-355' :
                     'border'
                   ]"
                   :style="cl.status === 'scheduled' ? { backgroundColor: `${props.primaryColor || '#2563eb'}15`, color: props.primaryColor || '#2563eb', borderColor: `${props.primaryColor || '#2563eb'}30` } : {}"
@@ -2124,19 +1932,19 @@ const handleStudentEnter = (cl: ClassTurma) => {
     <!-- CLASS DETAILS MODAL (Interactive from List and Calendar view) -->
     <div v-if="activeSelectedClass" id="modal-class-details" class="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-xs bg-slate-950/60" @click="selectedClass = null">
       <div class="bg-white dark:bg-slate-900 border-2 border-blue-600 dark:border-blue-500 w-full max-w-2xl max-h-[95vh] sm:max-h-[90vh] rounded-2xl shadow-2xl flex flex-col text-left relative overflow-hidden" @click.stop>
-        
+
         <!-- Subtle Close Button inside Modal -->
         <button v-if="!isEditingInModal" @click="selectedClass = null" class="absolute top-4 right-4 p-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-gray-500 dark:text-gray-400 rounded-full transition-colors cursor-pointer z-10" :title="t('scheduler.closeLabel')">
           <X class="w-4 h-4" />
         </button>
- 
+
         <!-- EDIT MODE INSIDE MODAL -->
         <div v-if="isEditingInModal" class="p-6 space-y-4 flex flex-col overflow-hidden max-h-[95vh] sm:max-h-[90vh]">
           <p class="text-xs font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest flex items-center gap-1.5 border-b border-gray-150 dark:border-slate-800 pb-2.5 shrink-0">
             <Edit class="w-4 h-4" />
             <span>{{ t('scheduler.editClass') }}</span>
           </p>
-          
+
           <div class="space-y-3.5 overflow-y-auto pr-2 scrollbar-thin flex-1 min-h-0">
             <!-- Event Type Segmented Control -->
             <div>
@@ -2421,7 +2229,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
               {{ activeSelectedClass.scheduledAt }}
             </span>
           </div>
- 
+
           <!-- Associated Course Info & Event Type Badge -->
           <div class="space-y-1.5">
             <div class="flex flex-wrap gap-1 mb-1">
@@ -2458,14 +2266,14 @@ const handleStudentEnter = (cl: ClassTurma) => {
               </p>
             </div>
           </div>
- 
+
           <!-- Instructor info -->
           <p class="text-xs text-gray-500 dark:text-gray-400 mt-3 flex items-center leading-none">
             {{ t('scheduler.offeredByLabel') }} <strong class="ml-1 text-gray-800 dark:text-gray-200 font-bold">{{ activeSelectedClass.instructorName }}</strong>
           </p>
- 
+
           <div class="border-t border-gray-150 dark:border-slate-800/60 my-1"></div>
- 
+
           <!-- Transmission section -->
           <div class="space-y-1.5">
             <h4 class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest leading-none">
@@ -2538,12 +2346,13 @@ const handleStudentEnter = (cl: ClassTurma) => {
             <div class="flex items-center gap-1.5 flex-wrap shrink-0">
               <!-- Edit capabilities for Instructor or Admin inside details modal -->
               <button
-                v-if="isInstructor || isAdmin"
+                v-if="canEditClass(activeSelectedClass)"
                 @click="isEditingInModal = true; startEditing(activeSelectedClass);"
-                class="p-2 text-blue-500 hover:bg-blue-55 dark:hover:bg-slate-800 rounded-lg transition-colors border border-transparent hover:border-blue-100 dark:hover:border-slate-700 cursor-pointer shrink-0"
+                class="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 dark:bg-slate-800 hover:bg-blue-100 dark:hover:bg-slate-700 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-slate-700 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0 shadow-2xs"
                 :title="t('scheduler.editPropertiesTitle')"
               >
-                <Edit class="w-4 h-4" />
+                <Edit class="w-3.5 h-3.5" />
+                <span>{{ t('scheduler.editClass') }}</span>
               </button>
 
               <!-- Tutor delete capability inside details modal -->
@@ -2573,7 +2382,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
                   :class="[
                     'flex items-center gap-1 py-1.5 px-2.5 text-[11px] font-black rounded-lg transition-all border cursor-pointer shrink-0 max-w-[140px] truncate',
                     (activeSelectedClass.studentIds.length >= activeSelectedClass.maxStudents || isInscriptionsClosed(activeSelectedClass))
-                      ? 'bg-gray-100 text-gray-400 border-gray-200 dark:bg-slate-800 dark:text-gray-600 dark:border-slate-750 cursor-not-allowed' 
+                      ? 'bg-gray-100 text-gray-400 border-gray-200 dark:bg-slate-800 dark:text-gray-600 dark:border-slate-750 cursor-not-allowed'
                       : 'bg-blue-600 hover:bg-blue-700 text-white border-transparent shadow-xs'
                   ]"
                 >
@@ -2581,7 +2390,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
                   <span class="truncate">{{ activeSelectedClass.studentIds.length >= activeSelectedClass.maxStudents ? t('scheduler.fullLabel') : (isInscriptionsClosed(activeSelectedClass) ? (isPt ? 'Encerradas' : 'Closed') : t('scheduler.joinLabel')) }}</span>
                 </button>
               </template>
-              <span 
+              <span
                 v-if="activeSelectedClass.instructorId === currentUserId"
                 class="text-[10px] text-emerald-650 dark:text-emerald-400 bg-emerald-500/5 dark:bg-emerald-950/30 px-2.5 py-1.5 rounded-lg border border-emerald-500/15 font-black flex items-center gap-1 shrink-0"
               >
@@ -2591,7 +2400,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
           </div>
 
           <!-- Bottom Alert Banner -->
-          <div 
+          <div
             v-if="activeSelectedClass.studentIds.includes(currentUserId)"
             class="bg-blue-500/5 dark:bg-slate-950/20 border border-blue-500/20 rounded-xl p-3 text-xs text-blue-600 dark:text-blue-300 text-center font-bold"
           >
@@ -2602,7 +2411,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
           <div class="border-t border-gray-150 dark:border-slate-800/60 pt-4 space-y-3">
             <div class="flex items-center justify-between">
               <h4 class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest leading-none">
-                {{ locale === 'pt' ? 'Alunos Inscritos' : 'Enrolled Students' }} 
+                {{ locale === 'pt' ? 'Alunos Inscritos' : 'Enrolled Students' }}
                 ({{ enrolledStudentsOfClass.length }})
               </h4>
               <span v-if="activeSelectedClass.eventType === 'encontro'" class="text-[9px] font-bold text-indigo-700 dark:text-indigo-300 bg-indigo-500/15 border border-indigo-500/20 px-2 py-0.5 rounded-md">
@@ -2666,9 +2475,9 @@ const handleStudentEnter = (cl: ClassTurma) => {
               <template v-else-if="activeSelectedClass.eventType === 'conversacao'">
                 <!-- Visual Circle Bubble Container -->
                 <div class="flex flex-wrap gap-1.5 pb-2 border-b border-gray-150/50 dark:border-slate-800/50">
-                  <span 
-                    v-for="student in enrolledStudentsOfClass" 
-                    :key="'bubble-' + student.uid" 
+                  <span
+                    v-for="student in enrolledStudentsOfClass"
+                    :key="'bubble-' + student.uid"
                     class="inline-flex items-center gap-1.5 text-[10px] font-bold bg-amber-500/15 dark:bg-amber-500/20 text-amber-800 dark:text-amber-200 border border-amber-500/25 px-2.5 py-1 rounded-full"
                   >
                     <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
@@ -2678,9 +2487,9 @@ const handleStudentEnter = (cl: ClassTurma) => {
 
                 <!-- Paginated grid list of circular cards -->
                 <div class="grid grid-cols-1 gap-2">
-                  <div 
-                    v-for="student in paginatedStudents" 
-                    :key="student.uid" 
+                  <div
+                    v-for="student in paginatedStudents"
+                    :key="student.uid"
                     class="p-2.5 bg-amber-50/10 dark:bg-amber-950/5 border border-amber-100/30 dark:border-amber-950/20 rounded-xl flex items-center justify-between gap-2 min-w-0"
                   >
                     <div class="flex items-center gap-2 min-w-0">
@@ -2715,9 +2524,9 @@ const handleStudentEnter = (cl: ClassTurma) => {
               <!-- UNIQUE VIEW 3: AULA (ROLL CALL LIST GRID WITH LEVEL & ATTENDANCE SNAPSHOT) -->
               <template v-else>
                 <div class="space-y-2">
-                  <div 
-                    v-for="student in paginatedStudents" 
-                    :key="student.uid" 
+                  <div
+                    v-for="student in paginatedStudents"
+                    :key="student.uid"
                     class="p-2.5 bg-blue-50/10 dark:bg-slate-850/40 border border-blue-100/10 dark:border-slate-800 rounded-xl flex items-center justify-between gap-2 text-left min-w-0"
                   >
                     <div class="flex items-center gap-2.5 min-w-0">
@@ -2746,8 +2555,8 @@ const handleStudentEnter = (cl: ClassTurma) => {
                         <MessageSquare class="w-3.5 h-3.5 shrink-0" />
                         <span class="hidden sm:inline">{{ locale === 'pt' ? 'Dúvida' : 'Doubt' }}</span>
                       </button>
-                      <span 
-                        v-if="activeSelectedClass.presentStudentIds?.includes(student.uid)" 
+                      <span
+                        v-if="activeSelectedClass.presentStudentIds?.includes(student.uid)"
                         class="p-1 sm:px-2 sm:py-1 bg-emerald-100 dark:bg-emerald-950/60 font-black text-emerald-800 dark:text-emerald-300 rounded text-[9.5px] flex items-center gap-1 shrink-0"
                         :title="locale === 'pt' ? 'Presença Confirmada' : 'Presence Confirmed'"
                       >
