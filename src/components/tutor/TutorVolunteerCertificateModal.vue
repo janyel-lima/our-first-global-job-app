@@ -76,80 +76,80 @@
       <!-- CERTIFICATE PRINT / VIEW CANVAS -->
       <div
         id="volunteer-certificate-canvas"
-        class="border-8 border-double border-amber-600/50 p-6 sm:p-10 rounded-3xl bg-[#FFFDF9] text-slate-900 text-center relative space-y-6 shadow-2xl overflow-hidden"
+        class="border-8 border-double border-amber-600/60 p-6 sm:p-10 rounded-3xl bg-[#FFFDF9] text-slate-900 text-center relative space-y-6 shadow-2xl overflow-hidden"
       >
         <!-- Background Seal Watermark -->
-        <div class="absolute inset-0 flex items-center justify-center opacity-[0.04] pointer-events-none">
+        <div class="absolute inset-0 flex items-center justify-center opacity-[0.05] pointer-events-none">
           <Award class="w-96 h-96 text-amber-800" />
         </div>
 
         <!-- Decorative Gold Corner Accents -->
-        <div class="absolute top-2 left-2 w-8 h-8 border-t-2 border-l-2 border-amber-600/40 pointer-events-none"></div>
-        <div class="absolute top-2 right-2 w-8 h-8 border-t-2 border-r-2 border-amber-600/40 pointer-events-none"></div>
-        <div class="absolute bottom-2 left-2 w-8 h-8 border-b-2 border-l-2 border-amber-600/40 pointer-events-none"></div>
-        <div class="absolute bottom-2 right-2 w-8 h-8 border-b-2 border-r-2 border-amber-600/40 pointer-events-none"></div>
+        <div class="absolute top-2.5 left-2.5 w-8 h-8 border-t-2 border-l-2 border-amber-600/60 pointer-events-none"></div>
+        <div class="absolute top-2.5 right-2.5 w-8 h-8 border-t-2 border-r-2 border-amber-600/60 pointer-events-none"></div>
+        <div class="absolute bottom-2.5 left-2.5 w-8 h-8 border-b-2 border-l-2 border-amber-600/60 pointer-events-none"></div>
+        <div class="absolute bottom-2.5 right-2.5 w-8 h-8 border-b-2 border-r-2 border-amber-600/60 pointer-events-none"></div>
 
         <!-- Header -->
-        <div class="space-y-1 relative z-10">
-          <div class="inline-flex items-center gap-2 text-amber-900 font-black text-xs uppercase tracking-widest px-3.5 py-1 bg-amber-100/90 border border-amber-300 rounded-full mb-2 shadow-2xs">
-            <Globe class="w-3.5 h-3.5 text-amber-700" /> English Volunteer Org
+        <div class="space-y-2 relative z-10">
+          <div class="inline-flex items-center gap-2 text-amber-900 font-black text-xs uppercase tracking-widest px-4 py-1.5 bg-amber-100/90 border border-amber-300 rounded-full mb-1 shadow-xs">
+            <Globe class="w-3.5 h-3.5 text-amber-800" /> <span class="cert-sub-amber font-extrabold">OUR FIRST GLOBAL JOB</span>
           </div>
-          <h1 class="text-2xl sm:text-3xl font-black font-serif text-slate-900 uppercase tracking-wider">
+          <h1 class="text-2xl sm:text-3xl font-black font-serif cert-title-dark uppercase tracking-wider">
             {{ t('volunteer.certHeader') }}
           </h1>
-          <p class="text-xs text-amber-800 font-extrabold uppercase tracking-widest">
+          <p class="text-xs cert-sub-amber font-extrabold uppercase tracking-widest">
             {{ t('volunteer.certSub') }}
           </p>
         </div>
 
         <!-- Main Body Text -->
-        <div class="max-w-2xl mx-auto space-y-3 text-xs sm:text-sm text-slate-800 leading-relaxed font-medium relative z-10">
+        <div class="max-w-2xl mx-auto space-y-3 text-xs sm:text-sm cert-body-dark leading-relaxed font-medium relative z-10">
           <p>
-            {{ t('volunteer.certBody1') }} <strong class="text-base font-black text-slate-950 underline decoration-amber-500 decoration-2">{{ tutorName }}</strong> {{ t('volunteer.certRole') }} {{ t('volunteer.certBody2') }} <em class="font-bold text-slate-900">English Volunteer Platform</em>.
+            {{ t('volunteer.certBody1') }} <strong class="text-base font-black cert-name-highlight underline decoration-amber-500 decoration-2 px-1">{{ tutorName }}</strong> {{ t('volunteer.certRole') }} {{ t('volunteer.certBody2') }} <em class="font-bold cert-title-dark">Our First Global Job</em>.
           </p>
 
           <p>
-            {{ t('volunteer.certBody3') }} <strong class="font-black text-amber-900">{{ completedClasses.length }} {{ t('volunteer.sessionsLabel') }}</strong>, {{ t('volunteer.certBody4') }}
+            {{ t('volunteer.certBody3') }} <strong class="font-black cert-sub-amber">{{ completedClasses.length }} {{ t('volunteer.sessionsLabel') }}</strong>, {{ t('volunteer.certBody4') }}
           </p>
 
-          <div class="py-3 px-8 bg-amber-100/80 border border-amber-300 rounded-2xl inline-block shadow-2xs my-1">
-            <span class="text-2xl sm:text-3xl font-black text-amber-950">
+          <div class="py-3 px-8 cert-hours-box border border-amber-300 rounded-2xl inline-block shadow-xs my-1">
+            <span class="text-2xl sm:text-3xl font-black cert-hours-text">
               {{ totalHours }} {{ t('volunteer.complementaryHours') }}
             </span>
           </div>
 
-          <p class="text-xs text-slate-700">
-            {{ t('volunteer.certBody5') }} <strong class="text-slate-950 font-black">{{ totalImpactedStudents }} {{ t('volunteer.studentsEnrolled') }}</strong> {{ t('volunteer.certBody6') }}
+          <p class="text-xs cert-body-dark">
+            {{ t('volunteer.certBody5') }} <strong class="cert-title-dark font-black">{{ totalImpactedStudents }} {{ t('volunteer.studentsEnrolled') }}</strong> {{ t('volunteer.certBody6') }}
           </p>
         </div>
 
         <!-- Completed Classes Log Summary -->
-        <div class="text-left bg-white/90 border border-amber-200/80 rounded-2xl p-3.5 space-y-2 relative z-10 text-xs shadow-2xs">
-          <h4 class="font-black text-[10px] uppercase tracking-wider text-slate-600 flex items-center justify-between">
+        <div class="text-left cert-log-bg border border-amber-200/80 rounded-2xl p-4 space-y-2.5 relative z-10 text-xs shadow-xs">
+          <h4 class="font-black text-[10px] uppercase tracking-wider cert-body-dark flex items-center justify-between">
             <span class="flex items-center gap-1.5">
-              <CheckCircle2 class="w-3.5 h-3.5 text-emerald-600" />
-              <span>{{ t('volunteer.summaryTitle') }}</span>
+              <CheckCircle2 class="w-4 h-4 text-emerald-600" />
+              <span class="cert-title-dark font-bold">{{ t('volunteer.summaryTitle') }}</span>
             </span>
-            <span class="text-[9px] font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200">
+            <span class="text-[9px] font-extrabold cert-sub-amber bg-amber-50/80 px-2.5 py-0.5 rounded-md border border-amber-200">
               Extrato Oficial
             </span>
           </h4>
 
-          <div class="max-h-32 overflow-y-auto space-y-1 pr-1 custom-scrollbar">
+          <div class="max-h-36 overflow-y-auto space-y-1.5 pr-1 custom-scrollbar">
             <div
               v-for="cl in completedClasses"
               :key="cl.id"
-              class="flex items-center justify-between p-2 rounded-lg bg-slate-50 border border-slate-200/70 text-[11px]"
+              class="flex items-center justify-between p-2.5 rounded-xl cert-log-item border text-[11px]"
             >
               <div class="min-w-0 pr-2">
-                <span class="font-bold text-slate-900 truncate block">
+                <span class="font-bold cert-title-dark truncate block">
                   {{ cl.courseTitle }}
                 </span>
-                <span class="text-[10px] text-slate-600">
+                <span class="text-[10px] opacity-80 cert-body-dark">
                   {{ cl.eventType === 'encontro' ? '1-on-1' : cl.eventType === 'conversacao' ? 'Conversação' : 'Aula' }} • {{ cl.studentIds?.length || 0 }} alunos
                 </span>
               </div>
-              <span class="font-mono font-bold text-slate-700 shrink-0">
+              <span class="font-mono font-bold cert-body-dark shrink-0">
                 📅 {{ formatDisplayDate(cl.scheduledAt) }}
               </span>
             </div>
@@ -159,17 +159,17 @@
         <!-- Footer Signatures & Validation Code -->
         <div class="pt-5 border-t border-amber-300/80 grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs relative z-10">
           <div class="text-left space-y-1">
-            <p class="text-[10px] font-black uppercase text-slate-500">{{ t('volunteer.authCode') }}</p>
-            <p class="font-mono text-[11px] font-black text-amber-800 break-all bg-amber-100/50 px-2 py-1 rounded-md border border-amber-200/60 inline-block">
+            <p class="text-[10px] font-black uppercase opacity-70 cert-body-dark">{{ t('volunteer.authCode') }}</p>
+            <p class="font-mono text-[11px] font-black cert-code-box break-all px-2.5 py-1 rounded-md border inline-block">
               {{ verificationHash }}
             </p>
-            <p class="text-[10px] text-slate-600">{{ t('volunteer.issuedAt') }}: {{ issueDate }}</p>
+            <p class="text-[10px] opacity-80 cert-body-dark">{{ t('volunteer.issuedAt') }}: {{ issueDate }}</p>
           </div>
 
           <div class="text-right space-y-1 flex flex-col justify-end">
             <div class="border-b-2 border-slate-700 w-48 ml-auto mb-1"></div>
-            <p class="font-black text-slate-900">{{ t('volunteer.pedagogicalCoordination') }}</p>
-            <p class="text-[10px] text-slate-600 font-bold">English Volunteer Organization</p>
+            <p class="font-black cert-title-dark">{{ t('volunteer.pedagogicalCoordination') }}</p>
+            <p class="text-[10px] cert-body-dark font-bold">Our First Global Job</p>
           </div>
         </div>
       </div>
@@ -214,7 +214,7 @@ const issueDate = new Date().toLocaleDateString('pt-BR');
 
 const verificationHash = computed(() => {
   const shortUid = (props.tutorUid || 'USER').slice(0, 8).toUpperCase();
-  return `EV-TUTOR-${shortUid}-${completedClasses.value.length}H-${Date.now().toString(36).toUpperCase()}`;
+  return `OFGJ-TUTOR-${shortUid}-${completedClasses.value.length}H-${Date.now().toString(36).toUpperCase()}`;
 });
 
 const printCertificate = () => {
@@ -222,13 +222,68 @@ const printCertificate = () => {
 };
 </script>
 
+<style scoped>
+#volunteer-certificate-canvas {
+  background-color: #fffdf9 !important;
+  color: #0f172a !important;
+  color-scheme: light !important;
+}
+
+#volunteer-certificate-canvas * {
+  color-scheme: light !important;
+}
+
+.cert-title-dark {
+  color: #0f172a !important;
+}
+
+.cert-sub-amber {
+  color: #92400e !important;
+}
+
+.cert-body-dark {
+  color: #1e293b !important;
+}
+
+.cert-name-highlight {
+  color: #020617 !important;
+  border-color: #f59e0b !important;
+}
+
+.cert-hours-box {
+  background-color: #fef3c7 !important;
+  border-color: #fde68a !important;
+}
+
+.cert-hours-text {
+  color: #451a03 !important;
+}
+
+.cert-log-bg {
+  background-color: #ffffff !important;
+  border-color: #fde68a !important;
+}
+
+.cert-log-item {
+  background-color: #fcfbf7 !important;
+  border-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+.cert-code-box {
+  background-color: #fef3c7 !important;
+  border-color: #fde68a !important;
+  color: #92400e !important;
+}
+</style>
+
 <style>
 @media print {
   @page {
     size: A4 portrait;
     margin: 0;
   }
-  
+
   html, body {
     width: 210mm !important;
     height: 297mm !important;

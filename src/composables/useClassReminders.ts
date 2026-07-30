@@ -64,9 +64,9 @@ export function useClassReminders(
       const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
       if (!AudioCtx) return;
       const ctx = new AudioCtx();
-      
+
       const now = ctx.currentTime;
-      
+
       // Tone 1: E5 (659.25 Hz)
       const osc1 = ctx.createOscillator();
       const gain1 = ctx.createGain();
@@ -105,7 +105,7 @@ export function useClassReminders(
       const res = await Notification.requestPermission();
       webNotificationPermission.value = res;
       if (res === 'granted') {
-        new Notification('English Volunteer Platform', {
+        new Notification('Our First Global Job', {
           body: '🔔 Notificações ativadas com sucesso! Você receberá lembretes de aulas.',
           icon: '/favicon.ico'
         });
@@ -136,25 +136,25 @@ export function useClassReminders(
     if (!userId || !classesRef.value) return [];
 
     return classesRef.value
-      .filter(cl => {
-        if (cl.status !== 'scheduled') return false;
-        const isStudent = cl.studentIds && cl.studentIds.includes(userId);
-        const isInstructor = cl.instructorId === userId;
-        return isStudent || isInstructor;
-      })
-      .map(cl => {
-        const parts = cl.scheduledAt.split(' ');
-        let timestamp = 0;
-        if (parts.length === 2) {
-          timestamp = new Date(`${parts[0]}T${parts[1]}:00`).getTime();
-        }
-        return {
-          ...cl,
-          parsedTimestamp: timestamp
-        };
-      })
-      .filter(cl => cl.parsedTimestamp > Date.now() - 30 * 60 * 1000) // Keep current/upcoming within 30 min past
-      .sort((a, b) => a.parsedTimestamp - b.parsedTimestamp);
+    .filter(cl => {
+      if (cl.status !== 'scheduled') return false;
+      const isStudent = cl.studentIds && cl.studentIds.includes(userId);
+      const isInstructor = cl.instructorId === userId;
+      return isStudent || isInstructor;
+    })
+    .map(cl => {
+      const parts = cl.scheduledAt.split(' ');
+      let timestamp = 0;
+      if (parts.length === 2) {
+        timestamp = new Date(`${parts[0]}T${parts[1]}:00`).getTime();
+      }
+      return {
+        ...cl,
+        parsedTimestamp: timestamp
+      };
+    })
+    .filter(cl => cl.parsedTimestamp > Date.now() - 30 * 60 * 1000) // Keep current/upcoming within 30 min past
+    .sort((a, b) => a.parsedTimestamp - b.parsedTimestamp);
   });
 
   const unreadCount = computed(() => notifications.value.filter(n => !n.read).length);
@@ -182,15 +182,15 @@ export function useClassReminders(
 
         const alertItem: ClassReminderAlert = {
           id: `alert_${Date.now()}_60m`,
-          classId: cl.id,
-          courseTitle: cl.courseTitle,
-          eventType: cl.eventType,
-          scheduledAt: cl.scheduledAt,
-          type: '60m',
-          title: '⏰ Aula em 1 hora!',
-          message: `Sua aula "${cl.courseTitle}" começará às ${timeStr} (${dateStr}).`,
-          timestamp: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
-          read: false
+                                          classId: cl.id,
+                                          courseTitle: cl.courseTitle,
+                                          eventType: cl.eventType,
+                                          scheduledAt: cl.scheduledAt,
+                                          type: '60m',
+                                          title: '⏰ Aula em 1 hora!',
+                                          message: `Sua aula "${cl.courseTitle}" começará às ${timeStr} (${dateStr}).`,
+                                          timestamp: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+                                          read: false
         };
 
         notifications.value.unshift(alertItem);
@@ -206,15 +206,15 @@ export function useClassReminders(
 
         const alertItem: ClassReminderAlert = {
           id: `alert_${Date.now()}_15m`,
-          classId: cl.id,
-          courseTitle: cl.courseTitle,
-          eventType: cl.eventType,
-          scheduledAt: cl.scheduledAt,
-          type: '15m',
-          title: '🚨 Aula em 15 minutos!',
-          message: `Prepare-se! "${cl.courseTitle}" começará às ${timeStr}. Clique para ver o link da chamada.`,
-          timestamp: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
-          read: false
+                                          classId: cl.id,
+                                          courseTitle: cl.courseTitle,
+                                          eventType: cl.eventType,
+                                          scheduledAt: cl.scheduledAt,
+                                          type: '15m',
+                                          title: '🚨 Aula em 15 minutos!',
+                                          message: `Prepare-se! "${cl.courseTitle}" começará às ${timeStr}. Clique para ver o link da chamada.`,
+                                          timestamp: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+                                          read: false
         };
 
         notifications.value.unshift(alertItem);
@@ -257,17 +257,17 @@ export function useClassReminders(
     if (timer) clearInterval(timer);
   });
 
-  return {
-    notifications,
-    unreadCount,
-    upcomingEnrolledClasses,
-    isAudioEnabled,
-    webNotificationPermission,
-    requestNotificationPermission,
-    markAllAsRead,
-    markAsRead,
-    clearAllNotifications,
-    toggleAudio,
-    playChimeSound
-  };
+    return {
+      notifications,
+      unreadCount,
+      upcomingEnrolledClasses,
+      isAudioEnabled,
+      webNotificationPermission,
+      requestNotificationPermission,
+      markAllAsRead,
+      markAsRead,
+      clearAllNotifications,
+      toggleAudio,
+      playChimeSound
+    };
 }
