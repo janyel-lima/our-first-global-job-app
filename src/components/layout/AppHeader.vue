@@ -513,7 +513,7 @@ const handleColorSelect = (e: Event) => {
           @click="handleTabClick('courses', true)"
           :class="[
             'flex flex-col items-center justify-center gap-0.5 p-1 px-1.5 xs:px-2.5 text-[10px] font-bold rounded-lg transition-colors cursor-pointer shrink-0',
-            activeTab === 'courses' ? 'text-blue-600 dark:text-slate-900 bg-blue-50/70 dark:bg-slate-150/70 font-black' : 'text-slate-600 hover:text-slate-900'
+            activeTab === 'courses' ? 'text-blue-600 dark:text-blue-400 bg-blue-50/80 dark:bg-blue-950/60 font-black' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
           ]"
         >
           <BookOpen class="w-3.5 h-3.5 xs:w-4 xs:h-4 shrink-0" />
@@ -524,7 +524,7 @@ const handleColorSelect = (e: Event) => {
           @click="handleTabClick('scheduler')"
           :class="[
             'flex flex-col items-center justify-center gap-0.5 p-1 px-1.5 xs:px-2.5 text-[10px] font-bold rounded-lg transition-colors cursor-pointer shrink-0',
-            activeTab === 'scheduler' ? 'text-blue-600 dark:text-slate-900 bg-blue-50/70 dark:bg-slate-150/70 font-black' : 'text-slate-600 hover:text-slate-900'
+            activeTab === 'scheduler' ? 'text-blue-600 dark:text-blue-400 bg-blue-50/80 dark:bg-blue-950/60 font-black' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
           ]"
         >
           <Calendar class="w-3.5 h-3.5 xs:w-4 xs:h-4 shrink-0" />
@@ -535,7 +535,7 @@ const handleColorSelect = (e: Event) => {
           @click="handleTabClick('chats')"
           :class="[
             'flex flex-col items-center justify-center gap-0.5 p-1 px-1.5 xs:px-2.5 text-[10px] font-bold rounded-lg transition-colors cursor-pointer relative shrink-0',
-            activeTab === 'chats' ? 'text-blue-600 dark:text-slate-900 bg-blue-50/70 dark:bg-slate-150/70 font-black' : 'text-slate-600 hover:text-slate-900'
+            activeTab === 'chats' ? 'text-blue-600 dark:text-blue-400 bg-blue-50/80 dark:bg-blue-950/60 font-black' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
           ]"
         >
           <div class="relative shrink-0 flex items-center justify-center">
@@ -554,7 +554,7 @@ const handleColorSelect = (e: Event) => {
           @click="handleTabClick('tracking')"
           :class="[
             'flex flex-col items-center justify-center gap-0.5 p-1 px-1.5 xs:px-2.5 text-[10px] font-bold rounded-lg transition-colors cursor-pointer shrink-0',
-            activeTab === 'tracking' ? 'text-blue-600 dark:text-slate-900 bg-blue-50/70 dark:bg-slate-150/70 font-black' : 'text-slate-600 hover:text-slate-900'
+            activeTab === 'tracking' ? 'text-blue-600 dark:text-blue-400 bg-blue-50/80 dark:bg-blue-950/60 font-black' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
           ]"
         >
           <Award class="w-3.5 h-3.5 xs:w-4 xs:h-4 shrink-0" />

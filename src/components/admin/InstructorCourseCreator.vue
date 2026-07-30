@@ -3,18 +3,18 @@ import { ref, computed, watch } from 'vue';
 import { useI18n } from '../../composables/useI18n';
 
 const { locale, t } = useI18n();
-import {
-  FileText,
-  UploadCloud,
-  ChevronRight,
-  ChevronDown,
-  ChevronUp,
+import { 
+  FileText, 
+  UploadCloud, 
+  ChevronRight, 
+  ChevronDown, 
+  ChevronUp, 
   ChevronLeft,
-  Trash2,
-  PlusCircle,
-  Check,
-  Plus,
-  ShieldCheck,
+  Trash2, 
+  PlusCircle, 
+  Check, 
+  Plus, 
+  ShieldCheck, 
   AlertCircle,
   BookOpen,
   Bold,
@@ -157,7 +157,7 @@ const eslTemplatesList = [
     title: "Lesson 1: Meeting New People",
     videoUrl: "https://www.youtube.com/watch?v=Fw0S1ZPr6pE",
     content: `### Lesson 1: Meeting New People
-
+ 
 Nesta lição, aprenderemos a realizar apresentações formais e informais no idioma inglês.
 
 #### 🗣️ Diálogo Simulado (Simulated Dialogue)
@@ -355,7 +355,7 @@ const handleCreateCourseManual = async () => {
   isGenerating.value = true;
   try {
     const courseId = `course-${Math.random().toString(36).substring(2, 9)}`;
-
+    
     const parsedCourse: Course = {
       id: courseId,
       title: manualTitle.value.trim(),
@@ -395,7 +395,7 @@ const handleCreateCourseManual = async () => {
     } else {
       emit('upload-course', parsedCourse, parsedLessons);
     }
-
+    
     // Cleanup states ONLY if the asynchronous database commit finishes successfully!
     manualTitle.value = '';
     manualDescription.value = '';
@@ -454,7 +454,7 @@ const downloadDummyTemplate = () => {
       }
     ]
   };
-
+  
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
@@ -473,7 +473,7 @@ const triggerImportClick = () => {
 const handleImportCourseJson = (event: Event) => {
   const file = (event.target as HTMLInputElement).files?.[0];
   if (!file) return;
-
+  
   const reader = new FileReader();
   reader.onload = (e) => {
     try {
@@ -481,11 +481,11 @@ const handleImportCourseJson = (event: Event) => {
       if (!data || !data.course || !data.course.title || !data.course.description) {
         throw new Error("Formato inválido. O JSON deve conter os nós 'course' e 'lessons' estruturados.");
       }
-
+      
       manualTitle.value = data.course.title;
       manualDescription.value = data.course.description;
       manualLevel.value = data.course.level || "Beginner";
-
+      
       if (data.course.progressConfig) {
         requireReading.value = data.course.progressConfig.requireReading !== false;
         requireQuiz.value = !!data.course.progressConfig.requireQuiz;
@@ -497,7 +497,7 @@ const handleImportCourseJson = (event: Event) => {
         minQuizScore.value = 70;
         requireVideo.value = false;
       }
-
+      
       if (Array.isArray(data.lessons)) {
         lessonsList.value = data.lessons.map((l: any, index: number) => ({
           tempId: `draft-less-${Math.random().toString(36).substring(2, 9)}`,
@@ -506,12 +506,12 @@ const handleImportCourseJson = (event: Event) => {
           videoUrl: l.videoUrl || "",
           quiz: Array.isArray(l.quiz) ? l.quiz : []
         }));
-
+        
         if (lessonsList.value.length > 0) {
           selectedLessonId.value = lessonsList.value[0].tempId;
         }
       }
-
+      
       importSuccess.value = true;
       generationSuccess.value = false;
       generationError.value = null;
@@ -636,8 +636,8 @@ const handleMultiMdUpload = (e: Event) => {
         // Tentar obter o título da lição (geralmente começa com # na primeira linha)
         const lines = text.split("\n");
         const firstLine = lines.find((l) => l.trim().startsWith("# "));
-        const title = firstLine
-          ? firstLine.replace("# ", "").trim()
+        const title = firstLine 
+          ? firstLine.replace("# ", "").trim() 
           : file.name.replace(".md", "");
 
         const tempId = `draft-${Math.random().toString(36).substring(2, 9)}`;
@@ -693,7 +693,7 @@ const handleAddQuizQuestion = (lessonId: string) => {
   if (lesson) {
     lesson.quiz.push(questionObj);
     showToast("Questão registrada no rascunho com sucesso!", "success");
-
+    
     // Clear inputs
     newQuestionText.value = '';
     newOption1.value = '';
@@ -716,7 +716,7 @@ const handleRemoveQuizQuestion = (lessonId: string, qIndex: number) => {
 const handleInsertMarkdownSyntax = (syntax: string) => {
   if (!selectedLessonId.value) return;
   const textarea = (
-    document.getElementById(`textarea-markdown-editor-fs-${selectedLessonId.value}`) ||
+    document.getElementById(`textarea-markdown-editor-fs-${selectedLessonId.value}`) || 
     document.getElementById(`textarea-markdown-editor-${selectedLessonId.value}`)
   ) as HTMLTextAreaElement;
   if (!textarea) return;
@@ -799,7 +799,7 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
 
 <template>
   <div class="space-y-6">
-
+    
     <!-- Informative banner -->
     <div class="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4 text-left shadow-xs">
       <div class="space-y-1">
@@ -811,7 +811,7 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
           Crie novos tópicos e aplique modelos prontos de conversação. O assistente formata e consolida as questões avaliativas instantaneamente para os alunos.
         </p>
       </div>
-
+      
       <button
         type="button"
         @click="showTutorial = !showTutorial"
@@ -862,7 +862,7 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
               <PlusCircle class="w-3.5 h-3.5" />
               Criar Nova Lição
             </button>
-
+            
             <button
               type="button"
               :disabled="!selectedLessonId"
@@ -924,7 +924,7 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
     <!-- Global Course details builder -->
     <div class="bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-3xl border border-slate-200 dark:border-slate-800 text-left space-y-4 shadow-2xs">
       <p class="text-xs font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-widest border-b border-slate-100 dark:border-slate-800 pb-1">Passo 1: Metadados do Mini-Curso</p>
-
+      
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div class="md:col-span-2">
           <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Título do Mini-Curso *</label>
@@ -970,7 +970,7 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
         <p class="text-[11px] text-slate-500 mb-3.5 leading-snug">
           Selecione quais conquistas de aula o aluno precisa finalizar para avançar no progresso do curso e obter a sua certificação:
         </p>
-
+        
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-50 dark:bg-slate-950 p-4 rounded-xl border border-slate-200 dark:border-slate-800">
           <label class="flex items-start gap-2.5 cursor-pointer hover:bg-white dark:hover:bg-slate-900 p-2 rounded-lg transition-all">
             <input
@@ -1029,7 +1029,7 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
 
     <!-- Lessons section builder -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start text-left">
-
+      
       <!-- Drawer left: Outline of draft lessons -->
       <div class="lg:col-span-4 bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-200 dark:border-slate-800 space-y-4 shadow-2xs">
         <div class="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-2">
@@ -1076,8 +1076,8 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
             :key="less.tempId"
             :class="[
               'p-3 rounded-xl border flex items-center justify-between transition-all cursor-pointer border-solid',
-              selectedLessonId === less.tempId
-                ? 'bg-indigo-50/60 border-indigo-500 dark:bg-indigo-950/40 dark:border-indigo-500/80'
+              selectedLessonId === less.tempId 
+                ? 'bg-indigo-50/60 border-indigo-500 dark:bg-indigo-950/40 dark:border-indigo-500/80' 
                 : 'bg-slate-50 dark:bg-slate-900/60 border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800/80'
             ]"
             @click="selectedLessonId = less.tempId"
@@ -1091,11 +1091,11 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
               ]">
                 {{ idx + 1 }}
               </span>
-              <p
+              <p 
                 :class="[
                   'text-xs font-bold truncate transition-colors',
-                  selectedLessonId === less.tempId
-                    ? 'text-indigo-900 dark:text-indigo-200 font-black'
+                  selectedLessonId === less.tempId 
+                    ? 'text-indigo-900 dark:text-indigo-200 font-black' 
                     : 'text-slate-700 dark:text-slate-300'
                 ]"
               >{{ less.title }}</p>
@@ -1137,7 +1137,7 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
           Selecione uma lição existente ou adicione uma nova coluna ao menu à esquerda para iniciar o editor avançado.
         </div>
         <div v-else class="space-y-4">
-
+          
           <!-- Workspace panel tab selection -->
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-2">
             <div class="flex flex-wrap bg-slate-100 dark:bg-slate-950 p-1 rounded-xl select-none border border-slate-200 dark:border-slate-800 gap-1">
@@ -1408,7 +1408,7 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
                   placeholder="Escreva seu material usando markdown..."
                   class="w-full text-xs sm:text-sm bg-white dark:bg-slate-950 p-4 font-mono leading-relaxed text-slate-850 dark:text-slate-100 border-0 focus:ring-0 focus:outline-none"
                 />
-
+                
                 <!-- Bottom Status Bar -->
                 <div class="bg-slate-50 dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 p-2.5 px-4 flex justify-between items-center text-[10.5px] font-mono text-slate-550 select-none">
                   <span class="flex items-center gap-1.5">
@@ -1438,7 +1438,7 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
           <div v-if="activeLessonTab === 'quiz'" class="space-y-6">
             <div class="bg-slate-50 dark:bg-slate-900/60 p-4 sm:p-5 rounded-xl border border-slate-200 dark:border-slate-800 space-y-4">
               <p class="text-xs font-extrabold text-slate-700 dark:text-slate-200 uppercase tracking-wider text-left">Adicionar Questão de Múltipla Escolha</p>
-
+              
               <div class="space-y-3 text-left">
                 <div>
                   <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Enunciado da Pergunta *</label>
@@ -1557,8 +1557,8 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
                       :key="optIdx"
                       :class="[
                         'p-2 rounded text-[11px] font-medium text-left',
-                        q.correctAnswer === optIdx
-                          ? 'bg-emerald-50 dark:bg-emerald-950/35 text-emerald-800 dark:text-emerald-400 font-bold border border-emerald-100 dark:border-emerald-900/50'
+                        q.correctAnswer === optIdx 
+                          ? 'bg-emerald-50 dark:bg-emerald-950/35 text-emerald-800 dark:text-emerald-400 font-bold border border-emerald-100 dark:border-emerald-900/50' 
                           : 'bg-slate-50 dark:bg-slate-950 text-slate-500 dark:text-slate-300'
                       ]"
                     >
@@ -1614,8 +1614,8 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
           leave-to-class="opacity-0 scale-95"
         >
           <!-- Error floating block -->
-          <div
-            v-if="generationError"
+          <div 
+            v-if="generationError" 
             key="gen-error"
             class="pointer-events-auto bg-white dark:bg-slate-900 border border-rose-200 dark:border-rose-950/80 rounded-2xl p-5 shadow-2xl flex items-start gap-3.5 text-left relative overflow-hidden animate-fadeIn"
             style="border-left: 5px solid #ef4444;"
@@ -1626,9 +1626,9 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
               <p class="font-bold text-xs text-rose-800 dark:text-rose-400 uppercase tracking-wider mb-1">Ajuste Necessário</p>
               <p class="text-[11.5px] text-slate-700 dark:text-slate-300 leading-relaxed font-semibold">{{ generationError }}</p>
             </div>
-            <button
-              type="button"
-              @click="generationError = null"
+            <button 
+              type="button" 
+              @click="generationError = null" 
               class="text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300 ml-1 shrink-0 p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
             >
               <X class="w-4 h-4" />
@@ -1636,8 +1636,8 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
           </div>
 
           <!-- Import Success floating block -->
-          <div
-            v-if="importSuccess"
+          <div 
+            v-if="importSuccess" 
             key="import-success"
             class="pointer-events-auto bg-white dark:bg-slate-900 border border-blue-200 dark:border-blue-950/80 rounded-2xl p-5 shadow-2xl flex items-start gap-3.5 text-left relative overflow-hidden animate-fadeIn"
             style="border-left: 5px solid #3b82f6;"
@@ -1653,9 +1653,9 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
                 ⚠️ O salvamento definitivo requer postar o curso no botão de publicação abaixo.
               </p>
             </div>
-            <button
-              type="button"
-              @click="importSuccess = false"
+            <button 
+              type="button" 
+              @click="importSuccess = false" 
               class="text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300 ml-1 shrink-0 p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
             >
               <X class="w-4 h-4" />
@@ -1663,8 +1663,8 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
           </div>
 
           <!-- Generation Success floating block -->
-          <div
-            v-if="generationSuccess"
+          <div 
+            v-if="generationSuccess" 
             key="gen-success"
             class="pointer-events-auto bg-white dark:bg-slate-900 border border-emerald-250/50 dark:border-emerald-950/80 rounded-2xl p-5 shadow-2xl flex items-start gap-3.5 text-left relative overflow-hidden animate-fadeIn"
             style="border-left: 5px solid #10b981;"
@@ -1675,9 +1675,9 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
               <p class="font-bold text-xs text-emerald-800 dark:text-emerald-400 uppercase tracking-wider mb-1">Sucesso Absoluto!</p>
               <p class="text-[11.5px] text-slate-700 dark:text-slate-300 leading-relaxed font-semibold">O mini-curso voluntário foi registrado e catalogado no banco de dados com segurança. Os alunos já podem acessar o conteúdo.</p>
             </div>
-            <button
-              type="button"
-              @click="generationSuccess = false"
+            <button 
+              type="button" 
+              @click="generationSuccess = false" 
               class="text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300 shrink-0 p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
             >
               <X class="w-4 h-4" />
@@ -1714,13 +1714,13 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
           <div class="flex flex-wrap items-center gap-2.5">
             <div class="flex items-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-1 shrink-0">
               <span class="text-xs text-slate-500 dark:text-slate-400 px-2 font-bold select-none">{{ t('tutor.lessonTitleLabel') }}</span>
-              <input
-                type="text"
+              <input 
+                type="text" 
                 v-model="activeLessonObject.title"
                 class="bg-slate-50 dark:bg-slate-950 border-none outline-none text-xs font-bold text-slate-800 dark:text-white px-2.5 py-1 rounded-lg w-40 sm:w-60 focus:ring-1 focus:ring-indigo-500"
               />
             </div>
-
+            
             <button
               type="button"
               @click="isFullscreen = false"
@@ -1734,7 +1734,7 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
 
         <!-- Fullscreen Body (Split-screen Grid) -->
         <div class="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-6 overflow-y-visible lg:overflow-hidden min-h-0 mt-5">
-
+          
           <!-- Left side: The Advanced Editor -->
           <div class="flex flex-col bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 space-y-3 h-[500px] lg:h-full lg:overflow-hidden shrink-0">
             <div class="flex justify-between items-center border-b border-slate-100 dark:border-slate-850 pb-2 shrink-0">

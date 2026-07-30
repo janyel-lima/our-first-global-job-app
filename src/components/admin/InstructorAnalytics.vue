@@ -1306,9 +1306,9 @@ const handleExportJSON = () => {
                     </a>
                   </div>
                   <div class="flex flex-wrap gap-2">
-                    <button type="button" @click="certIconUrlInput = 'https://img.icons8.com/color/96/gold-medal.png'" class="text-[9.5px] bg-amber-50 text-amber-700 hover:bg-amber-100 font-semibold px-2 py-1 rounded border border-amber-200 transition-colors cursor-pointer">🏅 {{ t('tutor.goldMedal') }}</button>
-                    <button type="button" @click="certIconUrlInput = 'https://img.icons8.com/color/96/quality-badge.png'" class="text-[9.5px] bg-blue-50 text-blue-700 hover:bg-blue-100 font-semibold px-2 py-1 rounded border border-blue-200 transition-colors cursor-pointer">⭐ {{ t('tutor.royalStar') }}</button>
-                    <button type="button" @click="certIconUrlInput = 'https://img.icons8.com/?size=100&id=lsZBoVE2zMo3&format=png&color=000000'" class="text-[9.5px] bg-emerald-50 text-emerald-700 hover:bg-emerald-100 font-semibold px-2 py-1 rounded border border-emerald-200 transition-colors cursor-pointer">🛡️ {{ t('tutor.trustSeal') }}</button>
+                    <button type="button" @click="certIconUrlInput = 'https://img.icons8.com/color/96/gold-medal.png'" class="text-[9.5px] bg-amber-50 text-amber-700 hover:bg-amber-100 dark:bg-amber-950/60 dark:text-amber-300 dark:hover:bg-amber-900/60 dark:border-amber-800 font-semibold px-2 py-1 rounded border border-amber-200 transition-colors cursor-pointer">🏅 {{ t('tutor.goldMedal') }}</button>
+                    <button type="button" @click="certIconUrlInput = 'https://img.icons8.com/color/96/quality-badge.png'" class="text-[9.5px] bg-blue-50 text-blue-700 hover:bg-blue-100 dark:bg-blue-950/60 dark:text-blue-300 dark:hover:bg-blue-900/60 dark:border-blue-800 font-semibold px-2 py-1 rounded border border-blue-200 transition-colors cursor-pointer">⭐ {{ t('tutor.royalStar') }}</button>
+                    <button type="button" @click="certIconUrlInput = 'https://img.icons8.com/?size=100&id=lsZBoVE2zMo3&format=png&color=000000'" class="text-[9.5px] bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-950/60 dark:text-emerald-300 dark:hover:bg-emerald-900/60 dark:border-emerald-800 font-semibold px-2 py-1 rounded border border-emerald-200 transition-colors cursor-pointer">🛡️ {{ t('tutor.trustSeal') }}</button>
                   </div>
                 </div>
               </div>

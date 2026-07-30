@@ -1601,7 +1601,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
             id="btn-calendar-today"
             type="button"
             @click="resetToToday()"
-            class="px-3 py-1.5 bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-900/40 text-xs font-bold rounded-xl hover:bg-blue-100/50 cursor-pointer transition-colors ml-1"
+            class="px-3 py-1.5 bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-900/40 text-xs font-bold rounded-xl hover:bg-blue-100/50 dark:hover:bg-blue-900/50 cursor-pointer transition-colors ml-1"
           >
             {{ t('scheduler.today') }}
           </button>
@@ -1814,7 +1814,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
                 selectedCalendarDayString === day.dateString
                   ? 'border-blue-500 ring-2 ring-blue-500/10 bg-blue-50/10 dark:bg-blue-950/20 shadow-xs'
                   : day.isToday
-                    ? 'border-blue-400 ring-1 ring-blue-400/20 bg-blue-50/5'
+                    ? 'border-blue-400 ring-1 ring-blue-400/20 bg-blue-50/5 dark:bg-blue-950/20'
                     : 'border-gray-200/80 dark:border-slate-800/85'
               ]"
             >
@@ -1826,7 +1826,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
                     <span v-if="day.isToday" class="text-[8px] bg-blue-600 text-white font-bold px-1 rounded-sm scale-90">{{ t('scheduler.today') }}</span>
                   </h4>
                 </div>
-                <button v-if="isInstructor" @click.stop="openAddFormWithDate(day.dateString)" class="p-0.5 text-blue-600 hover:bg-blue-50 rounded-md cursor-pointer"><Plus class="w-3.5 h-3.5" /></button>
+                <button v-if="isInstructor" @click.stop="openAddFormWithDate(day.dateString)" class="p-0.5 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-slate-800 rounded-md cursor-pointer"><Plus class="w-3.5 h-3.5" /></button>
               </div>
               <div class="space-y-2 flex-1">
                 <div v-if="day.classesOnDay.length === 0" class="h-full flex flex-col items-center justify-center py-6 text-center text-gray-300">
@@ -1933,7 +1933,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
         <div class="mt-4 space-y-3.5 bg-white dark:bg-slate-900 rounded-2xl border border-gray-150 dark:border-slate-800/80 p-4 shadow-3xs">
           <div class="flex items-center justify-between border-b border-gray-100 dark:border-slate-800/80 pb-2.5">
             <div class="flex items-center gap-2">
-              <div class="p-2 bg-blue-50 dark:bg-blue-955/40 text-blue-600 dark:text-blue-400 rounded-xl">
+              <div class="p-2 bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 rounded-xl">
                 <CalendarDays class="w-4 h-4" />
               </div>
               <div>
