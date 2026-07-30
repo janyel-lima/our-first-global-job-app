@@ -48,7 +48,7 @@ export interface Course {
   id: string;
   title: string;
   description: string;
-  level: "Beginner" | "Intermediate" | "Advanced";
+  level: "Beginner" | "Intermediate" | "Advanced" | "All";
   creatorId: string;
   creatorName: string;
   createdAt: string;

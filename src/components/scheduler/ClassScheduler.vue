@@ -1238,24 +1238,24 @@ const handleStudentEnter = (cl: ClassTurma) => {
           :id="`class-card-${cl.id}`"
           @click="(e) => handleCardClick(e, cl)"
           :class="[
-            'bg-white dark:bg-slate-800 rounded-2xl border transition-all p-5 flex flex-col justify-between text-left cursor-pointer hover:shadow-md hover:scale-[1.005]',
+            'bg-white dark:bg-slate-800 rounded-2xl border transition-all p-4 sm:p-5 flex flex-col justify-between text-left cursor-pointer hover:shadow-md hover:scale-[1.005] min-w-0 max-w-full overflow-hidden',
             cl.studentIds.includes(currentUserId) ? 'border-blue-500 ring-1 ring-blue-500/10 shadow-xs' : 'border-gray-150 dark:border-slate-700 shadow-xs hover:border-gray-200'
           ]"
         >
         <!-- READ-ONLY CARD VIEWER -->
-        <div class="h-full flex flex-col justify-between">
-          <div>
+        <div class="h-full flex flex-col justify-between min-w-0">
+          <div class="min-w-0">
             <!-- Status header -->
-            <div class="flex justify-between items-center mb-3">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-3 min-w-0">
               <span :class="[
-                'text-[10px] uppercase font-black tracking-wider px-2 py-0.5 rounded-full',
+                'text-[10px] uppercase font-black tracking-wider px-2 py-0.5 rounded-full shrink-0',
                 cl.status === 'completed' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300' :
                 cl.status === 'cancelled' ? 'bg-rose-100 text-rose-800 dark:bg-rose-950/40 dark:text-rose-300' :
                 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300'
                ]">
                 {{ cl.status === 'completed' ? t('scheduler.classCompleted') : cl.status === 'cancelled' ? t('scheduler.classCancelled') : t('scheduler.activeClass') }}
               </span>
-              <div class="flex items-center gap-1.5 flex-wrap justify-end">
+              <div class="flex items-center gap-1.5 flex-wrap shrink-0">
                 <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-200 border border-slate-200/80 dark:border-slate-700/80 font-mono text-[11px] font-bold shadow-2xs">
                   <CalendarDays class="w-3 h-3 text-blue-600 dark:text-blue-400 shrink-0" />
                   <span>{{ formatDisplayDate(cl.scheduledAt) }}</span>
@@ -1268,7 +1268,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
             </div>
 
             <!-- Associated Course Info & Event Type Badge -->
-            <div class="flex flex-wrap gap-1 mb-2">
+            <div class="flex flex-wrap gap-1 mb-2 min-w-0">
               <span v-if="cl.eventType === 'encontro'" class="inline-flex items-center gap-1 text-[9px] font-extrabold px-2 py-0.5 rounded-md bg-indigo-100 dark:bg-indigo-950/80 text-indigo-900 dark:text-indigo-200 border border-indigo-200 dark:border-indigo-700/80 shadow-2xs">
                 👤 {{ t('scheduler.eventTypeOneOnOne') }}
               </span>
@@ -1290,22 +1290,22 @@ const handleStudentEnter = (cl: ClassTurma) => {
               </span>
 
               <!-- Target Level Badge -->
-              <span v-if="cl.targetLevel && cl.targetLevel !== 'All'" class="inline-flex items-center gap-1 text-[9px] font-extrabold px-2 py-0.5 rounded-md bg-emerald-100 dark:bg-emerald-950/80 text-emerald-900 dark:text-emerald-200 border border-emerald-200 dark:border-emerald-700/80 shadow-2xs">
-                🎯 {{ cl.targetLevel }}
+              <span v-if="cl.targetLevel" class="inline-flex items-center gap-1 text-[9px] font-extrabold px-2 py-0.5 rounded-md bg-emerald-100 dark:bg-emerald-950/80 text-emerald-900 dark:text-emerald-200 border border-emerald-200 dark:border-emerald-700/80 shadow-2xs">
+                🎯 {{ cl.targetLevel === 'All' ? (locale === 'pt' ? 'Todos os Níveis' : 'All Levels') : cl.targetLevel }}
               </span>
             </div>
 
             <p class="text-[10px] text-gray-400 dark:text-gray-550 uppercase tracking-widest font-black mb-1">
               {{ cl.eventType === 'encontro' ? t('scheduler.meetingDetails') : cl.eventType === 'conversacao' ? t('scheduler.groupDetails') : t('scheduler.association') }}
             </p>
-            <div class="p-3 bg-slate-50 dark:bg-slate-900 border border-slate-150 dark:border-slate-750 rounded-xl mb-3">
-              <h3 class="font-extrabold text-sm text-gray-900 dark:text-white line-clamp-1">
+            <div class="p-3 bg-slate-50 dark:bg-slate-900 border border-slate-150 dark:border-slate-750 rounded-xl mb-3 min-w-0">
+              <h3 class="font-extrabold text-sm text-gray-900 dark:text-white line-clamp-1 break-words">
                 {{ cl.courseTitle }}
               </h3>
-              <p class="text-[10px] text-gray-450 dark:text-gray-550 font-bold mt-0.5">
+              <p class="text-[10px] text-gray-450 dark:text-gray-550 font-bold mt-0.5 truncate">
                 {{ t('scheduler.autor', { name: (cl.eventType === 'encontro' || cl.eventType === 'conversacao' || cl.courseId === 'custom-class') ? cl.instructorName : (courses.find(c => c.id === cl.courseId)?.creatorName || t('scheduler.community')) }) }}
               </p>
-              <p class="text-[11px] text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
+              <p class="text-[11px] text-gray-500 dark:text-gray-400 mt-1 line-clamp-2 break-words">
                 {{ cl.eventType === 'encontro' 
                   ? t('scheduler.oneOnOneDesc') 
                   : cl.eventType === 'conversacao' 
@@ -1317,57 +1317,57 @@ const handleStudentEnter = (cl: ClassTurma) => {
               </p>
             </div>
 
-            <p class="text-xs text-gray-500 dark:text-gray-400 flex items-center">
-              {{ t('scheduler.offeredBy') }} <strong class="ml-1 text-gray-800 dark:text-gray-200 font-bold">{{ cl.instructorName }}</strong>
+            <p class="text-xs text-gray-500 dark:text-gray-400 flex items-center min-w-0 truncate">
+              {{ t('scheduler.offeredBy') }} <strong class="ml-1 text-gray-800 dark:text-gray-200 font-bold truncate">{{ cl.instructorName }}</strong>
             </p>
 
             <!-- CALL LINK & PLATFORM VALIDATION SECTION (Only for confirmed students & teachers) -->
-            <div class="mt-4 pt-4 border-t border-gray-100 dark:border-slate-700/80">
+            <div class="mt-4 pt-4 border-t border-gray-100 dark:border-slate-700/80 min-w-0">
               <template v-if="cl.studentIds.includes(currentUserId) || cl.instructorId === currentUserId || isAdmin">
                 <p class="text-[10px] text-gray-400 dark:text-gray-555 uppercase tracking-widest font-black mb-1.5">
                   {{ t('scheduler.broadcastRoom') }}
                 </p>
 
                 <!-- LINK IS DISPONIBLE -->
-                <div v-if="cl.callUrl" class="p-3 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-950/50 rounded-xl flex items-center justify-between gap-2.5">
-                  <div class="text-left">
-                    <div class="flex items-center gap-1.5">
+                <div v-if="cl.callUrl" class="p-3 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-950/50 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 min-w-0">
+                  <div class="text-left min-w-0">
+                    <div class="flex items-center gap-1.5 flex-wrap">
                       <p class="text-xs font-extrabold text-emerald-850 dark:text-emerald-300 leading-none">
                         {{ t('scheduler.linkAvailable') }}
                       </p>
                       
                       <!-- Presença checkmark for the student -->
-                      <span v-if="cl.studentIds.includes(currentUserId) && cl.presentStudentIds?.includes(currentUserId)" class="text-[9px] bg-emerald-200 dark:bg-emerald-900/60 font-black text-emerald-800 dark:text-emerald-300 px-1.5 py-0.5 rounded-md">
+                      <span v-if="cl.studentIds.includes(currentUserId) && cl.presentStudentIds?.includes(currentUserId)" class="text-[9px] bg-emerald-200 dark:bg-emerald-900/60 font-black text-emerald-800 dark:text-emerald-300 px-1.5 py-0.5 rounded-md shrink-0">
                         {{ t('scheduler.attendanceRecorded') }}
                       </span>
                     </div>
-                    <p class="text-[10px] text-emerald-600 dark:text-emerald-400 mt-1">
+                    <p class="text-[10px] text-emerald-600 dark:text-emerald-400 mt-1 line-clamp-1">
                       {{ t('scheduler.connectPractice') }}
                     </p>
                   </div>
                   <button
                     @click.stop="handleStudentEnter(cl)"
-                    class="flex items-center gap-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-black transition-all cursor-pointer shadow-xs shrink-0"
+                    class="flex items-center gap-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-black transition-all cursor-pointer shadow-xs shrink-0 whitespace-nowrap"
                   >
                     <span>{{ t('scheduler.joinClassLabel') }}</span>
-                    <ExternalLink class="w-3.5 h-3.5" />
+                    <ExternalLink class="w-3.5 h-3.5 shrink-0" />
                   </button>
                 </div>
 
                 <!-- LINK IS EMPTY: PLACEHOLDER CONDITIONAL -->
                 <div v-else>
                   <!-- Case 1: Before the class schedule -->
-                  <div v-if="isBeforeClassTime(cl.scheduledAt)" class="p-3 bg-blue-50/50 dark:bg-slate-850 border border-blue-100/50 dark:border-slate-700/60 rounded-xl text-[11px] text-blue-800 dark:text-blue-300 flex items-start gap-2 max-w-full">
+                  <div v-if="isBeforeClassTime(cl.scheduledAt)" class="p-3 bg-blue-50/50 dark:bg-slate-850 border border-blue-100/50 dark:border-slate-700/60 rounded-xl text-[11px] text-blue-800 dark:text-blue-300 flex items-start gap-2 max-w-full min-w-0">
                     <Clock class="w-4 h-4 text-blue-500 dark:text-blue-400 shrink-0 mt-0.5" />
-                    <span>
+                    <span class="break-words">
                       {{ t('scheduler.callLinkCloseTime') }}
                     </span>
                   </div>
 
                   <!-- Case 2: During or after the class schedule (delayed/professor late) -->
-                  <div v-else class="p-3 bg-amber-50/70 dark:bg-amber-950/10 border border-amber-100 dark:border-amber-900/30 rounded-xl text-[11px] text-amber-800 dark:text-amber-400 flex items-start gap-2">
+                  <div v-else class="p-3 bg-amber-50/70 dark:bg-amber-950/10 border border-amber-100 dark:border-amber-900/30 rounded-xl text-[11px] text-amber-800 dark:text-amber-400 flex items-start gap-2 min-w-0">
                     <Clock class="w-4 h-4 text-amber-500 dark:text-amber-400 shrink-0 mt-0.5 animate-pulse" />
-                    <span>
+                    <span class="break-words">
                       {{ t('scheduler.instructorLate') }}
                     </span>
                   </div>
@@ -1380,12 +1380,12 @@ const handleStudentEnter = (cl: ClassTurma) => {
           </div>
 
           <!-- Seats & interactive controls -->
-          <div class="mt-4 pt-4 border-t border-gray-100 dark:border-slate-700/80 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2.5">
-            <div>
+          <div class="mt-4 pt-4 border-t border-gray-100 dark:border-slate-700/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 min-w-0">
+            <div class="min-w-0">
               <span class="text-[10px] font-black text-gray-400 dark:text-gray-505 block">
                 {{ t('scheduler.occupation') }}
               </span>
-              <div class="flex items-center gap-1.5 text-xs font-bold text-gray-700 dark:text-gray-300 mt-0.5 flex-wrap">
+              <div class="flex items-center gap-1.5 text-xs font-bold text-gray-700 dark:text-gray-300 mt-0.5 flex-wrap min-w-0">
                 <Users class="w-4 h-4 text-gray-400 shrink-0" />
                 <span class="whitespace-nowrap">{{ t('scheduler.studentsCount', { count: cl.studentIds.length, max: cl.maxStudents }) }}</span>
                 <span v-if="isInscriptionsClosed(cl)" class="whitespace-nowrap text-[9px] bg-rose-500/15 text-rose-600 dark:text-rose-400 font-bold px-2 py-0.5 rounded-md border border-rose-500/20 uppercase tracking-wide shrink-0">
@@ -1394,16 +1394,16 @@ const handleStudentEnter = (cl: ClassTurma) => {
               </div>
             </div>
 
-            <div class="flex items-center gap-1 flex-wrap shrink-0">
+            <div class="flex items-center gap-1.5 flex-wrap shrink-0">
               <!-- Recording & Materials button -->
               <button
                 type="button"
                 @click.stop="selectedRecordingsClass = cl"
-                class="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-purple-50 dark:bg-purple-950/40 hover:bg-purple-100 dark:hover:bg-purple-900/60 text-purple-800 dark:text-purple-200 border border-purple-200 dark:border-purple-800/80 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-2xs shrink-0"
+                class="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-purple-50 dark:bg-purple-950/40 hover:bg-purple-100 dark:hover:bg-purple-900/60 text-purple-800 dark:text-purple-200 border border-purple-200 dark:border-purple-800/80 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-2xs shrink-0 whitespace-nowrap"
                 :title="cl.recordingUrl || cl.materialsUrl ? 'Ver Gravação e Materiais' : 'Anexar Gravação'"
               >
-                <Video class="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
-                <span>{{ cl.recordingUrl || cl.materialsUrl ? 'Gravação/Materiais' : 'Gravação' }}</span>
+                <Video class="w-3.5 h-3.5 text-purple-600 dark:text-purple-400 shrink-0" />
+                <span class="whitespace-nowrap">{{ cl.recordingUrl || cl.materialsUrl ? 'Gravação' : 'Gravação' }}</span>
               </button>
 
               <!-- Tutor delete capability -->
@@ -1423,10 +1423,10 @@ const handleStudentEnter = (cl: ClassTurma) => {
                   v-if="cl.studentIds.includes(currentUserId)"
                   :id="`btn-leave-class-${cl.id}`"
                   @click.stop="emit('leave-class', cl.id)"
-                  class="flex items-center gap-1 bg-rose-500/5 hover:bg-rose-500/10 text-rose-600 dark:text-rose-450 border border-rose-500/25 py-1.5 px-3 text-xs font-bold rounded-lg transition-colors cursor-pointer shrink-0"
+                  class="flex items-center gap-1 bg-rose-500/5 hover:bg-rose-500/10 text-rose-600 dark:text-rose-450 border border-rose-500/25 py-1.5 px-3 text-xs font-bold rounded-lg transition-colors cursor-pointer shrink-0 whitespace-nowrap"
                 >
-                  <LogOut class="w-3.5 h-3.5" />
-                  {{ t('scheduler.leaveLabel') }}
+                  <LogOut class="w-3.5 h-3.5 shrink-0" />
+                  <span class="whitespace-nowrap">{{ t('scheduler.leaveLabel') }}</span>
                 </button>
                 <button
                   v-else
@@ -1434,23 +1434,23 @@ const handleStudentEnter = (cl: ClassTurma) => {
                   @click.stop="emit('join-class', cl.id)"
                   :disabled="cl.studentIds.length >= cl.maxStudents || isInscriptionsClosed(cl)"
                   :class="[
-                    'flex items-center gap-1 py-1.5 px-2.5 text-[11px] font-bold rounded-lg transition-all border cursor-pointer shrink-0 max-w-[140px] truncate',
+                    'flex items-center gap-1 py-1.5 px-3 text-xs font-bold rounded-lg transition-all border cursor-pointer shrink-0 whitespace-nowrap',
                     (cl.studentIds.length >= cl.maxStudents || isInscriptionsClosed(cl))
                       ? 'bg-gray-100 text-gray-400 border-gray-200 dark:bg-slate-750 dark:text-gray-500 dark:border-slate-700 cursor-not-allowed' 
                       : 'bg-blue-600 hover:bg-blue-700 text-white border-transparent shadow-xs'
                   ]"
                 >
                   <Check class="w-3.5 h-3.5 shrink-0" />
-                  <span class="truncate">{{ cl.studentIds.length >= cl.maxStudents ? t('scheduler.fullLabel') : (isInscriptionsClosed(cl) ? t('scheduler.inscriptionsClosedBadge') : t('scheduler.joinLabel')) }}</span>
+                  <span class="whitespace-nowrap">{{ cl.studentIds.length >= cl.maxStudents ? t('scheduler.fullLabel') : (isInscriptionsClosed(cl) ? t('scheduler.inscriptionsClosedBadge') : t('scheduler.joinLabel')) }}</span>
                 </button>
               </template>
 
               <!-- If the user is the instructor/creator of this class, show my class badge -->
               <span 
                 v-if="cl.instructorId === currentUserId"
-                class="text-[10px] text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 px-2.5 py-1 rounded-md font-bold flex items-center gap-1 shrink-0"
+                class="text-[10px] text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 px-2.5 py-1.5 rounded-md font-bold flex items-center gap-1 shrink-0 whitespace-nowrap"
               >
-                <CheckCircle class="w-3 h-3" /> {{ t('scheduler.myClassLabel') }}
+                <CheckCircle class="w-3 h-3 shrink-0" /> {{ t('scheduler.myClassLabel') }}
               </span>
             </div>
           </div>

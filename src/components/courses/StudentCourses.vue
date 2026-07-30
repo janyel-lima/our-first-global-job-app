@@ -49,13 +49,15 @@ const filteredCourses = computed(() => {
 
   return props.courses.filter((course) => {
     // 1. Level access control check: Hide courses requiring a level above the student's current profile level
-    const coursePower = levelRank[course.level] || 1;
-    if (coursePower > userPower) {
-      return false;
+    if (course.level !== "All" && userLevel !== "All") {
+      const coursePower = levelRank[course.level] || 1;
+      if (coursePower > userPower) {
+        return false;
+      }
     }
 
     // 2. Filter level query selection
-    if (courseLevelFilter.value !== "All" && course.level !== courseLevelFilter.value) {
+    if (courseLevelFilter.value !== "All" && course.level !== courseLevelFilter.value && course.level !== "All") {
       return false;
     }
 
@@ -283,9 +285,11 @@ const paginatedCourses = computed(() => {
               <span :class="[
                 'px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider',
                 course.level === 'Beginner' ? 'bg-blue-100 text-blue-800 dark:bg-blue-950/40 dark:text-blue-300'
-                  : (course.level === 'Intermediate' ? 'bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300' : 'bg-indigo-100 text-indigo-850 dark:bg-indigo-950/40 dark:text-indigo-300')
+                  : (course.level === 'Intermediate' ? 'bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300' 
+                    : (course.level === 'Advanced' ? 'bg-indigo-100 text-indigo-850 dark:bg-indigo-950/40 dark:text-indigo-300' 
+                      : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300'))
               ]">
-                {{ t('courses.level', { level: course.level }) }}
+                {{ course.level === 'All' ? (locale === 'pt' ? 'Todos os Níveis' : 'All Levels') : t('courses.level', { level: course.level }) }}
               </span>
 
               <!-- Completion badge -->

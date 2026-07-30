@@ -9,7 +9,7 @@ service cloud.firestore {
 
     function isMasterAdminEmail() {
       return isSignedIn() && (
-        request.auth.token.email == "kibedasppk@gmail.com" ||
+        request.auth.token.email == "kibedasppk@gmail.com" || 
         request.auth.token.email == "janyel.lima2809@gmail.com" ||
         request.auth.token.email == "admin@englishvolunteer.org"
       );
@@ -19,7 +19,7 @@ service cloud.firestore {
       return isSignedIn() && (
         isMasterAdminEmail() ||
         request.auth.token.admin == true ||
-        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true)
       );
     }
@@ -28,7 +28,7 @@ service cloud.firestore {
       return isSignedIn() && (
         isMasterAdminEmail() ||
         request.auth.token.instructor == true ||
-        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
          (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isInstructor == true ||
           get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true))
       );

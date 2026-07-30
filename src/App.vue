@@ -239,17 +239,17 @@ const filteredCourses = computed(() => {
     const isAdmin = isUserAdmin.value;
     
     let isPermittedByLevel = false;
-    if (isAdmin || userRoleLevel === "All") {
+    if (isAdmin || userRoleLevel === "All" || course.level === "All") {
       isPermittedByLevel = true;
     } else if (userRoleLevel === "Advanced") {
-      isPermittedByLevel = ["Advanced", "Intermediate", "Beginner"].includes(course.level);
+      isPermittedByLevel = ["Advanced", "Intermediate", "Beginner", "All"].includes(course.level);
     } else if (userRoleLevel === "Intermediate") {
-      isPermittedByLevel = ["Intermediate", "Beginner"].includes(course.level);
+      isPermittedByLevel = ["Intermediate", "Beginner", "All"].includes(course.level);
     } else {
-      isPermittedByLevel = course.level === "Beginner";
+      isPermittedByLevel = course.level === "Beginner" || course.level === "All";
     }
 
-    const matchesLevel = courseLevelFilter.value === "All" || course.level === courseLevelFilter.value;
+    const matchesLevel = courseLevelFilter.value === "All" || course.level === courseLevelFilter.value || course.level === "All";
 
     return matchesSearch && matchesLevel && isPermittedByLevel;
   });

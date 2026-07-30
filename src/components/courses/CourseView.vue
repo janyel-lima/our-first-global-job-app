@@ -463,7 +463,7 @@ onUnmounted(() => {
 
       <div class="mb-6">
         <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-50 dark:bg-slate-800 text-blue-600 dark:text-blue-300 border border-blue-100 dark:border-slate-700">
-          {{ locale === 'pt' ? 'Nível' : 'Level' }} {{ course.level }}
+          {{ course.level === 'All' ? (locale === 'pt' ? 'Todos os Níveis' : 'All Levels') : `${locale === 'pt' ? 'Nível' : 'Level'} ${course.level}` }}
         </span>
         <h2 class="text-xl font-bold text-gray-900 dark:text-white mt-2 leading-tight">{{ course.title }}</h2>
         <p class="text-xs text-gray-500 dark:text-slate-450 mt-1">

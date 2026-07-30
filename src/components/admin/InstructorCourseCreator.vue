@@ -69,7 +69,7 @@ const activeLessonTab = ref<'edit' | 'preview' | 'quiz'>('edit');
 // Manual course creation states
 const manualTitle = ref('');
 const manualDescription = ref('');
-const manualLevel = ref<'Beginner' | 'Intermediate' | 'Advanced'>('Beginner');
+const manualLevel = ref<'Beginner' | 'Intermediate' | 'Advanced' | 'All'>('Beginner');
 const requireReading = ref(true);
 const requireQuiz = ref(false);
 const minQuizScore = ref(70);
@@ -916,6 +916,7 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
             v-model="manualLevel"
             class="w-full text-xs sm:text-sm bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-2.5 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 focus:outline-none cursor-pointer text-slate-900 dark:text-slate-100 transition-all"
           >
+            <option value="All">Todos os Níveis (All Levels)</option>
             <option value="Beginner">Iniciante (Beginner)</option>
             <option value="Intermediate">Intermediário (Intermediate)</option>
             <option value="Advanced">Avançado (Advanced)</option>
