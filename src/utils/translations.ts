@@ -2,6 +2,19 @@ export type Locale = "pt" | "en";
 
 export const translations: Record<Locale, Record<string, any>> = {
   pt: {
+    common: {
+      cancel: "Cancelar",
+      save: "Salvar",
+      saving: "Salvando...",
+      edit: "Editar",
+      delete: "Excluir",
+      close: "Fechar",
+      confirm: "Confirmar",
+      previous: "Anterior",
+      next: "Próxima",
+      page: "Página {current} de {total}",
+      all: "Todos",
+    },
     nav: {
       grade: "Cursos",
       turmas: "Turmas",
@@ -836,6 +849,19 @@ export const translations: Record<Locale, Record<string, any>> = {
     }
   },
   en: {
+    common: {
+      cancel: "Cancel",
+      save: "Save",
+      saving: "Saving...",
+      edit: "Edit",
+      delete: "Delete",
+      close: "Close",
+      confirm: "Confirm",
+      previous: "Previous",
+      next: "Next",
+      page: "Page {current} of {total}",
+      all: "All",
+    },
     nav: {
       grade: "Courses",
       turmas: "Schedule",

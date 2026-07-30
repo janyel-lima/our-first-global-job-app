@@ -18,6 +18,8 @@ const props = defineProps<{
   chatRooms: ChatRoom[];
   classes: ClassTurma[];
   userDisplayName: string;
+  userLevel?: string;
+  isAdmin?: boolean;
   lessons: Lesson[];
   users?: UserProfile[];
   instructorId?: string;
@@ -54,7 +56,7 @@ const showVolunteerModal = ref(false);
         <button
           type="button"
           @click="showVolunteerModal = true"
-          class="px-3.5 py-2 bg-amber-500 hover:bg-amber-600 text-white text-xs font-black rounded-xl transition-all flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
+          class="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-black rounded-xl transition-all flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
         >
           <Award class="w-4 h-4" />
           <span>{{ locale === 'pt' ? 'Comprovante de Horas' : 'Hours Certificate' }}</span>
@@ -105,6 +107,8 @@ const showVolunteerModal = ref(false);
     <div v-else class="space-y-6 animate-fadeIn">
       <InstructorCourseCreator
         :userDisplayName="userDisplayName"
+        :userLevel="userLevel"
+        :isAdmin="isAdmin"
         :uploadCourseFn="uploadCourseFn"
         @upload-course="(course, lessons) => emit('upload-course', course, lessons)"
       />

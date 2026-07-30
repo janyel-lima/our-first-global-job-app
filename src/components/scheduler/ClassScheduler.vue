@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
-import { Users, Calendar, Plus, Trash2, Clock, Check, LogOut, CheckCircle, Edit, ExternalLink, Search, Filter, ChevronLeft, ChevronRight, List, X, Info, CalendarDays, MessageSquare, Video } from 'lucide-vue-next';
-import { ClassTurma, Course, UserProfile } from '../../types';
+import { Users, Calendar, Plus, Trash2, Clock, Check, LogOut, CheckCircle, Edit, ExternalLink, Search, Filter, ChevronLeft, ChevronRight, List, X, Info, CalendarDays, MessageSquare, Video, FolderOpen } from 'lucide-vue-next';
+import { ClassTurma, Course, UserProfile, ClassMaterialItem } from '../../types';
 import { useI18n } from '../../composables/useI18n';
 import { formatDisplayDate, formatDisplayTime, formatDisplayDateTime } from '../../utils/helpers';
 import CompletedClassRecordingsModal from './CompletedClassRecordingsModal.vue';
@@ -47,7 +47,7 @@ const recurrenceFrequency = ref<'weekly' | 'biweekly' | 'monthly'>('weekly');
 // Edit states
 const selectedRecordingsClass = ref<ClassTurma | null>(null);
 
-const handleSaveRecordings = (data: { recordingUrl?: string; materialsUrl?: string; notes?: string }) => {
+const handleSaveRecordings = (data: { recordingUrl?: string; materialsUrl?: string; materialsList?: ClassMaterialItem[]; notes?: string }) => {
   if (!selectedRecordingsClass.value) return;
   const updated: ClassTurma = {
     ...selectedRecordingsClass.value,
@@ -81,6 +81,61 @@ const classEventTypeFilter = ref('All');
 const classTargetLevelFilter = ref('All');
 const classCurrentPage = ref(1);
 const classItemsPerPage = ref(6);
+
+const filterLevelOptions = computed(() => {
+  const options = [{ value: "All", label: t('scheduler.allLevelsFilter') }];
+
+  options.push({ value: "Beginner", label: "Beginner" });
+
+  const levelRank: Record<string, number> = { Beginner: 1, Intermediate: 2, Advanced: 3, All: 4 };
+  const isAdminOrInstructor = props.isAdmin || props.isInstructor;
+  const uLevel = isAdminOrInstructor ? "All" : (props.userLevel || "Beginner");
+  const userPower = levelRank[uLevel] || 1;
+
+  if (userPower >= 2) {
+    options.push({ value: "Intermediate", label: "Intermediate" });
+  }
+  if (userPower >= 3) {
+    options.push({ value: "Advanced", label: "Advanced" });
+  }
+  return options;
+});
+
+watch(filterLevelOptions, (newOptions) => {
+  const exists = newOptions.some(opt => opt.value === classTargetLevelFilter.value);
+  if (!exists) {
+    classTargetLevelFilter.value = "All";
+  }
+});
+
+const instructorContentLevelOptions = computed(() => {
+  const options = [{ value: "All", label: locale.value === 'pt' ? 'Todos os Níveis' : 'All Levels' }];
+
+  options.push({ value: "Beginner", label: locale.value === 'pt' ? 'Iniciante (Beginner)' : 'Beginner' });
+
+  const levelRank: Record<string, number> = { Beginner: 1, Intermediate: 2, Advanced: 3, All: 4 };
+  const instructorLevel = props.isAdmin ? "All" : (props.userLevel || "Beginner");
+  const instructorPower = levelRank[instructorLevel] || 1;
+
+  if (instructorPower >= 2) {
+    options.push({ value: "Intermediate", label: locale.value === 'pt' ? 'Intermediário (Intermediate)' : 'Intermediate' });
+  }
+  if (instructorPower >= 3) {
+    options.push({ value: "Advanced", label: locale.value === 'pt' ? 'Avançado (Advanced)' : 'Advanced' });
+  }
+  return options;
+});
+
+watch(instructorContentLevelOptions, (newOptions) => {
+  const existsCreate = newOptions.some(opt => opt.value === selectedTargetLevel.value);
+  if (!existsCreate) {
+    selectedTargetLevel.value = "All";
+  }
+  const existsEdit = newOptions.some(opt => opt.value === editTargetLevel.value);
+  if (!existsEdit) {
+    editTargetLevel.value = "All";
+  }
+});
 
 const filteredClasses = computed(() => {
   return props.classes.filter(cl => {
@@ -977,10 +1032,9 @@ const handleStudentEnter = (cl: ClassTurma) => {
             v-model="selectedTargetLevel"
             class="w-full text-xs font-medium bg-white dark:bg-slate-950 dark:text-white border border-gray-200 dark:border-slate-800 rounded-xl p-3 focus:outline-hidden focus:ring-2 focus:ring-inset focus:ring-blue-500 cursor-pointer transition-all"
           >
-            <option value="All">{{ locale === 'pt' ? 'Todos os Níveis' : 'All Levels' }}</option>
-            <option value="Beginner">{{ locale === 'pt' ? 'Iniciante (Beginner)' : 'Beginner' }}</option>
-            <option value="Intermediate">{{ locale === 'pt' ? 'Intermediário (Intermediate)' : 'Intermediate' }}</option>
-            <option value="Advanced">{{ locale === 'pt' ? 'Avançado (Advanced)' : 'Advanced' }}</option>
+            <option v-for="opt in instructorContentLevelOptions" :key="opt.value" :value="opt.value">
+              {{ opt.label }}
+            </option>
           </select>
         </div>
 
@@ -1127,12 +1181,14 @@ const handleStudentEnter = (cl: ClassTurma) => {
             v-model="classTargetLevelFilter"
             class="text-xs font-bold text-gray-800 dark:text-white bg-transparent border-0 p-0 pr-6 cursor-pointer focus:ring-0 focus:outline-hidden h-full w-full appearance-none"
           >
-            <option value="All" class="bg-white dark:bg-slate-900 text-gray-800 dark:text-white">
-              {{ t('scheduler.allLevelsFilter') }}
+            <option
+              v-for="opt in filterLevelOptions"
+              :key="opt.value"
+              :value="opt.value"
+              class="bg-white dark:bg-slate-900 text-gray-800 dark:text-white"
+            >
+              {{ opt.label }}
             </option>
-            <option value="Beginner" class="bg-white dark:bg-slate-900 text-gray-800 dark:text-white">Beginner</option>
-            <option value="Intermediate" class="bg-white dark:bg-slate-900 text-gray-800 dark:text-white">Intermediate</option>
-            <option value="Advanced" class="bg-white dark:bg-slate-900 text-gray-800 dark:text-white">Advanced</option>
           </select>
           <div class="pointer-events-none absolute right-2.5 flex items-center">
             <svg class="h-3.5 w-3.5 text-gray-400 dark:text-slate-500" viewBox="0 0 20 20" fill="none" stroke="currentColor">
@@ -1399,11 +1455,11 @@ const handleStudentEnter = (cl: ClassTurma) => {
               <button
                 type="button"
                 @click.stop="selectedRecordingsClass = cl"
-                class="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-purple-50 dark:bg-purple-950/40 hover:bg-purple-100 dark:hover:bg-purple-900/60 text-purple-800 dark:text-purple-200 border border-purple-200 dark:border-purple-800/80 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-2xs shrink-0 whitespace-nowrap"
-                :title="cl.recordingUrl || cl.materialsUrl ? 'Ver Gravação e Materiais' : 'Anexar Gravação'"
+                class="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-indigo-50 dark:bg-indigo-950/40 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 text-indigo-800 dark:text-indigo-200 border border-indigo-200 dark:border-indigo-800/80 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-2xs shrink-0 whitespace-nowrap"
+                :title="(cl.materialsList?.length || cl.recordingUrl || cl.materialsUrl) ? (locale === 'pt' ? 'Ver Materiais & Links da Aula' : 'View Class Materials & Links') : (locale === 'pt' ? 'Anexar Materiais' : 'Attach Materials')"
               >
-                <Video class="w-3.5 h-3.5 text-purple-600 dark:text-purple-400 shrink-0" />
-                <span class="whitespace-nowrap">{{ cl.recordingUrl || cl.materialsUrl ? 'Gravação' : 'Gravação' }}</span>
+                <FolderOpen class="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400 shrink-0" />
+                <span class="whitespace-nowrap">{{ locale === 'pt' ? 'Materiais' : 'Materials' }}</span>
               </button>
 
               <!-- Tutor delete capability -->
@@ -2130,10 +2186,9 @@ const handleStudentEnter = (cl: ClassTurma) => {
                 v-model="editTargetLevel"
                 class="w-full text-xs sm:text-sm bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-750 dark:text-white rounded-xl py-2.5 px-3.5 font-semibold cursor-pointer focus:outline-hidden"
               >
-                <option value="All">{{ t('scheduler.allLevelsOpen') }}</option>
-                <option value="Beginner">Beginner (Iniciante)</option>
-                <option value="Intermediate">Intermediate (Intermediário)</option>
-                <option value="Advanced">Advanced (Avançado)</option>
+                <option v-for="opt in instructorContentLevelOptions" :key="opt.value" :value="opt.value">
+                  {{ opt.label }}
+                </option>
               </select>
             </div>
 

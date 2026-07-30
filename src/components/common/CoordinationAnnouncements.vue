@@ -1,7 +1,7 @@
 <template>
   <div class="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xs transition-all">
     <!-- Component Header -->
-    <div class="flex items-center justify-between gap-3 mb-4">
+    <div class="flex items-center justify-between gap-3 mb-3">
       <div class="flex items-center gap-2.5">
         <div class="p-2 rounded-xl bg-indigo-100 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 border border-indigo-200/80 dark:border-indigo-800/60">
           <Megaphone class="w-5 h-5" />
@@ -31,8 +31,90 @@
       </button>
     </div>
 
+    <!-- Category Filter Pills (sem caixa de pesquisa) -->
+    <div v-if="announcements.length > 0" class="flex items-center gap-1.5 overflow-x-auto pb-2 mb-3 custom-scrollbar">
+      <button
+        type="button"
+        @click="setCategoryFilter('ALL')"
+        :class="[
+          'px-2.5 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0',
+          selectedCategoryFilter === 'ALL'
+            ? 'bg-indigo-600 text-white shadow-2xs'
+            : 'bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800'
+        ]"
+      >
+        📢 {{ t('common.all') }}
+      </button>
+
+      <button
+        type="button"
+        @click="setCategoryFilter('Aviso Importante')"
+        :class="[
+          'px-2.5 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0',
+          selectedCategoryFilter === 'Aviso Importante'
+            ? 'bg-rose-600 text-white shadow-2xs'
+            : 'bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800'
+        ]"
+      >
+        🚨 {{ t('announcements.tagImportant') }}
+      </button>
+
+      <button
+        type="button"
+        @click="setCategoryFilter('Nova Turma')"
+        :class="[
+          'px-2.5 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0',
+          selectedCategoryFilter === 'Nova Turma'
+            ? 'bg-blue-600 text-white shadow-2xs'
+            : 'bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800'
+        ]"
+      >
+        🎓 {{ t('announcements.tagNewClass') }}
+      </button>
+
+      <button
+        type="button"
+        @click="setCategoryFilter('Evento')"
+        :class="[
+          'px-2.5 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0',
+          selectedCategoryFilter === 'Evento'
+            ? 'bg-purple-600 text-white shadow-2xs'
+            : 'bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800'
+        ]"
+      >
+        📅 {{ t('announcements.tagEvent') }}
+      </button>
+
+      <button
+        type="button"
+        @click="setCategoryFilter('Dica Semanal')"
+        :class="[
+          'px-2.5 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0',
+          selectedCategoryFilter === 'Dica Semanal'
+            ? 'bg-emerald-600 text-white shadow-2xs'
+            : 'bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800'
+        ]"
+      >
+        💡 {{ t('announcements.tagTip') }}
+      </button>
+
+      <button
+        v-if="pinnedAnnouncements.length > 0"
+        type="button"
+        @click="setCategoryFilter('PINNED')"
+        :class="[
+          'px-2.5 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0',
+          selectedCategoryFilter === 'PINNED'
+            ? 'bg-amber-600 text-white shadow-2xs'
+            : 'bg-amber-100/70 dark:bg-amber-950/60 text-amber-900 dark:text-amber-200 hover:bg-amber-200 dark:hover:bg-amber-900'
+        ]"
+      >
+        📌 {{ t('announcements.pinned') }}
+      </button>
+    </div>
+
     <!-- Empty State -->
-    <div v-if="announcements.length === 0" class="text-center py-6 px-4 bg-slate-50/50 dark:bg-slate-900/40 rounded-xl border border-dashed border-slate-200 dark:border-slate-800">
+    <div v-if="filteredAnnouncements.length === 0" class="text-center py-6 px-4 bg-slate-50/50 dark:bg-slate-900/40 rounded-xl border border-dashed border-slate-200 dark:border-slate-800">
       <BellOff class="w-7 h-7 mx-auto text-slate-400 mb-1" />
       <p class="text-xs font-bold text-slate-700 dark:text-slate-300">{{ t('announcements.emptyTitle') }}</p>
       <p class="text-[11px] text-slate-500 dark:text-slate-400">{{ t('announcements.emptySub') }}</p>
@@ -41,7 +123,7 @@
     <!-- Announcements Cards List -->
     <div v-else class="space-y-3">
       <div
-        v-for="item in announcements"
+        v-for="item in paginatedAnnouncements"
         :key="item.id"
         :class="[
           'p-4 rounded-xl border transition-all relative',
@@ -75,7 +157,7 @@
               <button
                 type="button"
                 @click="openModal(item)"
-                class="p-1 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+                class="p-1 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors cursor-pointer"
                 :title="t('common.edit')"
               >
                 <Pencil class="w-3.5 h-3.5" />
@@ -83,7 +165,7 @@
               <button
                 type="button"
                 @click="deleteAnnouncement(item.id)"
-                class="p-1 hover:text-rose-600 dark:hover:text-rose-400 transition-colors"
+                class="p-1 hover:text-rose-600 dark:hover:text-rose-400 transition-colors cursor-pointer"
                 :title="t('common.delete')"
               >
                 <Trash2 class="w-3.5 h-3.5" />
@@ -102,6 +184,33 @@
       </div>
     </div>
 
+    <!-- Pagination Footer Controls -->
+    <div v-if="filteredAnnouncements.length > pageSize" class="flex items-center justify-between pt-3 mt-3 border-t border-slate-200 dark:border-slate-800 text-xs">
+      <button
+        type="button"
+        @click="currentPage--"
+        :disabled="currentPage <= 1"
+        class="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300 font-bold hover:bg-slate-200 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center gap-1 cursor-pointer"
+      >
+        <ChevronLeft class="w-4 h-4" />
+        <span>{{ t('common.previous') }}</span>
+      </button>
+
+      <div class="flex items-center gap-1 text-[11px] font-extrabold text-slate-500 dark:text-slate-400">
+        <span>{{ t('common.page', { current: currentPage, total: totalPages }) }}</span>
+      </div>
+
+      <button
+        type="button"
+        @click="currentPage++"
+        :disabled="currentPage >= totalPages"
+        class="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300 font-bold hover:bg-slate-200 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center gap-1 cursor-pointer"
+      >
+        <span>{{ t('common.next') }}</span>
+        <ChevronRight class="w-4 h-4" />
+      </button>
+    </div>
+
     <!-- Modal Form for Creating/Editing Announcement -->
     <div v-if="isModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs">
       <div class="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl w-full max-w-lg p-5 shadow-2xl relative space-y-4">
@@ -110,7 +219,7 @@
             <Megaphone class="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
             <span>{{ editingId ? t('announcements.editTitle') : t('announcements.createTitle') }}</span>
           </h3>
-          <button type="button" @click="closeModal" class="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400">
+          <button type="button" @click="closeModal" class="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 cursor-pointer">
             <X class="w-5 h-5" />
           </button>
         </div>
@@ -171,7 +280,7 @@
             <button
               type="button"
               @click="closeModal"
-              class="px-3.5 py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+              class="px-3.5 py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
             >
               {{ t('common.cancel') }}
             </button>
@@ -180,7 +289,7 @@
               :disabled="isSubmitting"
               class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-black rounded-xl transition-all cursor-pointer shadow-xs disabled:opacity-50"
             >
-              {{ isSubmitting ? 'Salvando...' : t('common.save') }}
+              {{ isSubmitting ? t('common.saving') : t('common.save') }}
             </button>
           </div>
         </form>
@@ -193,7 +302,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { collection, onSnapshot, doc, setDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '../../firebase';
-import { Megaphone, Plus, BellOff, Pencil, Trash2, X } from 'lucide-vue-next';
+import { Megaphone, Plus, BellOff, Pencil, Trash2, X, ChevronLeft, ChevronRight } from 'lucide-vue-next';
 import { Announcement } from '../../types';
 import { useI18n } from '../../composables/useI18n';
 import { formatDisplayDate } from '../../utils/helpers';
@@ -216,7 +325,36 @@ const formContent = ref('');
 const formTag = ref<Announcement['tag']>('Aviso Importante');
 const formIsPinned = ref(false);
 
+// Filter & Pagination states
+const selectedCategoryFilter = ref<string>('ALL');
+const currentPage = ref(1);
+const pageSize = 3;
+
+const setCategoryFilter = (category: string) => {
+  selectedCategoryFilter.value = category;
+  currentPage.value = 1;
+};
+
 const pinnedAnnouncements = computed(() => announcements.value.filter(a => a.isPinned));
+
+const filteredAnnouncements = computed(() => {
+  if (selectedCategoryFilter.value === 'ALL') {
+    return announcements.value;
+  }
+  if (selectedCategoryFilter.value === 'PINNED') {
+    return announcements.value.filter(a => a.isPinned);
+  }
+  return announcements.value.filter(a => a.tag === selectedCategoryFilter.value);
+});
+
+const totalPages = computed(() => {
+  return Math.ceil(filteredAnnouncements.value.length / pageSize) || 1;
+});
+
+const paginatedAnnouncements = computed(() => {
+  const start = (currentPage.value - 1) * pageSize;
+  return filteredAnnouncements.value.slice(start, start + pageSize);
+});
 
 const getTagClass = (tag: string) => {
   switch (tag) {

@@ -1886,6 +1886,8 @@ const toggleLoginDarkMode = () => {
             :lessons="lessons"
             :users="allUsers"
             :userDisplayName="userProfile?.displayName || 'Instrutor'"
+            :userLevel="userProfile?.level || 'Beginner'"
+            :isAdmin="isUserAdmin"
             :instructorId="userProfile?.uid || ''"
             :uploadCourseFn="handleUploadCourse"
             :deleteCourseFn="handleDeleteCourse"

@@ -27,6 +27,32 @@ const selectedLevel = ref('All');
 const currentPage = ref(1);
 const itemsPerPage = ref(4);
 
+const filterLevelOptions = computed(() => {
+  const options = [{ value: "All", label: locale.value === 'pt' ? 'Todos os Níveis' : 'All Levels' }];
+
+  options.push({ value: "Beginner", label: locale.value === 'pt' ? 'Nível Beginner (Iniciante)' : 'Beginner Level' });
+
+  const levelRank: Record<string, number> = { Beginner: 1, Intermediate: 2, Advanced: 3, All: 4 };
+  const isAdmin = props.userProfile?.isAdmin === true || String(props.userProfile?.isAdmin) === 'true';
+  const uLevel = isAdmin ? "All" : (props.userProfile?.level || "Beginner");
+  const userPower = levelRank[uLevel] || 1;
+
+  if (userPower >= 2) {
+    options.push({ value: "Intermediate", label: locale.value === 'pt' ? 'Nível Intermediate (Intermediário)' : 'Intermediate Level' });
+  }
+  if (userPower >= 3) {
+    options.push({ value: "Advanced", label: locale.value === 'pt' ? 'Nível Advanced (Avançado)' : 'Advanced Level' });
+  }
+  return options;
+});
+
+watch(filterLevelOptions, (newOptions) => {
+  const exists = newOptions.some(opt => opt.value === selectedLevel.value);
+  if (!exists) {
+    selectedLevel.value = "All";
+  }
+});
+
 // Filtragem de certificados
 const filteredCertificates = computed(() => {
   return props.completedCoursesWithCertificates.filter(item => {
@@ -194,10 +220,9 @@ const setPage = (page: number) => {
             v-model="selectedLevel"
             class="w-full pl-10 pr-8 py-2.5 bg-slate-50 hover:bg-slate-100/70 dark:bg-slate-950 dark:hover:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800 text-slate-800 dark:text-white text-xs font-bold rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/25 transition-all appearance-none cursor-pointer"
           >
-            <option value="All">{{ locale === 'pt' ? 'Todos os Níveis' : 'All Levels' }}</option>
-            <option value="Beginner">{{ locale === 'pt' ? 'Nível Beginner (Iniciante)' : 'Beginner Level' }}</option>
-            <option value="Intermediate">{{ locale === 'pt' ? 'Nível Intermediate (Intermediário)' : 'Intermediate Level' }}</option>
-            <option value="Advanced">{{ locale === 'pt' ? 'Nível Advanced (Avançado)' : 'Advanced Level' }}</option>
+            <option v-for="opt in filterLevelOptions" :key="opt.value" :value="opt.value">
+              {{ opt.label }}
+            </option>
           </select>
           <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">

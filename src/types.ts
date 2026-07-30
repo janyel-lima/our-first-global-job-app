@@ -58,6 +58,13 @@ export interface Course {
   isTransferred?: boolean;
 }
 
+export interface ClassMaterialItem {
+  id: string;
+  title: string;
+  url: string;
+  type: 'recording' | 'slides' | 'pdf' | 'exercise' | 'link';
+}
+
 export interface ClassTurma {
   id: string;
   courseId: string;
@@ -80,6 +87,7 @@ export interface ClassTurma {
   isOverride?: boolean;
   recordingUrl?: string; // Recording link (Zoom, Drive, YouTube, etc.)
   materialsUrl?: string; // Materials/Slides link
+  materialsList?: ClassMaterialItem[]; // Dynamic typed materials list
   notes?: string; // Summary of class content
 }
 

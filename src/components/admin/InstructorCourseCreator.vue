@@ -57,6 +57,8 @@ interface DraftLesson {
 
 const props = defineProps<{
   userDisplayName: string;
+  userLevel?: string;
+  isAdmin?: boolean;
   uploadCourseFn?: (course: Course, lessons: Lesson[]) => Promise<void>;
 }>();
 
@@ -70,6 +72,31 @@ const activeLessonTab = ref<'edit' | 'preview' | 'quiz'>('edit');
 const manualTitle = ref('');
 const manualDescription = ref('');
 const manualLevel = ref<'Beginner' | 'Intermediate' | 'Advanced' | 'All'>('Beginner');
+
+const allowedCourseLevels = computed(() => {
+  const options = [{ value: "All", label: "Todos os Níveis (All Levels)" }];
+
+  options.push({ value: "Beginner", label: "Iniciante (Beginner)" });
+
+  const levelRank: Record<string, number> = { Beginner: 1, Intermediate: 2, Advanced: 3, All: 4 };
+  const teacherLevel = props.isAdmin ? "All" : (props.userLevel || "Beginner");
+  const teacherPower = levelRank[teacherLevel] || 1;
+
+  if (teacherPower >= 2) {
+    options.push({ value: "Intermediate", label: "Intermediário (Intermediate)" });
+  }
+  if (teacherPower >= 3) {
+    options.push({ value: "Advanced", label: "Avançado (Advanced)" });
+  }
+  return options;
+});
+
+watch(allowedCourseLevels, (newOptions) => {
+  const exists = newOptions.some(opt => opt.value === manualLevel.value);
+  if (!exists) {
+    manualLevel.value = "Beginner";
+  }
+});
 const requireReading = ref(true);
 const requireQuiz = ref(false);
 const minQuizScore = ref(70);
@@ -916,10 +943,9 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
             v-model="manualLevel"
             class="w-full text-xs sm:text-sm bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-2.5 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 focus:outline-none cursor-pointer text-slate-900 dark:text-slate-100 transition-all"
           >
-            <option value="All">Todos os Níveis (All Levels)</option>
-            <option value="Beginner">Iniciante (Beginner)</option>
-            <option value="Intermediate">Intermediário (Intermediate)</option>
-            <option value="Advanced">Avançado (Advanced)</option>
+            <option v-for="opt in allowedCourseLevels" :key="opt.value" :value="opt.value">
+              {{ opt.label }}
+            </option>
           </select>
         </div>
       </div>

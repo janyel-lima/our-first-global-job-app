@@ -17,8 +17,10 @@ export const isEn = computed(() => locale.value === "en");
 export { translations };
 
 export function t(key: string, args?: Record<string, string | number>): string {
+  const currentLang = (locale.value === 'en' || locale.value === 'pt') ? locale.value : 'pt';
   const keys = key.split(".");
-  let value: any = translations[locale.value];
+  let value: any = translations[currentLang];
+
   for (const k of keys) {
     if (value && typeof value === "object" && k in value) {
       value = value[k];
@@ -42,6 +44,13 @@ export function t(key: string, args?: Record<string, string | number>): string {
   }
 
   if (!value || typeof value !== "string") {
+    // Hardened fallbacks for key UI actions
+    if (key === 'common.cancel') return currentLang === 'en' ? 'Cancel' : 'Cancelar';
+    if (key === 'common.save') return currentLang === 'en' ? 'Save' : 'Salvar';
+    if (key === 'common.saving') return currentLang === 'en' ? 'Saving...' : 'Salvando...';
+    if (key === 'common.edit') return currentLang === 'en' ? 'Edit' : 'Editar';
+    if (key === 'common.delete') return currentLang === 'en' ? 'Delete' : 'Excluir';
+    if (key === 'common.close') return currentLang === 'en' ? 'Close' : 'Fechar';
     return key;
   }
 
