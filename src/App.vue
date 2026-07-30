@@ -58,6 +58,7 @@ import { sendDeletionConfirmationEmail } from "./utils/emailService";
 // Composables & subcomponents
 import { useI18n } from "./composables/useI18n";
 import { useAppState } from "./composables/useAppState";
+import { useClassReminders } from "./composables/useClassReminders";
 
 import CourseView from "./components/courses/CourseView.vue";
 import ClassScheduler from "./components/scheduler/ClassScheduler.vue";
@@ -145,6 +146,12 @@ const {
 
 const { t, locale, setLocale } = useI18n();
 
+const currentUserIdRef = computed(() => currentUser.value?.uid || '');
+const classReminders = useClassReminders(classes, currentUserIdRef);
+
+const handleSelectClassFromBell = (_classId: string) => {
+  activeTab.value = 'scheduler';
+};
 
 const isDeletingAccount = ref(false);
 
@@ -1752,8 +1759,19 @@ const toggleLoginDarkMode = () => {
       :isOnline="isOnline"
       :isMasterEnabled="isMasterEnabled"
       :unreadChatsCount="unreadChatsCount"
+      :reminderNotifications="classReminders.notifications.value"
+      :reminderUnreadCount="classReminders.unreadCount.value"
+      :upcomingEnrolledClasses="classReminders.upcomingEnrolledClasses.value"
+      :isAudioEnabled="classReminders.isAudioEnabled.value"
+      :webNotificationPermission="classReminders.webNotificationPermission.value"
+      :requestNotificationPermission="classReminders.requestNotificationPermission"
+      :markAllAsRead="classReminders.markAllAsRead"
+      :markAsRead="classReminders.markAsRead"
+      :clearAllNotifications="classReminders.clearAllNotifications"
+      :toggleAudio="classReminders.toggleAudio"
       @open-profile="openProfileModal"
       @logout="handleLogout"
+      @select-class="handleSelectClassFromBell"
     />
 
     <!-- Main Container Content with dynamic contrast layout -->
@@ -1787,6 +1805,7 @@ const toggleLoginDarkMode = () => {
               :currentUser="currentUser"
               :userProfile="userProfile"
               :primaryColor="primaryColor"
+              :isMasterEnabled="isMasterEnabled"
               @select-course="(courseId) => activeCourseId = courseId"
             />
           </div>

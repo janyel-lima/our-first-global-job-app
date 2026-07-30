@@ -98,3 +98,39 @@ export function getAlmostWhiteVariant(hex: string, isDark: boolean = false): str
 
   return `#${toHex(finalR)}${toHex(finalG)}${toHex(finalB)}`;
 }
+
+/**
+ * Formats a "YYYY-MM-DD" or "YYYY-MM-DD HH:mm" string into "DD/MM/YYYY" date part.
+ */
+export const formatDisplayDate = (scheduledAtStr: string): string => {
+  if (!scheduledAtStr) return "";
+  const datePart = scheduledAtStr.split(" ")[0];
+  if (!datePart) return scheduledAtStr;
+  const parts = datePart.split("-");
+  if (parts.length === 3) {
+    const [year, month, day] = parts;
+    if (year.length === 4) {
+      return `${day}/${month}/${year}`;
+    }
+  }
+  return datePart;
+};
+
+/**
+ * Extracts "HH:mm" time part from "YYYY-MM-DD HH:mm".
+ */
+export const formatDisplayTime = (scheduledAtStr: string): string => {
+  if (!scheduledAtStr) return "";
+  const parts = scheduledAtStr.split(" ");
+  return parts[1] || "";
+};
+
+/**
+ * Formats "YYYY-MM-DD HH:mm" into "DD/MM/YYYY HH:mm".
+ */
+export const formatDisplayDateTime = (scheduledAtStr: string): string => {
+  if (!scheduledAtStr) return "";
+  const d = formatDisplayDate(scheduledAtStr);
+  const t = formatDisplayTime(scheduledAtStr);
+  return t ? `${d} ${t}` : d;
+};

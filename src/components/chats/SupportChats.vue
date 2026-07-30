@@ -6,6 +6,7 @@ import 'vue3-emoji-picker/css';
 import { ChatRoom, ChatMessage, Course, ClassTurma, Progress } from '../../types';
 import { useAppState } from '../../composables/useAppState';
 import { useI18n } from '../../composables/useI18n';
+import { formatDisplayDateTime } from '../../utils/helpers';
 
 const { t, locale } = useI18n();
 
@@ -568,7 +569,7 @@ const isRoomUnread = (room: ChatRoom) => {
             >
               <option value="">{{ locale === 'pt' ? 'Selecionar aula/evento inscrito...' : 'Select enrolled class/event...' }}</option>
               <option v-for="cl in enrolledClasses" :key="cl.id" :value="cl.id">
-                [{{ cl.eventType === 'encontro' ? '1-on-1' : cl.eventType === 'conversacao' ? 'Conversação' : 'Aula' }}] {{ cl.courseTitle }} - {{ cl.scheduledAt }}
+                [{{ cl.eventType === 'encontro' ? '1-on-1' : cl.eventType === 'conversacao' ? 'Conversação' : 'Aula' }}] {{ cl.courseTitle }} - {{ formatDisplayDateTime(cl.scheduledAt) }}
               </option>
             </select>
             <p v-if="enrolledClasses.length === 0" class="text-[9.5px] text-amber-600 dark:text-amber-400 font-bold px-1.5">

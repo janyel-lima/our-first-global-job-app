@@ -1,5 +1,6 @@
 import { db, activeEnvMode } from "../firebase";
 import { doc, getDoc } from "firebase/firestore";
+import { formatDisplayDateTime } from "./helpers";
 
 /**
  * Service to manage secure, quota-conscious EmailJS integrations.
@@ -320,7 +321,7 @@ export async function sendClassMeetingNotificationEmail(
       <tr>
         <td style="color: #166534; font-size: 14px; line-height: 1.6;">
           <div style="font-weight: 800; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: #16a34a; margin-bottom: 4px;">📅 DATA E HORÁRIO CONFIRMADOS:</div>
-          <div style="font-size: 16px; font-weight: 850; color: #14532d; margin-bottom: 16px;">${scheduledAt}</div>
+          <div style="font-size: 16px; font-weight: 850; color: #14532d; margin-bottom: 16px;">${formatDisplayDateTime(scheduledAt)}</div>
           
           <div style="font-weight: 800; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: #16a34a; margin-bottom: 4px;">🔗 LINK DA VIDEOCONFERÊNCIA:</div>
           <a href="${callUrl}" target="_blank" style="color: #15803d; font-weight: 800; text-decoration: underline; word-break: break-all;">

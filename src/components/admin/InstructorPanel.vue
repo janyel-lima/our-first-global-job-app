@@ -3,11 +3,13 @@ import { ref } from 'vue';
 import { 
   ShieldCheck, 
   BarChart3, 
-  FileText 
+  FileText,
+  Award
 } from 'lucide-vue-next';
 import { Course, Lesson, Progress, ChatRoom, ClassTurma, UserProfile } from '../../types';
 import InstructorAnalytics from './InstructorAnalytics.vue';
 import InstructorCourseCreator from './InstructorCourseCreator.vue';
+import TutorVolunteerCertificateModal from '../tutor/TutorVolunteerCertificateModal.vue';
 import { useI18n } from '../../composables/useI18n';
 
 const props = defineProps<{
@@ -31,6 +33,7 @@ const emit = defineEmits<{
 
 const { t, locale } = useI18n();
 const activeTab = ref<'analytics' | 'creator'>('creator');
+const showVolunteerModal = ref(false);
 </script>
 
 <template>
@@ -39,14 +42,25 @@ const activeTab = ref<'analytics' | 'creator'>('creator');
     <!-- Header and Toggle Navigation -->
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-gray-100 pb-5">
       <div class="text-left">
-        <h2 class="text-xl font-extrabold text-gray-900 flex items-center gap-2">
+        <h2 class="text-xl font-extrabold text-gray-900 dark:text-white flex items-center gap-2">
           <ShieldCheck id="instructor-shield" class="w-5 h-5 text-blue-600" />
           {{ t('tutor.title') }}
         </h2>
         <p class="text-xs text-gray-500 mt-1">{{ t('tutor.subtitle') }}</p>
       </div>
 
-      <div class="flex bg-gray-100 p-1 rounded-xl w-full sm:w-auto overflow-x-auto whitespace-nowrap scrollbar-none shrink-0 select-none">
+      <div class="flex flex-wrap items-center gap-2">
+        <!-- Volunteer Certificate Button -->
+        <button
+          type="button"
+          @click="showVolunteerModal = true"
+          class="px-3.5 py-2 bg-amber-500 hover:bg-amber-600 text-white text-xs font-black rounded-xl transition-all flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
+        >
+          <Award class="w-4 h-4" />
+          <span>{{ locale === 'pt' ? 'Comprovante de Horas' : 'Hours Certificate' }}</span>
+        </button>
+
+        <div class="flex bg-gray-100 dark:bg-slate-900 p-1 rounded-xl overflow-x-auto whitespace-nowrap scrollbar-none shrink-0 select-none">
         <button
           id="tab-toggle-analytics"
           @click="activeTab = 'analytics'"
@@ -69,6 +83,7 @@ const activeTab = ref<'analytics' | 'creator'>('creator');
           <FileText class="w-3.5 h-3.5 shrink-0" />
           <span class="shrink-0">{{ locale === 'pt' ? 'Criar Curso' : 'Create Course' }}</span>
         </button>
+        </div>
       </div>
     </div>
 
@@ -94,6 +109,15 @@ const activeTab = ref<'analytics' | 'creator'>('creator');
         @upload-course="(course, lessons) => emit('upload-course', course, lessons)"
       />
     </div>
+
+    <!-- Volunteer Certificate Modal -->
+    <TutorVolunteerCertificateModal
+      v-if="showVolunteerModal"
+      :tutorName="userDisplayName"
+      :tutorUid="instructorId || ''"
+      :classes="classes"
+      @close="showVolunteerModal = false"
+    />
 
   </div>
 </template>

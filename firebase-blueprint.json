@@ -138,9 +138,29 @@
         "usedAt": { "type": "string", "description": "ISO timestamp when the code was used, or null" }
       },
       "required": ["code", "status", "createdAt"]
+    },
+    "Announcement": {
+      "title": "Announcement",
+      "description": "Official announcements published by coordination",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "content": { "type": "string" },
+        "tag": { "type": "string" },
+        "isPinned": { "type": "boolean" },
+        "authorName": { "type": "string" },
+        "authorId": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "title", "content", "authorId"]
     }
   },
   "firestore": {
+    "announcements/{announcementId}": {
+      "schema": "Announcement",
+      "description": "Coordination board news and announcements"
+    },
     "teacher_codes/{codeId}": {
       "schema": "TeacherCode",
       "description": "Database-managed invitation codes for instructors"

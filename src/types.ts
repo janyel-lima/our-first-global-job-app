@@ -78,6 +78,20 @@ export interface ClassTurma {
   recurrenceFrequency?: "weekly" | "biweekly" | "monthly";
   recurringGroupId?: string;
   isOverride?: boolean;
+  recordingUrl?: string; // Recording link (Zoom, Drive, YouTube, etc.)
+  materialsUrl?: string; // Materials/Slides link
+  notes?: string; // Summary of class content
+}
+
+export interface Announcement {
+  id: string;
+  title: string;
+  content: string;
+  tag: "Aviso Importante" | "Nova Turma" | "Evento" | "Dica Semanal" | "Geral";
+  isPinned?: boolean;
+  authorName: string;
+  authorId: string;
+  createdAt: string;
 }
 
 export interface Progress {

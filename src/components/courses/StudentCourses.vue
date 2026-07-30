@@ -3,6 +3,7 @@ import { Award, ChevronLeft, ChevronRight, ChevronRight as ChevronRightIcon, Fil
 import { computed, ref, watch } from 'vue';
 import { useI18n } from '../../composables/useI18n';
 import { Course, Lesson, Progress, UserProfile } from '../../types';
+import CoordinationAnnouncements from '../common/CoordinationAnnouncements.vue';
 
 const { t, locale } = useI18n();
 
@@ -15,6 +16,7 @@ const props = defineProps<{
   currentUser: any;
   userProfile: UserProfile | null;
   primaryColor: string;
+  isMasterEnabled?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -153,6 +155,13 @@ const paginatedCourses = computed(() => {
       <span class="absolute right-[-40px] bottom-[-40px] w-56 h-56 bg-white/5 rounded-full select-none" />
       <span class="absolute top-[20px] right-[20px] w-24 h-24 bg-white/5 rounded-full select-none" />
     </div>
+
+    <!-- Anúncios da Coordenação -->
+    <CoordinationAnnouncements
+      :canManage="!!(userProfile?.isAdmin || isMasterEnabled)"
+      :currentUser="currentUser"
+      :userProfile="userProfile"
+    />
 
     <!-- Canais Oficiais de Comunicação -->
     <div id="community-channels-widget"

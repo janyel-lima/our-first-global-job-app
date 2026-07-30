@@ -18,6 +18,7 @@ import {
   Settings,
   Globe
 } from "lucide-vue-next";
+import HeaderNotificationBell from "../common/HeaderNotificationBell.vue";
 import { UserProfile } from "../../types";
 import { useI18n } from "../../composables/useI18n";
 
@@ -39,6 +40,16 @@ const props = defineProps<{
   autoBg: boolean;
   bgColor: string;
   unreadChatsCount?: number;
+  reminderNotifications?: any[];
+  reminderUnreadCount?: number;
+  upcomingEnrolledClasses?: any[];
+  isAudioEnabled?: boolean;
+  webNotificationPermission?: NotificationPermission;
+  requestNotificationPermission?: () => void;
+  markAllAsRead?: () => void;
+  markAsRead?: (id: string) => void;
+  clearAllNotifications?: () => void;
+  toggleAudio?: () => void;
 }>();
 
 const emit = defineEmits<{
@@ -51,6 +62,7 @@ const emit = defineEmits<{
   (e: "update:bgColor", value: string): void;
   (e: "open-profile"): void;
   (e: "logout"): void;
+  (e: "select-class", classId: string): void;
 }>();
 
 const showProfileDropdown = ref(false);
@@ -199,6 +211,22 @@ const handleColorSelect = (e: Event) => {
         </nav>
         <!-- User controls and settings combo -->
         <div class="flex items-center gap-1.5 sm:gap-3 pl-1.5 sm:pl-4 shrink-0">
+          <!-- Class Reminders Bell Button -->
+          <HeaderNotificationBell
+            v-if="userProfile && reminderNotifications"
+            :notifications="reminderNotifications"
+            :unreadCount="reminderUnreadCount || 0"
+            :upcomingEnrolledClasses="upcomingEnrolledClasses || []"
+            :isAudioEnabled="!!isAudioEnabled"
+            :webNotificationPermission="webNotificationPermission || 'denied'"
+            :requestNotificationPermission="requestNotificationPermission || (() => {})"
+            :markAllAsRead="markAllAsRead || (() => {})"
+            :markAsRead="markAsRead || (() => {})"
+            :clearAllNotifications="clearAllNotifications || (() => {})"
+            :toggleAudio="toggleAudio || (() => {})"
+            @select-class="emit('select-class', $event)"
+          />
+
           <!-- Unified Profile Dropdown Button -->
           <div v-if="userProfile" class="relative shrink-0">
             <button 
