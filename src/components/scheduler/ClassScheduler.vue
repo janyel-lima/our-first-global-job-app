@@ -8,6 +8,26 @@ import CompletedClassRecordingsModal from './CompletedClassRecordingsModal.vue';
 
 const { t, locale } = useI18n();
 
+const getLevelBadgeClass = (levelStr?: string) => {
+  const l = (levelStr || '').toLowerCase();
+  if (l.includes('beginn') || l.includes('iniciante') || l.includes('básico')) {
+    return 'bg-sky-100 dark:bg-sky-950/90 text-sky-950 dark:text-sky-300 border-sky-300 dark:border-sky-500/80';
+  }
+  if (l.includes('intermed')) {
+    return 'bg-amber-100 dark:bg-amber-950/90 text-amber-950 dark:text-amber-300 border-amber-300 dark:border-amber-500/80';
+  }
+  if (l.includes('advanc') || l.includes('avança')) {
+    return 'bg-emerald-100 dark:bg-emerald-950/90 text-emerald-950 dark:text-emerald-300 border-emerald-300 dark:border-emerald-500/80';
+  }
+  return 'bg-indigo-100 dark:bg-indigo-950/90 text-indigo-950 dark:text-indigo-300 border-indigo-300 dark:border-indigo-500/80';
+};
+
+const getUserPhotoURL = (uid?: string) => {
+  if (!uid || !props.users) return undefined;
+  const found = props.users.find(u => u.uid === uid);
+  return found?.photoURL;
+};
+
 
 const props = defineProps<{
   classes: ClassTurma[];
@@ -1373,8 +1393,9 @@ const handleStudentEnter = (cl: ClassTurma) => {
               </p>
             </div>
 
-            <p class="text-xs text-gray-500 dark:text-gray-400 flex items-center min-w-0 truncate">
-              {{ t('scheduler.offeredBy') }} <strong class="ml-1 text-gray-800 dark:text-gray-200 font-bold truncate">{{ cl.instructorName }}</strong>
+            <p class="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1.5 min-w-0 truncate">
+              <img v-if="getUserPhotoURL(cl.instructorId)" :src="getUserPhotoURL(cl.instructorId)" :alt="cl.instructorName" class="w-4 h-4 rounded-full object-cover border border-slate-200 dark:border-slate-700 shrink-0 shadow-2xs" />
+              <span class="truncate">{{ t('scheduler.offeredBy') }} <strong class="text-gray-800 dark:text-gray-200 font-bold truncate">{{ cl.instructorName }}</strong></span>
             </p>
 
             <!-- CALL LINK & PLATFORM VALIDATION SECTION (Only for confirmed students & teachers) -->
@@ -2393,8 +2414,9 @@ const handleStudentEnter = (cl: ClassTurma) => {
           </div>
  
           <!-- Instructor info -->
-          <p class="text-xs text-gray-500 dark:text-gray-400 mt-3 flex items-center leading-none">
-            {{ t('scheduler.offeredByLabel') }} <strong class="ml-1 text-gray-800 dark:text-gray-200 font-bold">{{ activeSelectedClass.instructorName }}</strong>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-3 flex items-center gap-1.5 leading-none">
+            <img v-if="getUserPhotoURL(activeSelectedClass.instructorId)" :src="getUserPhotoURL(activeSelectedClass.instructorId)" :alt="activeSelectedClass.instructorName" class="w-5 h-5 rounded-full object-cover border border-slate-200 dark:border-slate-700 shrink-0 shadow-2xs" />
+            <span>{{ t('scheduler.offeredByLabel') }} <strong class="text-gray-800 dark:text-gray-200 font-bold">{{ activeSelectedClass.instructorName }}</strong></span>
           </p>
  
           <div class="border-t border-gray-150 dark:border-slate-800/60 my-1"></div>
@@ -2540,7 +2562,8 @@ const handleStudentEnter = (cl: ClassTurma) => {
                 <div v-for="student in enrolledStudentsOfClass" :key="student.uid" class="p-3.5 bg-indigo-50/20 dark:bg-indigo-950/10 border border-indigo-100/50 dark:border-indigo-950/35 rounded-xl flex items-center justify-between gap-3">
                   <div class="flex items-center gap-3 text-left">
                     <!-- Custom Avatar with levels -->
-                    <div class="w-10 h-10 rounded-full border-2 border-indigo-200 dark:border-indigo-800 flex items-center justify-center bg-indigo-100 dark:bg-indigo-950/60 font-black text-sm text-indigo-700 dark:text-indigo-300 uppercase shrink-0">
+                    <img v-if="student.photoURL" :src="student.photoURL" :alt="student.displayName" class="w-10 h-10 rounded-full object-cover border-2 border-indigo-200 dark:border-indigo-800 shadow-2xs shrink-0" />
+                    <div v-else class="w-10 h-10 rounded-full border-2 border-indigo-200 dark:border-indigo-800 flex items-center justify-center bg-indigo-100 dark:bg-indigo-950/60 font-black text-sm text-indigo-700 dark:text-indigo-300 uppercase shrink-0">
                       {{ student.displayName ? student.displayName.slice(0, 2) : 'ST' }}
                     </div>
                     <div class="text-left min-w-0">
@@ -2551,7 +2574,7 @@ const handleStudentEnter = (cl: ClassTurma) => {
                         {{ student.email || 'estudante@email.com' }}
                       </p>
                       <div class="flex items-center gap-1.5 mt-1">
-                        <span class="text-[8px] font-black px-1.5 py-0.5 bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 rounded uppercase">
+                        <span :class="['text-[8.5px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider border shadow-2xs', getLevelBadgeClass(student.level)]">
                           {{ student.level }}
                         </span>
                         <span v-if="isInstructor || isAdmin" class="text-[8px] text-gray-400 dark:text-slate-500 font-bold">
@@ -2585,7 +2608,8 @@ const handleStudentEnter = (cl: ClassTurma) => {
                     class="p-2.5 bg-amber-50/10 dark:bg-amber-950/5 border border-amber-100/30 dark:border-amber-950/20 rounded-xl flex items-center justify-between gap-2 min-w-0"
                   >
                     <div class="flex items-center gap-2 min-w-0">
-                      <div class="w-7 h-7 rounded-full bg-amber-100/60 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 font-extrabold text-xs flex items-center justify-center uppercase shrink-0">
+                      <img v-if="student.photoURL" :src="student.photoURL" :alt="student.displayName" class="w-7 h-7 rounded-full object-cover border border-amber-200 dark:border-amber-800 shadow-2xs shrink-0" />
+                      <div v-else class="w-7 h-7 rounded-full bg-amber-100/60 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 font-extrabold text-xs flex items-center justify-center uppercase shrink-0">
                         {{ student.displayName.slice(0, 1) }}
                       </div>
                       <div class="text-left min-w-0">
@@ -2622,7 +2646,8 @@ const handleStudentEnter = (cl: ClassTurma) => {
                     class="p-2.5 bg-blue-50/10 dark:bg-slate-850/40 border border-blue-100/10 dark:border-slate-800 rounded-xl flex items-center justify-between gap-2 text-left min-w-0"
                   >
                     <div class="flex items-center gap-2.5 min-w-0">
-                      <div class="w-8 h-8 rounded-lg bg-blue-50 dark:bg-slate-800 text-blue-600 dark:text-blue-400 flex items-center justify-center font-black text-xs uppercase shrink-0">
+                      <img v-if="student.photoURL" :src="student.photoURL" :alt="student.displayName" class="w-8 h-8 rounded-lg object-cover border border-slate-200/80 dark:border-slate-700 shadow-2xs shrink-0" />
+                      <div v-else class="w-8 h-8 rounded-lg bg-blue-50 dark:bg-slate-800 text-blue-600 dark:text-blue-400 flex items-center justify-center font-black text-xs uppercase shrink-0">
                         {{ student.displayName ? student.displayName.slice(0, 2) : 'ST' }}
                       </div>
                       <div class="min-w-0">

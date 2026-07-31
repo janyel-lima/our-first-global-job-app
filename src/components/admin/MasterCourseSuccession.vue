@@ -23,6 +23,20 @@ const emit = defineEmits<{
   (e: 'reassign-course-owner', payload: { courseId: string; instructorId: string; instructorName: string }): void;
 }>();
 
+const getLevelBadgeClass = (levelStr?: string) => {
+  const l = (levelStr || '').toLowerCase();
+  if (l.includes('beginn') || l.includes('iniciante') || l.includes('básico')) {
+    return 'bg-sky-100 dark:bg-sky-950/90 text-sky-950 dark:text-sky-300 border-sky-300 dark:border-sky-500/80';
+  }
+  if (l.includes('intermed')) {
+    return 'bg-amber-100 dark:bg-amber-950/90 text-amber-950 dark:text-amber-300 border-amber-300 dark:border-amber-500/80';
+  }
+  if (l.includes('advanc') || l.includes('avança')) {
+    return 'bg-emerald-100 dark:bg-emerald-950/90 text-emerald-950 dark:text-emerald-300 border-emerald-300 dark:border-emerald-500/80';
+  }
+  return 'bg-indigo-100 dark:bg-indigo-950/90 text-indigo-950 dark:text-indigo-300 border-indigo-300 dark:border-indigo-500/80';
+};
+
 // Course ownership succession (LGPD) computed properties and reassign functions
 const potentialOwners = computed(() => {
   return props.users.filter(u => {
@@ -260,7 +274,7 @@ const cancelReassignment = () => {
                 <span class="block text-[10px] font-medium text-slate-450 dark:text-gray-500 mt-0.5">ID: {{ course.id }}</span>
               </td>
               <td class="p-4">
-                <span class="px-2 py-0.5 rounded bg-blue-50 dark:bg-slate-800 text-blue-700 dark:text-blue-300 font-bold uppercase text-[9px] tracking-wider font-sans">
+                <span :class="['px-2.5 py-0.5 rounded-md text-[9.5px] font-black uppercase tracking-wider border shadow-2xs', getLevelBadgeClass(course.level)]">
                   {{ course.level }}
                 </span>
               </td>
@@ -324,7 +338,7 @@ const cancelReassignment = () => {
               <div class="font-bold text-gray-900 dark:text-white text-sm leading-tight">{{ course.title }}</div>
               <span class="text-[10px] text-slate-450 dark:text-gray-500 font-mono block mt-0.5">ID: {{ course.id }}</span>
             </div>
-            <span class="px-2 py-0.5 rounded bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300 font-bold uppercase text-[9px] tracking-wider shrink-0">
+            <span :class="['px-2.5 py-0.5 rounded-md text-[9.5px] font-black uppercase tracking-wider border shadow-2xs shrink-0', getLevelBadgeClass(course.level)]">
               {{ course.level }}
             </span>
           </div>

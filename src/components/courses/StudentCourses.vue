@@ -37,6 +37,20 @@ const getProgressForCourse = (courseId: string) => {
   return props.progressList.find(p => p.courseId === courseId && p.userId === uid) || null;
 };
 
+const getLevelBadgeClass = (levelStr?: string) => {
+  const l = (levelStr || '').toLowerCase();
+  if (l.includes('beginn') || l.includes('iniciante') || l.includes('básico')) {
+    return 'bg-sky-100 dark:bg-sky-950/90 text-sky-950 dark:text-sky-300 border-sky-300 dark:border-sky-500/80';
+  }
+  if (l.includes('intermed')) {
+    return 'bg-amber-100 dark:bg-amber-950/90 text-amber-950 dark:text-amber-300 border-amber-300 dark:border-amber-500/80';
+  }
+  if (l.includes('advanc') || l.includes('avança')) {
+    return 'bg-emerald-100 dark:bg-emerald-950/90 text-emerald-950 dark:text-emerald-300 border-emerald-300 dark:border-emerald-500/80';
+  }
+  return 'bg-indigo-100 dark:bg-indigo-950/90 text-indigo-950 dark:text-indigo-300 border-indigo-300 dark:border-indigo-500/80';
+};
+
 // Filter courses based on search query, level constraints, and accessible levels
 const filteredCourses = computed(() => {
   const queryText = courseSearchQuery.value.trim().toLowerCase();
@@ -283,11 +297,8 @@ const paginatedCourses = computed(() => {
           <div class="space-y-2.5">
             <div class="flex items-center justify-between gap-2">
               <span :class="[
-                'px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider border border-transparent',
-                (course.level || '').toLowerCase().includes('beginn') ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/60 dark:text-blue-200 dark:border-blue-700/60'
-                  : ((course.level || '').toLowerCase().includes('intermed') ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-200 dark:border-amber-700/60' 
-                    : ((course.level || '').toLowerCase().includes('advanc') ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-200 dark:border-emerald-700/60' 
-                      : 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/60 dark:text-indigo-200 dark:border-indigo-700/60'))
+                'px-2.5 py-0.5 rounded-md text-[9.5px] font-black uppercase tracking-wider border shadow-2xs',
+                getLevelBadgeClass(course.level)
               ]">
                 {{ course.level === 'All' ? (locale === 'pt' ? 'Todos os Níveis' : 'All Levels') : t('courses.level', { level: course.level }) }}
               </span>

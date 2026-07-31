@@ -127,8 +127,8 @@
         :key="item.id"
         :class="[
           'p-4 rounded-xl border transition-all relative',
-          item.isPinned
-            ? 'bg-amber-50/60 dark:bg-amber-950/30 border-amber-300 dark:border-amber-700/80 shadow-2xs'
+          item.isPinned 
+            ? 'bg-amber-50/60 dark:bg-amber-950/30 border-amber-300 dark:border-amber-700/80 shadow-2xs' 
             : 'bg-slate-50/70 dark:bg-slate-900/60 border-slate-200/80 dark:border-slate-800/80'
         ]"
       >
@@ -178,10 +178,10 @@
         <h3 class="text-xs sm:text-sm font-black text-slate-900 dark:text-white leading-snug mb-1">
           {{ item.title }}
         </h3>
-
+        
         <div class="text-xs text-slate-700 dark:text-slate-300 leading-relaxed space-y-1">
-          <MarkdownRenderer
-            :content="expandedIds[item.id] || item.content.length <= 180 ? item.content : item.content.slice(0, 180) + '...'"
+          <MarkdownRenderer 
+            :content="expandedIds[item.id] || item.content.length <= 180 ? item.content : item.content.slice(0, 180) + '...'" 
           />
           <div v-if="item.content.length > 180" class="pt-1 flex items-center justify-start">
             <button
@@ -363,7 +363,7 @@
                 >
                   💡 Dica
                 </button>
-
+                
                 <div class="h-4 w-px bg-slate-300 dark:bg-slate-700 mx-0.5 shrink-0"></div>
 
                 <!-- Quick Emojis Bar -->
@@ -467,7 +467,7 @@ const insertFormat = (prefix: string, suffix = '') => {
   const selected = formContent.value.substring(start, end);
   const replacement = `${prefix}${selected}${suffix}`;
   formContent.value = formContent.value.substring(0, start) + replacement + formContent.value.substring(end);
-
+  
   setTimeout(() => {
     el.focus();
     el.setSelectionRange(start + prefix.length, end + prefix.length);

@@ -240,6 +240,21 @@ const exportTeachersJSON = () => {
   document.body.removeChild(link);
 };
 
+// Level badge styling helper
+const getLevelBadgeClass = (levelStr?: string) => {
+  const l = (levelStr || '').toLowerCase();
+  if (l.includes('beginn') || l.includes('iniciante') || l.includes('básico')) {
+    return 'bg-sky-100 dark:bg-sky-950/90 text-sky-950 dark:text-sky-300 border-sky-300 dark:border-sky-500/80';
+  }
+  if (l.includes('intermed')) {
+    return 'bg-amber-100 dark:bg-amber-950/90 text-amber-950 dark:text-amber-300 border-amber-300 dark:border-amber-500/80';
+  }
+  if (l.includes('advanc') || l.includes('avança')) {
+    return 'bg-emerald-100 dark:bg-emerald-950/90 text-emerald-950 dark:text-emerald-300 border-emerald-300 dark:border-emerald-500/80';
+  }
+  return 'bg-indigo-100 dark:bg-indigo-950/90 text-indigo-950 dark:text-indigo-300 border-indigo-300 dark:border-indigo-500/80';
+};
+
 // Teacher registration codes management
 const teacherCodes = ref<any[]>([]);
 const newCodeInput = ref('');
@@ -486,7 +501,8 @@ const copyToClipboard = (text: string) => {
             <tbody class="divide-y divide-gray-100 dark:divide-slate-850">
               <tr v-for="user in paginatedUsers" :key="user.uid" class="hover:bg-slate-50/50 dark:hover:bg-slate-955/25 transition">
                 <td class="p-4 flex items-center gap-2.5">
-                  <div class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-blue-600 dark:text-blue-400 text-xs font-black flex items-center justify-center border border-slate-200/50 dark:border-slate-700 shrink-0">
+                  <img v-if="user.photoURL" :src="user.photoURL" :alt="user.displayName || user.email || 'User'" class="w-8 h-8 rounded-full object-cover shrink-0 border border-slate-200/80 dark:border-slate-700 shadow-2xs" />
+                  <div v-else class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-blue-600 dark:text-blue-400 text-xs font-black flex items-center justify-center border border-slate-200/50 dark:border-slate-700 shrink-0">
                     {{ (user.displayName || user.email || 'U').charAt(0).toUpperCase() }}
                   </div>
                   <div class="truncate">
@@ -499,10 +515,8 @@ const copyToClipboard = (text: string) => {
                 </td>
                 <td class="p-4">
                   <span :class="[
-                    'px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border',
-                    (user.level || '').toLowerCase().includes('beginn') ? 'bg-blue-100/80 text-blue-800 dark:bg-blue-900/60 dark:text-blue-200 border-blue-200 dark:border-blue-700/60' :
-                    (user.level || '').toLowerCase().includes('intermed') ? 'bg-amber-100/80 text-amber-800 dark:bg-amber-900/60 dark:text-amber-200 border-amber-200 dark:border-amber-700/60' :
-                    'bg-emerald-100/80 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-200 border-emerald-200 dark:border-emerald-700/60'
+                    'inline-block px-2.5 py-0.5 rounded-md text-[9.5px] font-black uppercase tracking-wider border shadow-2xs',
+                    getLevelBadgeClass(user.level)
                   ]">
                     {{ user.level || 'Beginner' }}
                   </span>
@@ -545,7 +559,8 @@ const copyToClipboard = (text: string) => {
             class="p-4 bg-slate-50 dark:bg-slate-950/40 border border-gray-150 dark:border-slate-850 rounded-xl space-y-3 text-xs text-left"
           >
             <div class="flex items-center gap-2.5">
-              <div class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-blue-600 dark:text-blue-400 text-xs font-black flex items-center justify-center border border-slate-200/50 dark:border-slate-700 shrink-0">
+              <img v-if="user.photoURL" :src="user.photoURL" :alt="user.displayName || user.email || 'User'" class="w-8 h-8 rounded-full object-cover shrink-0 border border-slate-200/80 dark:border-slate-700 shadow-2xs" />
+              <div v-else class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-blue-600 dark:text-blue-400 text-xs font-black flex items-center justify-center border border-slate-200/50 dark:border-slate-700 shrink-0">
                 {{ (user.displayName || user.email || 'U').charAt(0).toUpperCase() }}
               </div>
               <div class="truncate">
@@ -561,10 +576,8 @@ const copyToClipboard = (text: string) => {
               <div class="space-y-1">
                 <span class="block text-[9px] uppercase font-bold text-gray-400 dark:text-gray-500">Nível</span>
                 <span :class="[
-                  'block px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border',
-                  (user.level || '').toLowerCase().includes('beginn') ? 'bg-blue-100/80 text-blue-800 dark:bg-blue-900/60 dark:text-blue-200 border-blue-200 dark:border-blue-700/60' :
-                  (user.level || '').toLowerCase().includes('intermed') ? 'bg-amber-100/80 text-amber-800 dark:bg-amber-900/60 dark:text-amber-200 border-amber-200 dark:border-amber-700/60' :
-                  'bg-emerald-100/80 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-200 border-emerald-200 dark:border-emerald-700/60'
+                  'inline-block px-2.5 py-0.5 rounded-md text-[9.5px] font-black uppercase tracking-wider border shadow-2xs',
+                  getLevelBadgeClass(user.level)
                 ]">
                   {{ user.level || 'Beginner' }}
                 </span>
@@ -767,14 +780,17 @@ const copyToClipboard = (text: string) => {
         class="w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-8 space-y-4 shadow-2xl animate-scaleUp text-slate-900 dark:text-white"
       >
         <div class="flex justify-between items-start border-b border-slate-100 dark:border-slate-850 pb-2.5">
-          <div>
-            <h4 class="font-extrabold text-base text-slate-950 dark:text-white flex items-center gap-1.5">
-              <UserCheck class="w-5 h-5" :style="{ color: props.primaryColor || '#4f46e5' }" />
-              {{ t('master.editAccountTitle') }}
-            </h4>
-            <p class="text-xs text-slate-400 dark:text-slate-500">
-              {{ t('master.editAccountSubtitle') }}
-            </p>
+          <div class="flex items-center gap-3">
+            <img v-if="uToEdit?.photoURL" :src="uToEdit.photoURL" :alt="uToEdit.displayName || 'User'" class="w-10 h-10 rounded-full object-cover shrink-0 border border-slate-200 dark:border-slate-700 shadow-2xs" />
+            <div>
+              <h4 class="font-extrabold text-base text-slate-950 dark:text-white flex items-center gap-1.5">
+                <UserCheck class="w-5 h-5" :style="{ color: props.primaryColor || '#4f46e5' }" />
+                {{ t('master.editAccountTitle') }}
+              </h4>
+              <p class="text-xs text-slate-400 dark:text-slate-500">
+                {{ t('master.editAccountSubtitle') }}
+              </p>
+            </div>
           </div>
           <button 
             type="button"
