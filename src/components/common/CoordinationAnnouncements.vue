@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xs transition-all">
+  <div id="coordination-announcements-widget" class="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xs transition-all">
     <!-- Component Header -->
     <div class="flex items-center justify-between gap-3 mb-3">
       <div class="flex items-center gap-2.5">

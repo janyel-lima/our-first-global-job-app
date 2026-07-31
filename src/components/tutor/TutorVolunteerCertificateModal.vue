@@ -283,7 +283,7 @@ const printCertificate = () => {
     size: A4 portrait;
     margin: 0;
   }
-
+  
   html, body {
     width: 210mm !important;
     height: 297mm !important;

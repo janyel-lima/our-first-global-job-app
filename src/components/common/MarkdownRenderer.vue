@@ -12,9 +12,19 @@ const htmlContent = computed(() => {
   // Custom marked renderer to inject custom classes and buttons
   const renderer = new marked.Renderer();
   
+  const escapeHtml = (unsafe: string) => {
+    return unsafe
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  };
+
   // Custom code blocks with copy action
   renderer.code = function(token) {
     const codeText = token.text || '';
+    const safeCodeText = escapeHtml(codeText);
     return `
       <div class="relative group my-4">
         <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
@@ -26,7 +36,7 @@ const htmlContent = computed(() => {
             Copiar
           </button>
         </div>
-        <pre class="p-4 bg-slate-900 text-slate-200 text-xs rounded-xl font-mono overflow-x-auto border border-slate-800 leading-relaxed shadow-sm block whitespace-pre"><code>${codeText}</code></pre>
+        <pre class="p-4 bg-slate-900 text-slate-200 text-xs rounded-xl font-mono overflow-x-auto border border-slate-800 leading-relaxed shadow-sm block whitespace-pre"><code>${safeCodeText}</code></pre>
       </div>
     `;
   };

@@ -121,6 +121,7 @@ export interface ChatRoom {
   studentId: string;
   studentName: string;
   instructorId?: string;
+  instructorName?: string;
   courseId: string;
   courseTitle: string;
   topic: string;
@@ -129,6 +130,8 @@ export interface ChatRoom {
   updatedAt: string;
   totalMessages?: number;
   classId?: string;
+  lastMessage?: string;
+  lastSenderId?: string;
 }
 
 export interface ChatMessage {

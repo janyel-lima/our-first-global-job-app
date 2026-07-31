@@ -63,6 +63,8 @@ const emit = defineEmits<{
   (e: "open-profile"): void;
   (e: "logout"): void;
   (e: "select-class", classId: string): void;
+  (e: "select-chat-room", roomId: string): void;
+  (e: "select-announcement", announcementId: string): void;
 }>();
 
 const showProfileDropdown = ref(false);
@@ -225,6 +227,8 @@ const handleColorSelect = (e: Event) => {
             :clearAllNotifications="clearAllNotifications || (() => {})"
             :toggleAudio="toggleAudio || (() => {})"
             @select-class="emit('select-class', $event)"
+            @select-chat-room="emit('select-chat-room', $event)"
+            @select-announcement="emit('select-announcement', $event)"
           />
 
           <!-- Unified Profile Dropdown Button -->

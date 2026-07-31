@@ -51,7 +51,7 @@ import {
 
 import { signInWithEmailAndPassword, updateProfile, sendPasswordResetEmail, createUserWithEmailAndPassword, updateEmail, updatePassword } from "firebase/auth";
 import { db, auth, loginWithGoogle, logoutUser, handleFirestoreError, OperationType, activeEnvMode } from "./firebase";
-import { UserProfile, Course, Lesson, ClassTurma, Progress, ChatRoom, ChatMessage, CourseReview } from "./types";
+import { UserProfile, Course, Lesson, ClassTurma, Progress, ChatRoom, ChatMessage, CourseReview, Announcement } from "./types";
 import { hexToHsl, hslToHex } from "./utils/theme";
 import { sendDeletionConfirmationEmail } from "./utils/emailService";
 
@@ -72,6 +72,7 @@ import StudentCourses from "./components/courses/StudentCourses.vue";
 import MyProgress from "./components/courses/MyProgress.vue";
 import UserProfileModal from "./components/auth/UserProfileModal.vue";
 import AppHeader from "./components/layout/AppHeader.vue";
+import ToastContainer from "./components/common/ToastContainer.vue";
 
 // Instantiate State Composable
 const {
@@ -146,11 +147,51 @@ const {
 
 const { t, locale, setLocale } = useI18n();
 
+const announcements = ref<Announcement[]>([]);
+
+onMounted(() => {
+  const unsubAnn = onSnapshot(collection(db, 'announcements'), (snap) => {
+    const list: Announcement[] = [];
+    snap.forEach((d) => {
+      list.push(d.data() as Announcement);
+    });
+    list.sort((a, b) => {
+      if (a.isPinned && !b.isPinned) return -1;
+      if (!a.isPinned && b.isPinned) return 1;
+      return (b.createdAt || '').localeCompare(a.createdAt || '');
+    });
+    announcements.value = list;
+  }, (err) => {
+    console.warn('[App] Announcements snapshot error:', err);
+  });
+
+  onUnmounted(() => {
+    unsubAnn();
+  });
+});
+
 const currentUserIdRef = computed(() => currentUser.value?.uid || '');
-const classReminders = useClassReminders(classes, currentUserIdRef);
+const classReminders = useClassReminders(
+  classes,
+  currentUserIdRef,
+  announcements,
+  chatRooms,
+  activeTab,
+  selectedRoomId
+);
 
 const handleSelectClassFromBell = (_classId: string) => {
   activeTab.value = 'scheduler';
+};
+
+const handleSelectAnnouncementFromBell = (_announcementId: string) => {
+  activeTab.value = 'courses';
+  setTimeout(() => {
+    const el = document.getElementById('coordination-announcements-widget') || document.getElementById('coordination-announcements');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, 100);
 };
 
 const isDeletingAccount = ref(false);
@@ -1772,6 +1813,8 @@ const toggleLoginDarkMode = () => {
       @open-profile="openProfileModal"
       @logout="handleLogout"
       @select-class="handleSelectClassFromBell"
+      @select-chat-room="handleSelectRoomAndTab"
+      @select-announcement="handleSelectAnnouncementFromBell"
     />
 
     <!-- Main Container Content with dynamic contrast layout -->
@@ -1981,64 +2024,10 @@ const toggleLoginDarkMode = () => {
   </div>
 
   <!-- Custom Tray Notification Center -->
-  <div class="fixed top-5 right-5 z-[10000] flex flex-col gap-3 max-w-sm w-full pointer-events-none px-4 sm:px-0">
-    <transition-group
-      enter-active-class="transform transition duration-300 ease-out"
-      enter-from-class="translate-y-[-20px] opacity-0 scale-95"
-      enter-to-class="translate-y-0 opacity-100 scale-100"
-      leave-active-class="transition duration-205 ease-in"
-      leave-from-class="opacity-100 scale-100"
-      leave-to-class="opacity-0 scale-95"
-    >
-      <div
-        v-for="toast in appNotifications"
-        :key="toast.id"
-        class="pointer-events-auto w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl p-4 flex items-start gap-3 text-left relative overflow-hidden animate-scaleIn"
-        :style="{
-          borderLeft: `5px solid ${
-            toast.type === 'success' ? '#10b981' : 
-            toast.type === 'error' ? '#f43f5e' : 
-            toast.type === 'warning' ? '#f59e0b' : '#3b82f6'
-          }`
-        }"
-      >
-        <!-- Accent top-bar for decoration -->
-        <div 
-          class="absolute top-0 left-0 right-0 h-[3px]"
-          :class="{
-            'bg-emerald-500': toast.type === 'success',
-            'bg-rose-500': toast.type === 'error',
-            'bg-amber-500': toast.type === 'warning',
-            'bg-blue-500': toast.type === 'info'
-          }"
-        ></div>
-
-        <!-- Type icons -->
-        <div class="shrink-0 mt-0.5">
-          <CheckCircle v-if="toast.type === 'success'" class="w-5 h-5 text-emerald-500" />
-          <AlertCircle v-else-if="toast.type === 'error'" class="w-5 h-5 text-rose-500" />
-          <AlertCircle v-else-if="toast.type === 'warning'" class="w-5 h-5 text-amber-500" />
-          <Info v-else class="w-5 h-5 text-blue-500" />
-        </div>
-
-        <!-- Notification text -->
-        <div class="flex-grow pr-4">
-          <p class="text-xs font-semibold text-slate-800 dark:text-slate-100 leading-normal">
-            {{ toast.message }}
-          </p>
-        </div>
-
-        <!-- Dismiss button -->
-        <button
-          type="button"
-          @click="dismissToast(toast.id)"
-          class="text-slate-305 hover:text-slate-500 dark:text-slate-600 dark:hover:text-slate-400 p-0.5 rounded transition cursor-pointer"
-        >
-          <X class="w-3.5 h-3.5" />
-        </button>
-      </div>
-    </transition-group>
-  </div>
+  <ToastContainer
+    :notifications="appNotifications"
+    @dismiss="dismissToast"
+  />
 </template>
 
 <style>

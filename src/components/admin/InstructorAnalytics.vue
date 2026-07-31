@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import AnalyticsStudentTable from './analytics/AnalyticsStudentTable.vue';
 import { 
   FileText, 
   UploadCloud, 
@@ -936,202 +937,14 @@ const handleExportJSON = () => {
     </div>
 
     <!-- Tab 1: Students performance list with Excel and JSON export features -->
-    <div v-if="analyticsTab === 'students'" class="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-gray-100 dark:border-slate-800 space-y-4 shadow-2xs text-left animate-fadeIn">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h3 class="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider block">
-            {{ t('tutor.studentsUnderCoordination') }}
-          </h3>
-          <p class="text-xs text-gray-400 dark:text-gray-500 leading-tight block">
-            {{ t('tutor.studentsUnderCoordinationSub') }}
-          </p>
-        </div>
-
-        <div class="flex flex-wrap items-center gap-2">
-          <button
-            type="button"
-            @click="handleExportXLSX"
-            class="p-1 px-3 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-800 dark:bg-emerald-950/45 dark:border-emerald-900/40 dark:text-emerald-300 rounded-lg text-[10.5px] font-bold cursor-pointer transition-all flex items-center gap-1"
-          >
-            📥 {{ t('tutor.exportExcel') }}
-          </button>
-
-          <button
-            type="button"
-            @click="handleExportJSON"
-            class="p-1 px-3 bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-800 dark:bg-blue-950/45 dark:border-blue-900/40 dark:text-blue-300 rounded-lg text-[10.5px] font-bold cursor-pointer transition-all flex items-center gap-1"
-          >
-            📥 {{ t('tutor.exportJson') }}
-          </button>
-        </div>
-      </div>
-
-      <!-- Search Box -->
-      <div class="flex items-center justify-start select-none">
-        <div class="relative w-full sm:max-w-xs">
-          <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 dark:text-gray-500">
-            <Search class="w-4 h-4" />
-          </span>
-          <input
-            type="text"
-            :placeholder="t('tutor.searchStudentPlaceholder')"
-            v-model="studentQuery"
-            class="w-full text-xs pl-9 bg-slate-50 dark:bg-slate-950 focus:bg-white dark:focus:bg-slate-900 border border-gray-200 dark:border-slate-850 rounded-xl p-2.5 focus:outline-hidden text-gray-900 dark:text-white"
-          />
-        </div>
-      </div>
-
-      <p v-if="filteredStudentReports.length === 0" class="text-xs text-slate-400 dark:text-slate-500 italic py-4">
-        {{ t('tutor.noMatchingStudent') }}
-      </p>
-      <div v-else class="rounded-2xl border border-gray-200/60 dark:border-slate-850 bg-white dark:bg-slate-900 overflow-hidden">
-        <!-- Mobile Vertical Responsiveness View (Stacked Cards) -->
-        <div class="sm:hidden divide-y divide-gray-100 dark:divide-slate-800">
-          <div 
-            v-for="report in paginatedStudentReports" 
-            :key="'mob-' + report.id" 
-            class="p-4 space-y-3 bg-white dark:bg-slate-900"
-          >
-            <!-- Student Header -->
-            <div class="flex items-start justify-between gap-2">
-              <div>
-                <h4 class="font-bold text-sm text-slate-900 dark:text-white leading-tight">
-                  {{ getStudentName(report.userId) }}
-                </h4>
-                <p class="text-[9.5px] font-mono text-gray-400 dark:text-slate-500 leading-none mt-1">
-                  ID: {{ report.userId.substring(0, 12) }}...
-                </p>
-              </div>
-              <span v-if="report.certified" class="inline-flex items-center gap-1 text-[9.5px] font-bold bg-emerald-100 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 px-2 py-0.5 rounded-full shrink-0 select-none">
-                <Check class="w-2.5 h-2.5" /> {{ t('tutor.released') }}
-              </span>
-              <span v-else class="text-[9.5px] text-gray-400 dark:text-slate-500 italic font-medium shrink-0">
-                {{ t('tutor.inProgress') }}
-              </span>
-            </div>
-
-            <!-- Assigned Course -->
-            <div class="p-2.5 bg-slate-50 dark:bg-slate-950/60 rounded-xl border border-slate-100 dark:border-slate-800/80 space-y-1">
-              <span class="text-[9px] font-black uppercase text-slate-400 dark:text-slate-500 tracking-wider block leading-none">
-                {{ t('tutor.thAssignedCourse') }}
-              </span>
-              <p class="text-xs font-bold text-slate-800 dark:text-slate-200 leading-snug">
-                {{ courses.find(c => c.id === report.courseId)?.title || "Manual Course" }}
-              </p>
-            </div>
-
-            <!-- Metrics Row (Lessons & Grade) -->
-            <div class="grid grid-cols-2 gap-2 text-xs">
-              <div class="p-2 bg-slate-50/80 dark:bg-slate-950/40 rounded-lg border border-slate-100 dark:border-slate-800/50">
-                <span class="text-[8.5px] font-bold uppercase text-slate-400 dark:text-slate-500 block">
-                  {{ t('tutor.thLessonsCompleted') }}
-                </span>
-                <span class="font-extrabold text-blue-600 dark:text-blue-400 mt-0.5 block">
-                  {{ report.completedLessons.length }} check(s)
-                </span>
-              </div>
-              <div class="p-2 bg-slate-50/80 dark:bg-slate-950/40 rounded-lg border border-slate-100 dark:border-slate-800/50">
-                <span class="text-[8.5px] font-bold uppercase text-slate-400 dark:text-slate-500 block">
-                  {{ t('tutor.thAcademicAverage') }}
-                </span>
-                <template v-if="Object.values(report.quizScores).length > 0">
-                  <span :class="[
-                    'font-black text-xs inline-block mt-0.5',
-                    (Object.values(report.quizScores).reduce((a,b)=>a+b,0)/Object.values(report.quizScores).length) >= 70
-                      ? 'text-emerald-600 dark:text-emerald-400'
-                      : 'text-amber-600 dark:text-amber-400'
-                  ]">
-                    {{ Math.round(Object.values(report.quizScores).reduce((a,b)=>a+b,0)/Object.values(report.quizScores).length) }}%
-                  </span>
-                </template>
-                <span v-else class="text-gray-400 dark:text-slate-500 italic text-[10px] mt-0.5 block">
-                  {{ t('tutor.noGrades') }}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Desktop Horizontal Table View -->
-        <div class="hidden sm:block overflow-x-auto">
-          <table id="instructor-analytics-table" class="w-full text-left border-collapse text-xs min-w-[700px]">
-            <thead>
-              <tr class="bg-slate-50 dark:bg-slate-950 border-b border-gray-100 dark:border-slate-850 text-slate-450 font-extrabold uppercase tracking-wider text-[10px]">
-                <th class="p-4 font-extrabold">{{ t('tutor.thStudent') }}</th>
-                <th class="p-4 font-extrabold">{{ t('tutor.thAssignedCourse') }}</th>
-                <th class="p-4 font-extrabold text-center">{{ t('tutor.thLessonsCompleted') }}</th>
-                <th class="p-4 font-extrabold">{{ t('tutor.thAcademicAverage') }}</th>
-                <th class="p-4 font-extrabold">{{ t('tutor.thCertificateStatus') }}</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="report in paginatedStudentReports" :key="report.id" class="border-b border-gray-250/30 dark:border-slate-800/65 text-gray-600 dark:text-slate-350 hover:bg-gray-50/50 dark:hover:bg-slate-850/30 transition-colors duration-155">
-                <td class="p-4">
-                  <div class="font-bold text-slate-900 dark:text-white">{{ getStudentName(report.userId) }}</div>
-                  <div class="text-[9.5px] font-mono text-gray-400 dark:text-slate-500 leading-none mt-0.5">ID: {{ report.userId.substring(0, 10) }}...</div>
-                </td>
-                <td class="p-4 font-medium text-gray-800 dark:text-slate-200">
-                  {{ courses.find(c => c.id === report.courseId)?.title || "Manual Course" }}
-                </td>
-                <td class="p-4 text-center font-bold text-blue-600 dark:text-blue-400">{{ report.completedLessons.length }} check(s)</td>
-                <td class="p-4">
-                  <template v-if="Object.values(report.quizScores).length > 0">
-                    <span :class="[
-                      'font-bold px-2 py-0.5 rounded-sm',
-                      (Object.values(report.quizScores).reduce((a,b)=>a+b,0)/Object.values(report.quizScores).length) >= 70
-                        ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300'
-                        : 'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300'
-                    ]">
-                      {{ Math.round(Object.values(report.quizScores).reduce((a,b)=>a+b,0)/Object.values(report.quizScores).length) }}%
-                    </span>
-                  </template>
-                  <span v-else class="text-gray-400 dark:text-slate-500 italic">
-                    {{ t('tutor.noGrades') }}
-                  </span>
-                </td>
-                <td class="p-4">
-                  <span v-if="report.certified" class="inline-flex items-center gap-1 text-[10px] font-bold bg-emerald-100 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 px-2 py-0.5 rounded-full select-none">
-                    <Check class="w-2.5 h-2.5" /> {{ t('tutor.released') }}
-                  </span>
-                  <span v-else class="text-gray-400 dark:text-slate-500 italic font-medium">
-                    {{ t('tutor.inProgress') }}
-                  </span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <!-- Paginator Footer for Students list -->
-        <div v-if="filteredStudentReports.length > 0" class="p-4 border-t border-gray-100 dark:border-slate-850 flex items-center justify-between gap-4 text-xs font-semibold select-none text-slate-450 dark:text-slate-400 flex-wrap">
-          <span v-html="t('tutor.showingStudents', {
-            from: `<strong>${Math.min(filteredStudentReports.length, (studentPage - 1) * studentsPerPage + 1)}</strong>`,
-            to: `<strong>${Math.min(filteredStudentReports.length, studentPage * studentsPerPage)}</strong>`,
-            total: `<strong>${filteredStudentReports.length}</strong>`
-          })"></span>
-          <div class="flex items-center gap-1.5">
-            <button
-              type="button"
-              :disabled="studentPage === 1"
-              @click="studentPage--"
-              class="p-1 px-2.5 bg-slate-50 dark:bg-slate-950 hover:bg-slate-100 dark:hover:bg-slate-850 border border-gray-200 dark:border-slate-850 rounded-lg cursor-pointer disabled:opacity-40 transition disabled:cursor-not-allowed inline-flex items-center gap-1 text-[11px]"
-            >
-              <ChevronLeft class="w-3.5 h-3.5" /> {{ t('tutor.prev') }}
-            </button>
-            <span class="px-2 text-[11px]">
-              {{ t('tutor.pageOf', { current: studentPage, total: totalStudentPages || 1 }) }}
-            </span>
-            <button
-              type="button"
-              :disabled="studentPage === totalStudentPages || totalStudentPages <= 1"
-              @click="studentPage++"
-              class="p-1 px-2.5 bg-slate-50 dark:bg-slate-950 hover:bg-slate-100 dark:hover:bg-slate-850 border border-gray-200 dark:border-slate-850 rounded-lg cursor-pointer disabled:opacity-40 transition disabled:cursor-not-allowed inline-flex items-center gap-1 text-[11px]"
-            >
-              {{ t('tutor.next') }} <ChevronRight class="w-3.5 h-3.5" />
-            </button>
-          </div>
-        </div>
-      </div>
+    <div v-if="analyticsTab === 'students'">
+      <AnalyticsStudentTable
+        :reports="reports"
+        :courses="courses"
+        :users="users"
+        @export-xlsx="handleExportXLSX"
+        @export-json="handleExportJSON"
+      />
     </div>
 
     <!-- Tab 2: Course History List & Expandable Lessons Grid -->
@@ -1237,24 +1050,24 @@ const handleExportJSON = () => {
           </div>
 
           <!-- Certificate editor inline card -->
-          <div v-if="editingCertCourseId === course.id" class="p-5 bg-white border border-blue-100 rounded-xl space-y-4 animate-fadeIn text-left text-slate-800">
-            <div class="flex items-center justify-between border-b border-slate-100 pb-2">
-              <h4 class="text-xs font-black uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
-                <Award class="w-4 h-4 text-amber-500" />
+          <div v-if="editingCertCourseId === course.id" class="p-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl space-y-5 animate-fadeIn text-left text-slate-800 dark:text-slate-100 shadow-sm">
+            <div class="flex items-center justify-between border-b border-slate-200/80 dark:border-slate-800 pb-3">
+              <h4 class="text-xs font-black uppercase tracking-wider text-slate-800 dark:text-slate-200 flex items-center gap-2">
+                <Award class="w-4 h-4 text-amber-500 shrink-0" />
                 {{ t('tutor.certEditorTitle') }}
               </h4>
-              <button @click="cancelEditCert" class="text-xs font-semibold text-slate-400 hover:text-slate-600">
+              <button @click="cancelEditCert" class="text-xs font-bold text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer">
                 {{ t('tutor.close') }}
               </button>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
               <!-- Color Config -->
               <div class="space-y-2">
-                <label class="block text-xs font-bold text-slate-600">
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">
                   {{ t('tutor.certThemeColor') }}
                 </label>
-                <p class="text-[10.5px] text-slate-400 leading-tight">
+                <p class="text-[10.5px] text-slate-400 dark:text-slate-500 leading-tight">
                   {{ t('tutor.certThemeColorSub') }}
                 </p>
                 
@@ -1264,7 +1077,7 @@ const handleExportJSON = () => {
                     :key="color" 
                     type="button" 
                     @click="certColorInput = color"
-                    class="w-6 h-6 rounded-full border border-slate-200 transition-transform active:scale-90 relative cursor-pointer"
+                    class="w-6 h-6 rounded-full border border-slate-200 dark:border-slate-700 transition-transform active:scale-90 relative cursor-pointer shadow-xs"
                     :style="{ backgroundColor: color }"
                     :title="t('tutor.clickToSelect')"
                   >
@@ -1273,57 +1086,57 @@ const handleExportJSON = () => {
                 </div>
 
                 <div class="flex items-center gap-2">
-                  <input type="color" v-model="certColorInput" class="w-8 h-8 rounded border border-slate-200 cursor-pointer p-0 bg-transparent" />
-                  <input type="text" v-model="certColorInput" placeholder="#1e3a8a" class="w-24 text-[11px] bg-slate-50 border border-slate-200 p-1.5 rounded-lg text-slate-800 focus:outline-blue-500" />
+                  <input type="color" v-model="certColorInput" class="w-8 h-8 rounded border border-slate-200 dark:border-slate-700 cursor-pointer p-0 bg-transparent" />
+                  <input type="text" v-model="certColorInput" placeholder="#1e3a8a" class="w-28 text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 p-2 rounded-xl text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/20" />
                 </div>
               </div>
 
               <!-- Icon seal Config -->
               <div class="space-y-2">
-                <label class="block text-xs font-bold text-slate-600">
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">
                   {{ t('tutor.certSealIcon') }}
                 </label>
-                <p class="text-[10.5px] text-slate-400 leading-tight">
+                <p class="text-[10.5px] text-slate-400 dark:text-slate-500 leading-tight">
                   {{ t('tutor.certSealIconSub') }}
                 </p>
                 
-                <input type="url" v-model="certIconUrlInput" placeholder="Ex: https://img.icons8.com/color/96/quality-badge.png" class="w-full text-xs bg-slate-50 border border-slate-250 p-2.5 rounded-lg text-slate-800 focus:outline-blue-500" />
+                <input type="url" v-model="certIconUrlInput" placeholder="Ex: https://img.icons8.com/color/96/quality-badge.png" class="w-full text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 p-2.5 rounded-xl text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/20" />
                 
                 <!-- Suggestions quick copy -->
-                <div class="space-y-1.5">
+                <div class="space-y-1.5 pt-1">
                   <div class="flex items-center justify-between gap-2 flex-wrap">
-                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">
+                    <p class="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
                       {{ t('tutor.recommendedModels') }}
                     </p>
                     <a 
                       href="https://icons8.com.br/icons" 
                       target="_blank" 
                       rel="noopener noreferrer" 
-                      class="text-[9px] text-blue-600 hover:underline flex items-center gap-1 font-bold cursor-pointer shrink-0"
+                      class="text-[9px] text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1 font-bold cursor-pointer shrink-0"
                     >
                       <ExternalLink class="w-3 h-3" />
                       {{ t('tutor.moreOptionsIcons8') }}
                     </a>
                   </div>
                   <div class="flex flex-wrap gap-2">
-                    <button type="button" @click="certIconUrlInput = 'https://img.icons8.com/color/96/gold-medal.png'" class="text-[9.5px] bg-amber-50 text-amber-700 hover:bg-amber-100 dark:bg-amber-950/60 dark:text-amber-300 dark:hover:bg-amber-900/60 dark:border-amber-800 font-semibold px-2 py-1 rounded border border-amber-200 transition-colors cursor-pointer">🏅 {{ t('tutor.goldMedal') }}</button>
-                    <button type="button" @click="certIconUrlInput = 'https://img.icons8.com/color/96/quality-badge.png'" class="text-[9.5px] bg-blue-50 text-blue-700 hover:bg-blue-100 dark:bg-blue-950/60 dark:text-blue-300 dark:hover:bg-blue-900/60 dark:border-blue-800 font-semibold px-2 py-1 rounded border border-blue-200 transition-colors cursor-pointer">⭐ {{ t('tutor.royalStar') }}</button>
-                    <button type="button" @click="certIconUrlInput = 'https://img.icons8.com/?size=100&id=lsZBoVE2zMo3&format=png&color=000000'" class="text-[9.5px] bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-950/60 dark:text-emerald-300 dark:hover:bg-emerald-900/60 dark:border-emerald-800 font-semibold px-2 py-1 rounded border border-emerald-200 transition-colors cursor-pointer">🛡️ {{ t('tutor.trustSeal') }}</button>
+                    <button type="button" @click="certIconUrlInput = 'https://img.icons8.com/color/96/gold-medal.png'" class="text-[9.5px] bg-amber-50 text-amber-800 hover:bg-amber-100 dark:bg-amber-950/60 dark:text-amber-300 dark:hover:bg-amber-900/60 dark:border-amber-800/80 font-semibold px-2 py-1 rounded-lg border border-amber-200 transition-colors cursor-pointer">🏅 {{ t('tutor.goldMedal') }}</button>
+                    <button type="button" @click="certIconUrlInput = 'https://img.icons8.com/color/96/quality-badge.png'" class="text-[9.5px] bg-blue-50 text-blue-800 hover:bg-blue-100 dark:bg-blue-950/60 dark:text-blue-300 dark:hover:bg-blue-900/60 dark:border-blue-800/80 font-semibold px-2 py-1 rounded-lg border border-blue-200 transition-colors cursor-pointer">⭐ {{ t('tutor.royalStar') }}</button>
+                    <button type="button" @click="certIconUrlInput = 'https://img.icons8.com/?size=100&id=lsZBoVE2zMo3&format=png&color=000000'" class="text-[9.5px] bg-emerald-50 text-emerald-800 hover:bg-emerald-100 dark:bg-emerald-950/60 dark:text-emerald-300 dark:hover:bg-emerald-900/60 dark:border-emerald-800/80 font-semibold px-2 py-1 rounded-lg border border-emerald-200 transition-colors cursor-pointer">🛡️ {{ t('tutor.trustSeal') }}</button>
                   </div>
                 </div>
               </div>
             </div>
 
             <!-- Premium Administration Customizer Section (janyel.lima2809 exclusive) -->
-            <div v-if="isJanyelAdmin" class="pt-4 border-t border-slate-100 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div v-if="isJanyelAdmin" class="pt-4 border-t border-slate-200/80 dark:border-slate-800 grid grid-cols-1 md:grid-cols-3 gap-4">
               <!-- Fundo (Background) Selection -->
               <div class="space-y-1.5 text-left">
-                <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
+                <label class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
                   {{ t('tutor.certBackground') }}
                 </label>
                 <select 
                   v-model="certBgStyleInput"
-                  class="w-full bg-slate-50 border border-slate-200 text-slate-850 rounded-xl text-xs p-2 focus:outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer"
+                  class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-100 rounded-xl text-xs p-2 focus:outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer"
                 >
                   <option value="vintage-parchment">📜 {{ t('tutor.vintageParchment') }}</option>
                   <option value="dark-velvet">🌌 {{ t('tutor.darkVelvet') }}</option>
@@ -1333,12 +1146,12 @@ const handleExportJSON = () => {
 
               <!-- Moldura (Frame) Selection -->
               <div class="space-y-1.5 text-left">
-                <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
+                <label class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
                   {{ t('tutor.certFrameStyle') }}
                 </label>
                 <select 
                   v-model="certFrameStyleInput"
-                  class="w-full bg-slate-50 border border-slate-200 text-slate-850 rounded-xl text-xs p-2 focus:outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer"
+                  class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-100 rounded-xl text-xs p-2 focus:outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer"
                 >
                   <option value="medieval-gothic">🏰 {{ t('tutor.medievalGothic') }}</option>
                   <option value="classic-imperial">🏛️ {{ t('tutor.classicImperial') }}</option>
@@ -1348,12 +1161,12 @@ const handleExportJSON = () => {
 
               <!-- Accent Color Selection -->
               <div class="space-y-1.5 text-left">
-                <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
+                <label class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
                   {{ t('tutor.certDetailsColor') }}
                 </label>
                 <select 
                   v-model="certDetailColorInput"
-                  class="w-full bg-slate-50 border border-slate-200 text-slate-850 rounded-xl text-xs p-2 focus:outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer"
+                  class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-100 rounded-xl text-xs p-2 focus:outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer"
                 >
                   <option value="gold">⚜️ {{ t('tutor.goldGradient') }}</option>
                   <option value="silver">🛡️ {{ t('tutor.silverGradient') }}</option>
@@ -1365,19 +1178,19 @@ const handleExportJSON = () => {
               </div>
             </div>
 
-            <div class="flex flex-col sm:flex-row items-center justify-between gap-2 border-t border-slate-100 pt-3">
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-slate-200/80 dark:border-slate-800 pt-3.5">
               <button 
                 type="button" 
                 @click="openPreviewCert(course)" 
-                class="w-full sm:w-auto px-4 py-1.5 text-xs bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-bold transition-colors cursor-pointer shadow-2xs flex items-center justify-center gap-1.5 mr-auto"
+                class="w-full sm:w-auto px-4 py-2 text-xs bg-amber-500 hover:bg-amber-600 dark:bg-amber-600 dark:hover:bg-amber-500 text-white rounded-xl font-bold transition-all cursor-pointer shadow-xs flex items-center justify-center gap-1.5 mr-auto"
               >
                 <span>👁️ {{ t('tutor.viewCertPreview') }}</span>
               </button>
               <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
-                <button type="button" @click="cancelEditCert" class="px-3 py-1.5 text-xs text-slate-500 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer">
+                <button type="button" @click="cancelEditCert" class="px-3.5 py-2 text-xs font-bold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors cursor-pointer">
                   {{ t('tutor.cancel') }}
                 </button>
-                <button type="button" @click="saveCertConfig" class="px-4 py-1.5 text-xs bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold transition-colors cursor-pointer shadow-2xs">
+                <button type="button" @click="saveCertConfig" class="px-4 py-2 text-xs bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-600 dark:hover:bg-indigo-500 text-white rounded-xl font-bold transition-all cursor-pointer shadow-xs">
                   {{ t('tutor.saveConfiguration') }}
                 </button>
               </div>

@@ -8,15 +8,18 @@
       :title="t('reminders.bellTitle')"
     >
       <Bell class="w-5 h-5" />
+      <!-- Real notification count badge -->
       <span
         v-if="unreadCount > 0"
         class="absolute -top-1 -right-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-black text-white ring-2 ring-white dark:ring-slate-900 animate-pulse"
       >
         {{ unreadCount > 9 ? '9+' : unreadCount }}
       </span>
+      <!-- Scheduled classes dot badge (ponto sem número) when 0 unread alerts -->
       <span
         v-else-if="upcomingEnrolledClasses.length > 0"
-        class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-slate-900"
+        class="absolute top-1.5 right-1.5 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-slate-900"
+        title="Possui aulas agendadas"
       ></span>
     </button>
 
@@ -44,7 +47,7 @@
                 {{ t('reminders.title') }}
               </h3>
               <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
-                {{ t('reminders.subtitle') }}
+                Central de notificações e comunicados
               </p>
             </div>
           </div>
@@ -66,7 +69,7 @@
               v-if="unreadCount > 0"
               type="button"
               @click="markAllAsRead"
-              class="text-[10px] font-bold text-blue-600 dark:text-blue-400 hover:underline px-1.5 py-1"
+              class="text-[10px] font-bold text-blue-600 dark:text-blue-400 hover:underline px-1.5 py-1 cursor-pointer"
             >
               {{ t('reminders.markRead') }}
             </button>
@@ -100,14 +103,15 @@
               :key="item.id"
               @click="handleAlertClick(item)"
               :class="[
-                'p-3 rounded-2xl border transition-all cursor-pointer relative',
+                'p-3 rounded-2xl border transition-all cursor-pointer relative hover:scale-[1.01]',
                 item.read 
-                  ? 'bg-slate-50 dark:bg-slate-900/40 border-slate-200 dark:border-slate-800/70 text-slate-600 dark:text-slate-400'
-                  : 'bg-indigo-50/80 dark:bg-slate-900 border-indigo-200 dark:border-indigo-800 text-slate-900 dark:text-slate-100 shadow-xs'
+                  ? 'bg-slate-50/80 dark:bg-slate-900/40 border-slate-200 dark:border-slate-800/70 text-slate-600 dark:text-slate-400'
+                  : 'bg-indigo-50/90 dark:bg-slate-900 border-indigo-300 dark:border-indigo-800 text-slate-900 dark:text-slate-100 shadow-xs'
               ]"
             >
               <div class="flex items-start justify-between gap-2">
-                <div class="flex items-center gap-1.5 font-black text-xs">
+                <div class="flex items-center gap-1.5 font-black text-xs flex-wrap">
+                  <!-- Type Badge Tags -->
                   <span
                     v-if="item.type === '15m'"
                     class="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-rose-100 dark:bg-rose-950/90 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800 flex items-center gap-1"
@@ -116,13 +120,52 @@
                     15 min
                   </span>
                   <span
-                    v-else
+                    v-else-if="item.type === '60m'"
                     class="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-amber-100 dark:bg-amber-950/90 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800 flex items-center gap-1"
                   >
                     <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
                     1 hora
                   </span>
-                  <span class="text-slate-900 dark:text-slate-100 font-extrabold truncate">{{ item.title }}</span>
+                  <span
+                    v-else-if="item.type === 'announcement_important'"
+                    class="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-rose-100 dark:bg-rose-950/90 text-rose-800 dark:text-rose-200 border border-rose-300 dark:border-rose-800 flex items-center gap-1"
+                  >
+                    🚨 {{ item.tag || 'Aviso' }}
+                  </span>
+                  <span
+                    v-else-if="item.type === 'announcement_class'"
+                    class="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-blue-100 dark:bg-blue-950/90 text-blue-800 dark:text-blue-200 border border-blue-300 dark:border-blue-800 flex items-center gap-1"
+                  >
+                    🎓 {{ item.tag || 'Nova Turma' }}
+                  </span>
+                  <span
+                    v-else-if="item.type === 'announcement_event'"
+                    class="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-purple-100 dark:bg-purple-950/90 text-purple-800 dark:text-purple-200 border border-purple-300 dark:border-purple-800 flex items-center gap-1"
+                  >
+                    📅 {{ item.tag || 'Evento' }}
+                  </span>
+                  <span
+                    v-else-if="item.type === 'announcement_tip'"
+                    class="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-emerald-100 dark:bg-emerald-950/90 text-emerald-800 dark:text-emerald-200 border border-emerald-300 dark:border-emerald-800 flex items-center gap-1"
+                  >
+                    💡 {{ item.tag || 'Dica' }}
+                  </span>
+                  <span
+                    v-else-if="item.type === 'announcement_general' || item.category === 'announcement'"
+                    class="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 flex items-center gap-1"
+                  >
+                    📢 {{ item.tag || 'Comunicado' }}
+                  </span>
+                  <span
+                    v-else-if="item.type === 'chat_message' || item.category === 'chat'"
+                    class="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-sky-100 dark:bg-sky-950/90 text-sky-800 dark:text-sky-300 border border-sky-300 dark:border-sky-800 flex items-center gap-1"
+                  >
+                    💬 Chat
+                  </span>
+
+                  <span class="text-slate-900 dark:text-slate-100 font-extrabold truncate max-w-[180px] sm:max-w-[220px]">
+                    {{ item.title }}
+                  </span>
                 </div>
                 <span class="text-[9px] font-mono font-semibold text-slate-400 dark:text-slate-500 shrink-0">{{ item.timestamp }}</span>
               </div>
@@ -130,11 +173,22 @@
                 {{ item.message }}
               </p>
               <div class="mt-2.5 flex items-center justify-between text-[10px]">
-                <span class="font-extrabold text-indigo-600 dark:text-indigo-400 hover:underline inline-flex items-center gap-1">
+                <span v-if="item.category === 'chat' || item.type === 'chat_message'" class="font-extrabold text-sky-600 dark:text-sky-400 hover:underline inline-flex items-center gap-1">
+                  <MessageSquare class="w-3 h-3" />
+                  Responder / Abrir Chat
+                </span>
+                <span v-else-if="item.category === 'announcement' || item.type.startsWith('announcement_')" class="font-extrabold text-purple-600 dark:text-purple-400 hover:underline inline-flex items-center gap-1">
+                  <Megaphone class="w-3 h-3" />
+                  Ver Comunicado
+                </span>
+                <span v-else class="font-extrabold text-indigo-600 dark:text-indigo-400 hover:underline inline-flex items-center gap-1">
                   <CalendarDays class="w-3 h-3" />
                   {{ t('reminders.viewClass') }}
                 </span>
-                <span v-if="!item.read" class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-rose-500 text-white shadow-2xs">{{ t('reminders.newBadge') }}</span>
+
+                <span v-if="!item.read" class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-rose-500 text-white shadow-2xs">
+                  {{ t('reminders.newBadge') }}
+                </span>
               </div>
             </div>
           </div>
@@ -146,7 +200,7 @@
           >
             <CheckCircle2 class="w-7 h-7 mx-auto text-emerald-500/80 stroke-2" />
             <p class="font-black text-slate-800 dark:text-slate-200">{{ t('reminders.noAlertsTitle') }}</p>
-            <p class="text-[11px] text-slate-500 dark:text-slate-400">{{ t('reminders.noAlertsSub') }}</p>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">Você está em dia com todas as notificações e avisos.</p>
           </div>
 
           <!-- Upcoming Enrolled Summary Section -->
@@ -196,7 +250,7 @@
           <button
             type="button"
             @click="clearAllNotifications"
-            class="text-[10px] font-bold text-slate-500 dark:text-slate-400 hover:text-rose-500 transition-colors"
+            class="text-[10px] font-bold text-slate-500 dark:text-slate-400 hover:text-rose-500 transition-colors cursor-pointer"
           >
             {{ t('reminders.clearHistory') }}
           </button>
@@ -208,7 +262,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue';
-import { Bell, BellRing, Volume2, VolumeX, Info, CheckCircle2, CalendarDays, ChevronRight } from 'lucide-vue-next';
+import { Bell, BellRing, Volume2, VolumeX, Info, CheckCircle2, CalendarDays, ChevronRight, Megaphone, MessageSquare } from 'lucide-vue-next';
 import { useI18n } from '../../composables/useI18n';
 import { formatDisplayDate, formatDisplayTime } from '../../utils/helpers';
 import { ClassReminderAlert } from '../../composables/useClassReminders';
@@ -228,6 +282,8 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: 'select-class', classId: string): void;
+  (e: 'select-chat-room', roomId: string): void;
+  (e: 'select-announcement', announcementId: string): void;
 }>();
 
 const { t } = useI18n();
@@ -240,7 +296,13 @@ const toggleDropdown = () => {
 
 const handleAlertClick = (item: ClassReminderAlert) => {
   props.markAsRead(item.id);
-  emit('select-class', item.classId);
+  if (item.category === 'chat' || item.roomId) {
+    if (item.roomId) emit('select-chat-room', item.roomId);
+  } else if (item.category === 'announcement' || item.announcementId) {
+    emit('select-announcement', item.announcementId || '');
+  } else if (item.classId) {
+    emit('select-class', item.classId);
+  }
   isOpen.value = false;
 };
 
@@ -264,3 +326,4 @@ onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside);
 });
 </script>
+
