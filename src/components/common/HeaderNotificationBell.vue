@@ -37,10 +37,10 @@
         class="absolute right-0 mt-2 w-80 sm:w-96 rounded-3xl bg-white dark:bg-slate-950 border border-slate-200/90 dark:border-slate-800 shadow-2xl z-50 overflow-hidden"
       >
         <!-- Header -->
-        <div class="p-3.5 bg-slate-50/90 dark:bg-slate-900/80 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between">
+        <div class="p-3.5 bg-slate-100 dark:bg-slate-900 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between">
           <div class="flex items-center gap-2">
-            <div class="p-1.5 rounded-xl bg-blue-100 dark:bg-blue-950/80 text-blue-600 dark:text-blue-400 border border-blue-200/60 dark:border-blue-800/60">
-              <BellRing class="w-4 h-4" />
+            <div class="p-2 rounded-xl bg-blue-500/15 text-blue-600 dark:text-blue-400 border border-blue-300 dark:border-blue-500/50 shadow-xs">
+              <BellRing class="w-4 h-4 stroke-[2.2]" />
             </div>
             <div>
               <h3 class="text-xs font-black text-slate-900 dark:text-white leading-none">
@@ -196,7 +196,7 @@
           <!-- Empty State when no alerts -->
           <div
             v-if="notifications.length === 0"
-            class="text-center py-5 px-3 bg-slate-50/50 dark:bg-black/20 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 text-slate-400 dark:text-slate-400 text-xs space-y-1"
+            class="text-center py-5 px-3 bg-slate-100/50 dark:bg-slate-900/40 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 text-slate-400 dark:text-slate-400 text-xs space-y-1"
           >
             <CheckCircle2 class="w-7 h-7 mx-auto text-emerald-500 stroke-2" />
             <p class="font-black text-slate-800 dark:text-slate-200">{{ t('reminders.noAlertsTitle') }}</p>
@@ -224,7 +224,7 @@
                 v-for="cl in upcomingEnrolledClasses.slice(0, 4)"
                 :key="cl.id"
                 @click="onSelectClass(cl.id)"
-                class="p-3 rounded-2xl bg-slate-50 dark:bg-black/25 border border-slate-200/90 dark:border-white/10 hover:border-indigo-500/60 dark:hover:border-indigo-400/60 transition-all cursor-pointer flex items-center justify-between group shadow-2xs"
+                class="p-3 rounded-2xl bg-slate-100/80 dark:bg-slate-900/80 border border-slate-200/90 dark:border-slate-800 hover:border-indigo-500/60 dark:hover:border-indigo-400/60 transition-all cursor-pointer flex items-center justify-between group shadow-2xs"
               >
                 <div class="min-w-0 pr-2 space-y-1.5">
                   <p class="text-xs font-black text-slate-900 dark:text-slate-100 truncate group-hover:text-indigo-600 dark:group-hover:text-indigo-300 transition-colors">
@@ -246,7 +246,7 @@
         </div>
 
         <!-- Footer -->
-        <div v-if="notifications.length > 0" class="p-2 bg-slate-50/90 dark:bg-slate-900/80 border-t border-slate-200 dark:border-slate-800 text-center">
+        <div v-if="notifications.length > 0" class="p-2.5 bg-slate-100 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 text-center">
           <button
             type="button"
             @click="clearAllNotifications"

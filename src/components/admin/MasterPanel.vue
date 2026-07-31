@@ -292,12 +292,12 @@ onMounted(() => {
           <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
             {{ t('master.panel.registeredAccounts') }}
           </p>
-          <span class="p-2.5 bg-blue-500/15 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 rounded-2xl border border-blue-300/80 dark:border-blue-500/50 shadow-xs">
-            <Users class="w-5 h-5" />
+          <span class="p-2.5 bg-blue-500/20 dark:bg-blue-500/30 text-blue-600 dark:text-blue-300 rounded-2xl border border-blue-300 dark:border-blue-400/60 shadow-xs">
+            <Users class="w-5 h-5 stroke-[2.3]" />
           </span>
         </div>
         <h4 class="text-2xl font-black text-gray-900 dark:text-white mt-2">{{ users.length }}</h4>
-        <p class="text-[10px] text-emerald-600 font-bold mt-1">
+        <p class="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold mt-1">
           {{ t('master.panel.registeredAccountsSub') }}
         </p>
       </div>
@@ -307,12 +307,12 @@ onMounted(() => {
           <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
             {{ t('master.panel.courseCatalog') }}
           </p>
-          <span class="p-2.5 bg-indigo-500/15 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 rounded-2xl border border-indigo-300/80 dark:border-indigo-500/50 shadow-xs">
-            <BookOpen class="w-5 h-5" />
+          <span class="p-2.5 bg-indigo-500/20 dark:bg-indigo-500/30 text-indigo-600 dark:text-indigo-300 rounded-2xl border border-indigo-300 dark:border-indigo-400/60 shadow-xs">
+            <BookOpen class="w-5 h-5 stroke-[2.3]" />
           </span>
         </div>
         <h4 class="text-2xl font-black text-gray-900 dark:text-white mt-2">{{ courses.length }}</h4>
-        <p class="text-[10px] text-gray-450 dark:text-gray-450 mt-1">
+        <p class="text-[10px] text-gray-500 dark:text-gray-400 font-semibold mt-1">
           {{ t('master.panel.courseCatalogSub') }}
         </p>
       </div>
@@ -322,12 +322,12 @@ onMounted(() => {
           <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
             {{ t('master.panel.activePracticeClasses') }}
           </p>
-          <span class="p-2.5 bg-amber-500/15 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 rounded-2xl border border-amber-300/80 dark:border-amber-500/50 shadow-xs">
-            <Calendar class="w-5 h-5" />
+          <span class="p-2.5 bg-amber-500/20 dark:bg-amber-500/30 text-amber-600 dark:text-amber-300 rounded-2xl border border-amber-300 dark:border-amber-400/60 shadow-xs">
+            <Calendar class="w-5 h-5 stroke-[2.3]" />
           </span>
         </div>
         <h4 class="text-2xl font-black text-gray-900 dark:text-white mt-2">{{ totalClassesCount }}</h4>
-        <p class="text-[10px] text-amber-600 font-bold mt-1">
+        <p class="text-[10px] text-amber-600 dark:text-amber-400 font-bold mt-1">
           {{ t('master.panel.activePracticeClassesSub') }}
         </p>
       </div>
@@ -337,14 +337,14 @@ onMounted(() => {
           <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
             {{ t('master.panel.validCertificates') }}
           </p>
-          <span class="p-2.5 bg-emerald-500/15 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 rounded-2xl border border-emerald-300/80 dark:border-emerald-500/50 shadow-xs">
-            <Award class="w-5 h-5" />
+          <span class="p-2.5 bg-emerald-500/20 dark:bg-emerald-500/30 text-emerald-600 dark:text-emerald-300 rounded-2xl border border-emerald-300 dark:border-emerald-400/60 shadow-xs">
+            <Award class="w-5 h-5 stroke-[2.3]" />
           </span>
         </div>
         <h4 class="text-2xl font-black text-gray-900 dark:text-white mt-2">
           {{ totalCertified }}
         </h4>
-        <p class="text-[10px] text-indigo-600 font-bold mt-1">
+        <p class="text-[10px] text-indigo-600 dark:text-indigo-400 font-bold mt-1">
           {{ t('master.panel.validCertificatesSub') }}
         </p>
       </div>
@@ -479,13 +479,13 @@ onMounted(() => {
         </div>
 
         <!-- Continuous Improvement System Recommendations Dashboard (5 columns) -->
-        <div class="lg:col-span-5 bg-slate-50 dark:bg-slate-900/50 p-5 rounded-3xl border border-slate-100 dark:border-slate-800 space-y-4">
+        <div class="lg:col-span-5 bg-slate-50 dark:bg-slate-900/50 p-5 rounded-3xl border border-slate-200/80 dark:border-slate-800 space-y-4">
           <div>
-            <h4 class="text-xs font-black text-slate-800 dark:text-white uppercase tracking-wider flex items-center gap-1.5">
-              <Lightbulb class="w-4 h-4 text-amber-500" />
+            <h4 class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-1.5">
+              <Lightbulb class="w-4 h-4 text-amber-500 stroke-[2.2]" />
               {{ t('master.panel.recommendationsTitle') }}
             </h4>
-            <p class="text-[11px] text-slate-400 dark:text-slate-400 font-bold">
+            <p class="text-[11px] text-slate-600 dark:text-slate-300 font-semibold mt-0.5">
               {{ t('master.panel.recommendationsSub') }}
             </p>
           </div>
@@ -494,21 +494,21 @@ onMounted(() => {
             <div 
               v-for="rec in systemRecommendations" 
               :key="rec.id" 
-              class="p-3 rounded-xl border flex gap-2 text-left leading-snug transition-colors"
+              class="p-3.5 rounded-2xl border flex gap-3 text-left leading-snug transition-colors shadow-2xs"
               :class="[
-                rec.type === 'warning' ? 'bg-amber-500/10 dark:bg-amber-950/70 border-amber-300 dark:border-amber-500/50 text-amber-950 dark:text-amber-100' :
-                rec.type === 'success' ? 'bg-emerald-500/10 dark:bg-emerald-950/70 border-emerald-300 dark:border-emerald-500/50 text-emerald-950 dark:text-emerald-100' :
-                'bg-blue-500/10 dark:bg-blue-950/70 border-blue-300 dark:border-blue-500/50 text-blue-950 dark:text-blue-100'
+                rec.type === 'warning' ? 'bg-amber-500/10 dark:bg-amber-950/40 border-amber-300 dark:border-amber-500/60' :
+                rec.type === 'success' ? 'bg-emerald-500/10 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-500/60' :
+                'bg-blue-500/10 dark:bg-blue-950/40 border-blue-300 dark:border-blue-500/60'
               ]"
             >
               <span class="shrink-0 mt-0.5">
-                <AlertTriangle v-if="rec.type === 'warning'" class="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
-                <CheckCircle2 v-else-if="rec.type === 'success'" class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                <Zap v-else class="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                <AlertTriangle v-if="rec.type === 'warning'" class="w-4 h-4 text-amber-600 dark:text-amber-400 stroke-[2.2]" />
+                <CheckCircle2 v-else-if="rec.type === 'success'" class="w-4 h-4 text-emerald-600 dark:text-emerald-400 stroke-[2.2]" />
+                <Zap v-else class="w-4 h-4 text-blue-600 dark:text-blue-400 stroke-[2.2]" />
               </span>
-              <div class="space-y-0.5">
-                <p class="text-[11.5px] font-extrabold leading-tight">{{ rec.title }}</p>
-                <p class="text-[10px] opacity-90 font-semibold leading-relaxed">{{ rec.text }}</p>
+              <div class="space-y-0.5 min-w-0">
+                <p class="text-[11.5px] font-extrabold leading-tight text-slate-900 dark:text-slate-100">{{ rec.title }}</p>
+                <p class="text-[10.5px] font-semibold leading-relaxed text-slate-700 dark:text-slate-200">{{ rec.text }}</p>
               </div>
             </div>
           </div>
