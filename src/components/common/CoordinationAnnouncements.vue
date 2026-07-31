@@ -314,11 +314,11 @@
 
             <div v-if="editorTab === 'write'" class="space-y-1.5">
               <!-- Advanced Formatting Toolbar -->
-              <div class="flex items-center flex-wrap gap-1 p-1.5 bg-slate-100/90 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 text-xs">
+              <div class="flex items-center flex-wrap gap-1 p-1.5 bg-slate-100 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 text-xs">
                 <button
                   type="button"
                   @click="insertFormat('**', '**')"
-                  class="p-1 bg-white dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-black rounded-lg border border-slate-200/80 dark:border-slate-700 cursor-pointer shadow-2xs"
+                  class="p-1 bg-white dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-black rounded-lg border border-slate-200 dark:border-slate-700 cursor-pointer shadow-2xs"
                   title="Negrito"
                 >
                   <Bold class="w-3.5 h-3.5" />
@@ -326,7 +326,7 @@
                 <button
                   type="button"
                   @click="insertFormat('*', '*')"
-                  class="p-1 bg-white dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 italic font-bold rounded-lg border border-slate-200/80 dark:border-slate-700 cursor-pointer shadow-2xs"
+                  class="p-1 bg-white dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 italic font-bold rounded-lg border border-slate-200 dark:border-slate-700 cursor-pointer shadow-2xs"
                   title="Itálico"
                 >
                   <Italic class="w-3.5 h-3.5" />
@@ -334,7 +334,7 @@
                 <button
                   type="button"
                   @click="insertFormat('\n### ')"
-                  class="px-1.5 py-0.5 bg-white dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-extrabold rounded-lg border border-slate-200/80 dark:border-slate-700 cursor-pointer shadow-2xs text-[10px]"
+                  class="px-1.5 py-0.5 bg-white dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-extrabold rounded-lg border border-slate-200 dark:border-slate-700 cursor-pointer shadow-2xs text-[10px]"
                   title="Título H3"
                 >
                   H3
@@ -342,7 +342,7 @@
                 <button
                   type="button"
                   @click="insertFormat('\n- ')"
-                  class="p-1 bg-white dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold rounded-lg border border-slate-200/80 dark:border-slate-700 cursor-pointer shadow-2xs"
+                  class="p-1 bg-white dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold rounded-lg border border-slate-200 dark:border-slate-700 cursor-pointer shadow-2xs"
                   title="Lista com Marcadores"
                 >
                   <List class="w-3.5 h-3.5" />
@@ -350,7 +350,7 @@
                 <button
                   type="button"
                   @click="insertFormat('\n> 🚨 **Aviso:** ')"
-                  class="px-1.5 py-0.5 bg-rose-100 dark:bg-rose-950/80 text-rose-900 dark:text-rose-200 font-bold rounded-lg border border-rose-200 dark:border-rose-800 cursor-pointer shadow-2xs text-[10px]"
+                  class="px-1.5 py-0.5 bg-rose-100 dark:bg-rose-950 text-rose-900 dark:text-rose-200 font-bold rounded-lg border border-rose-200 dark:border-rose-800 cursor-pointer shadow-2xs text-[10px]"
                   title="Bloco de Alerta"
                 >
                   🚨 Alerta
@@ -358,7 +358,7 @@
                 <button
                   type="button"
                   @click="insertFormat('\n> 💡 **Dica:** ')"
-                  class="px-1.5 py-0.5 bg-emerald-100 dark:bg-emerald-950/80 text-emerald-900 dark:text-emerald-200 font-bold rounded-lg border border-emerald-200 dark:border-emerald-800 cursor-pointer shadow-2xs text-[10px]"
+                  class="px-1.5 py-0.5 bg-emerald-100 dark:bg-emerald-950 text-emerald-900 dark:text-emerald-200 font-bold rounded-lg border border-emerald-200 dark:border-emerald-800 cursor-pointer shadow-2xs text-[10px]"
                   title="Bloco de Dica"
                 >
                   💡 Dica
@@ -386,16 +386,16 @@
                 required
                 rows="6"
                 :placeholder="t('announcements.contentPlaceholder')"
-                class="w-full text-xs font-mono bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-slate-900 dark:text-white focus:outline-hidden leading-relaxed"
+                class="w-full text-xs font-mono bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-hidden leading-relaxed"
               ></textarea>
             </div>
 
             <!-- Live Preview -->
             <div
               v-else
-              class="p-3.5 min-h-[160px] max-h-60 overflow-y-auto bg-slate-50/80 dark:bg-slate-900/80 border border-slate-300 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-slate-100 leading-relaxed"
+              class="p-3.5 min-h-[160px] max-h-60 overflow-y-auto bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-slate-100 leading-relaxed"
             >
-              <p v-if="!formContent.trim()" class="text-slate-400 dark:text-slate-500 italic text-[11px]">
+              <p v-if="!formContent.trim()" class="text-slate-500 dark:text-slate-400 italic text-[11px]">
                 Nenhum texto informado para pré-visualização.
               </p>
               <MarkdownRenderer v-else :content="formContent" />
