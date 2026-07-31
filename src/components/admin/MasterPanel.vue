@@ -292,7 +292,7 @@ onMounted(() => {
           <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
             {{ t('master.panel.registeredAccounts') }}
           </p>
-          <span class="p-2 bg-blue-100/80 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 rounded-xl border border-blue-200/50 dark:border-blue-700/60">
+          <span class="p-2.5 bg-blue-500/15 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 rounded-2xl border border-blue-300/80 dark:border-blue-500/50 shadow-xs">
             <Users class="w-5 h-5" />
           </span>
         </div>
@@ -307,7 +307,7 @@ onMounted(() => {
           <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
             {{ t('master.panel.courseCatalog') }}
           </p>
-          <span class="p-2 bg-indigo-100/80 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 rounded-xl border border-indigo-200/50 dark:border-indigo-700/60">
+          <span class="p-2.5 bg-indigo-500/15 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 rounded-2xl border border-indigo-300/80 dark:border-indigo-500/50 shadow-xs">
             <BookOpen class="w-5 h-5" />
           </span>
         </div>
@@ -322,7 +322,7 @@ onMounted(() => {
           <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
             {{ t('master.panel.activePracticeClasses') }}
           </p>
-          <span class="p-2 bg-amber-100/80 dark:bg-amber-900/60 text-amber-700 dark:text-amber-300 rounded-xl border border-amber-200/50 dark:border-amber-700/60">
+          <span class="p-2.5 bg-amber-500/15 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 rounded-2xl border border-amber-300/80 dark:border-amber-500/50 shadow-xs">
             <Calendar class="w-5 h-5" />
           </span>
         </div>
@@ -337,7 +337,7 @@ onMounted(() => {
           <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
             {{ t('master.panel.validCertificates') }}
           </p>
-          <span class="p-2 bg-emerald-100/80 dark:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 rounded-xl border border-emerald-200/50 dark:border-emerald-700/60">
+          <span class="p-2.5 bg-emerald-500/15 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 rounded-2xl border border-emerald-300/80 dark:border-emerald-500/50 shadow-xs">
             <Award class="w-5 h-5" />
           </span>
         </div>
@@ -494,17 +494,17 @@ onMounted(() => {
             <div 
               v-for="rec in systemRecommendations" 
               :key="rec.id" 
-              class="p-3 rounded-xl border flex gap-2 text-left leading-snug"
+              class="p-3 rounded-xl border flex gap-2 text-left leading-snug transition-colors"
               :class="[
-                rec.type === 'warning' ? 'bg-amber-100/80 border-amber-200 text-amber-900 dark:bg-amber-950/60 dark:border-amber-800/80 dark:text-amber-200' :
-                rec.type === 'success' ? 'bg-emerald-100/80 border-emerald-200 text-emerald-900 dark:bg-emerald-950/60 dark:border-emerald-800/80 dark:text-emerald-200' :
-                'bg-blue-100/80 border-blue-200 text-blue-900 dark:bg-blue-950/60 dark:border-blue-800/80 dark:text-blue-200'
+                rec.type === 'warning' ? 'bg-amber-500/10 dark:bg-amber-950/70 border-amber-300 dark:border-amber-500/50 text-amber-950 dark:text-amber-100' :
+                rec.type === 'success' ? 'bg-emerald-500/10 dark:bg-emerald-950/70 border-emerald-300 dark:border-emerald-500/50 text-emerald-950 dark:text-emerald-100' :
+                'bg-blue-500/10 dark:bg-blue-950/70 border-blue-300 dark:border-blue-500/50 text-blue-950 dark:text-blue-100'
               ]"
             >
               <span class="shrink-0 mt-0.5">
-                <AlertTriangle v-if="rec.type === 'warning'" class="w-3.5 h-3.5 text-amber-600" />
-                <CheckCircle2 v-else-if="rec.type === 'success'" class="w-3.5 h-3.5 text-emerald-600" />
-                <Zap v-else class="w-3.5 h-3.5 text-blue-600" />
+                <AlertTriangle v-if="rec.type === 'warning'" class="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+                <CheckCircle2 v-else-if="rec.type === 'success'" class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                <Zap v-else class="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
               </span>
               <div class="space-y-0.5">
                 <p class="text-[11.5px] font-extrabold leading-tight">{{ rec.title }}</p>

@@ -804,8 +804,8 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
     <!-- Informative banner -->
     <div class="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4 text-left shadow-xs">
       <div class="space-y-1">
-        <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-100/80 dark:bg-blue-900/60 text-blue-800 dark:text-blue-200 border border-blue-200 dark:border-blue-700/60 font-bold text-[10px] rounded-full uppercase tracking-wide">
-          <Info class="w-3 h-3 text-blue-600 dark:text-blue-300" /> Construtor Autônomo de Inglês
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-500/15 text-blue-800 dark:text-blue-200 border border-blue-300 dark:border-blue-500/50 font-black text-[10px] rounded-full uppercase tracking-wide">
+          <Info class="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" /> Construtor Autônomo de Inglês
         </span>
         <h3 class="text-sm font-extrabold text-slate-900 dark:text-blue-400 leading-tight">Canal de Criação de Cursos & Lições</h3>
         <p class="text-xs text-slate-600 dark:text-slate-300 leading-snug">
@@ -841,7 +841,7 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
         >
           <div class="space-y-1.5 mb-4">
             <div class="flex items-center gap-1.5 justify-between">
-              <span class="px-2 py-0.5 bg-indigo-100/80 dark:bg-indigo-900/60 text-indigo-800 dark:text-indigo-200 text-[9px] font-black uppercase tracking-wider rounded border border-indigo-200 dark:border-indigo-700/60">
+              <span class="px-2.5 py-0.5 bg-indigo-500/15 text-indigo-800 dark:text-indigo-200 text-[9.5px] font-black uppercase tracking-wider rounded-md border border-indigo-300 dark:border-indigo-500/50">
                 Modelo de Aula
               </span>
               <span class="text-[9.5px] text-slate-400 dark:text-slate-450 font-bold">

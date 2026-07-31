@@ -579,8 +579,8 @@ const handleExportJSON = () => {
   <div class="space-y-8">
     <!-- Key cards metrics -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-left">
-      <div class="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-gray-100 dark:border-slate-800 flex items-center gap-4">
-        <span class="p-3 bg-blue-100/80 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 rounded-xl border border-blue-200/50 dark:border-blue-700/60">
+      <div class="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-gray-100 dark:border-slate-800 flex items-center gap-4 shadow-2xs">
+        <span class="p-3 bg-blue-500/15 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 rounded-2xl border border-blue-300/80 dark:border-blue-500/50 shadow-xs">
           <FileText class="w-6 h-6" />
         </span>
         <div>
@@ -591,8 +591,8 @@ const handleExportJSON = () => {
         </div>
       </div>
 
-      <div class="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-gray-100 dark:border-slate-800 flex items-center gap-4">
-        <span class="p-3 bg-emerald-100/80 dark:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 rounded-xl border border-emerald-200/50 dark:border-emerald-700/60">
+      <div class="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-gray-100 dark:border-slate-800 flex items-center gap-4 shadow-2xs">
+        <span class="p-3 bg-emerald-500/15 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 rounded-2xl border border-emerald-300/80 dark:border-emerald-500/50 shadow-xs">
           <Users class="w-6 h-6" />
         </span>
         <div>
@@ -603,8 +603,8 @@ const handleExportJSON = () => {
         </div>
       </div>
 
-      <div class="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-gray-100 dark:border-slate-800 flex items-center gap-4">
-        <span class="p-3 bg-indigo-100/80 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 rounded-xl border border-indigo-200/50 dark:border-indigo-700/60">
+      <div class="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-gray-100 dark:border-slate-800 flex items-center gap-4 shadow-2xs">
+        <span class="p-3 bg-indigo-500/15 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 rounded-2xl border border-indigo-300/80 dark:border-indigo-500/50 shadow-xs">
           <Check class="w-6 h-6" />
         </span>
         <div>
@@ -617,8 +617,8 @@ const handleExportJSON = () => {
         </div>
       </div>
 
-      <div class="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-gray-100 dark:border-slate-800 flex items-center gap-4">
-        <span class="p-3 bg-amber-100/80 dark:bg-amber-900/60 text-amber-700 dark:text-amber-300 rounded-xl border border-amber-200/50 dark:border-amber-700/60">
+      <div class="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-gray-100 dark:border-slate-800 flex items-center gap-4 shadow-2xs">
+        <span class="p-3 bg-amber-500/15 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 rounded-2xl border border-amber-300/80 dark:border-amber-500/50 shadow-xs">
           <BookOpen class="w-6 h-6" />
         </span>
         <div>
@@ -1196,22 +1196,22 @@ const handleExportJSON = () => {
               </div>
             </div>
           </div>
-          <div v-if="expandedCourseId === course.id" class="bg-slate-50/60 dark:bg-slate-900/90 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 sm:p-6 animate-fadeIn space-y-4 text-left shadow-xs mt-3">
+          <div v-if="expandedCourseId === course.id" class="bg-slate-50/90 dark:bg-slate-950/90 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-5 sm:p-6 animate-fadeIn space-y-4 text-left shadow-xs mt-3">
             <div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
               
               <!-- Left Column: Lessons Grid (xl:col-span-7) -->
               <div class="xl:col-span-7 space-y-3">
-                <p class="text-[10.5px] text-slate-500 dark:text-slate-400 uppercase font-black tracking-widest border-b border-slate-200/80 dark:border-slate-800 pb-2 flex items-center gap-1.5">
+                <p class="text-[10.5px] text-slate-600 dark:text-slate-300 uppercase font-black tracking-widest border-b border-slate-200/80 dark:border-slate-800 pb-2 flex items-center gap-1.5">
                   📚 {{ t('tutor.curriculumGridTitle') }}
                 </p>
                 
                 <p v-if="lessons.filter(l => l.courseId === course.id).length === 0" class="text-xs text-slate-400 dark:text-slate-500 italic pl-1">
                   {{ t('tutor.noLessonsRegistered') }}
                 </p>
-                <div v-else class="overflow-x-auto rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/80 shadow-xs">
+                <div v-else class="overflow-x-auto rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/90 shadow-xs">
                   <table class="w-full text-left text-[11px] font-medium text-slate-700 dark:text-slate-300 min-w-[500px]">
                     <thead>
-                      <tr class="bg-slate-100/70 dark:bg-slate-950/90 border-b border-slate-200/80 dark:border-slate-800 text-slate-700 dark:text-slate-300 font-black uppercase text-[9.5px] tracking-wider">
+                      <tr class="bg-slate-100/90 dark:bg-slate-950 border-b border-slate-200/80 dark:border-slate-800 text-slate-800 dark:text-slate-100 font-black uppercase text-[9.5px] tracking-wider">
                         <th class="p-3 text-center w-12">{{ t('tutor.thOrder') }}</th>
                         <th class="p-3 pl-2">{{ t('tutor.thLessonTitle') }}</th>
                         <th class="p-3 text-center">{{ t('tutor.thVideo') }}</th>
@@ -1222,16 +1222,16 @@ const handleExportJSON = () => {
                     <tbody class="divide-y divide-slate-100 dark:divide-slate-800/60">
                       <tr v-for="l in lessons.filter(l => l.courseId === course.id)" :key="l.id" class="hover:bg-slate-100/60 dark:hover:bg-slate-800/50 transition-colors">
                         <td class="p-3 text-center">
-                          <span class="inline-flex items-center justify-center px-2 py-0.5 rounded-md font-mono text-[10px] font-black bg-blue-100/80 text-blue-800 dark:bg-blue-900/60 dark:text-blue-200 border border-blue-200 dark:border-blue-700/60">
+                          <span class="inline-flex items-center justify-center px-2 py-0.5 rounded-md font-mono text-[10px] font-black bg-blue-500/15 text-blue-800 dark:text-blue-200 border border-blue-300 dark:border-blue-500/50">
                             #{{ l.order }}
                           </span>
                         </td>
                         <td class="p-3 pl-2 font-bold text-slate-800 dark:text-slate-100 text-[11.5px] leading-snug">{{ l.title }}</td>
                         <td class="p-3 text-center">
-                          <span v-if="l.videoUrl" class="inline-flex items-center gap-1 text-[9.5px] font-bold bg-emerald-100/90 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-200 px-2 py-0.5 rounded-md border border-emerald-200 dark:border-emerald-700/60">
+                          <span v-if="l.videoUrl" class="inline-flex items-center gap-1 text-[9.5px] font-extrabold bg-emerald-500/15 text-emerald-800 dark:text-emerald-200 px-2 py-0.5 rounded-md border border-emerald-300 dark:border-emerald-500/50">
                             {{ t('tutor.yes') }}
                           </span>
-                          <span v-else class="inline-flex items-center gap-1 text-[9.5px] font-medium text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800/80 px-2 py-0.5 rounded-md border border-slate-200 dark:border-slate-700/60">
+                          <span v-else class="inline-flex items-center gap-1 text-[9.5px] font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800/80 px-2 py-0.5 rounded-md border border-slate-200 dark:border-slate-700">
                             {{ t('tutor.no') }}
                           </span>
                         </td>
@@ -1239,7 +1239,7 @@ const handleExportJSON = () => {
                           {{ t('tutor.charsCount', { count: l.content.length }) }}
                         </td>
                         <td class="p-3 text-right pr-4">
-                          <span class="inline-flex items-center gap-1 text-[10.5px] font-extrabold text-indigo-800 dark:text-indigo-200 bg-indigo-100/80 dark:bg-indigo-900/60 px-2.5 py-0.5 rounded-md border border-indigo-200 dark:border-indigo-700/60 font-mono">
+                          <span class="inline-flex items-center gap-1 text-[10.5px] font-extrabold text-indigo-800 dark:text-indigo-200 bg-indigo-500/15 px-2.5 py-0.5 rounded-md border border-indigo-300 dark:border-indigo-500/50 font-mono">
                             {{ t('tutor.questionsCount', { count: (l.quiz || []).length }) }}
                           </span>
                         </td>
@@ -1251,12 +1251,12 @@ const handleExportJSON = () => {
 
               <!-- Right Column: Course Reviews & Reaction Metrics (xl:col-span-5) -->
               <div class="xl:col-span-5 space-y-4 border-t xl:border-t-0 xl:border-l border-slate-200/80 dark:border-slate-800 pt-4 xl:pt-0 xl:pl-6 text-left">
-                <p class="text-[10.5px] text-slate-500 dark:text-slate-400 uppercase font-black tracking-widest border-b border-slate-200/80 dark:border-slate-800 pb-2 flex items-center gap-1.5">
+                <p class="text-[10.5px] text-slate-600 dark:text-slate-300 uppercase font-black tracking-widest border-b border-slate-200/80 dark:border-slate-800 pb-2 flex items-center gap-1.5">
                   ⭐ {{ t('tutor.reviewsTitle') }}
                 </p>
 
                 <!-- Average Score & Overall Reaction indicators -->
-                <div class="bg-slate-100/70 dark:bg-slate-950/70 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 flex items-center justify-between shadow-xs">
+                <div class="bg-slate-100/80 dark:bg-slate-900/90 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 flex items-center justify-between shadow-xs">
                   <div class="text-left">
                     <p class="text-[10px] text-slate-500 dark:text-slate-400 font-extrabold uppercase tracking-wider">
                       {{ t('tutor.averageRating') }}
