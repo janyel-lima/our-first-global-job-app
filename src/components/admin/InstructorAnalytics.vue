@@ -1002,12 +1002,12 @@ const handleExportJSON = () => {
         {{ t('tutor.noMatchingCourse') }}
       </p>
       <div v-else class="space-y-4">
-        <div v-for="course in paginatedCoursesList" :key="course.id" class="p-5 bg-slate-50/80 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800 rounded-2xl space-y-3.5 shadow-2xs hover:border-slate-300 dark:hover:border-slate-700 transition-all">
+        <div v-for="course in paginatedCoursesList" :key="course.id" class="p-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl space-y-3.5 shadow-xs hover:border-slate-300 dark:hover:border-slate-700 transition-all">
           <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
             <div class="space-y-1.5 text-left">
               <div class="flex items-center gap-2.5 flex-wrap">
                 <span class="font-black text-base text-slate-900 dark:text-white leading-tight">{{ course.title }}</span>
-                <span class="px-2.5 py-0.5 bg-cyan-100 dark:bg-cyan-950/90 text-cyan-900 dark:text-cyan-200 text-[10px] font-black border border-cyan-300 dark:border-cyan-500/70 rounded-lg uppercase tracking-wider shadow-2xs">
+                <span class="px-2.5 py-0.5 bg-sky-100 dark:bg-sky-950/80 text-sky-900 dark:text-sky-300 text-[10px] font-black border border-sky-300 dark:border-sky-500/70 rounded-lg uppercase tracking-wider shadow-2xs">
                   {{ t('tutor.levelText', { level: course.level }) }}
                 </span>
               </div>
@@ -1018,16 +1018,16 @@ const handleExportJSON = () => {
               </p>
               <!-- Course progress criteria tag summary -->
               <div class="flex items-center gap-1.5 mt-2 flex-wrap">
-                <span class="text-[9.5px] px-2 py-0.5 rounded-md bg-slate-200/90 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-black uppercase tracking-wider">
+                <span class="text-[9.5px] px-2.5 py-0.5 rounded-md bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-black uppercase tracking-wider">
                   {{ t('tutor.metricsLabel') }}
                 </span>
-                <span :class="['text-[9px] px-2 py-0.5 rounded-md font-extrabold uppercase border shadow-2xs', (!course.progressConfig || course.progressConfig.requireReading) ? 'bg-emerald-100 dark:bg-emerald-950/90 border-emerald-300 dark:border-emerald-500/70 text-emerald-900 dark:text-emerald-200' : 'bg-slate-100 dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-400 dark:text-slate-600 line-through']">
+                <span :class="['text-[9.5px] px-2.5 py-0.5 rounded-md font-extrabold uppercase border shadow-2xs', (!course.progressConfig || course.progressConfig.requireReading) ? 'bg-emerald-100 dark:bg-emerald-950/80 border-emerald-300 dark:border-emerald-500/70 text-emerald-900 dark:text-emerald-300' : 'bg-slate-100 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 line-through opacity-70']">
                   {{ t('tutor.reading') }}
                 </span>
-                <span :class="['text-[9px] px-2 py-0.5 rounded-md font-extrabold uppercase border shadow-2xs', (course.progressConfig && course.progressConfig.requireVideo) ? 'bg-emerald-100 dark:bg-emerald-950/90 border-emerald-300 dark:border-emerald-500/70 text-emerald-900 dark:text-emerald-200' : 'bg-slate-100 dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-400 dark:text-slate-600 line-through']">
+                <span :class="['text-[9.5px] px-2.5 py-0.5 rounded-md font-extrabold uppercase border shadow-2xs', (course.progressConfig && course.progressConfig.requireVideo) ? 'bg-emerald-100 dark:bg-emerald-950/80 border-emerald-300 dark:border-emerald-500/70 text-emerald-900 dark:text-emerald-300' : 'bg-slate-100 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 line-through opacity-70']">
                   {{ t('tutor.video') }}
                 </span>
-                <span :class="['text-[9px] px-2 py-0.5 rounded-md font-extrabold uppercase border shadow-2xs', (course.progressConfig && course.progressConfig.requireQuiz) ? 'bg-emerald-100 dark:bg-emerald-950/90 border-emerald-300 dark:border-emerald-500/70 text-emerald-900 dark:text-emerald-200' : 'bg-slate-100 dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-400 dark:text-slate-600 line-through']">Quiz {{ course.progressConfig?.minQuizScore ? `(>= ${course.progressConfig.minQuizScore}%)` : '' }}</span>
+                <span :class="['text-[9.5px] px-2.5 py-0.5 rounded-md font-extrabold uppercase border shadow-2xs', (course.progressConfig && course.progressConfig.requireQuiz) ? 'bg-emerald-100 dark:bg-emerald-950/80 border-emerald-300 dark:border-emerald-500/70 text-emerald-900 dark:text-emerald-300' : 'bg-slate-100 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 line-through opacity-70']">Quiz {{ course.progressConfig?.minQuizScore ? `(>= ${course.progressConfig.minQuizScore}%)` : '' }}</span>
               </div>
             </div>
 
