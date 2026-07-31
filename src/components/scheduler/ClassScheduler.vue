@@ -1304,20 +1304,20 @@ const handleStudentEnter = (cl: ClassTurma) => {
             <!-- Status header -->
             <div class="flex flex-wrap items-center justify-between gap-2 mb-3 min-w-0">
               <span :class="[
-                'text-[10px] uppercase font-black tracking-wider px-2 py-0.5 rounded-full shrink-0',
-                cl.status === 'completed' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300' :
-                cl.status === 'cancelled' ? 'bg-rose-100 text-rose-800 dark:bg-rose-950/40 dark:text-rose-300' :
-                'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300'
+                'text-[10px] uppercase font-black tracking-wider px-2.5 py-0.5 rounded-full shrink-0 border border-transparent',
+                cl.status === 'completed' ? 'bg-emerald-100/90 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-200 dark:border-emerald-700/60' :
+                cl.status === 'cancelled' ? 'bg-rose-100/90 text-rose-800 dark:bg-rose-900/60 dark:text-rose-200 dark:border-rose-700/60' :
+                'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700'
                ]">
                 {{ cl.status === 'completed' ? t('scheduler.classCompleted') : cl.status === 'cancelled' ? t('scheduler.classCancelled') : t('scheduler.activeClass') }}
               </span>
               <div class="flex items-center gap-1.5 flex-wrap shrink-0">
-                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-200 border border-slate-200/80 dark:border-slate-700/80 font-mono text-[11px] font-bold shadow-2xs">
+                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-slate-100/90 dark:bg-slate-900 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-800 font-mono text-[11px] font-bold shadow-2xs">
                   <CalendarDays class="w-3 h-3 text-blue-600 dark:text-blue-400 shrink-0" />
                   <span>{{ formatDisplayDate(cl.scheduledAt) }}</span>
                 </span>
-                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950/60 text-blue-900 dark:text-blue-200 border border-blue-200 dark:border-blue-800/80 font-mono text-[11px] font-extrabold shadow-2xs">
-                  <Clock class="w-3 h-3 text-blue-600 dark:text-blue-400 shrink-0" />
+                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-blue-100/90 dark:bg-blue-900/60 text-blue-900 dark:text-blue-200 border border-blue-200/80 dark:border-blue-700/60 font-mono text-[11px] font-extrabold shadow-2xs">
+                  <Clock class="w-3 h-3 text-blue-600 dark:text-blue-300 shrink-0" />
                   <span>{{ formatDisplayTime(cl.scheduledAt) }}</span>
                 </span>
               </div>
@@ -1455,10 +1455,10 @@ const handleStudentEnter = (cl: ClassTurma) => {
               <button
                 type="button"
                 @click.stop="selectedRecordingsClass = cl"
-                class="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-indigo-50 dark:bg-indigo-950/40 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 text-indigo-800 dark:text-indigo-200 border border-indigo-200 dark:border-indigo-800/80 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-2xs shrink-0 whitespace-nowrap"
+                class="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-emerald-100/80 hover:bg-emerald-200 dark:bg-emerald-900/60 dark:hover:bg-emerald-800/80 text-emerald-900 dark:text-emerald-200 border border-emerald-200 dark:border-emerald-700/80 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-2xs shrink-0 whitespace-nowrap"
                 :title="(cl.materialsList?.length || cl.recordingUrl || cl.materialsUrl) ? (locale === 'pt' ? 'Ver Materiais & Links da Aula' : 'View Class Materials & Links') : (locale === 'pt' ? 'Anexar Materiais' : 'Attach Materials')"
               >
-                <FolderOpen class="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400 shrink-0" />
+                <FolderOpen class="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-300 shrink-0" />
                 <span class="whitespace-nowrap">{{ locale === 'pt' ? 'Materiais' : 'Materials' }}</span>
               </button>
 

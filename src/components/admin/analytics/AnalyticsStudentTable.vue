@@ -62,7 +62,7 @@
                 {{ getStudentName(report.userId) }}
               </h4>
               <p class="text-[9.5px] font-mono text-gray-400 dark:text-slate-500 leading-none mt-1">
-                ID: {{ report.userId.substring(0, 12) }}...
+                ID: {{ (report.userId || '').substring(0, 12) }}...
               </p>
             </div>
             <span v-if="report.certified" class="inline-flex items-center gap-1 text-[9.5px] font-bold bg-emerald-100 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 px-2 py-0.5 rounded-full shrink-0 select-none">
@@ -90,7 +90,7 @@
                 {{ t('tutor.thLessonsCompleted') }}
               </span>
               <span class="font-extrabold text-blue-600 dark:text-blue-400 mt-0.5 block">
-                {{ report.completedLessons.length }} check(s)
+                {{ (report.completedLessons || []).length }} check(s)
               </span>
             </div>
             <div class="p-2 bg-slate-50/80 dark:bg-slate-950/40 rounded-lg border border-slate-100 dark:border-slate-800/50">
@@ -131,12 +131,12 @@
             <tr v-for="report in paginatedReports" :key="report.id" class="border-b border-gray-250/30 dark:border-slate-800/65 text-gray-600 dark:text-slate-350 hover:bg-gray-50/50 dark:hover:bg-slate-850/30 transition-colors duration-155">
               <td class="p-4">
                 <div class="font-bold text-slate-900 dark:text-white">{{ getStudentName(report.userId) }}</div>
-                <div class="text-[9.5px] font-mono text-gray-400 dark:text-slate-500 leading-none mt-0.5">ID: {{ report.userId.substring(0, 10) }}...</div>
+                <div class="text-[9.5px] font-mono text-gray-400 dark:text-slate-500 leading-none mt-0.5">ID: {{ (report.userId || '').substring(0, 10) }}...</div>
               </td>
               <td class="p-4 font-medium text-gray-800 dark:text-slate-200">
                 {{ getCourseTitle(report.courseId) }}
               </td>
-              <td class="p-4 text-center font-bold text-blue-600 dark:text-blue-400">{{ report.completedLessons.length }} check(s)</td>
+              <td class="p-4 text-center font-bold text-blue-600 dark:text-blue-400">{{ (report.completedLessons || []).length }} check(s)</td>
               <td class="p-4">
                 <template v-if="getAverageGrade(report) !== null">
                   <span :class="[
@@ -206,11 +206,15 @@ import { Course, Progress, UserProfile } from '../../../types';
 
 const { t } = useI18n();
 
-const props = defineProps<{
-  reports: Progress[];
-  courses: Course[];
-  users: UserProfile[];
-}>();
+const props = withDefaults(defineProps<{
+  reports?: Progress[];
+  courses?: Course[];
+  users?: UserProfile[];
+}>(), {
+  reports: () => [],
+  courses: () => [],
+  users: () => []
+});
 
 const emit = defineEmits<{
   (e: 'export-xlsx'): void;
@@ -222,12 +226,13 @@ const currentPage = ref(1);
 const itemsPerPage = 8;
 
 const getStudentName = (userId: string) => {
-  const u = props.users.find(x => x.uid === userId);
+  if (!userId) return 'Estudante';
+  const u = (props.users || []).find(x => x.uid === userId);
   return u ? u.displayName : `Estudante (${userId.substring(0, 6)})`;
 };
 
 const getCourseTitle = (courseId: string) => {
-  return props.courses.find(c => c.id === courseId)?.title || 'Manual Course';
+  return (props.courses || []).find(c => c.id === courseId)?.title || 'Manual Course';
 };
 
 const getAverageGrade = (report: Progress): number | null => {
@@ -238,12 +243,13 @@ const getAverageGrade = (report: Progress): number | null => {
 };
 
 const filteredReports = computed(() => {
+  const list = props.reports || [];
   const q = searchQuery.value.toLowerCase().trim();
-  if (!q) return props.reports;
-  return props.reports.filter(r => {
-    const sName = getStudentName(r.userId).toLowerCase();
-    const cTitle = getCourseTitle(r.courseId).toLowerCase();
-    return sName.includes(q) || cTitle.includes(q) || r.userId.toLowerCase().includes(q);
+  if (!q) return list;
+  return list.filter(r => {
+    const sName = getStudentName(r.userId || '').toLowerCase();
+    const cTitle = getCourseTitle(r.courseId || '').toLowerCase();
+    return sName.includes(q) || cTitle.includes(q) || (r.userId || '').toLowerCase().includes(q);
   });
 });
 

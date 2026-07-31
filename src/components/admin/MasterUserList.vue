@@ -404,14 +404,14 @@ const copyToClipboard = (text: string) => {
             <button
               type="button"
               @click="exportTeachersXLSX"
-              class="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/40 text-[10.5px] font-black rounded-xl transition duration-150 flex items-center gap-1 cursor-pointer"
+              class="px-3 py-1.5 bg-emerald-100/90 hover:bg-emerald-200 dark:bg-emerald-900/60 dark:hover:bg-emerald-800/80 text-emerald-800 dark:text-emerald-200 border border-emerald-200 dark:border-emerald-700/60 text-[10.5px] font-black rounded-xl transition duration-150 flex items-center gap-1 cursor-pointer"
             >
               <Download class="w-3.5 h-3.5" /> {{ t('master.exportXlsxLabel') }}
             </button>
             <button
               type="button"
               @click="exportTeachersJSON"
-              class="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/30 text-indigo-700 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/40 text-[10.5px] font-black rounded-xl transition duration-150 flex items-center gap-1 cursor-pointer"
+              class="px-3 py-1.5 bg-indigo-100/90 hover:bg-indigo-200 dark:bg-indigo-900/60 dark:hover:bg-indigo-800/80 text-indigo-800 dark:text-indigo-200 border border-indigo-200 dark:border-indigo-700/60 text-[10.5px] font-black rounded-xl transition duration-150 flex items-center gap-1 cursor-pointer"
             >
               <Download class="w-3.5 h-3.5" /> {{ t('master.exportJsonLabel') }}
             </button>
@@ -498,7 +498,12 @@ const copyToClipboard = (text: string) => {
                   </div>
                 </td>
                 <td class="p-4">
-                  <span class="px-2 py-0.5 rounded bg-blue-50 dark:bg-slate-850 text-blue-700 dark:text-blue-300 font-bold uppercase text-[9px] tracking-wider border border-transparent dark:border-slate-800">
+                  <span :class="[
+                    'px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border',
+                    (user.level || '').toLowerCase().includes('beginn') ? 'bg-blue-100/80 text-blue-800 dark:bg-blue-900/60 dark:text-blue-200 border-blue-200 dark:border-blue-700/60' :
+                    (user.level || '').toLowerCase().includes('intermed') ? 'bg-amber-100/80 text-amber-800 dark:bg-amber-900/60 dark:text-amber-200 border-amber-200 dark:border-amber-700/60' :
+                    'bg-emerald-100/80 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-200 border-emerald-200 dark:border-emerald-700/60'
+                  ]">
                     {{ user.level || 'Beginner' }}
                   </span>
                 </td>
@@ -506,13 +511,13 @@ const copyToClipboard = (text: string) => {
                   <div class="flex items-center gap-1.5">
                     <span 
                       v-if="user.isInstructor" 
-                      class="inline-flex items-center gap-1 text-[10px] font-black text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-slate-800 border border-indigo-100 dark:border-slate-800 px-2 py-0.5 rounded"
+                      class="inline-flex items-center gap-1 text-[10px] font-black text-indigo-800 dark:text-indigo-200 bg-indigo-100/80 dark:bg-indigo-900/60 border border-indigo-200 dark:border-indigo-700/60 px-2 py-0.5 rounded"
                     >
                       🧑‍🏫 {{ t('master.volunteerTeacher') }}
                     </span>
                     <span 
                       v-else 
-                      class="inline-flex items-center gap-1 text-[10px] font-bold text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-slate-850 border border-gray-150 dark:border-slate-800 px-2 py-0.5 rounded"
+                      class="inline-flex items-center gap-1 text-[10px] font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2 py-0.5 rounded"
                     >
                       🎓 {{ t('master.studentMember') }}
                     </span>
@@ -555,7 +560,12 @@ const copyToClipboard = (text: string) => {
             <div class="flex items-center justify-between pt-2 border-t border-gray-250/20 dark:border-slate-800/40">
               <div class="space-y-1">
                 <span class="block text-[9px] uppercase font-bold text-gray-400 dark:text-gray-500">Nível</span>
-                <span class="block px-2 py-0.5 rounded bg-blue-50 dark:bg-slate-850 text-blue-700 dark:text-blue-300 font-bold uppercase text-[9px] tracking-wider border border-transparent dark:border-slate-800">
+                <span :class="[
+                  'block px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border',
+                  (user.level || '').toLowerCase().includes('beginn') ? 'bg-blue-100/80 text-blue-800 dark:bg-blue-900/60 dark:text-blue-200 border-blue-200 dark:border-blue-700/60' :
+                  (user.level || '').toLowerCase().includes('intermed') ? 'bg-amber-100/80 text-amber-800 dark:bg-amber-900/60 dark:text-amber-200 border-amber-200 dark:border-amber-700/60' :
+                  'bg-emerald-100/80 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-200 border-emerald-200 dark:border-emerald-700/60'
+                ]">
                   {{ user.level || 'Beginner' }}
                 </span>
               </div>
@@ -563,13 +573,13 @@ const copyToClipboard = (text: string) => {
                 <span class="block text-[9px] uppercase font-bold text-gray-400 dark:text-gray-500">Função</span>
                 <span 
                   v-if="user.isInstructor" 
-                  class="inline-flex items-center gap-1 text-[9.5px] font-black text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-slate-800 border border-indigo-100 dark:border-slate-800 px-1.5 py-0.5 rounded"
+                  class="inline-flex items-center gap-1 text-[9.5px] font-black text-indigo-800 dark:text-indigo-200 bg-indigo-100/80 dark:bg-indigo-900/60 border border-indigo-200 dark:border-indigo-700/60 px-1.5 py-0.5 rounded"
                 >
                   🧑‍🏫 {{ t('master.volunteerTeacher') }}
                 </span>
                 <span 
                   v-else 
-                  class="inline-flex items-center gap-1 text-[9.5px] font-bold text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-slate-850 border border-gray-150 dark:border-slate-800 px-1.5 py-0.5 rounded"
+                  class="inline-flex items-center gap-1 text-[9.5px] font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-1.5 py-0.5 rounded"
                 >
                   🎓 {{ t('master.studentMember') }}
                 </span>

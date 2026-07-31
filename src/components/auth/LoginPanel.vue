@@ -129,11 +129,11 @@ const handleGoogleLogin = () => {
 </script>
 
 <template>
-  <div id="login-panel" class="max-w-md w-full bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 sm:p-8 shadow-xl space-y-6 text-center animate-fadeIn">
+  <div id="login-panel" class="max-w-md w-full bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/90 dark:border-slate-800 p-6 sm:p-8 shadow-2xl space-y-6 text-center animate-fadeIn">
     
     <!-- Top Header -->
     <div class="space-y-3">
-      <div class="inline-flex p-2 bg-blue-50/50 dark:bg-slate-800/40 rounded-2xl mx-auto">
+      <div class="inline-flex p-2 bg-blue-50/70 dark:bg-slate-800/40 rounded-2xl mx-auto border border-blue-100/60 dark:border-slate-800">
         <img 
           src="/icon-login.svg" 
           alt="Our First Global Job Logo" 
@@ -142,7 +142,7 @@ const handleGoogleLogin = () => {
       </div>
       <div class="space-y-1">
         <h1 class="text-2xl sm:text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight leading-none">{{ t('auth.title') }}</h1>
-        <p class="text-slate-500 dark:text-slate-400 text-xs max-w-sm mx-auto leading-relaxed font-semibold">
+        <p class="text-slate-600 dark:text-slate-400 text-xs max-w-sm mx-auto leading-relaxed font-semibold">
           {{ t('auth.subtitle') }}
         </p>
       </div>
@@ -152,14 +152,14 @@ const handleGoogleLogin = () => {
     <div class="space-y-4">
       
       <!-- Selection Tabs: Entrar vs Criar Conta -->
-      <div class="bg-slate-100 dark:bg-slate-950 p-1 rounded-xl grid grid-cols-2 gap-1 border border-transparent dark:border-slate-800">
+      <div class="bg-slate-100 dark:bg-slate-950 p-1 rounded-xl grid grid-cols-2 gap-1 border border-slate-200/80 dark:border-slate-800 shadow-2xs">
         <button
           type="button"
           @click="activeSubTab = 'login'; localError = ''"
           :class="[
             'py-2 text-xs font-black rounded-lg transition-all cursor-pointer',
             activeSubTab === 'login' 
-              ? 'bg-white dark:bg-slate-800 text-blue-600 dark:text-white shadow-xs' 
+              ? 'bg-white dark:bg-slate-800 text-blue-600 dark:text-white shadow-xs border border-slate-200/60 dark:border-slate-700/60' 
               : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'
           ]"
         >
@@ -171,7 +171,7 @@ const handleGoogleLogin = () => {
           :class="[
             'py-2 text-xs font-black rounded-lg transition-all cursor-pointer',
             activeSubTab === 'register' 
-              ? 'bg-white dark:bg-slate-800 text-blue-600 dark:text-white shadow-xs' 
+              ? 'bg-white dark:bg-slate-800 text-blue-600 dark:text-white shadow-xs border border-slate-200/60 dark:border-slate-700/60' 
               : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'
           ]"
         >
@@ -183,7 +183,7 @@ const handleGoogleLogin = () => {
       <div v-if="activeSubTab === 'login'" class="space-y-4 text-left animate-fadeIn">
         <form @submit.prevent="handleUserLogin" class="space-y-3 pt-1">
           <div>
-            <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Seu E-mail</label>
+            <label class="block text-[10px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">Seu E-mail</label>
             <div class="relative">
               <Mail class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
               <input 
@@ -191,13 +191,13 @@ const handleGoogleLogin = () => {
                 required
                 v-model="userEmail"
                 placeholder="nome@email.com"
-                class="w-full text-xs bg-slate-50 dark:bg-slate-950 dark:text-white border border-slate-200 dark:border-slate-850 rounded-xl p-3 pl-10 focus:bg-white dark:focus:bg-slate-900 focus:outline-hidden font-medium text-slate-900"
+                class="w-full text-xs bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white border border-slate-300/80 dark:border-slate-800 rounded-xl p-3 pl-10 focus:bg-white dark:focus:bg-slate-900 focus:border-blue-500 focus:outline-hidden font-semibold placeholder:text-slate-400 shadow-2xs"
               />
             </div>
           </div>
 
           <div>
-            <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Sua Senha</label>
+            <label class="block text-[10px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">Sua Senha</label>
             <div class="relative">
               <Lock class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
               <input 
@@ -205,7 +205,7 @@ const handleGoogleLogin = () => {
                 required
                 v-model="userPassword"
                 placeholder="Sua senha de acesso"
-                class="w-full text-xs bg-slate-50 dark:bg-slate-950 dark:text-white border border-slate-200 dark:border-slate-850 rounded-xl p-3 pl-10 pr-10 focus:bg-white dark:focus:bg-slate-900 focus:outline-hidden font-medium text-slate-900"
+                class="w-full text-xs bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white border border-slate-300/80 dark:border-slate-800 rounded-xl p-3 pl-10 pr-10 focus:bg-white dark:focus:bg-slate-900 focus:border-blue-500 focus:outline-hidden font-semibold placeholder:text-slate-400 shadow-2xs"
               />
               <button
                 type="button"
@@ -226,7 +226,7 @@ const handleGoogleLogin = () => {
           <button
             type="submit"
             :disabled="isLoading"
-            class="w-full py-3 text-white font-extrabold text-xs sm:text-sm rounded-xl transition-all cursor-pointer flex items-center justify-center gap-2 hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
+            class="w-full py-3 text-white font-extrabold text-xs sm:text-sm rounded-xl transition-all cursor-pointer flex items-center justify-center gap-2 hover:opacity-90 active:scale-[0.99] shadow-md disabled:opacity-40 disabled:cursor-not-allowed"
             style="background-color: var(--primary-color) !important; color: #ffffff !important;"
           >
             <span v-if="isLoading" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
@@ -235,16 +235,16 @@ const handleGoogleLogin = () => {
         </form>
 
         <div class="relative flex py-2 items-center">
-          <div class="flex-grow border-t border-slate-100 dark:border-slate-800"></div>
-          <span class="flex-shrink mx-4 text-slate-400 dark:text-slate-500 text-[10px] font-bold uppercase tracking-wider">ou entre com</span>
-          <div class="flex-grow border-t border-slate-100 dark:border-slate-800"></div>
+          <div class="flex-grow border-t border-slate-200 dark:border-slate-800"></div>
+          <span class="flex-shrink mx-4 text-slate-500 dark:text-slate-400 text-[10px] font-black uppercase tracking-wider">ou entre com</span>
+          <div class="flex-grow border-t border-slate-200 dark:border-slate-800"></div>
         </div>
 
         <button
           id="btn-login-google"
           @click="handleGoogleLogin"
           :disabled="isLoading"
-          class="w-full py-3 px-4 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-750 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 font-bold text-xs sm:text-sm rounded-2xl transition-all shadow-xs active:scale-95 flex items-center justify-center gap-3 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+          class="w-full py-3 px-4 bg-slate-50 dark:bg-slate-800 hover:bg-white dark:hover:bg-slate-750 text-slate-800 dark:text-slate-100 border border-slate-300/80 dark:border-slate-700 font-bold text-xs sm:text-sm rounded-2xl transition-all shadow-xs active:scale-95 flex items-center justify-center gap-3 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
         >
           <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -260,7 +260,7 @@ const handleGoogleLogin = () => {
       <div v-else class="space-y-4 text-left animate-fadeIn">
         <form @submit.prevent="handleUserSignUp" class="space-y-3.5 pt-1">
           <div>
-            <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Nome Completo</label>
+            <label class="block text-[10px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">Nome Completo</label>
             <div class="relative">
               <User class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
               <input 
@@ -268,13 +268,13 @@ const handleGoogleLogin = () => {
                 required
                 v-model="userName"
                 placeholder="Como quer ser chamado(a)"
-                class="w-full text-xs bg-slate-50 dark:bg-slate-950 dark:text-white border border-slate-200 dark:border-slate-850 rounded-xl p-3 pl-10 focus:bg-white dark:focus:bg-slate-900 focus:outline-hidden font-medium text-slate-900"
+                class="w-full text-xs bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white border border-slate-300/80 dark:border-slate-800 rounded-xl p-3 pl-10 focus:bg-white dark:focus:bg-slate-900 focus:border-blue-500 focus:outline-hidden font-semibold placeholder:text-slate-400 shadow-2xs"
               />
             </div>
           </div>
 
           <div>
-            <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">E-mail para Acesso</label>
+            <label class="block text-[10px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">E-mail para Acesso</label>
             <div class="relative">
               <Mail class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
               <input 
@@ -282,16 +282,16 @@ const handleGoogleLogin = () => {
                 required
                 v-model="userEmail"
                 placeholder="seuemail@exemplo.com"
-                class="w-full text-xs bg-slate-50 dark:bg-slate-950 dark:text-white border border-slate-200 dark:border-slate-850 rounded-xl p-3 pl-10 focus:bg-white dark:focus:bg-slate-900 focus:outline-hidden font-medium text-slate-900"
+                class="w-full text-xs bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white border border-slate-300/80 dark:border-slate-800 rounded-xl p-3 pl-10 focus:bg-white dark:focus:bg-slate-900 focus:border-blue-500 focus:outline-hidden font-semibold placeholder:text-slate-400 shadow-2xs"
               />
             </div>
           </div>
 
           <div>
             <div class="flex justify-between items-center mb-1 select-none">
-              <label class="block text-[10px] font-bold text-gray-500 uppercase">Definir Senha de Acesso</label>
+              <label class="block text-[10px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-wider">Definir Senha de Acesso</label>
               <div v-if="userPassword" class="text-[10px] font-bold flex items-center gap-1">
-                <span>Força:</span>
+                <span class="text-slate-500 dark:text-slate-400">Força:</span>
                 <span :class="passStrengthLabel.color" class="font-extrabold">{{ passStrengthLabel.text }}</span>
               </div>
             </div>
@@ -302,7 +302,7 @@ const handleGoogleLogin = () => {
                 required
                 v-model="userPassword"
                 placeholder="Ex: P@ssword123"
-                class="w-full text-xs bg-slate-50 dark:bg-slate-950 dark:text-white border border-slate-200 dark:border-slate-850 rounded-xl p-3 pl-10 pr-10 focus:bg-white dark:focus:bg-slate-900 focus:outline-hidden font-medium text-slate-900"
+                class="w-full text-xs bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white border border-slate-300/80 dark:border-slate-800 rounded-xl p-3 pl-10 pr-10 focus:bg-white dark:focus:bg-slate-900 focus:border-blue-500 focus:outline-hidden font-semibold placeholder:text-slate-400 shadow-2xs"
               />
               <button
                 type="button"
@@ -316,7 +316,7 @@ const handleGoogleLogin = () => {
             </div>
 
             <!-- Password strength progress bar -->
-            <div class="w-full bg-slate-100 dark:bg-slate-850 h-1.5 rounded-full overflow-hidden mb-3">
+            <div class="w-full bg-slate-200/80 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden mb-3">
               <div 
                 class="h-full transition-all duration-300"
                 :class="passStrengthLabel.barBg"
@@ -325,8 +325,8 @@ const handleGoogleLogin = () => {
             </div>
 
             <!-- Dynamic Password Criteria Checklist -->
-            <div class="p-3 bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-155 dark:border-slate-850/60 space-y-2 select-none text-[10.5px]">
-              <span class="text-[9.5px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider block mb-1">Critérios de Segurança Obrigatórios:</span>
+            <div class="p-3 bg-slate-50/90 dark:bg-slate-950/80 rounded-xl border border-slate-200 dark:border-slate-800 space-y-2 select-none text-[10.5px]">
+              <span class="text-[9.5px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-1">Critérios de Segurança Obrigatórios:</span>
               <div class="grid grid-cols-2 gap-x-2 gap-y-1 text-slate-600 dark:text-slate-400 font-medium">
                 <div class="flex items-center gap-1.5">
                   <Check v-if="passMinLength" class="w-3.5 h-3.5 text-emerald-500 shrink-0" />
@@ -358,7 +358,7 @@ const handleGoogleLogin = () => {
 
             <!-- Confirmar Senha de Acesso -->
             <div class="mt-3.5">
-              <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Confirmar Senha de Acesso</label>
+              <label class="block text-[10px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">Confirmar Senha de Acesso</label>
               <div class="relative">
                 <Lock class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                 <input 
@@ -366,7 +366,7 @@ const handleGoogleLogin = () => {
                   required
                   v-model="userConfirmPassword"
                   placeholder="Repita a senha informada acima"
-                  class="w-full text-xs bg-slate-50 dark:bg-slate-950 dark:text-white border border-slate-200 dark:border-slate-850 rounded-xl p-3 pl-10 pr-10 focus:bg-white dark:focus:bg-slate-900 focus:outline-hidden font-medium text-slate-900"
+                  class="w-full text-xs bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white border border-slate-300/80 dark:border-slate-800 rounded-xl p-3 pl-10 pr-10 focus:bg-white dark:focus:bg-slate-900 focus:border-blue-500 focus:outline-hidden font-semibold placeholder:text-slate-400 shadow-2xs"
                 />
                 <button
                   type="button"
@@ -390,15 +390,15 @@ const handleGoogleLogin = () => {
           </div>
 
           <!-- LGPD Terms block -->
-          <div class="p-3.5 bg-slate-100 border border-slate-200 rounded-xl space-y-2 shadow-xs">
+          <div class="p-3.5 bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 rounded-xl space-y-2 shadow-2xs">
             <div class="flex items-start gap-2.5">
               <FileText class="w-4 h-4 shrink-0 mt-0.5" style="color: var(--primary-color);" />
-              <div class="text-[11px] leading-relaxed text-slate-800">
-                <span class="font-extrabold text-slate-900 block text-sm">LGPD & Privacidade de Dados v1.0</span>
+              <div class="text-[11px] leading-relaxed text-slate-700 dark:text-slate-300">
+                <span class="font-extrabold text-slate-900 dark:text-slate-100 block text-sm">LGPD & Privacidade de Dados v1.0</span>
                 Para o voluntariado comunitário, seus dados (nome, e-mail, progresso nos cursos e diálogos de estudo) serão armazenados com fins puramente pedagógicos. Nós não vendemos seus contatos nem repassamos dados para terceiros. Você pode, a qualquer tempo, deletar seu perfil do sistema definitivamente.
               </div>
             </div>
-            <div class="flex justify-between items-center pt-2 border-t border-slate-200">
+            <div class="flex justify-between items-center pt-2 border-t border-slate-200/80 dark:border-slate-800">
               <button 
                 type="button" 
                 @click="openLgpdModal" 
@@ -412,14 +412,14 @@ const handleGoogleLogin = () => {
           </div>
 
           <!-- Consent Checkbox -->
-          <div class="flex items-start gap-2.5 select-none bg-slate-100 rounded-xl border border-slate-200 p-3 shadow-xs">
+          <div class="flex items-start gap-2.5 select-none bg-slate-50 dark:bg-slate-950/70 rounded-xl border border-slate-200 dark:border-slate-800 p-3 shadow-2xs">
             <input 
               id="chk-lgpd-accept"
               type="checkbox"
               v-model="userLgpdAccepted"
-              class="mt-1 w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded cursor-pointer shrink-0"
+              class="mt-1 w-4 h-4 text-blue-600 focus:ring-blue-500 border-slate-300 dark:border-slate-700 rounded cursor-pointer shrink-0"
             />
-            <label for="chk-lgpd-accept" class="text-[11px] font-bold text-slate-800 leading-relaxed cursor-pointer">
+            <label for="chk-lgpd-accept" class="text-[11px] font-bold text-slate-800 dark:text-slate-200 leading-relaxed cursor-pointer">
               Declaro que li e concordo com os Termos de Voluntariado Pedagógico e a coleta descrita em acordo com as normas da LGPD. *
             </label>
           </div>
@@ -431,7 +431,7 @@ const handleGoogleLogin = () => {
           <button
             type="submit"
             :disabled="isLoading || !userLgpdAccepted"
-            class="w-full py-3 text-white font-extrabold text-xs sm:text-sm rounded-xl transition-all cursor-pointer flex items-center justify-center gap-2 hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
+            class="w-full py-3 text-white font-extrabold text-xs sm:text-sm rounded-xl transition-all cursor-pointer flex items-center justify-center gap-2 hover:opacity-90 active:scale-[0.99] shadow-md disabled:opacity-40 disabled:cursor-not-allowed"
             style="background-color: var(--primary-color) !important; color: #ffffff !important;"
           >
             <span v-if="isLoading" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
@@ -443,7 +443,7 @@ const handleGoogleLogin = () => {
     </div>
 
     <!-- Bottom label -->
-    <div class="pt-2 text-[11px] text-slate-400 dark:text-slate-500 font-semibold select-none border-t border-slate-100 dark:border-slate-800 pt-3">
+    <div class="pt-2 text-[11px] text-slate-400 dark:text-slate-500 font-semibold select-none border-t border-slate-200 dark:border-slate-800 pt-3">
        Our First Global Job · Plataforma de Voluntariado Pedagógico
     </div>
 

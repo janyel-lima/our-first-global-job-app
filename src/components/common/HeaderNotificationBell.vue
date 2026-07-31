@@ -103,10 +103,10 @@
               :key="item.id"
               @click="handleAlertClick(item)"
               :class="[
-                'p-3 rounded-2xl border transition-all cursor-pointer relative hover:scale-[1.01]',
+                'p-3.5 rounded-2xl border transition-all cursor-pointer relative hover:scale-[1.01]',
                 item.read 
-                  ? 'bg-slate-50/80 dark:bg-slate-900/40 border-slate-200 dark:border-slate-800/70 text-slate-600 dark:text-slate-400'
-                  : 'bg-indigo-50/90 dark:bg-slate-900 border-indigo-300 dark:border-indigo-800 text-slate-900 dark:text-slate-100 shadow-xs'
+                  ? 'bg-slate-100/80 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800/80 text-slate-700 dark:text-slate-300'
+                  : 'bg-indigo-100/50 dark:bg-slate-900 border-indigo-300 dark:border-indigo-800/90 text-slate-900 dark:text-slate-100 shadow-xs'
               ]"
             >
               <div class="flex items-start justify-between gap-2">
@@ -114,51 +114,51 @@
                   <!-- Type Badge Tags -->
                   <span
                     v-if="item.type === '15m'"
-                    class="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-rose-100 dark:bg-rose-950/90 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800 flex items-center gap-1"
+                    class="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-rose-500/15 dark:bg-rose-950/90 text-rose-700 dark:text-rose-300 border border-rose-300/80 dark:border-rose-800 flex items-center gap-1"
                   >
                     <span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping"></span>
                     15 min
                   </span>
                   <span
                     v-else-if="item.type === '60m'"
-                    class="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-amber-100 dark:bg-amber-950/90 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800 flex items-center gap-1"
+                    class="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-amber-500/15 dark:bg-amber-950/90 text-amber-800 dark:text-amber-300 border border-amber-300/80 dark:border-amber-800 flex items-center gap-1"
                   >
                     <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
                     1 hora
                   </span>
                   <span
                     v-else-if="item.type === 'announcement_important'"
-                    class="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-rose-100 dark:bg-rose-950/90 text-rose-800 dark:text-rose-200 border border-rose-300 dark:border-rose-800 flex items-center gap-1"
+                    class="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-rose-500/15 dark:bg-rose-950/90 text-rose-800 dark:text-rose-200 border border-rose-300/80 dark:border-rose-800 flex items-center gap-1"
                   >
                     🚨 {{ item.tag || 'Aviso' }}
                   </span>
                   <span
                     v-else-if="item.type === 'announcement_class'"
-                    class="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-blue-100 dark:bg-blue-950/90 text-blue-800 dark:text-blue-200 border border-blue-300 dark:border-blue-800 flex items-center gap-1"
+                    class="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-blue-500/15 dark:bg-blue-950/90 text-blue-800 dark:text-blue-200 border border-blue-300/80 dark:border-blue-800 flex items-center gap-1"
                   >
                     🎓 {{ item.tag || 'Nova Turma' }}
                   </span>
                   <span
                     v-else-if="item.type === 'announcement_event'"
-                    class="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-purple-100 dark:bg-purple-950/90 text-purple-800 dark:text-purple-200 border border-purple-300 dark:border-purple-800 flex items-center gap-1"
+                    class="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-purple-500/15 dark:bg-purple-950/90 text-purple-800 dark:text-purple-200 border border-purple-300/80 dark:border-purple-800 flex items-center gap-1"
                   >
                     📅 {{ item.tag || 'Evento' }}
                   </span>
                   <span
                     v-else-if="item.type === 'announcement_tip'"
-                    class="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-emerald-100 dark:bg-emerald-950/90 text-emerald-800 dark:text-emerald-200 border border-emerald-300 dark:border-emerald-800 flex items-center gap-1"
+                    class="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-emerald-500/15 dark:bg-emerald-950/90 text-emerald-800 dark:text-emerald-200 border border-emerald-300/80 dark:border-emerald-800 flex items-center gap-1"
                   >
                     💡 {{ item.tag || 'Dica' }}
                   </span>
                   <span
                     v-else-if="item.type === 'announcement_general' || item.category === 'announcement'"
-                    class="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 flex items-center gap-1"
+                    class="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-slate-200/80 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 flex items-center gap-1"
                   >
                     📢 {{ item.tag || 'Comunicado' }}
                   </span>
                   <span
                     v-else-if="item.type === 'chat_message' || item.category === 'chat'"
-                    class="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-sky-100 dark:bg-sky-950/90 text-sky-800 dark:text-sky-300 border border-sky-300 dark:border-sky-800 flex items-center gap-1"
+                    class="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-sky-500/15 dark:bg-sky-950/90 text-sky-800 dark:text-sky-300 border border-sky-300/80 dark:border-sky-800 flex items-center gap-1"
                   >
                     💬 Chat
                   </span>
@@ -167,9 +167,9 @@
                     {{ item.title }}
                   </span>
                 </div>
-                <span class="text-[9px] font-mono font-semibold text-slate-400 dark:text-slate-500 shrink-0">{{ item.timestamp }}</span>
+                <span class="text-[10px] font-mono font-bold text-slate-500 dark:text-slate-400 shrink-0">{{ item.timestamp }}</span>
               </div>
-              <p class="text-[11px] font-medium mt-1.5 text-slate-700 dark:text-slate-300 leading-snug">
+              <p class="text-xs font-medium mt-1.5 text-slate-800 dark:text-slate-200 leading-snug">
                 {{ item.message }}
               </p>
               <div class="mt-2.5 flex items-center justify-between text-[10px]">

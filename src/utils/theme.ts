@@ -19,7 +19,7 @@ export function getAlmostWhiteVariant(hex: string, isDark: boolean = false): str
     g = parseInt(raw.charAt(1) + raw.charAt(1), 16);
     b = parseInt(raw.charAt(2) + raw.charAt(2), 16);
   } else {
-    return isDark ? "#0f172a" : "#f8fafc";
+    return isDark ? "#0f172a" : "#f1f5f9";
   }
 
   r /= 255; g /= 255; b /= 255;
@@ -37,7 +37,7 @@ export function getAlmostWhiteVariant(hex: string, isDark: boolean = false): str
     h /= 6;
   }
 
-  const targetL = isDark ? 0.08 : 0.95;
+  const targetL = isDark ? 0.08 : 0.93;
   const targetS = Math.min(s + 0.1, 0.4);
 
   const hue2rgb = (p: number, q: number, t: number) => {

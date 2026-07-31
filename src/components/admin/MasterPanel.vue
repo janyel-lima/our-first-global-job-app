@@ -292,7 +292,7 @@ onMounted(() => {
           <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
             {{ t('master.panel.registeredAccounts') }}
           </p>
-          <span class="p-1.5 bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400 rounded-lg">
+          <span class="p-2 bg-blue-100/80 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 rounded-xl border border-blue-200/50 dark:border-blue-700/60">
             <Users class="w-5 h-5" />
           </span>
         </div>
@@ -307,7 +307,7 @@ onMounted(() => {
           <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
             {{ t('master.panel.courseCatalog') }}
           </p>
-          <span class="p-1.5 bg-indigo-50 dark:bg-indigo-955/30 text-indigo-600 dark:text-indigo-400 rounded-lg">
+          <span class="p-2 bg-indigo-100/80 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 rounded-xl border border-indigo-200/50 dark:border-indigo-700/60">
             <BookOpen class="w-5 h-5" />
           </span>
         </div>
@@ -322,7 +322,7 @@ onMounted(() => {
           <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
             {{ t('master.panel.activePracticeClasses') }}
           </p>
-          <span class="p-1.5 bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400 rounded-lg">
+          <span class="p-2 bg-amber-100/80 dark:bg-amber-900/60 text-amber-700 dark:text-amber-300 rounded-xl border border-amber-200/50 dark:border-amber-700/60">
             <Calendar class="w-5 h-5" />
           </span>
         </div>
@@ -337,7 +337,7 @@ onMounted(() => {
           <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
             {{ t('master.panel.validCertificates') }}
           </p>
-          <span class="p-1.5 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 rounded-lg">
+          <span class="p-2 bg-emerald-100/80 dark:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 rounded-xl border border-emerald-200/50 dark:border-emerald-700/60">
             <Award class="w-5 h-5" />
           </span>
         </div>
@@ -496,9 +496,9 @@ onMounted(() => {
               :key="rec.id" 
               class="p-3 rounded-xl border flex gap-2 text-left leading-snug"
               :class="[
-                rec.type === 'warning' ? 'bg-amber-50 border-amber-200 text-amber-900 dark:bg-amber-950/20 dark:border-amber-900/40 dark:text-amber-300' :
-                rec.type === 'success' ? 'bg-emerald-50 border-emerald-200 text-emerald-900 dark:bg-emerald-950/20 dark:border-emerald-900/40 dark:text-emerald-300' :
-                'bg-blue-50 border-blue-200 text-blue-900 dark:bg-blue-950/20 dark:border-blue-900/40 dark:text-blue-300'
+                rec.type === 'warning' ? 'bg-amber-100/80 border-amber-200 text-amber-900 dark:bg-amber-950/60 dark:border-amber-800/80 dark:text-amber-200' :
+                rec.type === 'success' ? 'bg-emerald-100/80 border-emerald-200 text-emerald-900 dark:bg-emerald-950/60 dark:border-emerald-800/80 dark:text-emerald-200' :
+                'bg-blue-100/80 border-blue-200 text-blue-900 dark:bg-blue-950/60 dark:border-blue-800/80 dark:text-blue-200'
               ]"
             >
               <span class="shrink-0 mt-0.5">

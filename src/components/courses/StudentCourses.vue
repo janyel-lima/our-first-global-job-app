@@ -283,11 +283,11 @@ const paginatedCourses = computed(() => {
           <div class="space-y-2.5">
             <div class="flex items-center justify-between gap-2">
               <span :class="[
-                'px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider',
-                course.level === 'Beginner' ? 'bg-blue-100 text-blue-800 dark:bg-blue-950/40 dark:text-blue-300'
-                  : (course.level === 'Intermediate' ? 'bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300' 
-                    : (course.level === 'Advanced' ? 'bg-indigo-100 text-indigo-850 dark:bg-indigo-950/40 dark:text-indigo-300' 
-                      : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300'))
+                'px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider border border-transparent',
+                (course.level || '').toLowerCase().includes('beginn') ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/60 dark:text-blue-200 dark:border-blue-700/60'
+                  : ((course.level || '').toLowerCase().includes('intermed') ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-200 dark:border-amber-700/60' 
+                    : ((course.level || '').toLowerCase().includes('advanc') ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-200 dark:border-emerald-700/60' 
+                      : 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/60 dark:text-indigo-200 dark:border-indigo-700/60'))
               ]">
                 {{ course.level === 'All' ? (locale === 'pt' ? 'Todos os Níveis' : 'All Levels') : t('courses.level', { level: course.level }) }}
               </span>
