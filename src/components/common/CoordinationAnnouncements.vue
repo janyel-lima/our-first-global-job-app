@@ -127,8 +127,8 @@
         :key="item.id"
         :class="[
           'p-4 rounded-xl border transition-all relative',
-          item.isPinned 
-            ? 'bg-amber-50/60 dark:bg-amber-950/30 border-amber-300 dark:border-amber-700/80 shadow-2xs' 
+          item.isPinned
+            ? 'bg-amber-50/60 dark:bg-amber-950/30 border-amber-300 dark:border-amber-700/80 shadow-2xs'
             : 'bg-slate-50/70 dark:bg-slate-900/60 border-slate-200/80 dark:border-slate-800/80'
         ]"
       >
@@ -178,9 +178,28 @@
         <h3 class="text-xs sm:text-sm font-black text-slate-900 dark:text-white leading-snug mb-1">
           {{ item.title }}
         </h3>
-        <p class="text-xs text-slate-700 dark:text-slate-300 whitespace-pre-wrap leading-relaxed">
-          {{ item.content }}
-        </p>
+
+        <div class="text-xs text-slate-700 dark:text-slate-300 leading-relaxed space-y-1">
+          <MarkdownRenderer
+            :content="expandedIds[item.id] || item.content.length <= 180 ? item.content : item.content.slice(0, 180) + '...'"
+          />
+          <div v-if="item.content.length > 180" class="pt-1 flex items-center justify-start">
+            <button
+              type="button"
+              @click="toggleExpand(item.id)"
+              class="inline-flex items-center gap-1.5 text-[11px] font-black text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 px-2 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800/80 hover:underline cursor-pointer transition-all shadow-2xs"
+            >
+              <span v-if="!expandedIds[item.id]" class="flex items-center gap-1">
+                <span>Ver mais</span>
+                <ChevronDown class="w-3.5 h-3.5" />
+              </span>
+              <span v-else class="flex items-center gap-1">
+                <span>Ver menos</span>
+                <ChevronUp class="w-3.5 h-3.5" />
+              </span>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -264,16 +283,123 @@
           </div>
 
           <div>
-            <label class="block text-[10px] font-extrabold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1">
-              {{ t('announcements.contentField') }} *
-            </label>
-            <textarea
-              v-model="formContent"
-              required
-              rows="4"
-              :placeholder="t('announcements.contentPlaceholder')"
-              class="w-full text-xs bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-slate-900 dark:text-white focus:outline-hidden"
-            ></textarea>
+            <div class="flex items-center justify-between mb-1">
+              <label class="block text-[10px] font-extrabold uppercase tracking-wider text-slate-600 dark:text-slate-300">
+                {{ t('announcements.contentField') }} *
+              </label>
+              <!-- Tab Mode: Write vs Preview -->
+              <div class="flex items-center p-0.5 bg-slate-100 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 text-[10px] font-bold">
+                <button
+                  type="button"
+                  @click="editorTab = 'write'"
+                  :class="[
+                    'px-2 py-0.5 rounded-md transition-all cursor-pointer',
+                    editorTab === 'write' ? 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-2xs font-extrabold' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+                  ]"
+                >
+                  ✍️ Editor
+                </button>
+                <button
+                  type="button"
+                  @click="editorTab = 'preview'"
+                  :class="[
+                    'px-2 py-0.5 rounded-md transition-all cursor-pointer',
+                    editorTab === 'preview' ? 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-2xs font-extrabold' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+                  ]"
+                >
+                  👁️ Pré-visualização
+                </button>
+              </div>
+            </div>
+
+            <div v-if="editorTab === 'write'" class="space-y-1.5">
+              <!-- Advanced Formatting Toolbar -->
+              <div class="flex items-center flex-wrap gap-1 p-1.5 bg-slate-100/90 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 text-xs">
+                <button
+                  type="button"
+                  @click="insertFormat('**', '**')"
+                  class="p-1 bg-white dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-black rounded-lg border border-slate-200/80 dark:border-slate-700 cursor-pointer shadow-2xs"
+                  title="Negrito"
+                >
+                  <Bold class="w-3.5 h-3.5" />
+                </button>
+                <button
+                  type="button"
+                  @click="insertFormat('*', '*')"
+                  class="p-1 bg-white dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 italic font-bold rounded-lg border border-slate-200/80 dark:border-slate-700 cursor-pointer shadow-2xs"
+                  title="Itálico"
+                >
+                  <Italic class="w-3.5 h-3.5" />
+                </button>
+                <button
+                  type="button"
+                  @click="insertFormat('\n### ')"
+                  class="px-1.5 py-0.5 bg-white dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-extrabold rounded-lg border border-slate-200/80 dark:border-slate-700 cursor-pointer shadow-2xs text-[10px]"
+                  title="Título H3"
+                >
+                  H3
+                </button>
+                <button
+                  type="button"
+                  @click="insertFormat('\n- ')"
+                  class="p-1 bg-white dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold rounded-lg border border-slate-200/80 dark:border-slate-700 cursor-pointer shadow-2xs"
+                  title="Lista com Marcadores"
+                >
+                  <List class="w-3.5 h-3.5" />
+                </button>
+                <button
+                  type="button"
+                  @click="insertFormat('\n> 🚨 **Aviso:** ')"
+                  class="px-1.5 py-0.5 bg-rose-100 dark:bg-rose-950/80 text-rose-900 dark:text-rose-200 font-bold rounded-lg border border-rose-200 dark:border-rose-800 cursor-pointer shadow-2xs text-[10px]"
+                  title="Bloco de Alerta"
+                >
+                  🚨 Alerta
+                </button>
+                <button
+                  type="button"
+                  @click="insertFormat('\n> 💡 **Dica:** ')"
+                  class="px-1.5 py-0.5 bg-emerald-100 dark:bg-emerald-950/80 text-emerald-900 dark:text-emerald-200 font-bold rounded-lg border border-emerald-200 dark:border-emerald-800 cursor-pointer shadow-2xs text-[10px]"
+                  title="Bloco de Dica"
+                >
+                  💡 Dica
+                </button>
+
+                <div class="h-4 w-px bg-slate-300 dark:bg-slate-700 mx-0.5 shrink-0"></div>
+
+                <!-- Quick Emojis Bar -->
+                <div class="flex items-center gap-0.5 overflow-x-auto custom-scrollbar">
+                  <button
+                    v-for="emoji in ['🚀', '🚨', '🎓', '📅', '💡', '✨', '📢', '💬', '📌', '✅']"
+                    :key="emoji"
+                    type="button"
+                    @click="insertFormat(emoji + ' ')"
+                    class="p-1 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-md cursor-pointer text-xs shrink-0"
+                  >
+                    {{ emoji }}
+                  </button>
+                </div>
+              </div>
+
+              <textarea
+                ref="contentTextareaRef"
+                v-model="formContent"
+                required
+                rows="6"
+                :placeholder="t('announcements.contentPlaceholder')"
+                class="w-full text-xs font-mono bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-slate-900 dark:text-white focus:outline-hidden leading-relaxed"
+              ></textarea>
+            </div>
+
+            <!-- Live Preview -->
+            <div
+              v-else
+              class="p-3.5 min-h-[160px] max-h-60 overflow-y-auto bg-slate-50/80 dark:bg-slate-900/80 border border-slate-300 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-slate-100 leading-relaxed"
+            >
+              <p v-if="!formContent.trim()" class="text-slate-400 dark:text-slate-500 italic text-[11px]">
+                Nenhum texto informado para pré-visualização.
+              </p>
+              <MarkdownRenderer v-else :content="formContent" />
+            </div>
           </div>
 
           <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-200 dark:border-slate-800">
@@ -302,10 +428,11 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { collection, onSnapshot, doc, setDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '../../firebase';
-import { Megaphone, Plus, BellOff, Pencil, Trash2, X, ChevronLeft, ChevronRight } from 'lucide-vue-next';
+import { Megaphone, Plus, BellOff, Pencil, Trash2, X, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Bold, Italic, List } from 'lucide-vue-next';
 import { Announcement } from '../../types';
 import { useI18n } from '../../composables/useI18n';
 import { formatDisplayDate } from '../../utils/helpers';
+import MarkdownRenderer from './MarkdownRenderer.vue';
 
 const props = defineProps<{
   canManage: boolean;
@@ -319,6 +446,33 @@ const announcements = ref<Announcement[]>([]);
 const isModalOpen = ref(false);
 const editingId = ref<string | null>(null);
 const isSubmitting = ref(false);
+
+// Advanced Editor & View States
+const expandedIds = ref<Record<string, boolean>>({});
+const editorTab = ref<'write' | 'preview'>('write');
+const contentTextareaRef = ref<HTMLTextAreaElement | null>(null);
+
+const toggleExpand = (id: string) => {
+  expandedIds.value[id] = !expandedIds.value[id];
+};
+
+const insertFormat = (prefix: string, suffix = '') => {
+  if (!contentTextareaRef.value) {
+    formContent.value += `${prefix}${suffix}`;
+    return;
+  }
+  const el = contentTextareaRef.value;
+  const start = el.selectionStart || 0;
+  const end = el.selectionEnd || 0;
+  const selected = formContent.value.substring(start, end);
+  const replacement = `${prefix}${selected}${suffix}`;
+  formContent.value = formContent.value.substring(0, start) + replacement + formContent.value.substring(end);
+
+  setTimeout(() => {
+    el.focus();
+    el.setSelectionRange(start + prefix.length, end + prefix.length);
+  }, 50);
+};
 
 const formTitle = ref('');
 const formContent = ref('');
@@ -372,6 +526,7 @@ const getTagClass = (tag: string) => {
 };
 
 const openModal = (item?: Announcement) => {
+  editorTab.value = 'write';
   if (item) {
     editingId.value = item.id;
     formTitle.value = item.title;
