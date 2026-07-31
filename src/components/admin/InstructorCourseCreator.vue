@@ -804,8 +804,8 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
     <!-- Informative banner -->
     <div class="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4 text-left shadow-xs">
       <div class="space-y-1">
-        <span class="inline-flex items-center gap-1.5 px-3.5 py-1 bg-sky-100 dark:bg-sky-950/90 text-sky-900 dark:text-sky-200 border border-sky-300 dark:border-sky-500/70 font-extrabold text-[10.5px] rounded-full uppercase tracking-wide shadow-2xs">
-          <Info class="w-3.5 h-3.5 text-sky-600 dark:text-sky-300" /> Construtor Autônomo de Inglês
+        <span class="inline-flex items-center gap-1.5 px-3.5 py-1 bg-emerald-100 dark:bg-emerald-950/80 text-emerald-900 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-500/70 font-extrabold text-[10.5px] rounded-full uppercase tracking-wide shadow-2xs">
+          <Info class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-300" /> Construtor Autônomo de Inglês
         </span>
         <h3 class="text-sm font-extrabold text-slate-900 dark:text-blue-400 leading-tight">Canal de Criação de Cursos & Lições</h3>
         <p class="text-xs text-slate-600 dark:text-slate-300 leading-snug">
@@ -841,7 +841,7 @@ const handleInsertMarkdownSyntax = (syntax: string) => {
         >
           <div class="space-y-1.5 mb-4">
             <div class="flex items-center gap-1.5 justify-between">
-              <span class="px-3 py-1 bg-indigo-100 dark:bg-indigo-950/80 text-indigo-900 dark:text-indigo-200 text-[10px] font-black uppercase tracking-wider rounded-lg border border-indigo-300 dark:border-indigo-500/70 shadow-2xs">
+              <span class="px-3 py-1 bg-emerald-100 dark:bg-emerald-950/80 text-emerald-900 dark:text-emerald-300 text-[10px] font-black uppercase tracking-wider rounded-lg border border-emerald-300 dark:border-emerald-500/70 shadow-2xs">
                 Modelo de Aula
               </span>
               <span class="text-[9.5px] text-slate-400 dark:text-slate-450 font-bold">

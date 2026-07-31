@@ -591,8 +591,8 @@ const handleExportJSON = () => {
     <!-- Key cards metrics -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-left">
       <div class="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-gray-100 dark:border-slate-800 flex items-center gap-4 shadow-2xs">
-        <span class="p-3 bg-blue-500/20 dark:bg-blue-500/30 text-blue-600 dark:text-blue-300 rounded-2xl border border-blue-300 dark:border-blue-400/60 shadow-xs">
-          <FileText class="w-6 h-6 stroke-[2.3]" />
+        <span class="p-3 bg-emerald-500/20 dark:bg-emerald-500/30 text-emerald-600 dark:text-emerald-300 rounded-2xl border border-emerald-300 dark:border-emerald-400/60 shadow-xs">
+          <FileText class="w-6 h-6 stroke-[2.5] text-emerald-600 dark:text-emerald-300" />
         </span>
         <div>
           <p class="text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
@@ -604,7 +604,7 @@ const handleExportJSON = () => {
 
       <div class="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-gray-100 dark:border-slate-800 flex items-center gap-4 shadow-2xs">
         <span class="p-3 bg-emerald-500/20 dark:bg-emerald-500/30 text-emerald-600 dark:text-emerald-300 rounded-2xl border border-emerald-300 dark:border-emerald-400/60 shadow-xs">
-          <Users class="w-6 h-6 stroke-[2.3]" />
+          <Users class="w-6 h-6 stroke-[2.5] text-emerald-600 dark:text-emerald-300" />
         </span>
         <div>
           <p class="text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
@@ -615,8 +615,8 @@ const handleExportJSON = () => {
       </div>
 
       <div class="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-gray-100 dark:border-slate-800 flex items-center gap-4 shadow-2xs">
-        <span class="p-3 bg-indigo-500/20 dark:bg-indigo-500/30 text-indigo-600 dark:text-indigo-300 rounded-2xl border border-indigo-300 dark:border-indigo-400/60 shadow-xs">
-          <Check class="w-6 h-6 stroke-[2.3]" />
+        <span class="p-3 bg-emerald-500/20 dark:bg-emerald-500/30 text-emerald-600 dark:text-emerald-300 rounded-2xl border border-emerald-300 dark:border-emerald-400/60 shadow-xs">
+          <Check class="w-6 h-6 stroke-[2.5] text-emerald-600 dark:text-emerald-300" />
         </span>
         <div>
           <p class="text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
@@ -630,7 +630,7 @@ const handleExportJSON = () => {
 
       <div class="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-gray-100 dark:border-slate-800 flex items-center gap-4 shadow-2xs">
         <span class="p-3 bg-amber-500/20 dark:bg-amber-500/30 text-amber-600 dark:text-amber-300 rounded-2xl border border-amber-300 dark:border-amber-400/60 shadow-xs">
-          <BookOpen class="w-6 h-6 stroke-[2.3]" />
+          <BookOpen class="w-6 h-6 stroke-[2.5] text-amber-600 dark:text-amber-300" />
         </span>
         <div>
           <p class="text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
@@ -833,7 +833,7 @@ const handleExportJSON = () => {
             {{ t('tutor.retentionSub') }}
           </p>
         </div>
-        <span class="p-1.5 bg-indigo-100/90 dark:bg-indigo-900/60 text-indigo-800 dark:text-indigo-200 rounded-lg text-xs font-bold shrink-0 border border-indigo-200 dark:border-indigo-700/60">
+        <span class="px-3 py-1.5 bg-emerald-100 dark:bg-emerald-950/80 text-emerald-900 dark:text-emerald-300 rounded-xl text-xs font-black shrink-0 border border-emerald-300 dark:border-emerald-600/70 shadow-2xs">
           🔍 {{ t('tutor.didacticAuditor') }}
         </span>
       </div>
@@ -1213,23 +1213,23 @@ const handleExportJSON = () => {
             </div>
           </div>
 
-          <!-- Expanded Course Details: Modern, Dark, High-Contrast Panel (ZERO WHITE/LIGHT BOX) -->
-          <div v-if="expandedCourseId === course.id" class="bg-slate-900 dark:bg-slate-950 rounded-3xl border border-slate-700/80 dark:border-slate-800 p-5 sm:p-6 animate-fadeIn space-y-5 text-left shadow-xl mt-4">
+          <!-- Expanded Course Details: Modern, Adaptive Light/Dark High-Contrast Panel -->
+          <div v-if="expandedCourseId === course.id" class="bg-slate-50 dark:bg-slate-950 rounded-3xl border border-slate-200 dark:border-slate-800 p-5 sm:p-6 animate-fadeIn space-y-5 text-left shadow-lg mt-4">
             <div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
               
               <!-- Left Column: Lessons Grid (xl:col-span-7) -->
               <div class="xl:col-span-7 space-y-3.5">
-                <p class="text-[11px] text-emerald-400 dark:text-emerald-300 uppercase font-black tracking-widest border-b border-slate-800 pb-2.5 flex items-center gap-2">
+                <p class="text-[11px] text-emerald-700 dark:text-emerald-400 uppercase font-black tracking-widest border-b border-slate-200 dark:border-slate-800 pb-2.5 flex items-center gap-2">
                   📚 {{ t('tutor.curriculumGridTitle') }}
                 </p>
                 
-                <p v-if="lessons.filter(l => l.courseId === course.id).length === 0" class="text-xs text-slate-400 dark:text-slate-500 italic pl-1">
+                <p v-if="lessons.filter(l => l.courseId === course.id).length === 0" class="text-xs text-slate-500 dark:text-slate-400 italic pl-1">
                   {{ t('tutor.noLessonsRegistered') }}
                 </p>
-                <div v-else class="overflow-x-auto rounded-2xl border border-slate-800 bg-slate-950 shadow-md">
-                  <table class="w-full text-left text-[11.5px] font-medium text-slate-200 min-w-[500px]">
+                <div v-else class="overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs">
+                  <table class="w-full text-left text-[11.5px] font-medium text-slate-800 dark:text-slate-200 min-w-[500px]">
                     <thead>
-                      <tr class="bg-slate-900/90 border-b border-slate-800 text-slate-300 font-black uppercase text-[10px] tracking-wider">
+                      <tr class="bg-slate-100 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 font-black uppercase text-[10px] tracking-wider">
                         <th class="p-3.5 text-center w-14">{{ t('tutor.thOrder') }}</th>
                         <th class="p-3.5 pl-2">{{ t('tutor.thLessonTitle') }}</th>
                         <th class="p-3.5 text-center">{{ t('tutor.thVideo') }}</th>
@@ -1237,27 +1237,27 @@ const handleExportJSON = () => {
                         <th class="p-3.5 text-right pr-4">{{ t('tutor.thQuizQs') }}</th>
                       </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-800/80">
-                      <tr v-for="l in lessons.filter(l => l.courseId === course.id)" :key="l.id" class="hover:bg-slate-900/60 transition-colors">
+                    <tbody class="divide-y divide-slate-100 dark:divide-slate-800/80">
+                      <tr v-for="l in lessons.filter(l => l.courseId === course.id)" :key="l.id" class="hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors">
                         <td class="p-3.5 text-center">
-                          <span class="inline-flex items-center justify-center px-2.5 py-0.5 rounded-lg font-mono text-xs font-black bg-sky-500/25 text-sky-300 border border-sky-400/60 shadow-2xs">
+                          <span class="inline-flex items-center justify-center px-2.5 py-0.5 rounded-lg font-mono text-xs font-black bg-sky-100 text-sky-900 border border-sky-300 dark:bg-sky-950/80 dark:text-sky-200 dark:border-sky-500/70 shadow-2xs">
                             #{{ l.order }}
                           </span>
                         </td>
-                        <td class="p-3.5 pl-2 font-black text-white text-xs leading-snug">{{ l.title }}</td>
+                        <td class="p-3.5 pl-2 font-black text-slate-900 dark:text-white text-xs leading-snug">{{ l.title }}</td>
                         <td class="p-3.5 text-center">
-                          <span v-if="l.videoUrl" class="inline-flex items-center gap-1 text-[10px] font-black bg-emerald-500/25 text-emerald-300 px-2.5 py-0.5 rounded-lg border border-emerald-400/60 shadow-2xs">
+                          <span v-if="l.videoUrl" class="inline-flex items-center gap-1 text-[10px] font-black bg-emerald-100 text-emerald-900 border border-emerald-300 dark:bg-emerald-950/80 dark:text-emerald-200 dark:border-emerald-500/70 px-2.5 py-0.5 rounded-lg shadow-2xs">
                             {{ t('tutor.yes') }}
                           </span>
-                          <span v-else class="inline-flex items-center gap-1 text-[10px] font-bold text-slate-400 bg-slate-800/80 px-2.5 py-0.5 rounded-lg border border-slate-700">
+                          <span v-else class="inline-flex items-center gap-1 text-[10px] font-bold text-slate-600 bg-slate-100 border border-slate-300 dark:text-slate-400 dark:bg-slate-800 dark:border-slate-700 px-2.5 py-0.5 rounded-lg">
                             {{ t('tutor.no') }}
                           </span>
                         </td>
-                        <td class="p-3.5 text-center font-mono text-[11px] text-slate-300">
+                        <td class="p-3.5 text-center font-mono text-[11px] text-slate-600 dark:text-slate-300">
                           {{ t('tutor.charsCount', { count: l.content.length }) }}
                         </td>
                         <td class="p-3.5 text-right pr-4">
-                          <span class="inline-flex items-center gap-1 text-xs font-black text-indigo-300 bg-indigo-500/25 px-2.5 py-0.5 rounded-lg border border-indigo-400/60 font-mono shadow-2xs">
+                          <span class="inline-flex items-center gap-1 text-xs font-black bg-indigo-100 text-indigo-900 border border-indigo-300 dark:bg-indigo-950/80 dark:text-indigo-200 dark:border-indigo-500/70 px-2.5 py-0.5 rounded-lg font-mono shadow-2xs">
                             {{ t('tutor.questionsCount', { count: (l.quiz || []).length }) }}
                           </span>
                         </td>
@@ -1268,29 +1268,29 @@ const handleExportJSON = () => {
               </div>
 
               <!-- Right Column: Course Reviews & Reaction Metrics (xl:col-span-5) -->
-              <div class="xl:col-span-5 space-y-4 border-t xl:border-t-0 xl:border-l border-slate-800 pt-5 xl:pt-0 xl:pl-6 text-left">
-                <p class="text-[11px] text-amber-400 dark:text-amber-300 uppercase font-black tracking-widest border-b border-slate-800 pb-2.5 flex items-center gap-2">
+              <div class="xl:col-span-5 space-y-4 border-t xl:border-t-0 xl:border-l border-slate-200 dark:border-slate-800 pt-5 xl:pt-0 xl:pl-6 text-left">
+                <p class="text-[11px] text-amber-700 dark:text-amber-400 uppercase font-black tracking-widest border-b border-slate-200 dark:border-slate-800 pb-2.5 flex items-center gap-2">
                   ⭐ {{ t('tutor.reviewsTitle') }}
                 </p>
 
                 <!-- Average Score & Overall Reaction indicators -->
-                <div class="bg-slate-950 p-4.5 rounded-2xl border border-slate-800 flex items-center justify-between shadow-sm">
+                <div class="bg-white dark:bg-slate-900 p-4.5 rounded-2xl border border-slate-200 dark:border-slate-800 flex items-center justify-between shadow-xs">
                   <div class="text-left">
-                    <p class="text-[10px] text-slate-400 font-extrabold uppercase tracking-wider">
+                    <p class="text-[10px] text-slate-500 dark:text-slate-400 font-extrabold uppercase tracking-wider">
                       {{ t('tutor.averageRating') }}
                     </p>
                     <div class="flex items-baseline gap-1 mt-1">
-                      <span class="text-3xl font-black text-white">
+                      <span class="text-3xl font-black text-slate-900 dark:text-white">
                         {{ getCourseAverageRating(course.id) }}
                       </span>
-                      <span class="text-xs font-bold text-slate-400">/ 5.0</span>
+                      <span class="text-xs font-bold text-slate-500 dark:text-slate-400">/ 5.0</span>
                     </div>
                   </div>
                   <div class="text-right">
-                    <p class="text-[10px] text-slate-400 font-extrabold uppercase tracking-wider">
+                    <p class="text-[10px] text-slate-500 dark:text-slate-400 font-extrabold uppercase tracking-wider">
                       {{ t('tutor.totalReviews') }}
                     </p>
-                    <p class="text-sm font-black text-slate-200 mt-1">
+                    <p class="text-sm font-black text-slate-800 dark:text-slate-200 mt-1">
                       {{ t('tutor.reviewsCount', { count: getCourseReviews(course.id).length }) }}
                     </p>
                   </div>
@@ -1299,16 +1299,16 @@ const handleExportJSON = () => {
                 <!-- Star breakdown progress bars (Indicators) -->
                 <div class="space-y-1.5 text-xs text-left">
                   <div v-for="star in [5, 4, 3, 2, 1]" :key="star" class="flex items-center gap-2.5">
-                    <span class="w-8 text-right font-extrabold text-slate-200 flex items-center justify-end gap-1 select-none">
-                      {{ star }}<span class="text-amber-400">★</span>
+                    <span class="w-8 text-right font-extrabold text-slate-800 dark:text-slate-200 flex items-center justify-end gap-1 select-none">
+                      {{ star }}<span class="text-amber-500 dark:text-amber-400">★</span>
                     </span>
-                    <div class="flex-1 bg-slate-800 h-2.5 rounded-full overflow-hidden">
+                    <div class="flex-1 bg-slate-200 dark:bg-slate-800 h-2.5 rounded-full overflow-hidden">
                       <div 
-                        class="bg-amber-400 h-full rounded-full transition-all duration-500" 
+                        class="bg-amber-500 dark:bg-amber-400 h-full rounded-full transition-all duration-500" 
                         :style="{ width: `${getCourseReactionDistribution(course.id)[star]}%` }"
                       ></div>
                     </div>
-                    <span class="w-9 text-slate-400 font-bold text-right font-mono text-[11px]">
+                    <span class="w-9 text-slate-600 dark:text-slate-400 font-bold text-right font-mono text-[11px]">
                       {{ getCourseReactionDistribution(course.id)[star] }}%
                     </span>
                   </div>
@@ -1316,42 +1316,41 @@ const handleExportJSON = () => {
 
                 <!-- Feedbacks and Comments -->
                 <div class="space-y-2 pt-1">
-                  <p class="text-[10px] font-extrabold uppercase text-slate-400 tracking-wider">
+                  <p class="text-[10px] font-extrabold uppercase text-slate-500 dark:text-slate-400 tracking-wider">
                     {{ t('tutor.commentsFeedbacks') }}
                   </p>
                   
-                  <div v-if="getCourseReviews(course.id).length === 0" class="text-xs text-slate-500 italic py-4">
+                  <div v-if="getCourseReviews(course.id).length === 0" class="text-xs text-slate-500 dark:text-slate-400 italic py-4">
                     {{ t('tutor.noFeedbackYet') }}
                   </div>
                   <div v-else class="space-y-2.5 max-h-[200px] overflow-y-auto pr-1 scrollbar-thin">
-                    <div v-for="rev in getCourseReviews(course.id)" :key="rev.id" class="p-3.5 bg-slate-950 rounded-2xl border border-slate-800 space-y-2 text-left shadow-2xs">
+                    <div v-for="rev in getCourseReviews(course.id)" :key="rev.id" class="p-3.5 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-2 text-left shadow-2xs">
                       <div class="flex items-center justify-between">
                         <div class="flex items-center gap-2">
-                          <img v-if="rev.userPhoto" :src="rev.userPhoto" class="w-5 h-5 rounded-full object-cover border border-slate-700" />
-                          <div v-else class="w-5 h-5 rounded-full bg-slate-800 flex items-center justify-center text-[9px] font-bold text-slate-200">
+                          <img v-if="rev.userPhoto" :src="rev.userPhoto" class="w-5 h-5 rounded-full object-cover border border-slate-200 dark:border-slate-700" />
+                          <div v-else class="w-5 h-5 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-[9px] font-bold text-slate-700 dark:text-slate-200">
                             {{ rev.userName.charAt(0) }}
                           </div>
-                          <span class="font-extrabold text-xs text-slate-200 truncate max-w-[130px]">{{ rev.userName }}</span>
+                          <span class="font-extrabold text-xs text-slate-900 dark:text-slate-200 truncate max-w-[130px]">{{ rev.userName }}</span>
                         </div>
                         
-                        <div class="flex text-amber-400 text-[10px] tracking-tighter shrink-0 select-none">
+                        <div class="flex text-amber-500 dark:text-amber-400 text-[10px] tracking-tighter shrink-0 select-none">
                           <span v-for="i in 5" :key="i">
                             {{ i <= rev.rating ? '★' : '☆' }}
                           </span>
                         </div>
                       </div>
                       
-                      <p class="text-xs text-slate-300 leading-relaxed pl-0.5 break-words font-medium">
+                      <p class="text-xs text-slate-700 dark:text-slate-300 leading-relaxed pl-0.5 break-words font-medium">
                         {{ rev.comment }}
                       </p>
                       
-                      <p class="text-[9.5px] text-slate-500 text-right pr-0.5 font-mono select-none">
+                      <p class="text-[9.5px] text-slate-400 dark:text-slate-500 text-right pr-0.5 font-mono select-none">
                         {{ rev.createdAt }}
                       </p>
                     </div>
                   </div>
                 </div>
-
               </div>
             </div>
           </div>

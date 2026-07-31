@@ -404,16 +404,16 @@ const copyToClipboard = (text: string) => {
             <button
               type="button"
               @click="exportTeachersXLSX"
-              class="px-3 py-1.5 bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-800 dark:text-emerald-200 border border-emerald-300 dark:border-emerald-500/50 text-[10.5px] font-black rounded-xl transition duration-150 flex items-center gap-1 cursor-pointer"
+              class="px-3 py-1.5 bg-emerald-100 dark:bg-emerald-950/80 hover:bg-emerald-200 dark:hover:bg-emerald-900 text-emerald-900 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-500/70 text-[10.5px] font-black rounded-xl transition duration-150 flex items-center gap-1 cursor-pointer shadow-2xs"
             >
-              <Download class="w-3.5 h-3.5" /> {{ t('master.exportXlsxLabel') }}
+              <Download class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-300" /> {{ t('master.exportXlsxLabel') }}
             </button>
             <button
               type="button"
               @click="exportTeachersJSON"
-              class="px-3 py-1.5 bg-indigo-500/15 hover:bg-indigo-500/25 text-indigo-800 dark:text-indigo-200 border border-indigo-300 dark:border-indigo-500/50 text-[10.5px] font-black rounded-xl transition duration-150 flex items-center gap-1 cursor-pointer"
+              class="px-3 py-1.5 bg-emerald-100 dark:bg-emerald-950/80 hover:bg-emerald-200 dark:hover:bg-emerald-900 text-emerald-900 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-500/70 text-[10.5px] font-black rounded-xl transition duration-150 flex items-center gap-1 cursor-pointer shadow-2xs"
             >
-              <Download class="w-3.5 h-3.5" /> {{ t('master.exportJsonLabel') }}
+              <Download class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-300" /> {{ t('master.exportJsonLabel') }}
             </button>
           </div>
         </div>
@@ -511,9 +511,9 @@ const copyToClipboard = (text: string) => {
                   <div class="flex items-center gap-1.5">
                     <span 
                       v-if="user.isInstructor" 
-                      class="inline-flex items-center gap-1 text-[10px] font-black text-indigo-800 dark:text-indigo-200 bg-indigo-500/15 border border-indigo-300 dark:border-indigo-500/50 px-2 py-0.5 rounded-md"
+                      class="inline-flex items-center gap-1 text-[10px] font-black text-emerald-900 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950/80 border border-emerald-300 dark:border-emerald-600/70 px-2 py-0.5 rounded-md shadow-2xs"
                     >
-                      🧑‍🏫 {{ t('master.volunteerTeacher') }}
+                      👨‍🏫 {{ t('master.volunteerTeacher') }}
                     </span>
                     <span 
                       v-else 
@@ -573,9 +573,9 @@ const copyToClipboard = (text: string) => {
                 <span class="block text-[9px] uppercase font-bold text-gray-400 dark:text-gray-500">Função</span>
                 <span 
                   v-if="user.isInstructor" 
-                  class="inline-flex items-center gap-1 text-[9.5px] font-black text-indigo-800 dark:text-indigo-200 bg-indigo-500/15 border border-indigo-300 dark:border-indigo-500/50 px-1.5 py-0.5 rounded-md"
+                  class="inline-flex items-center gap-1 text-[9.5px] font-black text-emerald-900 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950/80 border border-emerald-300 dark:border-emerald-600/70 px-1.5 py-0.5 rounded-md shadow-2xs"
                 >
-                  🧑‍🏫 {{ t('master.volunteerTeacher') }}
+                  👨‍🏫 {{ t('master.volunteerTeacher') }}
                 </span>
                 <span 
                   v-else 

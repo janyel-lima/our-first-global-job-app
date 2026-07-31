@@ -292,8 +292,8 @@ onMounted(() => {
           <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
             {{ t('master.panel.registeredAccounts') }}
           </p>
-          <span class="p-2.5 bg-blue-500/20 dark:bg-blue-500/30 text-blue-600 dark:text-blue-300 rounded-2xl border border-blue-300 dark:border-blue-400/60 shadow-xs">
-            <Users class="w-5 h-5 stroke-[2.3]" />
+          <span class="p-2.5 bg-emerald-500/20 dark:bg-emerald-500/30 text-emerald-600 dark:text-emerald-300 rounded-2xl border border-emerald-300 dark:border-emerald-400/60 shadow-xs">
+            <Users class="w-5 h-5 stroke-[2.5] text-emerald-600 dark:text-emerald-300" />
           </span>
         </div>
         <h4 class="text-2xl font-black text-gray-900 dark:text-white mt-2">{{ users.length }}</h4>
@@ -307,8 +307,8 @@ onMounted(() => {
           <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
             {{ t('master.panel.courseCatalog') }}
           </p>
-          <span class="p-2.5 bg-indigo-500/20 dark:bg-indigo-500/30 text-indigo-600 dark:text-indigo-300 rounded-2xl border border-indigo-300 dark:border-indigo-400/60 shadow-xs">
-            <BookOpen class="w-5 h-5 stroke-[2.3]" />
+          <span class="p-2.5 bg-emerald-500/20 dark:bg-emerald-500/30 text-emerald-600 dark:text-emerald-300 rounded-2xl border border-emerald-300 dark:border-emerald-400/60 shadow-xs">
+            <BookOpen class="w-5 h-5 stroke-[2.5] text-emerald-600 dark:text-emerald-300" />
           </span>
         </div>
         <h4 class="text-2xl font-black text-gray-900 dark:text-white mt-2">{{ courses.length }}</h4>
@@ -323,7 +323,7 @@ onMounted(() => {
             {{ t('master.panel.activePracticeClasses') }}
           </p>
           <span class="p-2.5 bg-amber-500/20 dark:bg-amber-500/30 text-amber-600 dark:text-amber-300 rounded-2xl border border-amber-300 dark:border-amber-400/60 shadow-xs">
-            <Calendar class="w-5 h-5 stroke-[2.3]" />
+            <Calendar class="w-5 h-5 stroke-[2.5] text-amber-600 dark:text-amber-300" />
           </span>
         </div>
         <h4 class="text-2xl font-black text-gray-900 dark:text-white mt-2">{{ totalClassesCount }}</h4>
@@ -338,7 +338,7 @@ onMounted(() => {
             {{ t('master.panel.validCertificates') }}
           </p>
           <span class="p-2.5 bg-emerald-500/20 dark:bg-emerald-500/30 text-emerald-600 dark:text-emerald-300 rounded-2xl border border-emerald-300 dark:border-emerald-400/60 shadow-xs">
-            <Award class="w-5 h-5 stroke-[2.3]" />
+            <Award class="w-5 h-5 stroke-[2.5] text-emerald-600 dark:text-emerald-300" />
           </span>
         </div>
         <h4 class="text-2xl font-black text-gray-900 dark:text-white mt-2">

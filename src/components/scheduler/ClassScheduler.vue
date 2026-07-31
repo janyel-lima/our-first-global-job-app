@@ -1312,13 +1312,13 @@ const handleStudentEnter = (cl: ClassTurma) => {
                 {{ cl.status === 'completed' ? t('scheduler.classCompleted') : cl.status === 'cancelled' ? t('scheduler.classCancelled') : t('scheduler.activeClass') }}
               </span>
               <div class="flex items-center gap-1.5 flex-wrap shrink-0">
-                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-slate-100/90 dark:bg-slate-900 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-800 font-mono text-[11px] font-bold shadow-2xs">
+                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-700 font-mono text-[11px] font-extrabold shadow-2xs">
                   <CalendarDays class="w-3 h-3 text-blue-600 dark:text-blue-400 shrink-0" />
-                  <span>{{ formatDisplayDate(cl.scheduledAt) }}</span>
+                  <span class="text-slate-900 dark:text-slate-100">{{ formatDisplayDate(cl.scheduledAt) }}</span>
                 </span>
-                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-blue-100/90 dark:bg-blue-900/60 text-blue-900 dark:text-blue-200 border border-blue-200/80 dark:border-blue-700/60 font-mono text-[11px] font-extrabold shadow-2xs">
+                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-blue-100 dark:bg-blue-950/80 text-blue-900 dark:text-blue-200 border border-blue-200/80 dark:border-blue-700/80 font-mono text-[11px] font-extrabold shadow-2xs">
                   <Clock class="w-3 h-3 text-blue-600 dark:text-blue-300 shrink-0" />
-                  <span>{{ formatDisplayTime(cl.scheduledAt) }}</span>
+                  <span class="text-blue-900 dark:text-blue-200">{{ formatDisplayTime(cl.scheduledAt) }}</span>
                 </span>
               </div>
             </div>
