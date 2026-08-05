@@ -189,7 +189,7 @@
             <button
               type="button"
               @click="toggleExpand(item.id)"
-              class="inline-flex items-center gap-1.5 text-xs font-extrabold text-slate-800 dark:text-slate-100 bg-slate-200/80 dark:bg-slate-800 hover:bg-slate-300/90 dark:hover:bg-slate-700/80 border border-slate-300/70 dark:border-slate-700/80 px-3 py-1 rounded-xl cursor-pointer transition-all shadow-2xs"
+              :class="['inline-flex items-center gap-1.5 text-xs font-black px-3 py-1.5 rounded-xl cursor-pointer transition-all border shadow-2xs', getExpandButtonClass(item.tag)]"
             >
               <span v-if="!expandedIds[item.id]" class="flex items-center gap-1">
                 <span>Ver mais</span>
@@ -548,6 +548,21 @@ const getTitleHeaderClass = (tag: string) => {
       return 'bg-emerald-100 text-emerald-950 border-emerald-200 dark:bg-emerald-950/90 dark:text-emerald-100 dark:border-emerald-800/80';
     default:
       return 'bg-indigo-100 text-indigo-950 border-indigo-200 dark:bg-indigo-950/90 dark:text-indigo-100 dark:border-indigo-800/80';
+  }
+};
+
+const getExpandButtonClass = (tag: string) => {
+  switch (tag) {
+    case 'Aviso Importante':
+      return 'bg-rose-100 hover:bg-rose-200 text-rose-950 border-rose-300 dark:bg-rose-950/90 dark:hover:bg-rose-900 dark:text-rose-100 dark:border-rose-800/80';
+    case 'Nova Turma':
+      return 'bg-blue-100 hover:bg-blue-200 text-blue-950 border-blue-300 dark:bg-blue-950/90 dark:hover:bg-blue-900 dark:text-blue-100 dark:border-blue-800/80';
+    case 'Evento':
+      return 'bg-purple-100 hover:bg-purple-200 text-purple-950 border-purple-300 dark:bg-purple-950/90 dark:hover:bg-purple-900 dark:text-purple-100 dark:border-purple-800/80';
+    case 'Dica Semanal':
+      return 'bg-emerald-100 hover:bg-emerald-200 text-emerald-950 border-emerald-300 dark:bg-emerald-950/90 dark:hover:bg-emerald-900 dark:text-emerald-100 dark:border-emerald-800/80';
+    default:
+      return 'bg-indigo-100 hover:bg-indigo-200 text-indigo-950 border-indigo-300 dark:bg-indigo-950/90 dark:hover:bg-indigo-900 dark:text-indigo-100 dark:border-indigo-800/80';
   }
 };
 
