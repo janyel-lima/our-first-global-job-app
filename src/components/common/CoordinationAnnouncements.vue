@@ -126,28 +126,26 @@
         v-for="item in paginatedAnnouncements"
         :key="item.id"
         :class="[
-          'p-4 rounded-xl border transition-all relative',
-          item.isPinned 
-            ? 'bg-amber-50/60 dark:bg-amber-950/30 border-amber-300 dark:border-amber-700/80 shadow-2xs' 
-            : 'bg-slate-50/70 dark:bg-slate-900/60 border-slate-200/80 dark:border-slate-800/80'
+          'p-4 sm:p-5 rounded-2xl transition-all relative space-y-2.5',
+          getCardContainerClass(item.tag, item.isPinned)
         ]"
       >
-        <!-- Card Top Bar -->
-        <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+        <!-- Card Top Bar: Meta & Admin Actions -->
+        <div class="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-slate-200/80 dark:border-slate-800/80">
           <div class="flex items-center gap-1.5 flex-wrap">
             <!-- Pin Badge -->
-            <span v-if="item.isPinned" class="inline-flex items-center gap-1 text-[9px] font-black px-2 py-0.5 rounded-md bg-amber-200 dark:bg-amber-900/80 text-amber-900 dark:text-amber-100 border border-amber-300 dark:border-amber-700 shadow-2xs">
+            <span v-if="item.isPinned" class="inline-flex items-center gap-1 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-amber-500 text-white border border-amber-600 shadow-2xs">
               📌 {{ t('announcements.pinnedLabel') }}
             </span>
 
             <!-- Tag Badge -->
-            <span :class="['inline-flex items-center gap-1 text-[9px] font-extrabold px-2 py-0.5 rounded-md border shadow-2xs', getTagClass(item.tag)]">
-              {{ item.tag || 'Geral' }}
+            <span :class="['inline-flex items-center gap-1 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full border', getTagBadgeClass(item.tag)]">
+              {{ getTagIcon(item.tag) }} {{ item.tag || 'Geral' }}
             </span>
           </div>
 
           <!-- Date & Author -->
-          <div class="flex items-center gap-2 text-[10px] text-slate-500 dark:text-slate-400 font-semibold">
+          <div class="flex items-center gap-2 text-[11px] text-slate-600 dark:text-slate-300 font-bold">
             <span>👤 {{ item.authorName }}</span>
             <span>•</span>
             <span>📅 {{ formatDisplayDate(item.createdAt) }}</span>
@@ -157,7 +155,7 @@
               <button
                 type="button"
                 @click="openModal(item)"
-                class="p-1 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors cursor-pointer"
+                class="p-1 hover:text-indigo-600 dark:hover:text-indigo-300 transition-colors cursor-pointer"
                 :title="t('common.edit')"
               >
                 <Pencil class="w-3.5 h-3.5" />
@@ -174,20 +172,24 @@
           </div>
         </div>
 
-        <!-- Title & Content -->
-        <h3 class="text-xs sm:text-sm font-black text-slate-900 dark:text-white leading-snug mb-1">
-          {{ item.title }}
-        </h3>
-        
-        <div class="text-xs text-slate-700 dark:text-slate-300 leading-relaxed space-y-1">
-          <MarkdownRenderer 
-            :content="expandedIds[item.id] || item.content.length <= 180 ? item.content : item.content.slice(0, 180) + '...'" 
+        <!-- Highlighted Title Block (The typed title) -->
+        <div :class="['p-3 rounded-xl border flex items-start gap-2.5 shadow-2xs my-1', getTitleHeaderClass(item.tag)]">
+          <span class="text-base sm:text-lg shrink-0 mt-0.5">{{ getTagIcon(item.tag) }}</span>
+          <h3 class="text-sm sm:text-base font-black leading-snug tracking-tight">
+            {{ item.title }}
+          </h3>
+        </div>
+
+        <!-- Markdown Body Content -->
+        <div class="text-xs sm:text-sm text-slate-800 dark:text-slate-200 leading-relaxed space-y-1">
+          <MarkdownRenderer
+            :content="expandedIds[item.id] || item.content.length <= 180 ? item.content : item.content.slice(0, 180) + '...'"
           />
           <div v-if="item.content.length > 180" class="pt-1 flex items-center justify-start">
             <button
               type="button"
               @click="toggleExpand(item.id)"
-              class="inline-flex items-center gap-1.5 text-[11px] font-black text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 px-2 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800/80 hover:underline cursor-pointer transition-all shadow-2xs"
+              class="inline-flex items-center gap-1.5 text-[11px] font-black text-indigo-600 dark:text-indigo-300 hover:text-indigo-700 dark:hover:text-indigo-200 px-2.5 py-1 rounded-xl bg-indigo-50 dark:bg-indigo-950/80 border border-indigo-200 dark:border-indigo-800 hover:underline cursor-pointer transition-all shadow-2xs"
             >
               <span v-if="!expandedIds[item.id]" class="flex items-center gap-1">
                 <span>Ver mais</span>
@@ -363,7 +365,7 @@
                 >
                   💡 Dica
                 </button>
-                
+
                 <div class="h-4 w-px bg-slate-300 dark:bg-slate-700 mx-0.5 shrink-0"></div>
 
                 <!-- Quick Emojis Bar -->
@@ -393,8 +395,14 @@
             <!-- Live Preview -->
             <div
               v-else
-              class="p-3.5 min-h-[160px] max-h-60 overflow-y-auto bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-slate-100 leading-relaxed"
+              :class="['p-3.5 min-h-[160px] max-h-60 overflow-y-auto rounded-xl text-xs text-slate-900 dark:text-slate-100 leading-relaxed space-y-2', getCardContainerClass(formTag, formIsPinned)]"
             >
+              <div v-if="formTitle.trim()" :class="['p-2.5 rounded-lg border flex items-start gap-2 shadow-2xs', getTitleHeaderClass(formTag)]">
+                <span class="text-base shrink-0">{{ getTagIcon(formTag) }}</span>
+                <h4 class="text-xs sm:text-sm font-black leading-snug tracking-tight">
+                  {{ formTitle }}
+                </h4>
+              </div>
               <p v-if="!formContent.trim()" class="text-slate-500 dark:text-slate-400 italic text-[11px]">
                 Nenhum texto informado para pré-visualização.
               </p>
@@ -467,7 +475,7 @@ const insertFormat = (prefix: string, suffix = '') => {
   const selected = formContent.value.substring(start, end);
   const replacement = `${prefix}${selected}${suffix}`;
   formContent.value = formContent.value.substring(0, start) + replacement + formContent.value.substring(end);
-  
+
   setTimeout(() => {
     el.focus();
     el.setSelectionRange(start + prefix.length, end + prefix.length);
@@ -509,6 +517,69 @@ const paginatedAnnouncements = computed(() => {
   const start = (currentPage.value - 1) * pageSize;
   return filteredAnnouncements.value.slice(start, start + pageSize);
 });
+
+const getCardContainerClass = (tag: string, isPinned?: boolean) => {
+  if (isPinned) {
+    return 'bg-amber-50/90 dark:bg-slate-900 border-2 border-amber-400 dark:border-amber-500/90 shadow-2xs';
+  }
+  switch (tag) {
+    case 'Aviso Importante':
+      return 'bg-rose-50/90 dark:bg-slate-900 border-2 border-rose-300 dark:border-rose-800/90 shadow-2xs';
+    case 'Nova Turma':
+      return 'bg-blue-50/90 dark:bg-slate-900 border-2 border-blue-300 dark:border-blue-800/90 shadow-2xs';
+    case 'Evento':
+      return 'bg-purple-50/90 dark:bg-slate-900 border-2 border-purple-300 dark:border-purple-800/90 shadow-2xs';
+    case 'Dica Semanal':
+      return 'bg-emerald-50/90 dark:bg-slate-900 border-2 border-emerald-300 dark:border-emerald-800/90 shadow-2xs';
+    default:
+      return 'bg-indigo-50/90 dark:bg-slate-900 border-2 border-indigo-300 dark:border-indigo-800/90 shadow-2xs';
+  }
+};
+
+const getTitleHeaderClass = (tag: string) => {
+  switch (tag) {
+    case 'Aviso Importante':
+      return 'bg-rose-100/90 dark:bg-rose-950/80 border-rose-200/90 dark:border-rose-800/90 text-rose-950 dark:text-rose-100';
+    case 'Nova Turma':
+      return 'bg-blue-100/90 dark:bg-blue-950/80 border-blue-200/90 dark:border-blue-800/90 text-blue-950 dark:text-blue-100';
+    case 'Evento':
+      return 'bg-purple-100/90 dark:bg-purple-950/80 border-purple-200/90 dark:border-purple-800/90 text-purple-950 dark:text-purple-100';
+    case 'Dica Semanal':
+      return 'bg-emerald-100/90 dark:bg-emerald-950/80 border-emerald-200/90 dark:border-emerald-800/90 text-emerald-950 dark:text-emerald-100';
+    default:
+      return 'bg-indigo-100/90 dark:bg-indigo-950/80 border-indigo-200/90 dark:border-indigo-800/90 text-indigo-950 dark:text-indigo-100';
+  }
+};
+
+const getTagBadgeClass = (tag: string) => {
+  switch (tag) {
+    case 'Aviso Importante':
+      return 'bg-rose-600 text-white border-rose-700 shadow-2xs font-extrabold';
+    case 'Nova Turma':
+      return 'bg-blue-600 text-white border-blue-700 shadow-2xs font-extrabold';
+    case 'Evento':
+      return 'bg-purple-600 text-white border-purple-700 shadow-2xs font-extrabold';
+    case 'Dica Semanal':
+      return 'bg-emerald-600 text-white border-emerald-700 shadow-2xs font-extrabold';
+    default:
+      return 'bg-indigo-600 text-white border-indigo-700 shadow-2xs font-extrabold';
+  }
+};
+
+const getTagIcon = (tag: string) => {
+  switch (tag) {
+    case 'Aviso Importante':
+      return '🚨';
+    case 'Nova Turma':
+      return '🎓';
+    case 'Evento':
+      return '📅';
+    case 'Dica Semanal':
+      return '💡';
+    default:
+      return '📢';
+  }
+};
 
 const getTagClass = (tag: string) => {
   switch (tag) {
