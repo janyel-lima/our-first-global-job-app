@@ -103,85 +103,51 @@
               :key="item.id"
               @click="handleAlertClick(item)"
               :class="[
-                'p-3.5 rounded-2xl border transition-all cursor-pointer relative hover:scale-[1.01]',
-                item.read 
-                  ? 'bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300'
-                  : 'bg-emerald-50/50 dark:bg-slate-900 border-emerald-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 shadow-xs'
+                'p-3 rounded-2xl transition-all cursor-pointer relative hover:scale-[1.01]',
+                getNotificationCardClass(item)
               ]"
             >
+              <!-- Card Header Bar -->
               <div class="flex items-start justify-between gap-2">
-                <div class="flex items-center gap-1.5 font-black text-xs flex-wrap">
-                  <!-- Type Badge Tags -->
-                  <span
-                    v-if="item.type === '15m'"
-                    class="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-rose-500/20 text-rose-800 dark:text-rose-200 border border-rose-300 dark:border-rose-500/50 flex items-center gap-1"
-                  >
-                    <span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping"></span>
-                    15 min
-                  </span>
-                  <span
-                    v-else-if="item.type === '60m'"
-                    class="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-amber-500/20 text-amber-800 dark:text-amber-200 border border-amber-300 dark:border-amber-500/50 flex items-center gap-1"
-                  >
-                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                    1 hora
-                  </span>
-                  <span
-                    v-else-if="item.type === 'announcement_important'"
-                    class="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-rose-500/20 text-rose-800 dark:text-rose-200 border border-rose-300 dark:border-rose-500/50 flex items-center gap-1"
-                  >
-                    🚨 {{ item.tag || 'Aviso' }}
-                  </span>
-                  <span
-                    v-else-if="item.type === 'announcement_class'"
-                    class="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-blue-500/20 text-blue-800 dark:text-blue-200 border border-blue-300 dark:border-blue-500/50 flex items-center gap-1"
-                  >
-                    🎓 {{ item.tag || 'Nova Turma' }}
-                  </span>
-                  <span
-                    v-else-if="item.type === 'announcement_event'"
-                    class="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-purple-500/20 text-purple-800 dark:text-purple-200 border border-purple-300 dark:border-purple-500/50 flex items-center gap-1"
-                  >
-                    📅 {{ item.tag || 'Evento' }}
-                  </span>
-                  <span
-                    v-else-if="item.type === 'announcement_tip'"
-                    class="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-800 dark:text-emerald-200 border border-emerald-300 dark:border-emerald-500/50 flex items-center gap-1"
-                  >
-                    💡 {{ item.tag || 'Dica' }}
-                  </span>
-                  <span
-                    v-else-if="item.type === 'announcement_general' || item.category === 'announcement'"
-                    class="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 flex items-center gap-1"
-                  >
-                    📢 {{ item.tag || 'Comunicado' }}
-                  </span>
-                  <span
-                    v-else-if="item.type === 'chat_message' || item.category === 'chat'"
-                    class="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-sky-500/20 text-sky-800 dark:text-sky-200 border border-sky-300 dark:border-sky-500/50 flex items-center gap-1"
-                  >
-                    💬 Chat
-                  </span>
-
-                  <span class="text-slate-900 dark:text-slate-100 font-extrabold truncate max-w-[180px] sm:max-w-[220px]">
-                    {{ item.title }}
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <!-- Type Badge Tag -->
+                  <span :class="['px-2.5 py-0.5 rounded-full text-[10px] font-black flex items-center gap-1 border shadow-2xs', getNotificationTagBadgeClass(item)]">
+                    <span v-if="item.type === '15m'" class="w-1.5 h-1.5 rounded-full bg-white animate-ping"></span>
+                    <span v-else-if="item.type === '60m'" class="w-1.5 h-1.5 rounded-full bg-white"></span>
+                    <span>{{ getNotificationTagLabel(item) }}</span>
                   </span>
                 </div>
                 <span class="text-[10px] font-mono font-bold text-slate-500 dark:text-slate-400 shrink-0">{{ item.timestamp }}</span>
               </div>
-              <p class="text-xs font-semibold mt-1.5 text-slate-800 dark:text-slate-200 leading-snug">
-                {{ item.message }}
+
+              <!-- Title & Content Message -->
+              <p class="text-xs font-black text-slate-900 dark:text-slate-100 leading-snug mt-2">
+                {{ cleanMarkdownPreview(item.title) }}
               </p>
-              <div class="mt-2.5 flex items-center justify-between text-[10px]">
-                <span v-if="item.category === 'chat' || item.type === 'chat_message'" class="font-black text-sky-600 dark:text-sky-300 hover:underline inline-flex items-center gap-1">
+              <p v-if="item.message" class="text-[11.5px] font-medium text-slate-700 dark:text-slate-300 leading-relaxed mt-1 line-clamp-2">
+                {{ cleanMarkdownPreview(item.message) }}
+              </p>
+
+              <!-- Footer Actions -->
+              <div class="mt-2 pt-1.5 border-t border-slate-200/60 dark:border-slate-800/60 flex items-center justify-between text-[10px]">
+                <span
+                  v-if="item.category === 'chat' || item.type === 'chat_message'"
+                  :class="['font-black inline-flex items-center gap-1', getNotificationActionClass(item)]"
+                >
                   <MessageSquare class="w-3 h-3" />
                   Responder / Abrir Chat
                 </span>
-                <span v-else-if="item.category === 'announcement' || item.type.startsWith('announcement_')" class="font-black text-purple-600 dark:text-purple-300 hover:underline inline-flex items-center gap-1">
+                <span
+                  v-else-if="item.category === 'announcement' || item.type.startsWith('announcement_')"
+                  :class="['font-black inline-flex items-center gap-1', getNotificationActionClass(item)]"
+                >
                   <Megaphone class="w-3 h-3" />
                   Ver Comunicado
                 </span>
-                <span v-else class="font-black text-emerald-600 dark:text-emerald-400 hover:underline inline-flex items-center gap-1">
+                <span
+                  v-else
+                  :class="['font-black inline-flex items-center gap-1', getNotificationActionClass(item)]"
+                >
                   <CalendarDays class="w-3 h-3" />
                   {{ t('reminders.viewClass') }}
                 </span>
@@ -289,6 +255,128 @@ const emit = defineEmits<{
 const { t } = useI18n();
 const isOpen = ref(false);
 const containerRef = ref<HTMLElement | null>(null);
+
+const cleanMarkdownPreview = (text: string) => {
+  if (!text) return '';
+  return text
+    .replace(/^#+\s+/gm, '')
+    .replace(/\*\*(.*?)\*\*/g, '$1')
+    .replace(/\*(.*?)\*/g, '$1')
+    .replace(/\[(.*?)\]\(.*?\)/g, '$1')
+    .replace(/^>\s+/gm, '')
+    .replace(/`{1,3}(.*?)`{1,3}/g, '$1')
+    .trim();
+};
+
+const getNotificationCardClass = (item: ClassReminderAlert) => {
+  const isAnnouncement = item.category === 'announcement' || item.type.startsWith('announcement_');
+
+  if (isAnnouncement) {
+    if (item.type === 'announcement_important' || item.tag === 'Aviso Importante') {
+      return item.read
+        ? 'bg-rose-50/40 dark:bg-slate-900 border border-rose-200/60 dark:border-rose-900/50 text-slate-800 dark:text-slate-200'
+        : 'bg-rose-50 dark:bg-slate-900 border-2 border-rose-300 dark:border-rose-800/90 text-slate-900 dark:text-slate-100 shadow-2xs';
+    }
+    if (item.type === 'announcement_class' || item.tag === 'Nova Turma') {
+      return item.read
+        ? 'bg-blue-50/40 dark:bg-slate-900 border border-blue-200/60 dark:border-blue-900/50 text-slate-800 dark:text-slate-200'
+        : 'bg-blue-50 dark:bg-slate-900 border-2 border-blue-300 dark:border-blue-800/90 text-slate-900 dark:text-slate-100 shadow-2xs';
+    }
+    if (item.type === 'announcement_event' || item.tag === 'Evento') {
+      return item.read
+        ? 'bg-purple-50/40 dark:bg-slate-900 border border-purple-200/60 dark:border-purple-900/50 text-slate-800 dark:text-slate-200'
+        : 'bg-purple-50 dark:bg-slate-900 border-2 border-purple-300 dark:border-purple-800/90 text-slate-900 dark:text-slate-100 shadow-2xs';
+    }
+    if (item.type === 'announcement_tip' || item.tag === 'Dica Semanal') {
+      return item.read
+        ? 'bg-emerald-50/40 dark:bg-slate-900 border border-emerald-200/60 dark:border-emerald-900/50 text-slate-800 dark:text-slate-200'
+        : 'bg-emerald-50 dark:bg-slate-900 border-2 border-emerald-300 dark:border-emerald-800/90 text-slate-900 dark:text-slate-100 shadow-2xs';
+    }
+    return item.read
+      ? 'bg-indigo-50/40 dark:bg-slate-900 border border-indigo-200/60 dark:border-indigo-900/50 text-slate-800 dark:text-slate-200'
+      : 'bg-indigo-50 dark:bg-slate-900 border-2 border-indigo-300 dark:border-indigo-800/90 text-slate-900 dark:text-slate-100 shadow-2xs';
+  }
+
+  if (item.category === 'chat' || item.type === 'chat_message') {
+    return item.read
+      ? 'bg-sky-50/40 dark:bg-slate-900 border border-sky-200/60 dark:border-sky-900/50 text-slate-800 dark:text-slate-200'
+      : 'bg-sky-50 dark:bg-slate-900 border-2 border-sky-300 dark:border-sky-800/90 text-slate-900 dark:text-slate-100 shadow-2xs';
+  }
+
+  if (item.type === '15m') {
+    return item.read
+      ? 'bg-rose-50/40 dark:bg-slate-900 border border-rose-200/60 dark:border-rose-900/50 text-slate-800 dark:text-slate-200'
+      : 'bg-rose-50 dark:bg-slate-900 border-2 border-rose-400 dark:border-rose-800/90 text-slate-900 dark:text-slate-100 shadow-2xs';
+  }
+  if (item.type === '60m') {
+    return item.read
+      ? 'bg-amber-50/40 dark:bg-slate-900 border border-amber-200/60 dark:border-amber-900/50 text-slate-800 dark:text-slate-200'
+      : 'bg-amber-50 dark:bg-slate-900 border-2 border-amber-300 dark:border-amber-800/90 text-slate-900 dark:text-slate-100 shadow-2xs';
+  }
+
+  return item.read
+    ? 'bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300'
+    : 'bg-emerald-50 dark:bg-slate-900 border-2 border-emerald-300 dark:border-emerald-800/90 text-slate-900 dark:text-slate-100 shadow-2xs';
+};
+
+const getNotificationTagBadgeClass = (item: ClassReminderAlert) => {
+  if (item.type === 'announcement_important' || item.tag === 'Aviso Importante' || item.type === '15m') {
+    return 'bg-rose-600 text-white border-rose-700 shadow-2xs';
+  }
+  if (item.type === 'announcement_class' || item.tag === 'Nova Turma') {
+    return 'bg-blue-600 text-white border-blue-700 shadow-2xs';
+  }
+  if (item.type === 'announcement_event' || item.tag === 'Evento') {
+    return 'bg-purple-600 text-white border-purple-700 shadow-2xs';
+  }
+  if (item.type === 'announcement_tip' || item.tag === 'Dica Semanal') {
+    return 'bg-emerald-600 text-white border-emerald-700 shadow-2xs';
+  }
+  if (item.type === 'announcement_general' || item.category === 'announcement') {
+    return 'bg-indigo-600 text-white border-indigo-700 shadow-2xs';
+  }
+  if (item.type === '60m') {
+    return 'bg-amber-600 text-white border-amber-700 shadow-2xs';
+  }
+  if (item.category === 'chat' || item.type === 'chat_message') {
+    return 'bg-sky-600 text-white border-sky-700 shadow-2xs';
+  }
+  return 'bg-emerald-600 text-white border-emerald-700 shadow-2xs';
+};
+
+const getNotificationTagLabel = (item: ClassReminderAlert) => {
+  if (item.type === '15m') return '15 min';
+  if (item.type === '60m') return '1 hora';
+  if (item.type === 'announcement_important' || item.tag === 'Aviso Importante') return `🚨 ${item.tag || 'Aviso Importante'}`;
+  if (item.type === 'announcement_class' || item.tag === 'Nova Turma') return `🎓 ${item.tag || 'Nova Turma'}`;
+  if (item.type === 'announcement_event' || item.tag === 'Evento') return `📅 ${item.tag || 'Evento'}`;
+  if (item.type === 'announcement_tip' || item.tag === 'Dica Semanal') return `💡 ${item.tag || 'Dica Semanal'}`;
+  if (item.category === 'announcement' || item.type.startsWith('announcement_')) return `📢 ${item.tag || 'Comunicado'}`;
+  if (item.category === 'chat' || item.type === 'chat_message') return '💬 Chat';
+  return '🔔 Lembrete';
+};
+
+const getNotificationActionClass = (item: ClassReminderAlert) => {
+  if (item.type === 'announcement_important' || item.tag === 'Aviso Importante') {
+    return 'text-rose-600 dark:text-rose-400 hover:underline';
+  }
+  if (item.type === 'announcement_class' || item.tag === 'Nova Turma') {
+    return 'text-blue-600 dark:text-blue-400 hover:underline';
+  }
+  if (item.type === 'announcement_event' || item.tag === 'Evento') {
+    return 'text-purple-600 dark:text-purple-400 hover:underline';
+  }
+  if (item.type === 'announcement_tip' || item.tag === 'Dica Semanal') {
+    return 'text-emerald-600 dark:text-emerald-400 hover:underline';
+  }
+  if (item.type === 'announcement_general' || item.category === 'announcement') {
+    return 'text-indigo-600 dark:text-indigo-400 hover:underline';
+  }
+  if (item.category === 'chat' || item.type === 'chat_message') {
+    return 'text-sky-600 dark:text-sky-400 hover:underline';
+  }
+  return 'text-emerald-600 dark:text-emerald-400 hover:underline';
+};
 
 const toggleDropdown = () => {
   isOpen.value = !isOpen.value;
