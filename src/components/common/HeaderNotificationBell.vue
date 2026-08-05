@@ -274,49 +274,49 @@ const getNotificationCardClass = (item: ClassReminderAlert) => {
   if (isAnnouncement) {
     if (item.type === 'announcement_important' || item.tag === 'Aviso Importante') {
       return item.read
-        ? 'bg-rose-50/40 dark:bg-slate-900 border border-rose-200/60 dark:border-rose-900/50 text-slate-800 dark:text-slate-200'
-        : 'bg-rose-50 dark:bg-slate-900 border-2 border-rose-300 dark:border-rose-800/90 text-slate-900 dark:text-slate-100 shadow-2xs';
+        ? 'bg-rose-50/90 dark:bg-slate-900 border border-rose-200/80 dark:border-rose-900/60 opacity-90'
+        : 'bg-rose-100/80 dark:bg-rose-950/70 border-2 border-rose-400 dark:border-rose-700 shadow-2xs';
     }
     if (item.type === 'announcement_class' || item.tag === 'Nova Turma') {
       return item.read
-        ? 'bg-blue-50/40 dark:bg-slate-900 border border-blue-200/60 dark:border-blue-900/50 text-slate-800 dark:text-slate-200'
-        : 'bg-blue-50 dark:bg-slate-900 border-2 border-blue-300 dark:border-blue-800/90 text-slate-900 dark:text-slate-100 shadow-2xs';
+        ? 'bg-blue-50/90 dark:bg-slate-900 border border-blue-200/80 dark:border-blue-900/60 opacity-90'
+        : 'bg-blue-100/80 dark:bg-blue-950/70 border-2 border-blue-400 dark:border-blue-700 shadow-2xs';
     }
     if (item.type === 'announcement_event' || item.tag === 'Evento') {
       return item.read
-        ? 'bg-purple-50/40 dark:bg-slate-900 border border-purple-200/60 dark:border-purple-900/50 text-slate-800 dark:text-slate-200'
-        : 'bg-purple-50 dark:bg-slate-900 border-2 border-purple-300 dark:border-purple-800/90 text-slate-900 dark:text-slate-100 shadow-2xs';
+        ? 'bg-purple-50/90 dark:bg-slate-900 border border-purple-200/80 dark:border-purple-900/60 opacity-90'
+        : 'bg-purple-100/80 dark:bg-purple-950/70 border-2 border-purple-400 dark:border-purple-700 shadow-2xs';
     }
     if (item.type === 'announcement_tip' || item.tag === 'Dica Semanal') {
       return item.read
-        ? 'bg-emerald-50/40 dark:bg-slate-900 border border-emerald-200/60 dark:border-emerald-900/50 text-slate-800 dark:text-slate-200'
-        : 'bg-emerald-50 dark:bg-slate-900 border-2 border-emerald-300 dark:border-emerald-800/90 text-slate-900 dark:text-slate-100 shadow-2xs';
+        ? 'bg-emerald-50/90 dark:bg-slate-900 border border-emerald-200/80 dark:border-emerald-900/60 opacity-90'
+        : 'bg-emerald-100/80 dark:bg-emerald-950/70 border-2 border-emerald-400 dark:border-emerald-700 shadow-2xs';
     }
     return item.read
-      ? 'bg-indigo-50/40 dark:bg-slate-900 border border-indigo-200/60 dark:border-indigo-900/50 text-slate-800 dark:text-slate-200'
-      : 'bg-indigo-50 dark:bg-slate-900 border-2 border-indigo-300 dark:border-indigo-800/90 text-slate-900 dark:text-slate-100 shadow-2xs';
+      ? 'bg-indigo-50/90 dark:bg-slate-900 border border-indigo-200/80 dark:border-indigo-900/60 opacity-90'
+      : 'bg-indigo-100/80 dark:bg-indigo-950/70 border-2 border-indigo-400 dark:border-indigo-700 shadow-2xs';
   }
 
   if (item.category === 'chat' || item.type === 'chat_message') {
     return item.read
-      ? 'bg-sky-50/40 dark:bg-slate-900 border border-sky-200/60 dark:border-sky-900/50 text-slate-800 dark:text-slate-200'
-      : 'bg-sky-50 dark:bg-slate-900 border-2 border-sky-300 dark:border-sky-800/90 text-slate-900 dark:text-slate-100 shadow-2xs';
+      ? 'bg-sky-50/90 dark:bg-slate-900 border border-sky-200/80 dark:border-sky-900/60 opacity-90'
+      : 'bg-sky-100/80 dark:bg-sky-950/70 border-2 border-sky-400 dark:border-sky-700 shadow-2xs';
   }
 
   if (item.type === '15m') {
     return item.read
-      ? 'bg-rose-50/40 dark:bg-slate-900 border border-rose-200/60 dark:border-rose-900/50 text-slate-800 dark:text-slate-200'
-      : 'bg-rose-50 dark:bg-slate-900 border-2 border-rose-400 dark:border-rose-800/90 text-slate-900 dark:text-slate-100 shadow-2xs';
+      ? 'bg-rose-50/90 dark:bg-slate-900 border border-rose-200/80 dark:border-rose-900/60 opacity-90'
+      : 'bg-rose-100/80 dark:bg-rose-950/70 border-2 border-rose-400 dark:border-rose-700 shadow-2xs';
   }
   if (item.type === '60m') {
     return item.read
-      ? 'bg-amber-50/40 dark:bg-slate-900 border border-amber-200/60 dark:border-amber-900/50 text-slate-800 dark:text-slate-200'
-      : 'bg-amber-50 dark:bg-slate-900 border-2 border-amber-300 dark:border-amber-800/90 text-slate-900 dark:text-slate-100 shadow-2xs';
+      ? 'bg-amber-50/90 dark:bg-slate-900 border border-amber-200/80 dark:border-amber-900/60 opacity-90'
+      : 'bg-amber-100/80 dark:bg-amber-950/70 border-2 border-amber-400 dark:border-amber-700 shadow-2xs';
   }
 
   return item.read
-    ? 'bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300'
-    : 'bg-emerald-50 dark:bg-slate-900 border-2 border-emerald-300 dark:border-emerald-800/90 text-slate-900 dark:text-slate-100 shadow-2xs';
+    ? 'bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 opacity-90'
+    : 'bg-emerald-100/80 dark:bg-emerald-950/70 border-2 border-emerald-400 dark:border-emerald-700 shadow-2xs';
 };
 
 const getNotificationTagBadgeClass = (item: ClassReminderAlert) => {
