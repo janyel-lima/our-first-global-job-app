@@ -128,9 +128,9 @@ const setPage = (page: number) => {
     <!-- Statistics Grid -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
       <div class="bg-white dark:bg-slate-900 border border-slate-200/75 dark:border-slate-800 p-5 rounded-2xl flex items-center gap-4 shadow-2xs">
-        <div class="w-12 h-12 rounded-xl bg-orange-50 dark:bg-orange-950/25 text-orange-600 dark:text-orange-400 flex items-center justify-center shrink-0">
-          <Award class="w-6 h-6" />
-        </div>
+        <span class="p-3 bg-amber-500/20 dark:bg-amber-500/30 text-amber-600 dark:text-amber-300 rounded-2xl border border-amber-300 dark:border-amber-400/60 shadow-xs shrink-0 flex items-center justify-center">
+          <Award class="w-6 h-6 stroke-[2.5] text-amber-600 dark:text-amber-300" />
+        </span>
         <div>
           <span class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider block leading-none mb-1">
             {{ locale === 'pt' ? 'Cursos Concluídos' : 'Completed Courses' }}
@@ -142,9 +142,9 @@ const setPage = (page: number) => {
       </div>
 
       <div class="bg-white dark:bg-slate-900 border border-slate-200/75 dark:border-slate-800 p-5 rounded-2xl flex items-center gap-4 shadow-2xs">
-        <div class="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-950/25 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
-          <BookOpen class="w-6 h-6" />
-        </div>
+        <span class="p-3 bg-emerald-500/20 dark:bg-emerald-500/30 text-emerald-600 dark:text-emerald-300 rounded-2xl border border-emerald-300 dark:border-emerald-400/60 shadow-xs shrink-0 flex items-center justify-center">
+          <BookOpen class="w-6 h-6 stroke-[2.5] text-emerald-600 dark:text-emerald-300" />
+        </span>
         <div>
           <span class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider block leading-none mb-1">
             {{ locale === 'pt' ? 'Lições Completadas' : 'Completed Lessons' }}
@@ -156,9 +156,9 @@ const setPage = (page: number) => {
       </div>
 
       <div class="bg-white dark:bg-slate-900 border border-slate-200/75 dark:border-slate-800 p-5 rounded-2xl flex items-center gap-4 shadow-2xs">
-        <div class="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-950/25 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
-          <User class="w-6 h-6" />
-        </div>
+        <span class="p-3 bg-emerald-500/20 dark:bg-emerald-500/30 text-emerald-600 dark:text-emerald-300 rounded-2xl border border-emerald-300 dark:border-emerald-400/60 shadow-xs shrink-0 flex items-center justify-center">
+          <User class="w-6 h-6 stroke-[2.5] text-emerald-600 dark:text-emerald-300" />
+        </span>
         <div class="flex-1">
           <span class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider block leading-none mb-1">
             {{ locale === 'pt' ? 'Fluência Auto-Avaliada' : 'Self-Assessed Fluency' }}
@@ -169,7 +169,7 @@ const setPage = (page: number) => {
             </p>
             <button 
               @click="$emit('open-profile')" 
-              class="text-[10px] font-black text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 bg-blue-100/70 dark:bg-blue-950/30 px-2 py-1 rounded transition-colors cursor-pointer"
+              class="text-[10px] font-black text-emerald-600 dark:text-emerald-300 hover:text-emerald-700 dark:hover:text-emerald-200 bg-emerald-500/10 dark:bg-emerald-500/20 border border-emerald-200 dark:border-emerald-800/60 px-2.5 py-1 rounded-lg transition-colors cursor-pointer"
             >
               {{ locale === 'pt' ? 'Ajustar' : 'Adjust' }}
             </button>

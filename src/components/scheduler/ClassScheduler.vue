@@ -1434,25 +1434,25 @@ const handleStudentEnter = (cl: ClassTurma) => {
                 <!-- LINK IS EMPTY: PLACEHOLDER CONDITIONAL -->
                 <div v-else>
                   <!-- Case 1: Before the class schedule -->
-                  <div v-if="isBeforeClassTime(cl.scheduledAt)" class="p-3 bg-blue-50/50 dark:bg-slate-850 border border-blue-100/50 dark:border-slate-700/60 rounded-xl text-[11px] text-blue-800 dark:text-blue-300 flex items-start gap-2 max-w-full min-w-0">
-                    <Clock class="w-4 h-4 text-blue-500 dark:text-blue-400 shrink-0 mt-0.5" />
+                  <div v-if="isBeforeClassTime(cl.scheduledAt)" class="p-3 bg-sky-50/80 dark:bg-sky-950/50 border border-sky-200/80 dark:border-sky-500/40 rounded-xl text-[11px] font-medium text-sky-950 dark:text-sky-200 flex items-start gap-2 max-w-full min-w-0 leading-relaxed shadow-2xs">
+                    <Clock class="w-4 h-4 text-sky-600 dark:text-sky-300 shrink-0 mt-0.5" />
                     <span class="break-words">
                       {{ t('scheduler.callLinkCloseTime') }}
                     </span>
                   </div>
 
                   <!-- Case 2: During or after the class schedule (delayed/professor late) -->
-                  <div v-else class="p-3 bg-amber-50/70 dark:bg-amber-950/10 border border-amber-100 dark:border-amber-900/30 rounded-xl text-[11px] text-amber-800 dark:text-amber-400 flex items-start gap-2 min-w-0">
-                    <Clock class="w-4 h-4 text-amber-500 dark:text-amber-400 shrink-0 mt-0.5 animate-pulse" />
+                  <div v-else class="p-3 bg-amber-50/80 dark:bg-amber-950/50 border border-amber-200/80 dark:border-amber-500/40 rounded-xl text-[11px] font-medium text-amber-950 dark:text-amber-200 flex items-start gap-2 min-w-0 leading-relaxed shadow-2xs">
+                    <Clock class="w-4 h-4 text-amber-600 dark:text-amber-300 shrink-0 mt-0.5 animate-pulse" />
                     <span class="break-words">
                       {{ t('scheduler.instructorLate') }}
                     </span>
                   </div>
                 </div>
               </template>
-              <p v-else class="text-[11.5px] italic text-gray-400 dark:text-gray-505">
-                {{ t('scheduler.enrollToAccess') }}
-              </p>
+              <div v-else class="p-3 bg-slate-50 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800 rounded-xl text-[11px] font-medium text-slate-600 dark:text-slate-300 flex items-start gap-2 leading-relaxed shadow-2xs">
+                <span>🔒 {{ t('scheduler.enrollToAccess') }}</span>
+              </div>
             </div>
           </div>
 
@@ -2453,22 +2453,22 @@ const handleStudentEnter = (cl: ClassTurma) => {
               <!-- Case 2: Call URL does not exist -->
               <div v-else>
                 <!-- Before class time -->
-                <div v-if="isBeforeClassTime(activeSelectedClass.scheduledAt)" class="p-3.5 bg-blue-500/5 dark:bg-slate-950/20 border border-blue-500/20 rounded-xl text-[11px] text-blue-800 dark:text-blue-300 flex items-start gap-2 max-w-full leading-relaxed">
-                  <Clock class="w-4 h-4 text-blue-500 dark:text-blue-400 shrink-0 mt-0.5" />
+                <div v-if="isBeforeClassTime(activeSelectedClass.scheduledAt)" class="p-3.5 bg-sky-50/80 dark:bg-sky-950/50 border border-sky-200/80 dark:border-sky-500/40 rounded-xl text-[11px] font-medium text-sky-950 dark:text-sky-200 flex items-start gap-2 max-w-full leading-relaxed shadow-2xs">
+                  <Clock class="w-4 h-4 text-sky-600 dark:text-sky-300 shrink-0 mt-0.5" />
                   <span>
                     {{ t('scheduler.callLinkCloseTimeLabel') }}
                   </span>
                 </div>
                 <!-- During or after class time -->
-                <div v-else class="p-3.5 bg-amber-500/5 dark:bg-amber-950/15 border border-amber-500/20 rounded-xl text-[11px] text-amber-800 dark:text-amber-400 flex items-start gap-2 leading-relaxed">
-                  <Clock class="w-4 h-4 text-amber-500 dark:text-amber-400 shrink-0 mt-0.5 animate-pulse" />
+                <div v-else class="p-3.5 bg-amber-50/80 dark:bg-amber-950/50 border border-amber-200/80 dark:border-amber-500/40 rounded-xl text-[11px] font-medium text-amber-950 dark:text-amber-200 flex items-start gap-2 leading-relaxed shadow-2xs">
+                  <Clock class="w-4 h-4 text-amber-600 dark:text-amber-300 shrink-0 mt-0.5 animate-pulse" />
                   <span>
                     {{ t('scheduler.instructorLateLabel') }}
                   </span>
                 </div>
               </div>
             </template>
-            <p v-else class="text-[11px] italic text-gray-400 dark:text-gray-505 bg-slate-50/50 dark:bg-slate-950/20 p-3 rounded-xl border border-gray-150/40 dark:border-slate-800/40 text-center font-semibold leading-relaxed">
+            <p v-else class="text-[11px] text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/60 p-3 rounded-xl border border-slate-200/80 dark:border-slate-800 text-center font-medium leading-relaxed shadow-2xs">
               🔒 {{ t('scheduler.enrollToAccessLabel') }}
             </p>
           </div>
