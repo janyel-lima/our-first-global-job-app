@@ -520,34 +520,34 @@ const paginatedAnnouncements = computed(() => {
 
 const getCardContainerClass = (tag: string, isPinned?: boolean) => {
   if (isPinned) {
-    return 'bg-amber-50/90 dark:bg-slate-900 border-2 border-amber-400 dark:border-amber-500/90 shadow-2xs';
+    return 'bg-amber-50 dark:bg-slate-900 border-2 border-amber-300 dark:border-amber-500/80 text-slate-900 dark:text-slate-100 shadow-2xs';
   }
   switch (tag) {
     case 'Aviso Importante':
-      return 'bg-rose-50/90 dark:bg-slate-900 border-2 border-rose-300 dark:border-rose-800/90 shadow-2xs';
+      return 'bg-rose-50 dark:bg-slate-900 border-2 border-rose-200 dark:border-rose-900/80 text-slate-900 dark:text-slate-100 shadow-2xs';
     case 'Nova Turma':
-      return 'bg-blue-50/90 dark:bg-slate-900 border-2 border-blue-300 dark:border-blue-800/90 shadow-2xs';
+      return 'bg-blue-50 dark:bg-slate-900 border-2 border-blue-200 dark:border-blue-900/80 text-slate-900 dark:text-slate-100 shadow-2xs';
     case 'Evento':
-      return 'bg-purple-50/90 dark:bg-slate-900 border-2 border-purple-300 dark:border-purple-800/90 shadow-2xs';
+      return 'bg-purple-50 dark:bg-slate-900 border-2 border-purple-200 dark:border-purple-900/80 text-slate-900 dark:text-slate-100 shadow-2xs';
     case 'Dica Semanal':
-      return 'bg-emerald-50/90 dark:bg-slate-900 border-2 border-emerald-300 dark:border-emerald-800/90 shadow-2xs';
+      return 'bg-emerald-50 dark:bg-slate-900 border-2 border-emerald-200 dark:border-emerald-900/80 text-slate-900 dark:text-slate-100 shadow-2xs';
     default:
-      return 'bg-indigo-50/90 dark:bg-slate-900 border-2 border-indigo-300 dark:border-indigo-800/90 shadow-2xs';
+      return 'bg-indigo-50 dark:bg-slate-900 border-2 border-indigo-200 dark:border-indigo-900/80 text-slate-900 dark:text-slate-100 shadow-2xs';
   }
 };
 
 const getTitleHeaderClass = (tag: string) => {
   switch (tag) {
     case 'Aviso Importante':
-      return 'bg-rose-100/90 dark:bg-rose-950/80 border-rose-200/90 dark:border-rose-800/90 text-rose-950 dark:text-rose-100';
+      return 'bg-rose-100 text-rose-950 border-rose-200 dark:bg-rose-950/90 dark:text-rose-100 dark:border-rose-800/80';
     case 'Nova Turma':
-      return 'bg-blue-100/90 dark:bg-blue-950/80 border-blue-200/90 dark:border-blue-800/90 text-blue-950 dark:text-blue-100';
+      return 'bg-blue-100 text-blue-950 border-blue-200 dark:bg-blue-950/90 dark:text-blue-100 dark:border-blue-800/80';
     case 'Evento':
-      return 'bg-purple-100/90 dark:bg-purple-950/80 border-purple-200/90 dark:border-purple-800/90 text-purple-950 dark:text-purple-100';
+      return 'bg-purple-100 text-purple-950 border-purple-200 dark:bg-purple-950/90 dark:text-purple-100 dark:border-purple-800/80';
     case 'Dica Semanal':
-      return 'bg-emerald-100/90 dark:bg-emerald-950/80 border-emerald-200/90 dark:border-emerald-800/90 text-emerald-950 dark:text-emerald-100';
+      return 'bg-emerald-100 text-emerald-950 border-emerald-200 dark:bg-emerald-950/90 dark:text-emerald-100 dark:border-emerald-800/80';
     default:
-      return 'bg-indigo-100/90 dark:bg-indigo-950/80 border-indigo-200/90 dark:border-indigo-800/90 text-indigo-950 dark:text-indigo-100';
+      return 'bg-indigo-100 text-indigo-950 border-indigo-200 dark:bg-indigo-950/90 dark:text-indigo-100 dark:border-indigo-800/80';
   }
 };
 

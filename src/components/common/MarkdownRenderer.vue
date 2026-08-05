@@ -8,10 +8,10 @@ const props = defineProps<{
 
 const htmlContent = computed(() => {
   const raw = props.content || '';
-  
+
   // Custom marked renderer to inject custom classes and buttons
   const renderer = new marked.Renderer();
-  
+
   const escapeHtml = (unsafe: string) => {
     return unsafe
       .replace(/&/g, "&amp;")
@@ -28,7 +28,7 @@ const htmlContent = computed(() => {
     return `
       <div class="relative group my-4">
         <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
-          <button 
+          <button
             type="button"
             data-code="${encodeURIComponent(codeText)}"
             class="copy-btn text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1 rounded border border-slate-700 font-bold font-sans cursor-pointer transition-colors"
@@ -46,7 +46,7 @@ const htmlContent = computed(() => {
     const rawText = token.text || '';
     const isWarning = rawText.includes("⚠️") || rawText.toLowerCase().includes("atenc") || rawText.toLowerCase().includes("warning");
     const isIdea = rawText.includes("💡") || rawText.toLowerCase().includes("tip") || rawText.toLowerCase().includes("dica") || rawText.toLowerCase().includes("pro");
-    
+
     let quoteClass = "border-slate-400 bg-slate-50/60 text-slate-800 dark:bg-slate-900/40 dark:text-slate-200 dark:border-slate-600";
     if (isWarning) {
       quoteClass = "border-amber-500 bg-amber-50/30 text-amber-950 dark:bg-amber-950/20 dark:text-amber-200 dark:border-amber-600";
@@ -105,17 +105,12 @@ onUnmounted(() => {
 <style>
 /* Style the compiled markdown content with direct classes using the .markdown-body wrapper */
 .markdown-body {
-  /* Default light theme values dynamically mixing the active primary brand color */
   --md-text-primary: #0f172a;
   --md-text-secondary: #334155;
-  --md-bg-inline-code: color-mix(in srgb, var(--primary-color, #2563eb) 8%, #ffffff);
-  --md-border-inline-code: color-mix(in srgb, var(--primary-color, #2563eb) 15%, #ffffff);
-  --md-color-inline-code: var(--primary-color, #2563eb);
-  --md-border-color: color-mix(in srgb, var(--primary-color, #2563eb) 15%, #e2e8f0);
-  --md-table-header-bg: color-mix(in srgb, var(--primary-color, #2563eb) 8%, #ffffff);
-  --md-table-row-hover: color-mix(in srgb, var(--primary-color, #2563eb) 4%, #ffffff);
-  --md-strong-color: color-mix(in srgb, var(--primary-color, #2563eb) 90%, #000000);
-  --md-strong-bg: color-mix(in srgb, var(--primary-color, #2563eb) 10%, #ffffff);
+  --md-bg-inline-code: #f1f5f9;
+  --md-border-inline-code: #e2e8f0;
+  --md-color-inline-code: #2563eb;
+  --md-border-color: #e2e8f0;
   --md-hr-color: #e2e8f0;
   user-select: text !important;
 }
@@ -123,28 +118,24 @@ onUnmounted(() => {
 /* Dynamically overridden when dark class is applied to document HTML */
 .dark .markdown-body {
   --md-text-primary: #f8fafc;
-  --md-text-secondary: #cbd5e1;
-  --md-bg-inline-code: color-mix(in srgb, var(--primary-color, #2563eb) 18%, rgba(255, 255, 255, 0.02));
-  --md-border-inline-code: color-mix(in srgb, var(--primary-color, #2563eb) 30%, rgba(255, 255, 255, 0.04));
-  --md-color-inline-code: color-mix(in srgb, var(--primary-color, #2563eb) 85%, #f8fafc);
-  --md-border-color: color-mix(in srgb, var(--primary-color, #2563eb) 20%, rgba(255, 255, 255, 0.08));
-  --md-table-header-bg: color-mix(in srgb, var(--primary-color, #2563eb) 15%, rgba(0, 0, 0, 0.45));
-  --md-table-row-hover: color-mix(in srgb, var(--primary-color, #2563eb) 8%, rgba(255, 255, 255, 0.02));
-  --md-strong-color: color-mix(in srgb, var(--primary-color, #2563eb) 85%, #ffffff);
-  --md-strong-bg: color-mix(in srgb, var(--primary-color, #2563eb) 20%, rgba(0, 0, 0, 0.25));
-  --md-hr-color: color-mix(in srgb, var(--primary-color, #2563eb) 15%, rgba(255, 255, 255, 0.08));
+  --md-text-secondary: #e2e8f0;
+  --md-bg-inline-code: #1e293b;
+  --md-border-inline-code: #334155;
+  --md-color-inline-code: #60a5fa;
+  --md-border-color: #334155;
+  --md-hr-color: #334155;
 }
 
 .markdown-body blockquote:not(.border-amber-500):not(.border-emerald-500) {
   border-left-color: var(--primary-color, #2563eb) !important;
-  background-color: color-mix(in srgb, var(--primary-color, #2563eb) 8%, #ffffff) !important;
-  color: color-mix(in srgb, var(--primary-color, #2563eb) 90%, #0f172a) !important;
+  background-color: rgba(37, 99, 235, 0.08) !important;
+  color: #0f172a !important;
 }
 
 .dark .markdown-body blockquote:not(.border-amber-500):not(.border-emerald-500) {
-  border-left-color: var(--primary-color, #2563eb) !important;
-  background-color: color-mix(in srgb, var(--primary-color, #2563eb) 15%, rgba(0, 0, 0, 0.3)) !important;
-  color: color-mix(in srgb, var(--primary-color, #2563eb) 85%, #f8fafc) !important;
+  border-left-color: #6366f1 !important;
+  background-color: rgba(99, 102, 241, 0.15) !important;
+  color: #f1f5f9 !important;
 }
 
 .markdown-body h1 {
@@ -152,7 +143,7 @@ onUnmounted(() => {
   line-height: 1.75rem !important;
   font-weight: 800 !important;
   color: var(--md-text-primary) !important;
-  margin-top: 1.5rem !important;
+  margin-top: 1.25rem !important;
   margin-bottom: 0.75rem !important;
   letter-spacing: -0.025em !important;
   border-bottom: 1px solid var(--md-border-color);
@@ -171,7 +162,7 @@ onUnmounted(() => {
   line-height: 1.625rem !important;
   font-weight: 700 !important;
   color: var(--md-text-primary) !important;
-  margin-top: 1.25rem !important;
+  margin-top: 1.125rem !important;
   margin-bottom: 0.625rem !important;
   letter-spacing: -0.025em !important;
   border-bottom: 1px solid var(--md-border-color);
@@ -301,29 +292,35 @@ onUnmounted(() => {
 
 .markdown-body strong {
   font-weight: 800 !important;
-  color: var(--md-strong-color) !important;
-  background-color: var(--md-strong-bg) !important;
-  padding: 0.05rem 0.25rem !important;
-  border-radius: 0.25rem !important;
+  color: var(--md-text-primary) !important;
+  background-color: transparent !important;
+  padding: 0 !important;
 }
 
 .markdown-body em {
   font-weight: 600 !important;
   color: var(--md-text-primary) !important;
   font-style: italic !important;
-  background-color: var(--md-strong-bg) !important;
-  padding: 0.05rem 0.25rem !important;
-  border-radius: 0.25rem !important;
+  background-color: transparent !important;
+  padding: 0 !important;
 }
 
 .markdown-body a {
-  color: #2563eb !important;
+  color: #3b82f6 !important;
   text-decoration: underline !important;
   font-weight: 600 !important;
   transition: color 0.2s !important;
 }
 
+.dark .markdown-body a {
+  color: #60a5fa !important;
+}
+
 .markdown-body a:hover {
   color: #1d4ed8 !important;
+}
+
+.dark .markdown-body a:hover {
+  color: #93c5fd !important;
 }
 </style>
