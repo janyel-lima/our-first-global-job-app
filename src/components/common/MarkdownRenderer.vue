@@ -59,9 +59,36 @@ const htmlContent = computed(() => {
     const renderedContent = this.parser.parse(token.tokens);
 
     return `
-      <blockquote class="my-4 border-l-4 p-4 rounded-r-xl text-xs sm:text-sm leading-relaxed shadow-2xs font-sans transition-all duration-300 ${quoteClass}">
+      <blockquote class="my-2.5 border-l-4 p-3 rounded-r-xl text-xs sm:text-sm leading-relaxed shadow-2xs font-sans transition-all duration-300 ${quoteClass}">
         ${renderedContent}
       </blockquote>
+    `;
+  };
+
+  // Custom table renderer for responsive overflow & dark/light mode compatibility
+  renderer.table = function(token) {
+    const headerHtml = token.header.map((cell: any) =>
+      `<th class="px-3.5 py-2.5 bg-slate-100 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 font-extrabold text-xs tracking-wider uppercase text-left whitespace-nowrap">${this.parser.parseInline(cell.tokens)}</th>`
+    ).join('');
+
+    const rowsHtml = token.rows.map((row: any) => {
+      const cellsHtml = row.map((cell: any) =>
+        `<td class="px-3.5 py-2.5 border-b border-slate-200/80 dark:border-slate-800/80 text-slate-800 dark:text-slate-200 text-xs font-medium leading-relaxed">${this.parser.parseInline(cell.tokens)}</td>`
+      ).join('');
+      return `<tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors">${cellsHtml}</tr>`;
+    }).join('');
+
+    return `
+      <div class="overflow-x-auto my-3 max-w-full rounded-xl border border-slate-200 dark:border-slate-800 shadow-2xs bg-white dark:bg-slate-950">
+        <table class="w-full text-left border-collapse font-sans min-w-[300px]">
+          <thead>
+            <tr>${headerHtml}</tr>
+          </thead>
+          <tbody class="divide-y divide-slate-200 dark:divide-slate-800">
+            ${rowsHtml}
+          </tbody>
+        </table>
+      </div>
     `;
   };
 
@@ -143,54 +170,54 @@ onUnmounted(() => {
   line-height: 1.75rem !important;
   font-weight: 800 !important;
   color: var(--md-text-primary) !important;
-  margin-top: 1.25rem !important;
-  margin-bottom: 0.75rem !important;
-  letter-spacing: -0.025em !important;
-  border-bottom: 1px solid var(--md-border-color);
-  padding-bottom: 0.5rem !important;
-}
-
-@media (min-width: 640px) {
-  .markdown-body h1 {
-    font-size: 1.5rem !important;
-    line-height: 2rem !important;
-  }
-}
-
-.markdown-body h2 {
-  font-size: 1.125rem !important;
-  line-height: 1.625rem !important;
-  font-weight: 700 !important;
-  color: var(--md-text-primary) !important;
-  margin-top: 1.125rem !important;
-  margin-bottom: 0.625rem !important;
+  margin-top: 0.75rem !important;
+  margin-bottom: 0.5rem !important;
   letter-spacing: -0.025em !important;
   border-bottom: 1px solid var(--md-border-color);
   padding-bottom: 0.375rem !important;
 }
 
 @media (min-width: 640px) {
+  .markdown-body h1 {
+    font-size: 1.375rem !important;
+    line-height: 1.875rem !important;
+  }
+}
+
+.markdown-body h2 {
+  font-size: 1.125rem !important;
+  line-height: 1.5rem !important;
+  font-weight: 700 !important;
+  color: var(--md-text-primary) !important;
+  margin-top: 0.625rem !important;
+  margin-bottom: 0.375rem !important;
+  letter-spacing: -0.025em !important;
+  border-bottom: 1px solid var(--md-border-color);
+  padding-bottom: 0.25rem !important;
+}
+
+@media (min-width: 640px) {
   .markdown-body h2 {
     font-size: 1.25rem !important;
-    line-height: 1.75rem !important;
+    line-height: 1.625rem !important;
   }
 }
 
 .markdown-body h3 {
   font-size: 1rem !important;
-  line-height: 1.5rem !important;
+  line-height: 1.375rem !important;
   font-weight: 600 !important;
   color: var(--md-text-primary) !important;
-  margin-top: 1rem !important;
-  margin-bottom: 0.5rem !important;
+  margin-top: 0.5rem !important;
+  margin-bottom: 0.25rem !important;
   letter-spacing: -0.025em !important;
 }
 
 .markdown-body p {
   font-size: 0.75rem !important;
-  line-height: 1.625 !important;
+  line-height: 1.5 !important;
   color: var(--md-text-secondary) !important;
-  margin-bottom: 0.875rem !important;
+  margin-bottom: 0.5rem !important;
   font-family: ui-sans-serif, system-ui, sans-serif !important;
 }
 
@@ -203,15 +230,15 @@ onUnmounted(() => {
 .markdown-body ul {
   list-style-type: disc !important;
   padding-left: 1.25rem !important;
-  margin-top: 0.875rem !important;
-  margin-bottom: 0.875rem !important;
+  margin-top: 0.5rem !important;
+  margin-bottom: 0.5rem !important;
 }
 
 .markdown-body ol {
   list-style-type: decimal !important;
   padding-left: 1.25rem !important;
-  margin-top: 0.875rem !important;
-  margin-bottom: 0.875rem !important;
+  margin-top: 0.5rem !important;
+  margin-bottom: 0.5rem !important;
 }
 
 .markdown-body li {

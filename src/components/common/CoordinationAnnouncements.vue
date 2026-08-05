@@ -121,17 +121,17 @@
     </div>
 
     <!-- Announcements Cards List -->
-    <div v-else class="space-y-3">
+    <div v-else class="space-y-2.5">
       <div
         v-for="item in paginatedAnnouncements"
         :key="item.id"
         :class="[
-          'p-4 sm:p-5 rounded-2xl transition-all relative space-y-2.5',
+          'p-3.5 sm:p-4 rounded-2xl transition-all relative space-y-2',
           getCardContainerClass(item.tag, item.isPinned)
         ]"
       >
         <!-- Card Top Bar: Meta & Admin Actions -->
-        <div class="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-slate-200/80 dark:border-slate-800/80">
+        <div class="flex flex-wrap items-center justify-between gap-2 pb-1.5 border-b border-slate-200/80 dark:border-slate-800/80">
           <div class="flex items-center gap-1.5 flex-wrap">
             <!-- Pin Badge -->
             <span v-if="item.isPinned" class="inline-flex items-center gap-1 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-amber-500 text-white border border-amber-600 shadow-2xs">
@@ -173,9 +173,9 @@
         </div>
 
         <!-- Highlighted Title Block (The typed title) -->
-        <div :class="['p-3 rounded-xl border flex items-start gap-2.5 shadow-2xs my-1', getTitleHeaderClass(item.tag)]">
-          <span class="text-base sm:text-lg shrink-0 mt-0.5">{{ getTagIcon(item.tag) }}</span>
-          <h3 class="text-sm sm:text-base font-black leading-snug tracking-tight">
+        <div :class="['px-3 py-2 sm:px-3.5 sm:py-2.5 rounded-xl border flex items-center gap-2.5 shadow-2xs my-0.5', getTitleHeaderClass(item.tag)]">
+          <span class="text-lg sm:text-xl shrink-0 flex items-center justify-center leading-none">{{ getTagIcon(item.tag) }}</span>
+          <h3 class="text-base sm:text-lg font-black leading-snug tracking-tight flex-1">
             {{ item.title }}
           </h3>
         </div>
@@ -189,7 +189,7 @@
             <button
               type="button"
               @click="toggleExpand(item.id)"
-              class="inline-flex items-center gap-1.5 text-[11px] font-black text-indigo-600 dark:text-indigo-300 hover:text-indigo-700 dark:hover:text-indigo-200 px-2.5 py-1 rounded-xl bg-indigo-50 dark:bg-indigo-950/80 border border-indigo-200 dark:border-indigo-800 hover:underline cursor-pointer transition-all shadow-2xs"
+              class="inline-flex items-center gap-1.5 text-xs font-extrabold text-slate-800 dark:text-slate-100 bg-slate-200/80 dark:bg-slate-800 hover:bg-slate-300/90 dark:hover:bg-slate-700/80 border border-slate-300/70 dark:border-slate-700/80 px-3 py-1 rounded-xl cursor-pointer transition-all shadow-2xs"
             >
               <span v-if="!expandedIds[item.id]" class="flex items-center gap-1">
                 <span>Ver mais</span>
@@ -397,9 +397,9 @@
               v-else
               :class="['p-3.5 min-h-[160px] max-h-60 overflow-y-auto rounded-xl text-xs text-slate-900 dark:text-slate-100 leading-relaxed space-y-2', getCardContainerClass(formTag, formIsPinned)]"
             >
-              <div v-if="formTitle.trim()" :class="['p-2.5 rounded-lg border flex items-start gap-2 shadow-2xs', getTitleHeaderClass(formTag)]">
-                <span class="text-base shrink-0">{{ getTagIcon(formTag) }}</span>
-                <h4 class="text-xs sm:text-sm font-black leading-snug tracking-tight">
+              <div v-if="formTitle.trim()" :class="['px-3 py-2 rounded-xl border flex items-center gap-2.5 shadow-2xs my-0.5', getTitleHeaderClass(formTag)]">
+                <span class="text-base sm:text-lg shrink-0 flex items-center justify-center leading-none">{{ getTagIcon(formTag) }}</span>
+                <h4 class="text-sm sm:text-base font-black leading-snug tracking-tight flex-1">
                   {{ formTitle }}
                 </h4>
               </div>
