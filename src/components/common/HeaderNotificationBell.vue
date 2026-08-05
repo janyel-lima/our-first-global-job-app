@@ -76,6 +76,43 @@
           </div>
         </div>
 
+        <!-- Search & Filter Controls -->
+        <div v-if="notifications.length > 0" class="p-2.5 bg-slate-50/80 dark:bg-slate-900/40 border-b border-slate-200/80 dark:border-slate-800/80 flex items-center gap-2">
+          <div class="relative flex-1">
+            <Search class="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
+            <input
+              v-model="searchQuery"
+              type="text"
+              placeholder="Pesquisar..."
+              class="w-full pl-8 pr-7 py-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-hidden focus:ring-1 focus:ring-emerald-500"
+            />
+            <button
+              v-if="searchQuery"
+              type="button"
+              @click="searchQuery = ''"
+              class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+            >
+              <X class="w-3 h-3" />
+            </button>
+          </div>
+
+          <!-- Unread Filter Switch Button -->
+          <button
+            type="button"
+            @click="filterUnreadOnly = !filterUnreadOnly"
+            :class="[
+              'px-2.5 py-1 rounded-xl text-[10px] font-black cursor-pointer transition-all border whitespace-nowrap flex items-center gap-1 shrink-0 shadow-2xs',
+              filterUnreadOnly
+                ? 'bg-rose-600 text-white border-rose-700 dark:bg-rose-600'
+                : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800'
+            ]"
+            :title="filterUnreadOnly ? 'Mostrando apenas não lidas' : 'Mostrar apenas não lidas'"
+          >
+            <Filter class="w-3 h-3" />
+            <span>{{ filterUnreadOnly ? 'Não lidas' : 'Todas' }}</span>
+          </button>
+        </div>
+
         <!-- Web Notification Banner Prompt if not granted -->
         <div
           v-if="webNotificationPermission === 'default'"
@@ -97,9 +134,9 @@
         <!-- Body Scroll Content -->
         <div class="max-h-80 overflow-y-auto custom-scrollbar p-2.5 space-y-3 bg-white dark:bg-slate-950">
           <!-- Reminder Alerts List -->
-          <div v-if="notifications.length > 0" class="space-y-2">
+          <div v-if="paginatedNotifications.length > 0" class="space-y-2">
             <div
-              v-for="item in notifications"
+              v-for="item in paginatedNotifications"
               :key="item.id"
               @click="handleAlertClick(item)"
               :class="[
@@ -116,15 +153,24 @@
                     <span v-else-if="item.type === '60m'" class="w-1.5 h-1.5 rounded-full bg-white"></span>
                     <span>{{ getNotificationTagLabel(item) }}</span>
                   </span>
+
+                  <!-- Unread "NOVA" Badge -->
+                  <span
+                    v-if="!item.read"
+                    class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-rose-500 text-white shadow-2xs flex items-center gap-1 animate-pulse shrink-0"
+                  >
+                    <span class="w-1.5 h-1.5 rounded-full bg-white"></span>
+                    <span>NOVA</span>
+                  </span>
                 </div>
                 <span class="text-[10px] font-mono font-bold text-slate-500 dark:text-slate-400 shrink-0">{{ item.timestamp }}</span>
               </div>
 
               <!-- Title & Content Message -->
-              <p class="text-xs font-black text-slate-900 dark:text-slate-100 leading-snug mt-2">
+              <p class="text-xs font-black leading-snug mt-2">
                 {{ cleanMarkdownPreview(item.title) }}
               </p>
-              <p v-if="item.message" class="text-[11.5px] font-medium text-slate-700 dark:text-slate-300 leading-relaxed mt-1 line-clamp-2">
+              <p v-if="item.message" class="text-[11.5px] font-medium leading-relaxed mt-1 line-clamp-2">
                 {{ cleanMarkdownPreview(item.message) }}
               </p>
 
@@ -152,21 +198,57 @@
                   {{ t('reminders.viewClass') }}
                 </span>
 
-                <span v-if="!item.read" class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-rose-500 text-white shadow-2xs">
-                  {{ t('reminders.newBadge') }}
+                <span v-if="item.read" class="text-[9.5px] font-bold opacity-70">
+                  ✓ Lida
                 </span>
               </div>
             </div>
           </div>
 
-          <!-- Empty State when no alerts -->
+          <!-- Pagination Bar -->
           <div
-            v-if="notifications.length === 0"
+            v-if="filteredNotifications.length > itemsPerPage"
+            class="flex items-center justify-between px-2.5 py-1.5 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 text-[11px]"
+          >
+            <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400">
+              Página <strong class="text-slate-900 dark:text-slate-100">{{ currentPage }}</strong> de <strong class="text-slate-900 dark:text-slate-100">{{ totalPages }}</strong>
+              <span class="text-[9.5px] ml-1 text-slate-400">({{ filteredNotifications.length }} total)</span>
+            </span>
+
+            <div class="flex items-center gap-1">
+              <button
+                type="button"
+                :disabled="currentPage <= 1"
+                @click="currentPage--"
+                class="p-1 rounded-lg border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-slate-200 dark:hover:bg-slate-800 cursor-pointer transition-colors"
+                title="Página Anterior"
+              >
+                <ChevronLeft class="w-3.5 h-3.5" />
+              </button>
+              <button
+                type="button"
+                :disabled="currentPage >= totalPages"
+                @click="currentPage++"
+                class="p-1 rounded-lg border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-slate-200 dark:hover:bg-slate-800 cursor-pointer transition-colors"
+                title="Próxima Página"
+              >
+                <ChevronRight class="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
+
+          <!-- Empty State when no alerts or filtered result empty -->
+          <div
+            v-if="filteredNotifications.length === 0"
             class="text-center py-5 px-3 bg-slate-50 dark:bg-slate-900 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 text-xs space-y-1"
           >
             <CheckCircle2 class="w-7 h-7 mx-auto text-emerald-500 stroke-[2.2]" />
-            <p class="font-black text-slate-800 dark:text-slate-100">{{ t('reminders.noAlertsTitle') }}</p>
-            <p class="text-[11px] text-slate-500 dark:text-slate-400">Você está em dia com todas as notificações e avisos.</p>
+            <p class="font-black text-slate-800 dark:text-slate-100">
+              {{ searchQuery || filterUnreadOnly ? 'Nenhum resultado encontrado' : t('reminders.noAlertsTitle') }}
+            </p>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">
+              {{ searchQuery || filterUnreadOnly ? 'Tente ajustar sua busca ou filtro.' : 'Você está em dia com todas as notificações e avisos.' }}
+            </p>
           </div>
 
           <!-- Upcoming Enrolled Summary Section -->
@@ -227,8 +309,23 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
-import { Bell, BellRing, Volume2, VolumeX, Info, CheckCircle2, CalendarDays, ChevronRight, Megaphone, MessageSquare } from 'lucide-vue-next';
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
+import {
+  Bell,
+  BellRing,
+  Volume2,
+  VolumeX,
+  Info,
+  CheckCircle2,
+  CalendarDays,
+  ChevronRight,
+  ChevronLeft,
+  Megaphone,
+  MessageSquare,
+  Search,
+  X,
+  Filter
+} from 'lucide-vue-next';
 import { useI18n } from '../../composables/useI18n';
 import { formatDisplayDate, formatDisplayTime } from '../../utils/helpers';
 import { ClassReminderAlert } from '../../composables/useClassReminders';
@@ -256,6 +353,41 @@ const { t } = useI18n();
 const isOpen = ref(false);
 const containerRef = ref<HTMLElement | null>(null);
 
+// Search & Pagination state
+const searchQuery = ref('');
+const filterUnreadOnly = ref(false);
+const currentPage = ref(1);
+const itemsPerPage = 3;
+
+watch([searchQuery, filterUnreadOnly], () => {
+  currentPage.value = 1;
+});
+
+const filteredNotifications = computed(() => {
+  let list = props.notifications || [];
+  if (filterUnreadOnly.value) {
+    list = list.filter(item => !item.read);
+  }
+  if (searchQuery.value.trim()) {
+    const q = searchQuery.value.toLowerCase().trim();
+    list = list.filter(item => {
+      const title = (item.title || '').toLowerCase();
+      const msg = (item.message || '').toLowerCase();
+      const tag = (item.tag || '').toLowerCase();
+      const type = (item.type || '').toLowerCase();
+      return title.includes(q) || msg.includes(q) || tag.includes(q) || type.includes(q);
+    });
+  }
+  return list;
+});
+
+const totalPages = computed(() => Math.max(1, Math.ceil(filteredNotifications.value.length / itemsPerPage)));
+
+const paginatedNotifications = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage;
+  return filteredNotifications.value.slice(start, start + itemsPerPage);
+});
+
 const cleanMarkdownPreview = (text: string) => {
   if (!text) return '';
   return text
@@ -274,49 +406,49 @@ const getNotificationCardClass = (item: ClassReminderAlert) => {
   if (isAnnouncement) {
     if (item.type === 'announcement_important' || item.tag === 'Aviso Importante') {
       return item.read
-        ? 'bg-rose-50/90 dark:bg-slate-900 border border-rose-200/80 dark:border-rose-900/60 opacity-90'
-        : 'bg-rose-100/80 dark:bg-rose-950/70 border-2 border-rose-400 dark:border-rose-700 shadow-2xs';
+        ? 'bg-rose-50/70 dark:bg-rose-950/40 border border-rose-300/60 dark:border-rose-900/50 opacity-80 text-slate-800 dark:text-slate-200'
+        : 'bg-rose-100/90 dark:bg-rose-950/80 border-2 border-rose-400 dark:border-rose-700 text-slate-900 dark:text-slate-100 shadow-2xs';
     }
     if (item.type === 'announcement_class' || item.tag === 'Nova Turma') {
       return item.read
-        ? 'bg-blue-50/90 dark:bg-slate-900 border border-blue-200/80 dark:border-blue-900/60 opacity-90'
-        : 'bg-blue-100/80 dark:bg-blue-950/70 border-2 border-blue-400 dark:border-blue-700 shadow-2xs';
+        ? 'bg-blue-50/70 dark:bg-blue-950/40 border border-blue-300/60 dark:border-blue-900/50 opacity-80 text-slate-800 dark:text-slate-200'
+        : 'bg-blue-100/90 dark:bg-blue-950/80 border-2 border-blue-400 dark:border-blue-700 text-slate-900 dark:text-slate-100 shadow-2xs';
     }
     if (item.type === 'announcement_event' || item.tag === 'Evento') {
       return item.read
-        ? 'bg-purple-50/90 dark:bg-slate-900 border border-purple-200/80 dark:border-purple-900/60 opacity-90'
-        : 'bg-purple-100/80 dark:bg-purple-950/70 border-2 border-purple-400 dark:border-purple-700 shadow-2xs';
+        ? 'bg-purple-50/70 dark:bg-purple-950/40 border border-purple-300/60 dark:border-purple-900/50 opacity-80 text-slate-800 dark:text-slate-200'
+        : 'bg-purple-100/90 dark:bg-purple-950/80 border-2 border-purple-400 dark:border-purple-700 text-slate-900 dark:text-slate-100 shadow-2xs';
     }
     if (item.type === 'announcement_tip' || item.tag === 'Dica Semanal') {
       return item.read
-        ? 'bg-emerald-50/90 dark:bg-slate-900 border border-emerald-200/80 dark:border-emerald-900/60 opacity-90'
-        : 'bg-emerald-100/80 dark:bg-emerald-950/70 border-2 border-emerald-400 dark:border-emerald-700 shadow-2xs';
+        ? 'bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-300/60 dark:border-emerald-900/50 opacity-80 text-slate-800 dark:text-slate-200'
+        : 'bg-emerald-100/90 dark:bg-emerald-950/80 border-2 border-emerald-400 dark:border-emerald-700 text-slate-900 dark:text-slate-100 shadow-2xs';
     }
     return item.read
-      ? 'bg-indigo-50/90 dark:bg-slate-900 border border-indigo-200/80 dark:border-indigo-900/60 opacity-90'
-      : 'bg-indigo-100/80 dark:bg-indigo-950/70 border-2 border-indigo-400 dark:border-indigo-700 shadow-2xs';
+      ? 'bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-300/60 dark:border-indigo-900/50 opacity-80 text-slate-800 dark:text-slate-200'
+      : 'bg-indigo-100/90 dark:bg-indigo-950/80 border-2 border-indigo-400 dark:border-indigo-700 text-slate-900 dark:text-slate-100 shadow-2xs';
   }
 
   if (item.category === 'chat' || item.type === 'chat_message') {
     return item.read
-      ? 'bg-sky-50/90 dark:bg-slate-900 border border-sky-200/80 dark:border-sky-900/60 opacity-90'
-      : 'bg-sky-100/80 dark:bg-sky-950/70 border-2 border-sky-400 dark:border-sky-700 shadow-2xs';
+      ? 'bg-sky-50/70 dark:bg-sky-950/40 border border-sky-300/60 dark:border-sky-900/50 opacity-80 text-slate-800 dark:text-slate-200'
+      : 'bg-sky-100/90 dark:bg-sky-950/80 border-2 border-sky-400 dark:border-sky-700 text-slate-900 dark:text-slate-100 shadow-2xs';
   }
 
   if (item.type === '15m') {
     return item.read
-      ? 'bg-rose-50/90 dark:bg-slate-900 border border-rose-200/80 dark:border-rose-900/60 opacity-90'
-      : 'bg-rose-100/80 dark:bg-rose-950/70 border-2 border-rose-400 dark:border-rose-700 shadow-2xs';
+      ? 'bg-rose-50/70 dark:bg-rose-950/40 border border-rose-300/60 dark:border-rose-900/50 opacity-80 text-slate-800 dark:text-slate-200'
+      : 'bg-rose-100/90 dark:bg-rose-950/80 border-2 border-rose-400 dark:border-rose-700 text-slate-900 dark:text-slate-100 shadow-2xs';
   }
   if (item.type === '60m') {
     return item.read
-      ? 'bg-amber-50/90 dark:bg-slate-900 border border-amber-200/80 dark:border-amber-900/60 opacity-90'
-      : 'bg-amber-100/80 dark:bg-amber-950/70 border-2 border-amber-400 dark:border-amber-700 shadow-2xs';
+      ? 'bg-amber-50/70 dark:bg-amber-950/40 border border-amber-300/60 dark:border-amber-900/50 opacity-80 text-slate-800 dark:text-slate-200'
+      : 'bg-amber-100/90 dark:bg-amber-950/80 border-2 border-amber-400 dark:border-amber-700 text-slate-900 dark:text-slate-100 shadow-2xs';
   }
 
   return item.read
-    ? 'bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 opacity-90'
-    : 'bg-emerald-100/80 dark:bg-emerald-950/70 border-2 border-emerald-400 dark:border-emerald-700 shadow-2xs';
+    ? 'bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-300/60 dark:border-emerald-900/50 opacity-80 text-slate-800 dark:text-slate-200'
+    : 'bg-emerald-100/90 dark:bg-emerald-950/80 border-2 border-emerald-400 dark:border-emerald-700 text-slate-900 dark:text-slate-100 shadow-2xs';
 };
 
 const getNotificationTagBadgeClass = (item: ClassReminderAlert) => {
@@ -414,4 +546,5 @@ onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside);
 });
 </script>
+
 
